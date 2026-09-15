@@ -6,6 +6,10 @@ import { getProjectProgress } from "@/lib/workflows/progress";
 import { PIPELINE_ORDER } from "@/lib/workflows/stateMachine";
 import { PHASE_WEIGHTS } from "@/lib/workflows/progress";
 
+// Must always reflect real, current build progress — never a build-time
+// snapshot frozen at whatever state the project was in during `next build`.
+export const dynamic = "force-dynamic";
+
 export default async function PublicStatusPage({ params }: { params: { token: string } }) {
   const project = await db.project.findUnique({
     where: { statusToken: params.token },

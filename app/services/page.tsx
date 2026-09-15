@@ -8,15 +8,19 @@ function money(cents: number) {
 }
 
 const PRICING = [
-  { svc: "Cinematic Website", note: "single fast build", you: 200000, lo: 600000, hi: 3500000, src: "agency $6k–$35k+" },
-  { svc: "AI Software / App", note: "accounts, billing, AI", you: 400000, lo: 1500000, hi: 15000000, src: "MVP $15k–$150k" },
-  { svc: "Multi-Agent System", note: "orchestrator, dashboard", you: 600000, lo: 3000000, hi: 12000000, src: "AI build $30k–$120k" },
-  { svc: "Cinematic Ad", note: "master plus cutdowns", you: 50000, lo: 150000, hi: 1500000, src: "short-form $1.5k–$15k" },
-  { svc: "Rental Listing Film", note: "film and copy", you: 50000, lo: 100000, hi: 500000, src: "social video $1k–$5k" },
-  { svc: "Lead Engine", note: "sourcing and scoring", you: 170000, lo: 250000, hi: 1500000, src: "retainer $1.25k–$5k/mo" },
+  { svc: "Cinematic Website", you: 200000, lo: 600000, hi: 3500000, src: "agency $6k–$35k+" },
+  { svc: "AI Software / App", you: 400000, lo: 1500000, hi: 15000000, src: "MVP $15k–$150k" },
+  { svc: "Multi-Agent System", you: 600000, lo: 3000000, hi: 12000000, src: "AI build $30k–$120k" },
+  { svc: "Cinematic Ad", you: 50000, lo: 150000, hi: 1500000, src: "short-form $1.5k–$15k" },
+  { svc: "Rental Listing Film", you: 50000, lo: 100000, hi: 500000, src: "social video $1k–$5k" },
+  { svc: "Lead Engine", you: 170000, lo: 250000, hi: 1500000, src: "retainer $1.25k–$5k/mo" },
 ];
 const MACHINE_TOTAL = PRICING.reduce((s, p) => s + p.you, 0);
 const FLOOR_TOTAL = PRICING.reduce((s, p) => s + p.lo, 0);
+
+// Pulls the live product catalog from the DB — must never be a stale
+// build-time snapshot (a price change should show up without a redeploy).
+export const dynamic = "force-dynamic";
 
 export default async function ServicesPage({ searchParams }: { searchParams: { ref?: string } }) {
   const products = await db.product.findMany({
@@ -64,7 +68,6 @@ export default async function ServicesPage({ searchParams }: { searchParams: { r
                 >
                   <div>
                     <p className="font-display text-lg text-ice">{p.svc}</p>
-                    <p className="text-sm text-ice/40">{p.note}</p>
                   </div>
                   <div className="font-display text-2xl text-gold">
                     {money(p.you)}

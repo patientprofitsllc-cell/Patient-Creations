@@ -11,6 +11,12 @@ const TABS = [
   { href: "/admin/system", label: "System Health" },
 ];
 
+// Every page under here reads live business/production data and requires
+// an authenticated admin session — never eligible for build-time static
+// generation (it would otherwise freeze the dashboard at whatever data
+// existed the moment `next build` ran).
+export const dynamic = "force-dynamic";
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
   if (!session?.user || (session.user as { role?: string }).role !== "ADMIN") {

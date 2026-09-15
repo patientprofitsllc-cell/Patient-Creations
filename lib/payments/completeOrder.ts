@@ -29,7 +29,20 @@ export async function completeOrderPayment(orderId: string, provider: PaymentPro
   }
 
   const project = await createProjectForOrder(orderId);
-  await runOrchestrator(project.id);
 
-  return db.project.findUnique({ where: { orderId } });
+  // Deliberately NOT awaited: the caller (Stripe webhook, mock-checkout
+  // route, or the admin mark-paid route) responds as soon as the order is
+  // marked paid and the project exists, instead of blocking on the full
+  // multi-agent pipeline. This matters on serverless hosts with a request
+  // execution timeout (Netlify Functions, etc.) — awaiting the whole
+  // pipeline here risked the platform killing the function mid-run and
+  // leaving a paid order stuck with no project progress. runOrchestrator
+  // already wraps its own work in a top-level try/catch that escalates to
+  // EXCEPTION on any failure, so the `.catch()` below is only a last-resort
+  // net for a failure before that try block is even entered.
+  runOrchestrator(project.id).catch((err) => {
+    console.error(`Orchestrator failed to start for project ${project.id}:`, err);
+  });
+
+  return project;
 }

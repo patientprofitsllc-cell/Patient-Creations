@@ -9,6 +9,10 @@ const TABS = [
   { href: "/portal/referrals", label: "Referrals" },
 ];
 
+// Every page under here reads live, per-user DB state and requires an
+// authenticated session — never eligible for build-time static generation.
+export const dynamic = "force-dynamic";
+
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/auth/login");

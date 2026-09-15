@@ -1,14 +1,12 @@
-// AI Creation Studio — data model
-// SQLite by default for zero-setup local dev. To go live on Postgres:
-//   1. set `provider = "postgresql"` below
-//   2. set DATABASE_URL to a postgres connection string
-//   3. run `npm run db:migrate`
+// Patient Creations — data model
+// Postgres (Neon), matching production. Local dev also points at Postgres
+// now (see .env) so dev and prod never diverge on SQL dialect.
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

@@ -5,6 +5,10 @@ import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { db } from "@/lib/db";
 
+// Reads the signed-in user's own purchase history — never eligible for
+// build-time static generation.
+export const dynamic = "force-dynamic";
+
 export default async function UpsellPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
