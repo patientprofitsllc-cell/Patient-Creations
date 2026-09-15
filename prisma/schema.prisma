@@ -1,0 +1,492 @@
+// AI Creation Studio — data model
+// SQLite by default for zero-setup local dev. To go live on Postgres:
+//   1. set `provider = "postgresql"` below
+//   2. set DATABASE_URL to a postgres connection string
+//   3. run `npm run db:migrate`
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Identity ----------
+// Note: enum fields below are plain `String` because the SQLite connector
+// does not support native Prisma enums. Valid values are validated at the
+// application layer via the union types in lib/types.ts.
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  name          String?
+  role          String    @default("CUSTOMER") // UserRole
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  customer      Customer?
+  notifications Notification[]
+}
+
+model Customer {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id])
+  referralCode      String   @unique
+  referredByCode    String?
+  createdAt         DateTime @default(now())
+
+  orders            Order[]
+  projects          Project[]
+  reviews           Review[]
+  referral          Referral?
+  referredClicks    ReferralClick[] @relation("ReferredClicks")
+  commissionsEarned Commission[]    @relation("CommissionEarner")
+  notes             CustomerNote[]
+}
+
+// A CRM note an admin leaves on a customer record — not visible to the customer.
+model CustomerNote {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  body       String
+  authorName String   @default("Trenton")
+  createdAt  DateTime @default(now())
+}
+
+// ---------- Catalog ----------
+
+model Product {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  name          String
+  category      String
+  type          String    @default("PRIMARY") // ProductType
+  description   String
+  priceCents    Int
+  billingPeriod String?   // null = one-time, e.g. "monthly" for subscriptions
+  revisionLimit Int       @default(2)
+  turnaround    String?   // e.g. "2-3 weeks" — display-only estimate
+  active        Boolean   @default(true)
+  sortOrder     Int       @default(0)
+  createdAt     DateTime  @default(now())
+
+  variants      ProductVariant[]
+  orderItems    OrderItem[]
+}
+
+model ProductVariant {
+  id         String      @id @default(cuid())
+  productId  String
+  product    Product     @relation(fields: [productId], references: [id])
+  name       String
+  priceCents Int
+  active     Boolean     @default(true)
+  orderItems OrderItem[]
+}
+
+// ---------- Orders / Payments ----------
+
+model Order {
+  id             String      @id @default(cuid())
+  customerId     String
+  customer       Customer    @relation(fields: [customerId], references: [id])
+  status         String      @default("PENDING") // OrderStatus
+  subtotalCents  Int
+  discountCents  Int         @default(0)
+  deliverySpeed  String      @default("standard") // DeliverySpeed
+  rushFeeCents   Int         @default(0)
+  totalCents     Int
+  couponCode     String?
+  paymentMethod  String      @default("stripe") // PaymentMethod — chosen on the payment-method step of checkout
+  stripeSessionId String?    @unique
+  campaignSource String?
+  createdAt      DateTime    @default(now())
+  paidAt         DateTime?
+
+  items          OrderItem[]
+  payments       Payment[]
+  project        Project?
+}
+
+model OrderItem {
+  id              String          @id @default(cuid())
+  orderId         String
+  order           Order           @relation(fields: [orderId], references: [id])
+  productId       String
+  product         Product         @relation(fields: [productId], references: [id])
+  productVariantId String?
+  productVariant  ProductVariant? @relation(fields: [productVariantId], references: [id])
+  quantity        Int             @default(1)
+  priceCents      Int
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id])
+  provider    String   // PaymentProvider
+  providerRef String?
+  amountCents Int
+  status      String   // OrderStatus
+  createdAt   DateTime @default(now())
+}
+
+// ---------- Projects / Production ----------
+// ProjectState values: DRAFT, PAID, INTAKE_REQUIRED, QUEUED, RESEARCH,
+// STRATEGY, CONCEPT, GENERATION, BUILD, AUTOMATION, QA, PERCEPTION,
+// REVISION, DELIVERY_READY, DELIVERED, REVIEW_REQUESTED, COMPLETED,
+// EXCEPTION, CANCELLED (see lib/types.ts).
+
+model Project {
+  id           String       @id @default(cuid())
+  orderId      String       @unique
+  order        Order        @relation(fields: [orderId], references: [id])
+  customerId   String
+  customer     Customer     @relation(fields: [customerId], references: [id])
+  name         String
+  state        String       @default("DRAFT") // ProjectState
+  retryCount   Int          @default(0)
+  exceptionNote String?
+  statusToken  String?      @unique // powers the public, no-login /status/[token] page
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  bible        CreativeBible?
+  tasks        ProjectTask[]
+  files        ProjectFile[]
+  contexts     ProjectContext[]
+  assets       Asset[]
+  agentRuns    AgentRun[]
+  qaReports    QaReport[]
+  perceptionReports PerceptionReport[]
+  deliverables Deliverable[]
+  revisions    Revision[]
+  review       Review?
+  updates      ProjectUpdate[]
+}
+
+// A plain-language progress note Trenton posts for a customer — shown on
+// the public status page and, optionally, emailed. Distinct from AuditLog
+// (which is internal/technical) and CustomerNote (which is private/admin-only).
+model ProjectUpdate {
+  id         String   @id @default(cuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id])
+  message    String
+  authorName String   @default("Trenton")
+  notifyEmail Boolean @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model CreativeBible {
+  id            String  @id @default(cuid())
+  projectId     String  @unique
+  project       Project @relation(fields: [projectId], references: [id])
+  customerJson      String // JSON: customer info
+  businessJson      String
+  objectiveJson     String
+  audienceJson      String
+  offerJson         String
+  brandJson         String
+  voiceJson         String
+  designJson        String
+  technologyJson    String
+  requirementsJson  String
+  contentJson       String
+  assetsJson        String
+  referencesJson    String
+  decisionsJson     String
+  constraintsJson   String
+  qaResultsJson     String @default("[]")
+  deploymentJson    String @default("{}")
+  deliveryJson      String @default("{}")
+  revisionHistoryJson String @default("[]")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ProjectTask {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  phase       String   // ProjectState
+  label       String
+  weight      Int      // percentage points this phase contributes when complete
+  status      String   @default("PENDING") // TaskStatus
+  attempt     Int      @default(0)
+  startedAt   DateTime?
+  completedAt DateTime?
+  notes       String?
+
+  agentRuns   AgentRun[]
+}
+
+model ProjectFile {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  path      String
+  kind      String
+  createdAt DateTime @default(now())
+}
+
+model ProjectContext {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  key       String
+  valueJson String
+  createdAt DateTime @default(now())
+}
+
+// ---------- Assets ----------
+
+model Asset {
+  id        String   @id @default(cuid())
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+  category  String
+  name      String
+  path      String
+  createdAt DateTime @default(now())
+
+  versions  AssetVersion[]
+}
+
+model AssetVersion {
+  id        String   @id @default(cuid())
+  assetId   String
+  asset     Asset    @relation(fields: [assetId], references: [id])
+  version   Int
+  path      String
+  createdAt DateTime @default(now())
+}
+
+// ---------- Agents ----------
+
+model Agent {
+  id           String @id @default(cuid())
+  key          String @unique // e.g. "research", "orchestrator"
+  name         String
+  mission      String
+  maxRetries   Int    @default(5)
+  maxTimeMs    Int    @default(60000)
+  budgetCents  Int    @default(0)
+
+  runs         AgentRun[]
+}
+
+model AgentRun {
+  id          String       @id @default(cuid())
+  agentId     String
+  agent       Agent        @relation(fields: [agentId], references: [id])
+  projectId   String
+  project     Project      @relation(fields: [projectId], references: [id])
+  taskId      String?
+  task        ProjectTask? @relation(fields: [taskId], references: [id])
+  status      String       @default("RUNNING") // AgentRunStatus
+  inputJson   String
+  outputJson  String?
+  failureReason String?
+  costCents   Int          @default(0)
+  durationMs  Int?
+  startedAt   DateTime     @default(now())
+  finishedAt  DateTime?
+
+  outputs     AgentOutput[]
+}
+
+model AgentOutput {
+  id          String   @id @default(cuid())
+  agentRunId  String
+  agentRun    AgentRun @relation(fields: [agentRunId], references: [id])
+  kind        String
+  valueJson   String
+  createdAt   DateTime @default(now())
+}
+
+// ---------- QA / Perception ----------
+
+model QaReport {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  category    String   // functional | visual | ux | technical | conversion
+  passed      Boolean
+  findingsJson String
+  createdAt   DateTime @default(now())
+}
+
+model PerceptionReport {
+  id             String   @id @default(cuid())
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id])
+  firstImpression Int
+  clarity        Int
+  trust          Int
+  premiumFeel    Int
+  emotionalImpact Int
+  visualHierarchy Int
+  desire         Int
+  friction       Int
+  conversionConfidence Int
+  passed         Boolean
+  notes          String?
+  createdAt      DateTime @default(now())
+}
+
+// ---------- Delivery / Revisions / Reviews ----------
+
+model Deliverable {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  version   Int      @default(1)
+  path      String
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model Revision {
+  id            String   @id @default(cuid())
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id])
+  notes         String
+  impactedAssetsJson String @default("[]")
+  status        String   @default("REQUESTED") // RevisionStatus
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+}
+
+model Review {
+  id             String   @id @default(cuid())
+  projectId      String   @unique
+  project        Project  @relation(fields: [projectId], references: [id])
+  customerId     String
+  customer       Customer @relation(fields: [customerId], references: [id])
+  rating         Int
+  text           String?
+  testimonial    String?
+  canPublish     Boolean  @default(false)
+  canUsePortfolio Boolean @default(false)
+  createdAt      DateTime @default(now())
+}
+
+// ---------- Referrals / Commissions ----------
+
+model Referral {
+  id           String   @id @default(cuid())
+  customerId   String   @unique
+  customer     Customer @relation(fields: [customerId], references: [id])
+  code         String   @unique
+  createdAt    DateTime @default(now())
+
+  clicks       ReferralClick[]
+  commissions  Commission[]
+}
+
+model ReferralClick {
+  id                  String    @id @default(cuid())
+  referralId          String
+  referral            Referral  @relation(fields: [referralId], references: [id])
+  ipHash              String?
+  userAgent           String?
+  convertedCustomerId String?
+  convertedCustomer   Customer? @relation("ReferredClicks", fields: [convertedCustomerId], references: [id])
+  createdAt           DateTime  @default(now())
+}
+
+model Commission {
+  id               String    @id @default(cuid())
+  referralId       String
+  referral         Referral  @relation(fields: [referralId], references: [id])
+  earnerCustomerId String
+  earner           Customer  @relation("CommissionEarner", fields: [earnerCustomerId], references: [id])
+  orderId          String?
+  state            String    @default("CLICKED") // CommissionState
+  grossRevenueCents Int      @default(0)
+  commissionCents   Int      @default(0)
+  pendingUntil      DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  payout           Payout? @relation(fields: [payoutId], references: [id])
+  payoutId         String?
+}
+
+model Payout {
+  id          String   @id @default(cuid())
+  customerId  String
+  amountCents Int
+  status      String   @default("PENDING") // PENDING | PAID | FAILED
+  createdAt   DateTime @default(now())
+  paidAt      DateTime?
+
+  commissions Commission[]
+}
+
+// ---------- Email / Marketing / Analytics ----------
+
+model EmailEvent {
+  id         String   @id @default(cuid())
+  toEmail    String
+  template   String
+  payloadJson String
+  provider   String   // console | resend
+  status     String   @default("SENT")
+  createdAt  DateTime @default(now())
+}
+
+model Campaign {
+  id             String   @id @default(cuid())
+  name           String
+  channel        String
+  status         String   @default("DRAFT") // CampaignStatus
+  dailyBudgetCents Int
+  totalSpendCents  Int    @default(0)
+  performanceThresholdJson String @default("{}")
+  createdAt      DateTime @default(now())
+
+  creatives      AdCreative[]
+}
+
+model AdCreative {
+  id          String   @id @default(cuid())
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+  version     Int      @default(1)
+  approved    Boolean  @default(false)
+  contentJson String
+  createdAt   DateTime @default(now())
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  name      String
+  payloadJson String
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  audience  String   @default("customer") // customer | admin
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  event      String
+  entityType String?
+  entityId   String?
+  payloadJson String  @default("{}")
+  createdAt  DateTime @default(now())
+}

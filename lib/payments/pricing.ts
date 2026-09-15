@@ -1,0 +1,83 @@
+import { db } from "@/lib/db";
+import { computeRushFeeCents, DeliverySpeedKey, DELIVERY_SPEEDS, getApplicableSpeeds } from "@/lib/payments/deliverySpeed";
+import { getActiveProjectCount } from "@/lib/payments/productionLoad";
+
+export interface PricedOrder {
+  subtotalCents: number;
+  discountCents: number;
+  rushFeeCents: number;
+  deliverySpeed: string;
+  totalCents: number;
+  items: { productId: string; productVariantId: string | null; priceCents: number }[];
+}
+
+/**
+ * Server-side price computation — the client only ever sends product IDs
+ * (and optionally a variant id for the primary item), a coupon code, and a
+ * delivery speed key. Never trust a client-provided price: the rush fee is
+ * recomputed here from the real, current production load, not whatever the
+ * client displayed.
+ */
+export async function priceOrder(
+  productIds: string[],
+  couponCode?: string,
+  primaryVariantId?: string,
+  deliverySpeed: string = "standard",
+): Promise<PricedOrder> {
+  if (productIds.length === 0) throw new Error("No products selected");
+  if (!DELIVERY_SPEEDS.some((s) => s.key === deliverySpeed)) {
+    throw new Error("Invalid delivery speed selected");
+  }
+
+  const products = await db.product.findMany({ where: { id: { in: productIds }, active: true } });
+  if (products.length !== new Set(productIds).size) {
+    throw new Error("One or more selected products are invalid or inactive");
+  }
+
+  const primaryProduct = products.find((p) => p.id === productIds[0])!;
+  const applicableSpeeds = getApplicableSpeeds(primaryProduct.turnaround);
+  if (!applicableSpeeds.some((s) => s.key === deliverySpeed)) {
+    throw new Error("That delivery speed isn't available for this service");
+  }
+
+  let primaryVariant = null;
+  if (primaryVariantId) {
+    primaryVariant = await db.productVariant.findUnique({ where: { id: primaryVariantId } });
+    if (!primaryVariant || primaryVariant.productId !== productIds[0] || !primaryVariant.active) {
+      throw new Error("Selected tier is invalid for this service");
+    }
+  }
+
+  const items = productIds.map((id, i) => {
+    const product = products.find((p) => p.id === id)!;
+    const isPrimary = i === 0;
+    const priceCents = isPrimary && primaryVariant ? primaryVariant.priceCents : product.priceCents;
+    return { productId: id, productVariantId: isPrimary && primaryVariant ? primaryVariant.id : null, priceCents };
+  });
+
+  const subtotalCents = items.reduce((sum, i) => sum + i.priceCents, 0);
+
+  let discountCents = 0;
+  if (couponCode) {
+    discountCents = await resolveCouponDiscount(couponCode, subtotalCents);
+  }
+
+  const activeProjectCount = await getActiveProjectCount();
+  const rushFeeCents = computeRushFeeCents(items[0].priceCents, deliverySpeed as DeliverySpeedKey, activeProjectCount);
+
+  const totalCents = Math.max(0, subtotalCents - discountCents + rushFeeCents);
+
+  return { subtotalCents, discountCents, rushFeeCents, deliverySpeed, totalCents, items };
+}
+
+// Minimal, explicit coupon table. Replace with a `Coupon` DB model if the
+// business needs self-serve coupon creation later.
+const COUPONS: Record<string, number> = {
+  LAUNCH10: 0.1,
+};
+
+async function resolveCouponDiscount(code: string, subtotalCents: number): Promise<number> {
+  const rate = COUPONS[code.toUpperCase()];
+  if (!rate) return 0;
+  return Math.round(subtotalCents * rate);
+}

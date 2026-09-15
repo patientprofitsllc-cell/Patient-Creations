@@ -1,0 +1,54 @@
+import { db } from "@/lib/db";
+
+// Every critical event from the spec's EVENT-DRIVEN ARCHITECTURE section
+// funnels through here so there is a single, queryable audit trail.
+export type StudioEvent =
+  | "order.created"
+  | "order.manual_payment_requested"
+  | "payment.succeeded"
+  | "project.created"
+  | "project.state_changed"
+  | "task.created"
+  | "task.completed"
+  | "task.failed"
+  | "qa.started"
+  | "qa.failed"
+  | "qa.passed"
+  | "project.delivery_ready"
+  | "deliverable.created"
+  | "review.requested"
+  | "referral.created"
+  | "referral.click"
+  | "referral.purchase"
+  | "commission.created"
+  | "commission.approved"
+  | "commission.paid"
+  | "campaign.created"
+  | "campaign.optimized"
+  | "agent.run_started"
+  | "agent.run_succeeded"
+  | "agent.run_failed"
+  | "agent.escalated";
+
+export async function logEvent(
+  event: StudioEvent,
+  entityType?: string,
+  entityId?: string,
+  payload: Record<string, unknown> = {},
+) {
+  await db.auditLog.create({
+    data: {
+      event,
+      entityType: entityType ?? null,
+      entityId: entityId ?? null,
+      payloadJson: JSON.stringify(payload),
+    },
+  });
+
+  await db.analyticsEvent.create({
+    data: {
+      name: event,
+      payloadJson: JSON.stringify({ entityType, entityId, ...payload }),
+    },
+  });
+}
