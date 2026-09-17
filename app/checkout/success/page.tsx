@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
 import { NfcIntakeForm } from "@/components/checkout/NfcIntakeForm";
 import { CalendlyBooking } from "@/components/checkout/CalendlyBooking";
+import { NFC_ADDON_SLUG } from "@/lib/payments/nfcAddon";
 
 export default async function CheckoutSuccessPage({ searchParams }: { searchParams: { order?: string } }) {
   const order = searchParams.order
@@ -15,8 +16,11 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
     : null;
   const awaitingManualPayment = order && order.paymentMethod !== "stripe" && order.status !== "PAID";
   const isNfcOrder = order?.items[0]?.product.category === "Merch";
+  const hasNfcAddon = order?.items.some((i) => i.product.slug === NFC_ADDON_SLUG) ?? false;
+  const showCardSetup = isNfcOrder || hasNfcAddon;
   // Every non-Merch purchase is a service build — a kickoff call is the
   // next real step, so it's the only category that gets the Calendly prompt.
+  // A bundled NFC add-on doesn't change this: it's still a service build.
   const isServiceBuild = order && !isNfcOrder;
 
   return (
@@ -51,7 +55,7 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
           )}
         </div>
 
-        {isNfcOrder && order && (
+        {showCardSetup && order && (
           <NfcIntakeForm
             orderId={order.id}
             showColorChoice={order.items[0]?.product.slug === "nfc-google-review"}

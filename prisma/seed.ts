@@ -295,6 +295,18 @@ const ADD_ONS: {
     sortOrder: 4,
   },
   {
+    // Price is a default only — lib/payments/nfcAddon.ts overrides it to $45
+    // on the Starter Website and free on a $1,000+ cinematic video tier.
+    slug: "nfc-card-addon",
+    name: "NFC Card — Your Choice",
+    category: "Add-on",
+    type: "ORDER_BUMP",
+    description: "Add one NFC growth card in the design of your choice (Google Review, YouTube, Menu, WiFi, and more). Tell us which one right after checkout.",
+    priceCents: 7500,
+    revisionLimit: 0,
+    sortOrder: 5,
+  },
+  {
     slug: "automation-add-on",
     name: "Automation Add-On",
     category: "Automation",

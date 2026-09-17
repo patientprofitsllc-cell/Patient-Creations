@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { logEvent } from "@/lib/analytics/events";
+import { NFC_ADDON_SLUG } from "@/lib/payments/nfcAddon";
 
 // The only design that ships in two colors and needs the choice captured
 // here — checkout itself never asks, so this is the one place we learn it.
@@ -27,10 +28,14 @@ export async function POST(req: NextRequest) {
   const order = await db.order.findUnique({ where: { id: orderId }, include: { items: { include: { product: true } } } });
   if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
   const primaryItem = order.items[0];
-  if (primaryItem?.product.category !== "Merch") {
+  const primaryQuantity = primaryItem?.quantity ?? 1;
+  // Eligible either as a standalone card order (primary item is Merch) or as
+  // a bundled card add-on on a service build.
+  const isEligible = primaryItem?.product.category === "Merch" || order.items.some((i) => i.product.slug === NFC_ADDON_SLUG);
+  if (!isEligible) {
     return NextResponse.json({ error: "This order doesn't take card specs" }, { status: 400 });
   }
-  if (primaryItem.product.slug === COLOR_CHOICE_SLUG && !answers.cardColor) {
+  if (primaryItem?.product.slug === COLOR_CHOICE_SLUG && !answers.cardColor) {
     return NextResponse.json({ error: "Please choose a card color" }, { status: 400 });
   }
 
@@ -44,13 +49,13 @@ export async function POST(req: NextRequest) {
 
   // Decrement the matching color bucket the first time we learn it — not on
   // every edit, or re-saving the form after a typo fix would double-count.
-  if (!existing && primaryItem.product.slug === COLOR_CHOICE_SLUG && answers.cardColor) {
+  if (!existing && primaryItem?.product.slug === COLOR_CHOICE_SLUG && answers.cardColor) {
     const sku = `nfc-google-review-${answers.cardColor}`;
     const inventoryItem = await db.inventoryItem.findUnique({ where: { sku } });
     if (inventoryItem) {
       await db.inventoryItem.update({
         where: { id: inventoryItem.id },
-        data: { quantityOnHand: Math.max(0, inventoryItem.quantityOnHand - primaryItem.quantity) },
+        data: { quantityOnHand: Math.max(0, inventoryItem.quantityOnHand - primaryQuantity) },
       });
     }
   }

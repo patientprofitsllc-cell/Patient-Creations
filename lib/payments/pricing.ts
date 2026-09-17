@@ -3,6 +3,7 @@ import { computeRushFeeCents, DeliverySpeedKey, DELIVERY_SPEEDS, getApplicableSp
 import { getActiveProjectCount } from "@/lib/payments/productionLoad";
 import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
 import { calculateShippingCents } from "@/lib/payments/shipping";
+import { NFC_ADDON_SLUG, resolveNfcAddonPriceCents } from "@/lib/payments/nfcAddon";
 
 export interface PricedOrder {
   subtotalCents: number;
@@ -74,6 +75,10 @@ export async function priceOrder(
     // Bulk order: waive the per-unit setup fee at BULK_SETUP_WAIVER_MIN_QTY+.
     if (isPrimary && product.setupFeeCents > 0 && primaryQuantity >= BULK_SETUP_WAIVER_MIN_QTY) {
       priceCents -= product.setupFeeCents;
+    }
+    if (!isPrimary && product.slug === NFC_ADDON_SLUG) {
+      const primaryPriceCents = primaryVariant ? primaryVariant.priceCents : primaryProduct.priceCents;
+      priceCents = resolveNfcAddonPriceCents(priceCents, primaryProduct, primaryPriceCents);
     }
     return {
       productId: id,

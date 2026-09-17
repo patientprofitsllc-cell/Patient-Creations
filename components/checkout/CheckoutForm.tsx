@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { computeRushFeeCents, getApplicableSpeeds } from "@/lib/payments/deliverySpeed";
 import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
 import { calculateShippingCents } from "@/lib/payments/shipping";
+import { NFC_ADDON_SLUG, resolveNfcAddonPriceCents } from "@/lib/payments/nfcAddon";
 import { PAYMENT_METHODS } from "@/lib/payments/paymentMethods";
 import type { PaymentMethod } from "@/lib/types";
 
@@ -87,7 +88,14 @@ export function CheckoutForm({
   // commitment regardless of the build, so they keep their own windows.
   const displayDays = (speedKey: string) => (speedKey === "standard" ? primaryProduct.turnaround ?? "1-2 weeks" : applicableSpeeds.find((s) => s.key === speedKey)!.days);
 
-  const bumpTotal = orderBumps.filter((b) => selectedBumps.includes(b.id)).reduce((s, b) => s + b.priceCents, 0);
+  // Mirrors the server-side override in lib/payments/pricing.ts so the
+  // displayed price always matches what's actually charged.
+  const bumpPriceCents = (bump: ProductLite) =>
+    bump.slug === NFC_ADDON_SLUG
+      ? resolveNfcAddonPriceCents(bump.priceCents, { slug: primaryProduct.slug, category: primaryProduct.category ?? "" }, primaryPriceCents)
+      : bump.priceCents;
+
+  const bumpTotal = orderBumps.filter((b) => selectedBumps.includes(b.id)).reduce((s, b) => s + bumpPriceCents(b), 0);
   // Physical goods only, domestic US, box included — see lib/payments/shipping.ts.
   // Mirrors the server-side calculation in lib/payments/pricing.ts exactly, so what's
   // shown here always matches what Stripe actually charges as its own line item.
@@ -338,7 +346,7 @@ export function CheckoutForm({
                     <span className="block text-ice">{bump.name}</span>
                     <span className="block text-sm text-ice/50">{bump.description}</span>
                   </span>
-                  <span className="text-champagne">{money(bump.priceCents)}</span>
+                  <span className="text-champagne">{bumpPriceCents(bump) === 0 ? "Free" : money(bumpPriceCents(bump))}</span>
                 </label>
               ))}
             </div>
@@ -374,7 +382,7 @@ export function CheckoutForm({
             .map((b) => (
               <div key={b.id} className="flex justify-between">
                 <span>{b.name}</span>
-                <span>{money(b.priceCents)}</span>
+                <span>{bumpPriceCents(b) === 0 ? "Free" : money(bumpPriceCents(b))}</span>
               </div>
             ))}
           {rushFeeCents > 0 && (
