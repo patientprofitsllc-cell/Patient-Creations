@@ -20,6 +20,24 @@ interface Particle {
  * try/catch, and save/restore context state per draw pass so glow settings
  * never bleed across frames.
  */
+// Pre-rendered glow sprites, drawn once and blitted per-particle instead of
+// paying for ctx.shadowBlur (an expensive per-call blur convolution) on
+// every particle, every frame — same visual result, far cheaper to render.
+function makeGlowSprite(color: string, r: number): HTMLCanvasElement {
+  const size = Math.ceil(r * 8);
+  const sprite = document.createElement("canvas");
+  sprite.width = size;
+  sprite.height = size;
+  const sctx = sprite.getContext("2d")!;
+  const grad = sctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  grad.addColorStop(0, color);
+  grad.addColorStop(0.35, color);
+  grad.addColorStop(1, "rgba(0,0,0,0)");
+  sctx.fillStyle = grad;
+  sctx.fillRect(0, 0, size, size);
+  return sprite;
+}
+
 export function SeedCanvas({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -30,12 +48,18 @@ export function SeedCanvas({ className }: { className?: string }) {
     if (!ctx) return;
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const goldSprite = makeGlowSprite("rgba(224,196,138,0.85)", 6);
+    const champagneSprite = makeGlowSprite("rgba(242,230,201,0.85)", 6);
 
     let width = 0;
     let height = 0;
     let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     let particles: Particle[] = [];
     let raf = 0;
+    // Only animate while the canvas is actually visible on screen and the
+    // tab has focus — an off-screen or backgrounded hero shouldn't compete
+    // for the main thread with scrolling, typing, or anything else.
+    let isVisible = true;
 
     function resize() {
       const rect = canvas!.getBoundingClientRect();
@@ -92,17 +116,21 @@ export function SeedCanvas({ className }: { className?: string }) {
             }
           }
 
-          ctx!.save();
-          ctx!.beginPath();
-          ctx!.fillStyle = p.hue === "gold" ? "rgba(224,196,138,0.85)" : "rgba(242,230,201,0.85)";
-          ctx!.shadowColor = p.hue === "gold" ? "rgba(224,196,138,0.9)" : "rgba(242,230,201,0.9)";
-          ctx!.shadowBlur = 6;
-          ctx!.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx!.fill();
-          ctx!.restore();
+          // Blit a pre-rendered glow sprite instead of stroking a fresh
+          // shadowBlur per particle per frame — visually identical, far
+          // cheaper (shadowBlur forces a blur convolution on every call).
+          const sprite = p.hue === "gold" ? goldSprite : champagneSprite;
+          const scale = p.r / 1.6;
+          const drawSize = sprite.width * scale;
+          ctx!.drawImage(sprite, p.x - drawSize / 2, p.y - drawSize / 2, drawSize, drawSize);
         }
 
-        // connecting lines between nearby particles
+        // Connecting lines between nearby particles. Compare squared
+        // distances (no sqrt) since we only need a threshold check — this
+        // loop is O(n^2) over up to 140 particles, so avoiding sqrt on
+        // ~9,700 pair checks per frame meaningfully cuts main-thread work.
+        const maxLineDist = 60;
+        const maxLineDistSq = maxLineDist * maxLineDist;
         ctx!.save();
         ctx!.strokeStyle = "rgba(224,196,138,0.1)";
         ctx!.lineWidth = 1;
@@ -110,8 +138,9 @@ export function SeedCanvas({ className }: { className?: string }) {
           for (let j = i + 1; j < particles.length; j++) {
             const a = particles[i];
             const b = particles[j];
-            const d = Math.hypot(a.x - b.x, a.y - b.y);
-            if (d < 60) {
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            if (dx * dx + dy * dy < maxLineDistSq) {
               ctx!.beginPath();
               ctx!.moveTo(a.x, a.y);
               ctx!.lineTo(b.x, b.y);
@@ -125,13 +154,54 @@ export function SeedCanvas({ className }: { className?: string }) {
       }
     }
 
+    function startLoop() {
+      if (raf) return;
+      raf = requestAnimationFrame(draw);
+    }
+
+    function stopLoop() {
+      if (!raf) return;
+      cancelAnimationFrame(raf);
+      raf = 0;
+    }
+
     resize();
     window.addEventListener("resize", resize);
-    raf = requestAnimationFrame(draw);
+
+    // Pause entirely when the hero scrolls off screen or the tab is
+    // backgrounded — an invisible animation shouldn't spend main-thread
+    // time competing with scrolling, typing, or anything else the visitor
+    // is actually doing.
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible && document.visibilityState === "visible") startLoop();
+        else stopLoop();
+      },
+      { threshold: 0 },
+    );
+    io.observe(canvas);
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible" && isVisible) startLoop();
+      else stopLoop();
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    if (prefersReducedMotion) {
+      // Draw a single static frame and never loop — nothing on screen is
+      // moving, so there's nothing to animate.
+      draw();
+      stopLoop();
+    } else {
+      startLoop();
+    }
 
     return () => {
-      cancelAnimationFrame(raf);
+      stopLoop();
+      io.disconnect();
       window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 

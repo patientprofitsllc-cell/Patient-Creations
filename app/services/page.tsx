@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
+import { ReserveLink } from "@/components/services/ReserveLink";
 import { db } from "@/lib/db";
 
 function money(cents: number) {
@@ -18,17 +20,18 @@ const PRICING = [
 const MACHINE_TOTAL = PRICING.reduce((s, p) => s + p.you, 0);
 const FLOOR_TOTAL = PRICING.reduce((s, p) => s + p.lo, 0);
 
-// Pulls the live product catalog from the DB — must never be a stale
-// build-time snapshot (a price change should show up without a redeploy).
-export const dynamic = "force-dynamic";
+// Pulls the live product catalog from the DB. Revalidated every 60s
+// instead of force-dynamic: a price/catalog change shows up within a
+// minute (no redeploy needed) while most visitors get a cached, instant
+// response instead of a fresh DB round-trip on every single request.
+export const revalidate = 60;
 
-export default async function ServicesPage({ searchParams }: { searchParams: { ref?: string } }) {
+export default async function ServicesPage() {
   const products = await db.product.findMany({
     where: { type: "PRIMARY", active: true },
     include: { variants: { where: { active: true }, orderBy: { priceCents: "asc" } } },
     orderBy: { sortOrder: "asc" },
   });
-  const refSuffix = searchParams.ref ? `&ref=${encodeURIComponent(searchParams.ref)}` : "";
 
   return (
     <>
@@ -165,12 +168,18 @@ export default async function ServicesPage({ searchParams }: { searchParams: { r
                     Signature and Flagship tiers available up to {money(product.variants[product.variants.length - 1].priceCents)}
                   </p>
                 )}
-                <Link
-                  href={`/checkout?product=${product.slug}${refSuffix}`}
-                  className="mt-6 rounded-full bg-gradient-to-b from-gold to-gold-deep px-6 py-3 text-center text-sm font-semibold tracking-wide text-obsidian transition hover:brightness-110"
+                <Suspense
+                  fallback={
+                    <Link
+                      href={`/checkout?product=${product.slug}`}
+                      className="mt-6 rounded-full bg-gradient-to-b from-gold to-gold-deep px-6 py-3 text-center text-sm font-semibold tracking-wide text-obsidian transition hover:brightness-110"
+                    >
+                      Reserve this build
+                    </Link>
+                  }
                 >
-                  Reserve this build
-                </Link>
+                  <ReserveLink slug={product.slug} />
+                </Suspense>
               </div>
             ))}
             {products.length === 0 && (

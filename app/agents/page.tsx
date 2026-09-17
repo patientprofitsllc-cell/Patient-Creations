@@ -3,8 +3,9 @@ import { SiteFooter } from "@/components/shared/SiteFooter";
 import { AgentNetworkCanvas } from "@/components/agents/AgentNetworkCanvas";
 import { db } from "@/lib/db";
 
-// Shows the 10 most recent real agent runs — never a stale build-time list.
-export const dynamic = "force-dynamic";
+// Shows the 10 most recent real agent runs. Revalidated every 30s instead
+// of force-dynamic so most visitors get a cached response.
+export const revalidate = 30;
 
 export default async function AgentNetworkPage() {
   const recentRuns = await db.agentRun.findMany({

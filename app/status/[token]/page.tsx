@@ -6,9 +6,11 @@ import { getProjectProgress } from "@/lib/workflows/progress";
 import { PIPELINE_ORDER } from "@/lib/workflows/stateMachine";
 import { PHASE_WEIGHTS } from "@/lib/workflows/progress";
 
-// Must always reflect real, current build progress — never a build-time
-// snapshot frozen at whatever state the project was in during `next build`.
-export const dynamic = "force-dynamic";
+// Must reflect real, current build progress, not a snapshot frozen at
+// `next build` time. Revalidated every 10s (not force-dynamic) so a
+// customer checking a few times in a row gets a fast cached response
+// instead of a fresh DB round-trip every time.
+export const revalidate = 10;
 
 export default async function PublicStatusPage({ params }: { params: { token: string } }) {
   const project = await db.project.findUnique({
