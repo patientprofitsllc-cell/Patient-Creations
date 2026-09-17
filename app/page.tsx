@@ -105,11 +105,13 @@ export default async function HomePage() {
 
         <section className="mx-auto max-w-6xl px-6 pb-8 pt-20">
           <div className="mb-10 text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">What We Build</p>
-            <h2 className="mt-4 font-display text-3xl text-ice sm:text-4xl">Six builds. One production system.</h2>
+            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Featured</p>
+            <h2 className="mt-4 font-display text-4xl text-ice sm:text-5xl">
+              What <span className="text-gradient-champagne italic">We Build</span>
+            </h2>
             <p className="mx-auto mt-4 max-w-xl text-ice/50">
-              Every service enters the same automated pipeline: research, strategy, build, QA, and perception review
-              before delivery.
+              Six builds, one production system. Every service enters the same automated pipeline: research,
+              strategy, build, QA, and perception review before delivery.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
