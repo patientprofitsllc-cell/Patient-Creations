@@ -7,42 +7,42 @@ const STEPS: { art: ChapterArtType; title: string; body: string; href: string; l
   {
     art: "rings",
     title: "1. Pick a build.",
-    body: "Every service — Cinematic Website, AI Software/App, Multi-Agent System, Cinematic Ad, and more — is priced Core, Signature, or Flagship, shown next to real market rates so you can see exactly how far below the going rate it lands.",
+    body: "Every service (Cinematic Website, AI Software/App, Multi-Agent System, Cinematic Ad, and more) is priced Core, Signature, or Flagship, shown next to real market rates so you can see exactly how far below the going rate it lands.",
     href: "/services",
     linkLabel: "Browse services & pricing",
   },
   {
     art: "lattice",
     title: "2. Configure it and pay.",
-    body: "Choose your tier, add-ons, and delivery speed — Standard, Priority, Express, or Immediate, priced against the real production queue, not a flat guess. Then pick how you'd like to pay: card processes instantly, or choose Zelle/Apple Pay and we'll follow up directly.",
+    body: "Choose your tier, add-ons, and delivery speed (Standard, Priority, Express, or Immediate), priced against the real production queue, not a flat guess. Then pick how you'd like to pay: card processes instantly, or choose Zelle/Apple Pay and we'll follow up directly.",
     href: "/services#pricing",
     linkLabel: "See delivery speed & pricing",
   },
   {
     art: "network",
     title: "3. Watch the agents get to work.",
-    body: "The moment payment is confirmed, the order is decomposed into tasks and handed to a pipeline of specialist agents — research, strategy, concept, build, automation — running in sequence, not a single freelancer working through a to-do list.",
+    body: "The moment payment is confirmed, the order is decomposed into tasks and handed to a pipeline of specialist agents (research, strategy, concept, build, automation) running in sequence, not a single freelancer working through a to-do list.",
     href: "/agents",
     linkLabel: "Meet the agent network",
   },
   {
     art: "burst",
     title: "4. Nothing ships without QA and perception review.",
-    body: "Every build passes a structural QA audit and a scored perception review — clarity, trust, premium feel, conversion confidence — before it's ever marked ready. A failed check sends it back for revision automatically, on a bounded retry budget, not an endless loop.",
+    body: "Every build passes a structural QA audit and a scored perception review (clarity, trust, premium feel, conversion confidence) before it's ever marked ready. A failed check sends it back for revision automatically, on a bounded retry budget, not an endless loop.",
     href: "/agents",
     linkLabel: "How the review loop works",
   },
   {
     art: "wave",
     title: "5. Track real progress, anywhere, anytime.",
-    body: "Every project gets a private, no-login status link the moment it's created — sent by email and available in your portal. It shows genuine progress computed from completed work, a full production timeline, and any update we post for you directly.",
+    body: "Every project gets a private, no-login status link the moment it's created, sent by email and available in your portal. It shows genuine progress computed from completed work, a full production timeline, and any update we post for you directly.",
     href: "/portal/dashboard",
     linkLabel: "Open your portal",
   },
   {
     art: "ascend",
     title: "6. Take delivery, review, and grow it.",
-    body: "Once delivered, review the work, request a revision if something needs adjusting, and pick up your referral link — 10% commission on anyone you send our way, tracked from click to paid.",
+    body: "Once delivered, review the work, request a revision if something needs adjusting, and pick up your referral link: 10% commission on anyone you send our way, tracked from click to paid.",
     href: "/portal/referrals",
     linkLabel: "See the referral program",
   },
@@ -59,7 +59,7 @@ export default function GuidedAppTourPage() {
         </h1>
         <p className="mt-4 max-w-2xl text-ice/50">
           No guesswork about what you're buying. Here is the real path from "I need a build" to a delivered,
-          reviewed project — six steps, every one of them backed by the actual system, not a sales pitch.
+          reviewed project: six steps, every one of them backed by the actual system, not a sales pitch.
         </p>
 
         <div className="relative mt-16 space-y-14">

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { computeRushFeeCents, getApplicableSpeeds } from "@/lib/payments/deliverySpeed";
+import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
 import { PAYMENT_METHODS } from "@/lib/payments/paymentMethods";
 import type { PaymentMethod } from "@/lib/types";
 
@@ -13,6 +14,7 @@ interface ProductLite {
   name: string;
   description: string;
   priceCents: number;
+  setupFeeCents?: number;
   type: string;
   category?: string;
   turnaround?: string | null;
@@ -62,12 +64,14 @@ export function CheckoutForm({
 
   const isMerch = primaryProduct.category === "Merch";
   const selectedVariant = variants.find((v) => v.id === variantId);
-  const primaryPriceCents = selectedVariant?.priceCents ?? primaryProduct.priceCents;
+  const bulkDiscountApplies = Boolean(primaryProduct.setupFeeCents) && quantity >= BULK_SETUP_WAIVER_MIN_QTY;
+  const basePriceCents = selectedVariant?.priceCents ?? primaryProduct.priceCents;
+  const primaryPriceCents = bulkDiscountApplies ? basePriceCents - (primaryProduct.setupFeeCents ?? 0) : basePriceCents;
   const primaryLineTotal = primaryPriceCents * quantity;
   const primaryLabel = selectedVariant
-    ? `${primaryProduct.name} — ${selectedVariant.name}`
+    ? `${primaryProduct.name} · ${selectedVariant.name}`
     : variants.length > 0
-      ? `${primaryProduct.name} — Core`
+      ? `${primaryProduct.name} · Core`
       : primaryProduct.name;
 
   // Only offer rush tiers that are genuinely faster than this service's own
@@ -135,8 +139,8 @@ export function CheckoutForm({
             </button>
             <h2 className="mb-1 text-ice">Choose how you&apos;d like to pay</h2>
             <p className="mb-4 text-xs text-ice/40">
-              Card checkout via Stripe processes instantly. Every other option is collected by Trenton directly —
-              he&apos;ll follow up with instructions.
+              Card checkout via Stripe processes instantly. Every other option is collected by Trenton directly.
+              He&apos;ll follow up with instructions.
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {PAYMENT_METHODS.map((m) => (
@@ -190,6 +194,13 @@ export function CheckoutForm({
               </button>
               <span className="text-sm text-ice/40">{money(primaryPriceCents)} each</span>
             </div>
+            {Boolean(primaryProduct.setupFeeCents) && (
+              <p className="mt-3 text-xs text-champagne">
+                {bulkDiscountApplies
+                  ? `Bulk pricing applied: the $${(primaryProduct.setupFeeCents! / 100).toFixed(0)} setup fee is waived at ${BULK_SETUP_WAIVER_MIN_QTY}+.`
+                  : `Buy ${BULK_SETUP_WAIVER_MIN_QTY} or more and the $${(primaryProduct.setupFeeCents! / 100).toFixed(0)} setup fee is waived on every unit.`}
+              </p>
+            )}
           </div>
         )}
 
@@ -222,13 +233,13 @@ export function CheckoutForm({
           </div>
         )}
 
-        {applicableSpeeds.length > 1 && (
+        {applicableSpeeds.length > 1 && !isMerch && (
         <div className="glass-panel rounded-2xl p-6">
           <h2 className="mb-1 text-ice">Delivery speed</h2>
           <p className="mb-4 text-xs text-ice/40">
             {activeProjectCount > 0
-              ? `${activeProjectCount} build${activeProjectCount === 1 ? "" : "s"} currently in production — rush pricing reflects real queue load.`
-              : "The queue is clear right now — rush pricing is at its lowest."}
+              ? `${activeProjectCount} build${activeProjectCount === 1 ? "" : "s"} currently in production. Rush pricing reflects real queue load.`
+              : "The queue is clear right now. Rush pricing is at its lowest."}
           </p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {applicableSpeeds.map((s) => {
@@ -294,11 +305,11 @@ export function CheckoutForm({
           </div>
         )}
 
-        {orderBumps.length > 0 && (
+        {orderBumps.length > 0 && !isMerch && (
           <div className="glass-panel rounded-2xl p-6">
             <h2 className="mb-4 text-ice">Add to your build</h2>
             {applicableSpeeds.length > 1 && (
-              <p className="mb-4 text-xs text-ice/40">Each add-on can extend a Standard timeline — see delivery speed above.</p>
+              <p className="mb-4 text-xs text-ice/40">Each add-on can extend a Standard timeline, see delivery speed above.</p>
             )}
             <div className="space-y-3">
               {orderBumps.map((bump) => (
@@ -356,7 +367,7 @@ export function CheckoutForm({
             ))}
           {rushFeeCents > 0 && (
             <div className="flex justify-between">
-              <span>Rush delivery — {selectedSpeed.label}</span>
+              <span>Rush delivery · {selectedSpeed.label}</span>
               <span>{money(rushFeeCents)}</span>
             </div>
           )}
@@ -371,7 +382,7 @@ export function CheckoutForm({
           disabled={loading || !detailsValid}
           className="mt-6 w-full rounded-full bg-gradient-to-b from-gold to-gold-deep px-6 py-3 text-sm font-semibold tracking-wide text-obsidian transition hover:brightness-110 disabled:opacity-40"
         >
-          {loading ? "Processing…" : step === "details" ? "Continue to payment" : `Reserve this build — pay via ${selectedMethod.label}`}
+          {loading ? "Processing…" : step === "details" ? "Continue to payment" : `Reserve this build, pay via ${selectedMethod.label}`}
         </button>
         <p className="mt-3 text-center text-xs text-ice/30">
           {step === "payment" && !selectedMethod.live

@@ -34,6 +34,7 @@ export default async function CheckoutPage({ searchParams }: { searchParams: { p
               name: primaryProduct.name,
               description: primaryProduct.description,
               priceCents: primaryProduct.priceCents,
+              setupFeeCents: primaryProduct.setupFeeCents,
               type: primaryProduct.type,
               category: primaryProduct.category,
               turnaround: primaryProduct.turnaround,

@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { computeRushFeeCents, DeliverySpeedKey, DELIVERY_SPEEDS, getApplicableSpeeds } from "@/lib/payments/deliverySpeed";
 import { getActiveProjectCount } from "@/lib/payments/productionLoad";
+import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
 
 export interface PricedOrder {
   subtotalCents: number;
@@ -41,6 +42,15 @@ export async function priceOrder(
   }
 
   const primaryProduct = products.find((p) => p.id === productIds[0])!;
+
+  // Merch (NFC cards, etc.) is a flat physical-goods purchase: no rush
+  // production tiers, no add-ons, quantity instead. Enforced here, not just
+  // hidden in the UI, so a manipulated request can't slip either past.
+  if (primaryProduct.category === "Merch") {
+    if (productIds.length > 1) throw new Error("Add-ons aren't available for this product");
+    if (deliverySpeed !== "standard") throw new Error("Delivery speed options aren't available for this product");
+  }
+
   const applicableSpeeds = getApplicableSpeeds(primaryProduct.turnaround);
   if (!applicableSpeeds.some((s) => s.key === deliverySpeed)) {
     throw new Error("That delivery speed isn't available for this service");
@@ -57,7 +67,11 @@ export async function priceOrder(
   const items = productIds.map((id, i) => {
     const product = products.find((p) => p.id === id)!;
     const isPrimary = i === 0;
-    const priceCents = isPrimary && primaryVariant ? primaryVariant.priceCents : product.priceCents;
+    let priceCents = isPrimary && primaryVariant ? primaryVariant.priceCents : product.priceCents;
+    // Bulk order: waive the per-unit setup fee at BULK_SETUP_WAIVER_MIN_QTY+.
+    if (isPrimary && product.setupFeeCents > 0 && primaryQuantity >= BULK_SETUP_WAIVER_MIN_QTY) {
+      priceCents -= product.setupFeeCents;
+    }
     return {
       productId: id,
       productVariantId: isPrimary && primaryVariant ? primaryVariant.id : null,

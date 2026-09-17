@@ -38,7 +38,7 @@ export default async function LogsPage({
       <section>
         <h2 className="mb-2 text-ice/70">Production Sessions</h2>
         <p className="mb-4 text-sm text-ice/40">
-          Each project is one production "session" — the full run of agents from order to delivery.
+          Each project is one production "session": the full run of agents from order to delivery.
         </p>
         <div className="glass-panel divide-y divide-white/5 rounded-2xl">
           {sessions.map((s) => (

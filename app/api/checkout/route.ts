@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     if (!account) return NextResponse.json({ error: "Account details are required to check out" }, { status: 400 });
 
     const existing = await db.user.findUnique({ where: { email: account.email } });
-    if (existing) return NextResponse.json({ error: "An account with this email already exists — please sign in." }, { status: 409 });
+    if (existing) return NextResponse.json({ error: "An account with this email already exists. Please sign in." }, { status: 409 });
 
     const passwordHash = await bcrypt.hash(account.password, 10);
     const user = await db.user.create({
@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
             {
               price_data: {
                 currency: "usd",
-                product_data: { name: `Rush delivery — ${deliverySpeed}` },
+                product_data: { name: `Rush delivery: ${deliverySpeed}` },
                 unit_amount: priced.rushFeeCents,
               },
               quantity: 1,
@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
           .map((i) => {
             const product = products.find((p) => p.id === i.productId)!;
             const variant = i.productVariantId ? variants.find((v) => v.id === i.productVariantId) : null;
-            const name = variant ? `${product.name} — ${variant.name}` : product.name;
+            const name = variant ? `${product.name} · ${variant.name}` : product.name;
             return {
               price_data: { currency: "usd", product_data: { name }, unit_amount: i.discountedUnitCents },
               quantity: i.quantity,

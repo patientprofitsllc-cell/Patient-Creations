@@ -37,7 +37,7 @@ export default async function SessionDetailPage({ params }: { params: { id: stri
         <p className="text-sm text-ice/40">
           <Link href={`/admin/crm/${project.customerId}`} className="hover:text-gold">{project.customer.user.email}</Link>
           {" · "}
-          {progress.isException ? <span className="text-red-400">Exception</span> : `${progress.percent}% — ${progress.currentPhaseLabel}`}
+          {progress.isException ? <span className="text-red-400">Exception</span> : `${progress.percent}% · ${progress.currentPhaseLabel}`}
         </p>
         {project.exceptionNote && <p className="mt-2 text-sm text-red-400">{project.exceptionNote}</p>}
       </div>
@@ -91,7 +91,7 @@ export default async function SessionDetailPage({ params }: { params: { id: stri
             <p className="mb-2 text-sm text-ice/70">QA Reports</p>
             {project.qaReports.map((q) => (
               <p key={q.id} className={`text-sm ${q.passed ? "text-gold" : "text-red-400"}`}>
-                {q.passed ? "Passed" : "Failed"} — {new Date(q.createdAt).toLocaleString()}
+                {q.passed ? "Passed" : "Failed"} · {new Date(q.createdAt).toLocaleString()}
               </p>
             ))}
             {project.qaReports.length === 0 && <p className="text-sm text-ice/40">None yet.</p>}
@@ -100,7 +100,7 @@ export default async function SessionDetailPage({ params }: { params: { id: stri
             <p className="mb-2 text-sm text-ice/70">Perception Reports</p>
             {project.perceptionReports.map((p) => (
               <p key={p.id} className="text-sm text-ice/70">
-                Avg score check — {new Date(p.createdAt).toLocaleString()}
+                Avg score check · {new Date(p.createdAt).toLocaleString()}
               </p>
             ))}
             {project.perceptionReports.length === 0 && <p className="text-sm text-ice/40">None yet.</p>}

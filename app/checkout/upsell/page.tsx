@@ -47,7 +47,7 @@ export default async function UpsellPage() {
                 href={`/checkout?product=${u.slug}`}
                 className="rounded-full bg-gold px-5 py-2 text-sm text-obsidian transition hover:brightness-110"
               >
-                Add — {(u.priceCents / 100).toLocaleString(undefined, { style: "currency", currency: "USD" })}
+                Add: {(u.priceCents / 100).toLocaleString(undefined, { style: "currency", currency: "USD" })}
               </Link>
             </div>
           ))}

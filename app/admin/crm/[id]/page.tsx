@@ -101,7 +101,7 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
                   {awaitingManual && (
                     <div className="mt-2 flex items-center justify-between rounded-lg border border-gold/20 bg-gold/5 px-3 py-2">
                       <span className="text-xs text-gold">
-                        Awaiting {paymentMethodLabel(o.paymentMethod)} — action needed
+                        Awaiting {paymentMethodLabel(o.paymentMethod)}: action needed
                       </span>
                       <MarkPaidButton orderId={o.id} />
                     </div>

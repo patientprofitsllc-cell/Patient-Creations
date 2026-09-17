@@ -65,6 +65,7 @@ model Product {
   type          String    @default("PRIMARY") // ProductType
   description   String
   priceCents    Int
+  setupFeeCents Int       @default(0) // portion of priceCents that's a per-unit setup fee, waived in bulk (see BULK_SETUP_WAIVER_MIN_QTY)
   billingPeriod String?   // null = one-time, e.g. "monthly" for subscriptions
   revisionLimit Int       @default(2)
   turnaround    String?   // e.g. "2-3 weeks" — display-only estimate

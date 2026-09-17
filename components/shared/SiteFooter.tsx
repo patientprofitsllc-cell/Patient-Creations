@@ -6,7 +6,7 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-7xl flex-col gap-10 md:flex-row md:justify-between">
         <div>
           <p className="font-display text-lg text-ice">
-            <span className="text-gold">Trenton</span> — Patient Creations
+            <span className="text-gold">Trenton</span> · Patient Creations
           </p>
           <p className="mt-1 text-xs italic text-champagne/60">The Digital Master.</p>
           <p className="mt-3 max-w-xs text-ice/40">Patient Profits, Global. Build once. Own the machine.</p>
@@ -33,7 +33,7 @@ export function SiteFooter() {
         </div>
       </div>
       <p className="mx-auto mt-12 max-w-7xl text-xs text-ice/30">
-        © {new Date().getFullYear()} Trenton — Patient Creations — Patient Profits, Global.
+        © {new Date().getFullYear()} Trenton · Patient Creations · Patient Profits, Global.
       </p>
     </footer>
   );

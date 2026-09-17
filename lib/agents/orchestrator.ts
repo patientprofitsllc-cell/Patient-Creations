@@ -61,7 +61,7 @@ export async function createProjectForOrder(orderId: string) {
     data: {
       orderId: order.id,
       customerId: order.customerId,
-      name: `${primaryItem?.product.name ?? "Project"} — ${order.customer.user.name ?? order.customer.user.email}`,
+      name: `${primaryItem?.product.name ?? "Project"} · ${order.customer.user.name ?? order.customer.user.email}`,
       state: "DRAFT",
       statusToken: generateStatusToken(),
     },

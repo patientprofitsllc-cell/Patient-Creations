@@ -3,7 +3,7 @@ import { SiteFooter } from "@/components/shared/SiteFooter";
 import { ChapterArt } from "@/components/cinematic/ChapterArt";
 
 const FLEET = [
-  { art: "lattice" as const, name: "A software product", body: "A subscription app with live billing — recurring revenue that compounds." },
+  { art: "lattice" as const, name: "A software product", body: "A subscription app with live billing: recurring revenue that compounds." },
   { art: "burst" as const, name: "A build studio", body: "Ship sites and apps for clients while the agents handle intake to invoice." },
   { art: "wave" as const, name: "A rental portfolio", body: "Listing films and copy that keep every unit's calendar full." },
   { art: "network" as const, name: "A lead engine", body: "Prospects sourced and scored on their own, wherever the next customer is." },

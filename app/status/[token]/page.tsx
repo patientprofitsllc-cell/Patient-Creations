@@ -27,7 +27,7 @@ export default async function PublicStatusPage({ params }: { params: { token: st
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Live Build Status</p>
         <h1 className="mt-2 font-display text-4xl text-ice">{project.name}</h1>
         <p className="mt-2 text-sm text-ice/40">
-          No login needed — bookmark this page to check progress any time.
+          No login needed. Bookmark this page to check progress any time.
         </p>
 
         <div className="glass-panel mt-8 rounded-2xl p-6">
@@ -45,11 +45,11 @@ export default async function PublicStatusPage({ params }: { params: { token: st
           </div>
           {progress.isException && (
             <p className="mt-3 text-sm text-red-400">
-              We've flagged this build for a manual check — you'll hear from us shortly. No action needed on your end.
+              We've flagged this build for a manual check. You'll hear from us shortly. No action needed on your end.
             </p>
           )}
           {project.deliverables.length > 0 && (
-            <p className="mt-3 text-sm text-gold">Delivered — check your email for access details.</p>
+            <p className="mt-3 text-sm text-gold">Delivered. Check your email for access details.</p>
           )}
         </div>
 

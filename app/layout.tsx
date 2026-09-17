@@ -7,9 +7,9 @@ const display = Fraunces({ subsets: ["latin"], weight: ["400", "500", "600"], va
 const body = Inter({ subsets: ["latin"], variable: "--font-body" });
 
 export const metadata: Metadata = {
-  title: "Patient Creations — The Digital Master · Trenton, Patient Profits",
+  title: "Patient Creations · The Digital Master · Trenton, Patient Profits",
   description:
-    "Cinematic AI websites, software, and agent systems — agency quality at freelancer-floor pricing. Book Trenton, of Patient Profits.",
+    "Cinematic AI websites, software, and agent systems. Agency quality at freelancer-floor pricing. Book Trenton, of Patient Profits.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

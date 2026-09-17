@@ -12,50 +12,27 @@ export default function HomePage() {
         <section className="relative flex min-h-screen items-center overflow-hidden bg-studio-radial pt-24">
           <SeedCanvas className="pointer-events-none absolute inset-0 h-full w-full" />
           <div className="relative mx-auto max-w-3xl px-6">
-            <p className="mb-6 text-xs uppercase tracking-[0.4em] text-gold/80">Patient Profits — Global</p>
+            <p className="mb-6 text-xs uppercase tracking-[0.4em] text-gold/80">Patient Profits · Global</p>
             <p className="mb-3 font-display text-lg italic text-champagne/80">The Digital Master.</p>
             <h1 className="font-display text-5xl leading-tight text-ice sm:text-6xl md:text-7xl">
               The machine that <span className="text-gradient-champagne italic">builds your wealth</span>, built to order.
             </h1>
             <p className="mt-6 max-w-2xl text-lg text-ice/60">
-              Cinematic websites, software, and multi-agent systems — agency quality at freelancer-floor pricing. A
+              Cinematic websites, software, and multi-agent systems. Agency quality at freelancer-floor pricing. A
               community of AI agents handles your questions, your timeline, and your checkout, so the work moves
               while you do.
             </p>
-            <div className="mt-10 flex flex-col items-start gap-4 sm:flex-row">
-              <Link
-                href="#tour"
-                className="rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-3 text-sm font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110"
-              >
-                See how it works
-              </Link>
-              <Link
-                href="/services#pricing"
-                className="champagne-border rounded-full px-8 py-3 text-sm tracking-wide text-champagne transition hover:bg-champagne/10"
-              >
-                Compare the pricing
-              </Link>
-            </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-4xl px-6 pt-20 text-center">
-          <Link
-            href="/services"
-            className="inline-block rounded-full bg-gold px-10 py-4 text-base font-semibold tracking-wide text-obsidian transition hover:brightness-110"
-          >
-            Click here for Products &amp; Services
-          </Link>
-        </section>
-
-        <section className="mx-auto max-w-4xl px-6 py-16">
+        <section className="mx-auto max-w-4xl px-6 pt-16">
           <div className="glass-panel flex flex-col items-center justify-between gap-6 rounded-2xl p-8 text-center sm:flex-row sm:text-left">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Merch</p>
-              <h3 className="mt-2 font-display text-2xl text-ice">NFC Cards — $50 each</h3>
+              <h3 className="mt-2 font-display text-2xl text-ice">NFC Cards, $125 each</h3>
               <p className="mt-2 max-w-sm text-sm text-ice/50">
-                Tap-to-share smart cards — a phone tap opens your contact info, socials, or booking link. Choose how
-                many you need at checkout.
+                Tap-to-share smart cards. A phone tap opens your contact info, socials, or booking link. Includes a
+                $25 setup fee. Choose how many you need at checkout.
               </p>
             </div>
             <Link
@@ -63,6 +40,29 @@ export default function HomePage() {
               className="whitespace-nowrap rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-3 text-sm font-semibold tracking-wide text-obsidian transition hover:brightness-110"
             >
               Order NFC Cards
+            </Link>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-4xl px-6 py-16 text-center">
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              href="#tour"
+              className="rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-3 text-sm font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110"
+            >
+              See how it works
+            </Link>
+            <Link
+              href="/services#pricing"
+              className="champagne-border rounded-full px-8 py-3 text-sm tracking-wide text-champagne transition hover:bg-champagne/10"
+            >
+              Compare the pricing
+            </Link>
+            <Link
+              href="/services"
+              className="rounded-full bg-gold px-8 py-3 text-sm font-semibold tracking-wide text-obsidian transition hover:brightness-110"
+            >
+              Click here for Products &amp; Services
             </Link>
           </div>
         </section>

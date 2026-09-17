@@ -29,7 +29,7 @@ export default async function AdminSystemPage() {
           {errorEvents.map((l) => (
             <div key={l.id} className="p-4 text-sm">
               <p className="text-red-400">{l.event}</p>
-              <p className="text-ice/40">{l.entityType} — {l.entityId}</p>
+              <p className="text-ice/40">{l.entityType} · {l.entityId}</p>
             </div>
           ))}
           {errorEvents.length === 0 && <p className="p-4 text-ice/40">No errors recorded.</p>}

@@ -95,7 +95,7 @@ export default async function ServicesPage({ searchParams }: { searchParams: { r
                       />
                     </div>
                     <p className="mt-2 text-xs font-semibold text-emerald-400/80">
-                      {save}% below the market floor — {money(dollarsSaved)} less than the cheapest published quote
+                      {save}% below the market floor, {money(dollarsSaved)} less than the cheapest published quote
                     </p>
                   </div>
                 </div>
@@ -103,12 +103,12 @@ export default async function ServicesPage({ searchParams }: { searchParams: { r
             })}
           </div>
           <p className="mt-4 text-center text-sm text-ice/40">
-            The gold bar is your price, drawn to the same scale as the market range beside it — see how little of the
+            The gold bar is your price, drawn to the same scale as the market range beside it. See how little of the
             chart it actually fills.
           </p>
 
           <div className="relative mt-8 overflow-hidden rounded-2xl border border-gold/15 bg-gradient-to-br from-gold/10 to-white/[0.02] p-10 text-center">
-            <p className="text-sm text-ice/60">Commission the whole machine — all six builds — for</p>
+            <p className="text-sm text-ice/60">Commission the whole machine, all six builds, for</p>
             <p className="my-3 font-display text-6xl text-transparent bg-clip-text bg-gradient-to-b from-champagne to-gold sm:text-7xl">
               {money(MACHINE_TOTAL)}
             </p>
@@ -130,7 +130,7 @@ export default async function ServicesPage({ searchParams }: { searchParams: { r
             </div>
             <p className="mx-auto mt-6 max-w-xl text-sm text-ice/50">
               Agency-grade work at freelancer-floor prices, in half the time. There are no account managers or
-              project-management layers to fund — a community of agents carries the comms, delivery, and sales that
+              project-management layers to fund. A community of agents carries the comms, delivery, and sales that
               normally pad an agency invoice.
             </p>
           </div>
@@ -175,7 +175,7 @@ export default async function ServicesPage({ searchParams }: { searchParams: { r
             ))}
             {products.length === 0 && (
               <p className="col-span-full text-center text-ice/40">
-                No services seeded yet — run <code className="text-gold">npm run db:seed</code>.
+                No services seeded yet. Run <code className="text-gold">npm run db:seed</code>.
               </p>
             )}
           </div>

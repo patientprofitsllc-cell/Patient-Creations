@@ -79,7 +79,7 @@ export default async function AdminDashboardPage() {
         <section>
           <h2 className="mb-4 text-gold">Awaiting Manual Payment</h2>
           <p className="mb-4 text-xs text-ice/40">
-            These customers chose a payment method that isn&apos;t automatic — reach out with instructions, then mark
+            These customers chose a payment method that isn&apos;t automatic. Reach out with instructions, then mark
             paid once you&apos;ve actually received the money to start production.
           </p>
           <div className="glass-panel divide-y divide-white/5 rounded-2xl">

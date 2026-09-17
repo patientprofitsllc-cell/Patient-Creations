@@ -55,7 +55,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
           />
         </div>
         {progress.isException && project.exceptionNote && (
-          <p className="mt-3 text-sm text-red-400">{project.exceptionNote} — our team has been notified.</p>
+          <p className="mt-3 text-sm text-red-400">{project.exceptionNote}. Our team has been notified.</p>
         )}
         <p className="mt-4 text-xs text-ice/30">
           Shareable status link (no login needed): <span className="text-ice/50">{shareUrl}</span>
