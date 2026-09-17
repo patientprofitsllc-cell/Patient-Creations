@@ -5,6 +5,20 @@ import { SiteFooter } from "@/components/shared/SiteFooter";
 import { SeedCanvas } from "@/components/cinematic/SeedCanvas";
 import { HowItWorks } from "@/components/cinematic/HowItWorks";
 import { NfcOrderPicker } from "@/components/cinematic/NfcOrderPicker";
+import { db } from "@/lib/db";
+
+// Same catalog/pricing data, cached and refreshed every 60s — a price or
+// catalog change shows up within a minute with no redeploy, matching the
+// revalidate strategy already used on /services.
+export const revalidate = 60;
+
+function money(cents: number) {
+  return (cents / 100).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+}
+
+// The six flagship builds — the same lineup /services compares against the
+// market. Kept in this fixed order regardless of DB sortOrder.
+const FEATURED_SLUGS = ["site", "saas", "agents", "ad", "rental-listing-film", "lead-engine"];
 
 const NFC_SHOWCASE = [
   { name: "Google Review", slug: "nfc-google-review", src: "/assets/nfc-cards/google-review.jpeg", rotate: "-rotate-6", translate: "sm:translate-x-6", z: "z-0" },
@@ -16,7 +30,14 @@ const NFC_SHOWCASE = [
   { name: "WiFi", slug: "nfc-wifi", src: "/assets/nfc-cards/wifi.jpeg", rotate: "rotate-6", translate: "sm:-translate-x-9", z: "z-0" },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const rawFeatured = await db.product.findMany({
+    where: { slug: { in: FEATURED_SLUGS }, active: true },
+  });
+  const featured = FEATURED_SLUGS.map((slug) => rawFeatured.find((p) => p.slug === slug)).filter(
+    (p): p is NonNullable<typeof p> => Boolean(p),
+  );
+
   return (
     <>
       <SiteHeader />
@@ -72,13 +93,47 @@ export default function HomePage() {
           <div className="glass-panel flex flex-col items-center justify-between gap-6 rounded-2xl p-8 text-center sm:flex-row sm:text-left">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Merch</p>
-              <h3 className="mt-2 font-display text-2xl text-ice">NFC Cards, $125 each</h3>
+              <h3 className="mt-2 font-display text-2xl text-ice">NFC Cards, $75 each — setup included</h3>
               <p className="mt-2 max-w-sm text-sm text-ice/50">
-                Tap-to-share smart cards. A phone tap opens your contact info, socials, or booking link. Includes a
-                $25 setup fee.
+                Tap-to-share smart cards. A phone tap opens your contact info, socials, or booking link. The $25
+                setup fee is already folded into the price.
               </p>
             </div>
             <NfcOrderPicker />
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-8 pt-20">
+          <div className="mb-10 text-center">
+            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">What We Build</p>
+            <h2 className="mt-4 font-display text-3xl text-ice sm:text-4xl">Six builds. One production system.</h2>
+            <p className="mx-auto mt-4 max-w-xl text-ice/50">
+              Every service enters the same automated pipeline: research, strategy, build, QA, and perception review
+              before delivery.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {featured.map((product) => (
+              <Link
+                key={product.slug}
+                href={`/checkout?product=${product.slug}`}
+                className="glass-panel group flex flex-col rounded-2xl p-6 transition hover:border-gold/40"
+              >
+                <p className="text-xs uppercase tracking-widest text-gold/60">{product.category}</p>
+                <h3 className="mt-2 font-display text-xl text-ice">{product.name}</h3>
+                <p className="mt-2 flex-1 text-sm text-ice/50">{product.description}</p>
+                <p className="mt-4 font-display text-2xl text-champagne">
+                  {money(product.priceCents)}
+                  <span className="ml-1 text-sm text-ice/40">from</span>
+                </p>
+                <span className="mt-4 text-sm text-gold transition group-hover:brightness-125">Reserve this build →</span>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-10 text-center">
+            <Link href="/services" className="text-sm text-gold hover:brightness-110">
+              See every service &amp; compare pricing →
+            </Link>
           </div>
         </section>
 
