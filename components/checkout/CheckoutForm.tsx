@@ -14,6 +14,7 @@ interface ProductLite {
   description: string;
   priceCents: number;
   type: string;
+  category?: string;
   turnaround?: string | null;
 }
 
@@ -48,6 +49,7 @@ export function CheckoutForm({
     variants.some((v) => v.id === initialVariant) ? initialVariant : undefined,
   );
   const [deliverySpeed, setDeliverySpeed] = useState<string>("standard");
+  const [quantity, setQuantity] = useState(1);
   const [selectedBumps, setSelectedBumps] = useState<string[]>([]);
   const [coupon, setCoupon] = useState("");
   const [name, setName] = useState("");
@@ -58,8 +60,10 @@ export function CheckoutForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isMerch = primaryProduct.category === "Merch";
   const selectedVariant = variants.find((v) => v.id === variantId);
   const primaryPriceCents = selectedVariant?.priceCents ?? primaryProduct.priceCents;
+  const primaryLineTotal = primaryPriceCents * quantity;
   const primaryLabel = selectedVariant
     ? `${primaryProduct.name} — ${selectedVariant.name}`
     : variants.length > 0
@@ -79,7 +83,7 @@ export function CheckoutForm({
   const displayDays = (speedKey: string) => (speedKey === "standard" ? primaryProduct.turnaround ?? "1-2 weeks" : applicableSpeeds.find((s) => s.key === speedKey)!.days);
 
   const bumpTotal = orderBumps.filter((b) => selectedBumps.includes(b.id)).reduce((s, b) => s + b.priceCents, 0);
-  const subtotal = primaryPriceCents + bumpTotal + rushFeeCents;
+  const subtotal = primaryLineTotal + bumpTotal + rushFeeCents;
 
   async function submit() {
     setLoading(true);
@@ -91,6 +95,7 @@ export function CheckoutForm({
         body: JSON.stringify({
           productIds: [primaryProduct.id, ...selectedBumps],
           primaryVariantId: variantId,
+          primaryQuantity: quantity,
           deliverySpeed,
           paymentMethod,
           couponCode: coupon || undefined,
@@ -153,6 +158,41 @@ export function CheckoutForm({
           </div>
         ) : (
         <>
+        {isMerch && (
+          <div className="glass-panel rounded-2xl p-6">
+            <h2 className="mb-4 text-ice">Quantity</h2>
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-ice hover:border-gold/40"
+                aria-label="Decrease quantity"
+              >
+                −
+              </button>
+              <label htmlFor="checkout-quantity" className="sr-only">Quantity</label>
+              <input
+                id="checkout-quantity"
+                type="number"
+                min={1}
+                max={100}
+                value={quantity}
+                onChange={(e) => setQuantity(Math.min(100, Math.max(1, Math.round(Number(e.target.value)) || 1)))}
+                className="w-20 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-center text-ice"
+              />
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.min(100, q + 1))}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-ice hover:border-gold/40"
+                aria-label="Increase quantity"
+              >
+                +
+              </button>
+              <span className="text-sm text-ice/40">{money(primaryPriceCents)} each</span>
+            </div>
+          </div>
+        )}
+
         {variants.length > 0 && (
           <div className="glass-panel rounded-2xl p-6">
             <h2 className="mb-4 text-ice">Choose a tier</h2>
@@ -303,8 +343,8 @@ export function CheckoutForm({
         <h2 className="mb-4 text-ice">Order summary</h2>
         <div className="space-y-2 text-sm text-ice/70">
           <div className="flex justify-between">
-            <span>{primaryLabel}</span>
-            <span>{money(primaryPriceCents)}</span>
+            <span>{primaryLabel}{quantity > 1 ? ` × ${quantity}` : ""}</span>
+            <span>{money(primaryLineTotal)}</span>
           </div>
           {orderBumps
             .filter((b) => selectedBumps.includes(b.id))

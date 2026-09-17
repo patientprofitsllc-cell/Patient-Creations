@@ -35,6 +35,7 @@ export default async function CheckoutPage({ searchParams }: { searchParams: { p
               description: primaryProduct.description,
               priceCents: primaryProduct.priceCents,
               type: primaryProduct.type,
+              category: primaryProduct.category,
               turnaround: primaryProduct.turnaround,
             }}
             variants={primaryProduct.variants.map((v) => ({ id: v.id, name: v.name, priceCents: v.priceCents }))}

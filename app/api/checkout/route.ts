@@ -14,6 +14,7 @@ import { rateLimit } from "@/lib/security/rateLimit";
 const checkoutSchema = z.object({
   productIds: z.array(z.string()).min(1),
   primaryVariantId: z.string().optional(),
+  primaryQuantity: z.number().int().min(1).max(100).default(1),
   deliverySpeed: z.enum(["standard", "priority", "express", "immediate"]).default("standard"),
   paymentMethod: z.enum(["stripe", "zelle", "apple_pay"]).default("stripe"),
   couponCode: z.string().optional(),
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
   const body = checkoutSchema.safeParse(await req.json());
   if (!body.success) return NextResponse.json({ error: body.error.flatten() }, { status: 400 });
 
-  const { productIds, primaryVariantId, deliverySpeed, paymentMethod, couponCode, campaignSource, referralCode, account } = body.data;
+  const { productIds, primaryVariantId, primaryQuantity, deliverySpeed, paymentMethod, couponCode, campaignSource, referralCode, account } = body.data;
 
   const session = await getServerSession(authOptions);
   let customerId: string;
@@ -69,7 +70,7 @@ export async function POST(req: NextRequest) {
 
   let priced;
   try {
-    priced = await priceOrder(productIds, couponCode, primaryVariantId, deliverySpeed);
+    priced = await priceOrder(productIds, couponCode, primaryVariantId, deliverySpeed, primaryQuantity);
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : "Invalid order" }, { status: 400 });
   }
@@ -91,7 +92,7 @@ export async function POST(req: NextRequest) {
           productId: i.productId,
           productVariantId: i.productVariantId,
           priceCents: i.priceCents,
-          quantity: 1,
+          quantity: i.quantity,
         })),
       },
     },
@@ -119,11 +120,16 @@ export async function POST(req: NextRequest) {
     // Stripe has no concept of our internal discount — apply it directly to
     // line-item amounts (in order) so the real charge matches priced.totalCents
     // exactly. The rush fee is deliberately excluded from the discount.
+    // Discount is taken against each line's TOTAL (unit price x quantity),
+    // then converted back to a per-unit amount since Stripe multiplies
+    // unit_amount x quantity itself.
     let remainingDiscount = priced.discountCents;
     const discountedItems = priced.items.map((i) => {
-      const take = Math.min(remainingDiscount, i.priceCents);
+      const lineTotal = i.priceCents * i.quantity;
+      const take = Math.min(remainingDiscount, lineTotal);
       remainingDiscount -= take;
-      return { ...i, discountedPriceCents: i.priceCents - take };
+      const discountedLineTotal = lineTotal - take;
+      return { ...i, discountedLineTotal, discountedUnitCents: Math.round(discountedLineTotal / i.quantity) };
     });
 
     const rushLineItem =
@@ -143,14 +149,14 @@ export async function POST(req: NextRequest) {
       mode: "payment",
       line_items: [
         ...discountedItems
-          .filter((i) => i.discountedPriceCents > 0)
+          .filter((i) => i.discountedLineTotal > 0)
           .map((i) => {
             const product = products.find((p) => p.id === i.productId)!;
             const variant = i.productVariantId ? variants.find((v) => v.id === i.productVariantId) : null;
             const name = variant ? `${product.name} — ${variant.name}` : product.name;
             return {
-              price_data: { currency: "usd", product_data: { name }, unit_amount: i.discountedPriceCents },
-              quantity: 1,
+              price_data: { currency: "usd", product_data: { name }, unit_amount: i.discountedUnitCents },
+              quantity: i.quantity,
             };
           }),
         ...rushLineItem,

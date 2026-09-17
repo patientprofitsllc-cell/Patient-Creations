@@ -8,8 +8,10 @@ export interface PricedOrder {
   rushFeeCents: number;
   deliverySpeed: string;
   totalCents: number;
-  items: { productId: string; productVariantId: string | null; priceCents: number }[];
+  items: { productId: string; productVariantId: string | null; priceCents: number; quantity: number }[];
 }
+
+const MAX_PRIMARY_QUANTITY = 100;
 
 /**
  * Server-side price computation — the client only ever sends product IDs
@@ -23,10 +25,14 @@ export async function priceOrder(
   couponCode?: string,
   primaryVariantId?: string,
   deliverySpeed: string = "standard",
+  primaryQuantity: number = 1,
 ): Promise<PricedOrder> {
   if (productIds.length === 0) throw new Error("No products selected");
   if (!DELIVERY_SPEEDS.some((s) => s.key === deliverySpeed)) {
     throw new Error("Invalid delivery speed selected");
+  }
+  if (!Number.isInteger(primaryQuantity) || primaryQuantity < 1 || primaryQuantity > MAX_PRIMARY_QUANTITY) {
+    throw new Error(`Quantity must be a whole number between 1 and ${MAX_PRIMARY_QUANTITY}`);
   }
 
   const products = await db.product.findMany({ where: { id: { in: productIds }, active: true } });
@@ -52,10 +58,15 @@ export async function priceOrder(
     const product = products.find((p) => p.id === id)!;
     const isPrimary = i === 0;
     const priceCents = isPrimary && primaryVariant ? primaryVariant.priceCents : product.priceCents;
-    return { productId: id, productVariantId: isPrimary && primaryVariant ? primaryVariant.id : null, priceCents };
+    return {
+      productId: id,
+      productVariantId: isPrimary && primaryVariant ? primaryVariant.id : null,
+      priceCents,
+      quantity: isPrimary ? primaryQuantity : 1,
+    };
   });
 
-  const subtotalCents = items.reduce((sum, i) => sum + i.priceCents, 0);
+  const subtotalCents = items.reduce((sum, i) => sum + i.priceCents * i.quantity, 0);
 
   let discountCents = 0;
   if (couponCode) {

@@ -39,6 +39,34 @@ export default function HomePage() {
           </div>
         </section>
 
+        <section className="mx-auto max-w-4xl px-6 pt-20 text-center">
+          <Link
+            href="/services"
+            className="inline-block rounded-full bg-gold px-10 py-4 text-base font-semibold tracking-wide text-obsidian transition hover:brightness-110"
+          >
+            Click here for Products &amp; Services
+          </Link>
+        </section>
+
+        <section className="mx-auto max-w-4xl px-6 py-16">
+          <div className="glass-panel flex flex-col items-center justify-between gap-6 rounded-2xl p-8 text-center sm:flex-row sm:text-left">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Merch</p>
+              <h3 className="mt-2 font-display text-2xl text-ice">NFC Cards — $50 each</h3>
+              <p className="mt-2 max-w-sm text-sm text-ice/50">
+                Tap-to-share smart cards — a phone tap opens your contact info, socials, or booking link. Choose how
+                many you need at checkout.
+              </p>
+            </div>
+            <Link
+              href="/checkout?product=nfc-cards"
+              className="whitespace-nowrap rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-3 text-sm font-semibold tracking-wide text-obsidian transition hover:brightness-110"
+            >
+              Order NFC Cards
+            </Link>
+          </div>
+        </section>
+
         <section id="tour" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-28">
           <div className="mb-16 max-w-2xl">
             <p className="text-xs uppercase tracking-[0.3em] text-gold/70">How It Works</p>

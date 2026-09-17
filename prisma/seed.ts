@@ -113,9 +113,9 @@ const SERVICES: ServiceDef[] = [
   },
   {
     slug: "custom-build",
-    name: "Custom Build",
+    name: "Custom Build Consultation",
     category: "Bespoke",
-    description: "For anything outside the menu. A deposit books an hour to scope it, credited toward the build.",
+    description: "This is a CONSULTATION only, not a build — a focused call to talk through your wants, needs, and expectations for anything outside the menu. The fee is fully credited toward the build once we scope it.",
     baseCents: 10000,
     tierable: false,
     revisionLimit: 0,
@@ -143,6 +143,17 @@ const SERVICES: ServiceDef[] = [
     revisionLimit: 1,
     turnaround: "3-5 days",
     sortOrder: 11,
+  },
+  {
+    slug: "nfc-cards",
+    name: "NFC Cards",
+    category: "Merch",
+    description: "Tap-to-share smart cards — a phone tap opens your contact info, socials, or booking link. No app required. Choose how many you need.",
+    baseCents: 5000,
+    tierable: false,
+    revisionLimit: 0,
+    turnaround: "5-7 business days",
+    sortOrder: 12,
   },
 ];
 
