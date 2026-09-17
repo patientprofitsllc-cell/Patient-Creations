@@ -16,7 +16,7 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
     where: { id: params.id },
     include: {
       user: true,
-      orders: { include: { items: { include: { product: true } } }, orderBy: { createdAt: "desc" } },
+      orders: { include: { items: { include: { product: true } }, nfcIntake: true }, orderBy: { createdAt: "desc" } },
       projects: { orderBy: { createdAt: "desc" } },
       reviews: true,
       referral: { include: { clicks: true, commissions: true } },
@@ -97,7 +97,19 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
                     {new Date(o.createdAt).toLocaleDateString()} · {o.status}
                     {o.deliverySpeed !== "standard" && ` · ${o.deliverySpeed} delivery`}
                     {o.paymentMethod !== "stripe" && ` · pay via ${paymentMethodLabel(o.paymentMethod)}`}
+                    {o.shippingCents > 0 && ` · shipping ${money(o.shippingCents)} (${o.shippingBoxLabel})`}
                   </p>
+                  {o.nfcIntake && (
+                    <div className="mt-2 space-y-1 rounded-lg border border-gold/20 bg-gold/5 p-3 text-xs text-ice/70">
+                      <p className="text-gold">Card specs</p>
+                      {o.nfcIntake.cardColor && <p className="capitalize">Color: {o.nfcIntake.cardColor}</p>}
+                      <p>Shows: {o.nfcIntake.nfcContent}</p>
+                      <p>Link: {o.nfcIntake.targetLink}</p>
+                      {o.nfcIntake.socialMediaPage && <p>Social: {o.nfcIntake.socialMediaPage}</p>}
+                      <p>Phone: {o.nfcIntake.phone}</p>
+                      <p>Email: {o.nfcIntake.email}</p>
+                    </div>
+                  )}
                   {awaitingManual && (
                     <div className="mt-2 flex items-center justify-between rounded-lg border border-gold/20 bg-gold/5 px-3 py-2">
                       <span className="text-xs text-gold">

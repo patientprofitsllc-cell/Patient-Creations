@@ -2,11 +2,14 @@ import { db } from "@/lib/db";
 import { computeRushFeeCents, DeliverySpeedKey, DELIVERY_SPEEDS, getApplicableSpeeds } from "@/lib/payments/deliverySpeed";
 import { getActiveProjectCount } from "@/lib/payments/productionLoad";
 import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
+import { calculateShippingCents } from "@/lib/payments/shipping";
 
 export interface PricedOrder {
   subtotalCents: number;
   discountCents: number;
   rushFeeCents: number;
+  shippingCents: number;
+  shippingBoxLabel: string | null;
   deliverySpeed: string;
   totalCents: number;
   items: { productId: string; productVariantId: string | null; priceCents: number; quantity: number }[];
@@ -90,9 +93,14 @@ export async function priceOrder(
   const activeProjectCount = await getActiveProjectCount();
   const rushFeeCents = computeRushFeeCents(items[0].priceCents, deliverySpeed as DeliverySpeedKey, activeProjectCount);
 
-  const totalCents = Math.max(0, subtotalCents - discountCents + rushFeeCents);
+  // Physical goods only. Domestic US, box included — see lib/payments/shipping.ts.
+  const shippingQuote = primaryProduct.category === "Merch" ? calculateShippingCents(primaryQuantity) : null;
+  const shippingCents = shippingQuote?.cents ?? 0;
+  const shippingBoxLabel = shippingQuote?.boxLabel ?? null;
 
-  return { subtotalCents, discountCents, rushFeeCents, deliverySpeed, totalCents, items };
+  const totalCents = Math.max(0, subtotalCents - discountCents + rushFeeCents + shippingCents);
+
+  return { subtotalCents, discountCents, rushFeeCents, shippingCents, shippingBoxLabel, deliverySpeed, totalCents, items };
 }
 
 // Minimal, explicit coupon table. Replace with a `Coupon` DB model if the

@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { computeRushFeeCents, getApplicableSpeeds } from "@/lib/payments/deliverySpeed";
 import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
+import { calculateShippingCents } from "@/lib/payments/shipping";
 import { PAYMENT_METHODS } from "@/lib/payments/paymentMethods";
 import type { PaymentMethod } from "@/lib/types";
 
@@ -87,7 +88,12 @@ export function CheckoutForm({
   const displayDays = (speedKey: string) => (speedKey === "standard" ? primaryProduct.turnaround ?? "1-2 weeks" : applicableSpeeds.find((s) => s.key === speedKey)!.days);
 
   const bumpTotal = orderBumps.filter((b) => selectedBumps.includes(b.id)).reduce((s, b) => s + b.priceCents, 0);
-  const subtotal = primaryLineTotal + bumpTotal + rushFeeCents;
+  // Physical goods only, domestic US, box included — see lib/payments/shipping.ts.
+  // Mirrors the server-side calculation in lib/payments/pricing.ts exactly, so what's
+  // shown here always matches what Stripe actually charges as its own line item.
+  const shippingQuote = isMerch ? calculateShippingCents(quantity) : null;
+  const shippingCents = shippingQuote?.cents ?? 0;
+  const subtotal = primaryLineTotal + bumpTotal + rushFeeCents + shippingCents;
 
   async function submit() {
     setLoading(true);
@@ -159,6 +165,12 @@ export function CheckoutForm({
                 </button>
               ))}
             </div>
+            {isMerch && shippingQuote && (
+              <p className="mt-4 text-xs text-ice/40">
+                Ships via {shippingQuote.boxLabel}, US only — {money(shippingCents)} shipping already included in
+                your total below.
+              </p>
+            )}
           </div>
         ) : (
         <>
@@ -369,6 +381,12 @@ export function CheckoutForm({
             <div className="flex justify-between">
               <span>Rush delivery · {selectedSpeed.label}</span>
               <span>{money(rushFeeCents)}</span>
+            </div>
+          )}
+          {shippingQuote && (
+            <div className="flex justify-between">
+              <span>Shipping · {shippingQuote.boxLabel} (US)</span>
+              <span>{money(shippingCents)}</span>
             </div>
           )}
         </div>

@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { logEvent } from "@/lib/analytics/events";
 import { createProjectForOrder, runOrchestrator } from "@/lib/agents/orchestrator";
 import { recordReferralPurchase } from "@/lib/referrals/commissions";
+import { decrementInventoryForOrder } from "@/lib/inventory/decrement";
 import type { PaymentProvider } from "@/lib/types";
 
 /**
@@ -27,6 +28,8 @@ export async function completeOrderPayment(orderId: string, provider: PaymentPro
   if (order.customer.referredByCode) {
     await recordReferralPurchase(order.customer.referredByCode, order.customerId, orderId, order.totalCents);
   }
+
+  await decrementInventoryForOrder(orderId);
 
   const project = await createProjectForOrder(orderId);
 

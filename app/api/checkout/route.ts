@@ -83,6 +83,8 @@ export async function POST(req: NextRequest) {
       discountCents: priced.discountCents,
       deliverySpeed: priced.deliverySpeed,
       rushFeeCents: priced.rushFeeCents,
+      shippingCents: priced.shippingCents,
+      shippingBoxLabel: priced.shippingBoxLabel,
       totalCents: priced.totalCents,
       couponCode: couponCode ?? null,
       campaignSource: campaignSource ?? null,
@@ -145,6 +147,22 @@ export async function POST(req: NextRequest) {
             },
           ]
         : [];
+    // Shipping is its own line item, not folded into the product price, so
+    // the customer sees exactly what production vs. shipping costs — the
+    // same box named on the checkout page is named again on the Stripe receipt.
+    const shippingLineItem =
+      priced.shippingCents > 0
+        ? [
+            {
+              price_data: {
+                currency: "usd",
+                product_data: { name: `Shipping (US) — ${priced.shippingBoxLabel}` },
+                unit_amount: priced.shippingCents,
+              },
+              quantity: 1,
+            },
+          ]
+        : [];
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [
@@ -160,6 +178,7 @@ export async function POST(req: NextRequest) {
             };
           }),
         ...rushLineItem,
+        ...shippingLineItem,
       ],
       success_url: `${process.env.APP_BASE_URL}/checkout/success?order=${order.id}`,
       cancel_url: `${process.env.APP_BASE_URL}/checkout?cancelled=1`,

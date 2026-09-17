@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 export type StudioEvent =
   | "order.created"
   | "order.manual_payment_requested"
+  | "nfc_intake.submitted"
   | "payment.succeeded"
   | "project.created"
   | "project.state_changed"

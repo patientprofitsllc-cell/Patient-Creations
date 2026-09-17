@@ -98,6 +98,8 @@ model Order {
   discountCents  Int         @default(0)
   deliverySpeed  String      @default("standard") // DeliverySpeed
   rushFeeCents   Int         @default(0)
+  shippingCents  Int         @default(0) // physical-goods orders only (e.g. NFC cards) — see lib/payments/shipping.ts
+  shippingBoxLabel String?   // which flat-rate box the shippingCents quote was based on, kept for transparency in the order summary
   totalCents     Int
   couponCode     String?
   paymentMethod  String      @default("stripe") // PaymentMethod — chosen on the payment-method step of checkout
@@ -109,6 +111,39 @@ model Order {
   items          OrderItem[]
   payments       Payment[]
   project        Project?
+  nfcIntake      NfcIntake?
+}
+
+// Physical stock on hand for merch (NFC cards). Tracked per design/color
+// rather than per Stripe product, since some designs (Google Review) come
+// in two colors that checkout doesn't ask the customer to choose between —
+// admin fulfills those manually and adjusts the matching bucket by hand.
+// productSlug links a row to a Product for automatic decrement on a paid
+// order; left null when the mapping is ambiguous (e.g. the color split).
+model InventoryItem {
+  id                String   @id @default(cuid())
+  sku               String   @unique
+  label             String
+  productSlug       String?
+  quantityOnHand    Int      @default(0)
+  lowStockThreshold Int      @default(5)
+  updatedAt         DateTime @updatedAt
+}
+
+// Post-purchase questionnaire collected on the order-confirmation page for
+// NFC card orders — what the card should say/link to and how to reach the
+// customer with proof art before the card is programmed and shipped.
+model NfcIntake {
+  id              String   @id @default(cuid())
+  orderId         String   @unique
+  order           Order    @relation(fields: [orderId], references: [id])
+  socialMediaPage String?
+  nfcContent      String
+  targetLink      String
+  cardColor       String?  // "black" | "white" — only asked for designs with a color choice (currently Google Review)
+  phone           String
+  email           String
+  createdAt       DateTime @default(now())
 }
 
 model OrderItem {

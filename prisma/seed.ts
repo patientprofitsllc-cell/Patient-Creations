@@ -317,6 +317,20 @@ const ADD_ONS: {
   },
 ];
 
+// Current physical stock on hand, as counted by Trenton. `update` never
+// touches quantityOnHand on a reseed — only `create` sets a starting count —
+// so re-running this script can't clobber stock changes made since launch.
+const INVENTORY: { sku: string; label: string; productSlug: string | null; quantityOnHand: number }[] = [
+  { sku: "nfc-tiktok", label: "TikTok", productSlug: "nfc-tiktok", quantityOnHand: 10 },
+  { sku: "nfc-instagram", label: "Instagram", productSlug: "nfc-instagram", quantityOnHand: 20 },
+  { sku: "nfc-google-review-black", label: "Google Review — Black", productSlug: null, quantityOnHand: 20 },
+  { sku: "nfc-google-review-white", label: "Google Review — White", productSlug: null, quantityOnHand: 20 },
+  { sku: "nfc-youtube", label: "YouTube", productSlug: "nfc-youtube", quantityOnHand: 0 },
+  { sku: "nfc-custom-menu", label: "Custom Menu", productSlug: "nfc-custom-menu", quantityOnHand: 0 },
+  { sku: "nfc-whatsapp", label: "WhatsApp", productSlug: "nfc-whatsapp", quantityOnHand: 0 },
+  { sku: "nfc-wifi", label: "WiFi", productSlug: "nfc-wifi", quantityOnHand: 0 },
+];
+
 // Slugs from the earlier generic "AI Creation Studio" catalog. Deactivated
 // rather than deleted so historical orders/order items that reference them
 // keep working; they're excluded from /services by the `active` filter.
@@ -371,6 +385,14 @@ async function main() {
 
   for (const a of ADD_ONS) {
     await db.product.upsert({ where: { slug: a.slug }, update: a, create: a });
+  }
+
+  for (const i of INVENTORY) {
+    await db.inventoryItem.upsert({
+      where: { sku: i.sku },
+      update: { label: i.label, productSlug: i.productSlug },
+      create: i,
+    });
   }
 
   const adminEmail = process.env.ADMIN_SEED_EMAIL ?? "book@patientprofits.com";

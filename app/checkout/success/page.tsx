@@ -3,10 +3,21 @@ import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { db } from "@/lib/db";
 import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
+import { NfcIntakeForm } from "@/components/checkout/NfcIntakeForm";
+import { CalendlyBooking } from "@/components/checkout/CalendlyBooking";
 
 export default async function CheckoutSuccessPage({ searchParams }: { searchParams: { order?: string } }) {
-  const order = searchParams.order ? await db.order.findUnique({ where: { id: searchParams.order }, include: { project: true } }) : null;
+  const order = searchParams.order
+    ? await db.order.findUnique({
+        where: { id: searchParams.order },
+        include: { project: true, items: { include: { product: true } }, nfcIntake: true, customer: { include: { user: true } } },
+      })
+    : null;
   const awaitingManualPayment = order && order.paymentMethod !== "stripe" && order.status !== "PAID";
+  const isNfcOrder = order?.items[0]?.product.category === "Merch";
+  // Every non-Merch purchase is a service build — a kickoff call is the
+  // next real step, so it's the only category that gets the Calendly prompt.
+  const isServiceBuild = order && !isNfcOrder;
 
   return (
     <>
@@ -39,6 +50,29 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
             </Link>
           )}
         </div>
+
+        {isNfcOrder && order && (
+          <NfcIntakeForm
+            orderId={order.id}
+            showColorChoice={order.items[0]?.product.slug === "nfc-google-review"}
+            existing={
+              order.nfcIntake
+                ? {
+                    socialMediaPage: order.nfcIntake.socialMediaPage,
+                    nfcContent: order.nfcIntake.nfcContent,
+                    targetLink: order.nfcIntake.targetLink,
+                    cardColor: order.nfcIntake.cardColor,
+                    phone: order.nfcIntake.phone,
+                    email: order.nfcIntake.email,
+                  }
+                : null
+            }
+          />
+        )}
+
+        {isServiceBuild && order && (
+          <CalendlyBooking name={order.customer.user.name ?? order.customer.user.email} email={order.customer.user.email} />
+        )}
       </main>
       <SiteFooter />
     </>
