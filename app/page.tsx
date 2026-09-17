@@ -20,6 +20,18 @@ function money(cents: number) {
 // market. Displayed lowest price to highest, not DB sortOrder.
 const FEATURED_SLUGS = ["site", "saas", "agents", "ad", "rental-listing-film", "lead-engine"];
 
+// Plain-language taglines for this homepage teaser only — quick to read at a
+// glance. The fuller, more detailed copy still lives on /services and at
+// checkout for anyone already deciding between tiers.
+const TAGLINES: Record<string, string> = {
+  site: "A beautiful, professional website — built fast and easy for anyone to use.",
+  saas: "A real app with logins, payments, and AI built right in.",
+  agents: "A team of AI workers that get things done for you, automatically.",
+  ad: "A short, scroll-stopping video ad made for social media.",
+  "rental-listing-film": "A stunning video tour that gets your rental booked faster.",
+  "lead-engine": "Finds new customers and sends them straight to you.",
+};
+
 const NFC_SHOWCASE = [
   { name: "Google Review", slug: "nfc-google-review", src: "/assets/nfc-cards/google-review.jpeg", rotate: "-rotate-6", translate: "sm:translate-x-6", z: "z-0" },
   { name: "YouTube", slug: "nfc-youtube", src: "/assets/nfc-cards/youtube.jpeg", rotate: "rotate-3", translate: "sm:translate-x-3", z: "z-10" },
@@ -119,16 +131,22 @@ export default async function HomePage() {
               <Link
                 key={product.slug}
                 href={`/checkout?product=${product.slug}`}
-                className="glass-panel group flex flex-col rounded-2xl p-6 transition hover:border-gold/40"
+                className="glass-panel group relative flex flex-col overflow-hidden rounded-2xl p-6 transition hover:border-gold/40 hover:shadow-gold-glow"
               >
-                <p className="text-xs uppercase tracking-widest text-gold/60">{product.category}</p>
-                <h3 className="mt-2 font-display text-xl text-ice">{product.name}</h3>
-                <p className="mt-2 flex-1 text-sm text-ice/50">{product.description}</p>
-                <p className="mt-4 font-display text-2xl text-champagne">
-                  {money(product.priceCents)}
-                  <span className="ml-1 text-sm text-ice/40">from</span>
-                </p>
-                <span className="mt-4 text-sm text-gold transition group-hover:brightness-125">Reserve this build →</span>
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_85%_0%,rgba(224,196,138,0.18),transparent_55%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                />
+                <div className="relative z-10 flex flex-1 flex-col">
+                  <p className="text-xs uppercase tracking-widest text-gold/60">{product.category}</p>
+                  <h3 className="mt-2 font-display text-xl text-ice">{product.name}</h3>
+                  <p className="mt-2 flex-1 text-sm text-ice/50">{TAGLINES[product.slug] ?? product.description}</p>
+                  <p className="mt-4 font-display text-2xl text-champagne">
+                    {money(product.priceCents)}
+                    <span className="ml-1 text-sm text-ice/40">from</span>
+                  </p>
+                  <span className="mt-4 text-sm text-gold transition group-hover:brightness-125">Reserve this build →</span>
+                </div>
               </Link>
             ))}
           </div>
