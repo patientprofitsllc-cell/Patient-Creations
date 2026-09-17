@@ -7,42 +7,42 @@ const STEPS: { art: ChapterArtType; title: string; body: string; href: string; l
   {
     art: "rings",
     title: "1. Pick a build.",
-    body: "Every service (Cinematic Website, AI Software/App, Multi-Agent System, Cinematic Ad, and more) is priced Core, Signature, or Flagship, shown next to real market rates so you can see exactly how far below the going rate it lands.",
+    body: "Choose what you need — a website, an app, a video ad, whatever it is. Every option shows you a clear price and exactly how much cheaper it is than hiring an agency.",
     href: "/services",
     linkLabel: "Browse services & pricing",
   },
   {
     art: "lattice",
-    title: "2. Configure it and pay.",
-    body: "Choose your tier, add-ons, and delivery speed (Standard, Priority, Express, or Immediate), priced against the real production queue, not a flat guess. Then pick how you'd like to pay: card processes instantly, or choose Zelle/Apple Pay and we'll follow up directly.",
+    title: "2. Set it up and pay.",
+    body: "Pick your price level, add anything extra you want, and choose how fast you need it done. Then pay with a card for instant checkout, or choose Zelle/Apple Pay and we'll reach out to finish up.",
     href: "/services#pricing",
     linkLabel: "See delivery speed & pricing",
   },
   {
     art: "network",
-    title: "3. Watch the agents get to work.",
-    body: "The moment payment is confirmed, the order is decomposed into tasks and handed to a pipeline of specialist agents (research, strategy, concept, build, automation) running in sequence, not a single freelancer working through a to-do list.",
+    title: "3. The AI team gets to work.",
+    body: "The second you pay, a team of AI specialists starts on your project right away — not one person slowly working through a to-do list.",
     href: "/agents",
     linkLabel: "Meet the agent network",
   },
   {
     art: "burst",
-    title: "4. Nothing ships without QA and perception review.",
-    body: "Every build passes a structural QA audit and a scored perception review (clarity, trust, premium feel, conversion confidence) before it's ever marked ready. A failed check sends it back for revision automatically, on a bounded retry budget, not an endless loop.",
+    title: "4. Everything gets checked before you see it.",
+    body: "Before anything is handed to you, it's checked twice: once to make sure it works, and once to make sure it looks and feels premium. If something's off, it's fixed automatically first.",
     href: "/agents",
     linkLabel: "How the review loop works",
   },
   {
     art: "wave",
-    title: "5. Track real progress, anywhere, anytime.",
-    body: "Every project gets a private, no-login status link the moment it's created, sent by email and available in your portal. It shows genuine progress computed from completed work, a full production timeline, and any update we post for you directly.",
+    title: "5. Watch it happen, anytime.",
+    body: "You get a private link to check on your project whenever you want — no login needed. It shows real progress, not a guess, plus any updates we send along the way.",
     href: "/portal/dashboard",
     linkLabel: "Open your portal",
   },
   {
     art: "ascend",
-    title: "6. Take delivery, review, and grow it.",
-    body: "Once delivered, review the work, request a revision if something needs adjusting, and pick up your referral link: 10% commission on anyone you send our way, tracked from click to paid.",
+    title: "6. Get it, review it, earn from it.",
+    body: "When it's done, you check it over and ask for changes if you need any. You'll also get your own referral link — earn 10% every time someone you send our way buys something.",
     href: "/portal/referrals",
     linkLabel: "See the referral program",
   },
@@ -58,15 +58,15 @@ export default function GuidedAppTourPage() {
           Exactly what happens, start to finish.
         </h1>
         <p className="mt-4 max-w-2xl text-ice/50">
-          No guesswork about what you're buying. Here is the real path from "I need a build" to a delivered,
-          reviewed project: six steps, every one of them backed by the actual system, not a sales pitch.
+          Here's exactly what happens, in plain terms — from the moment you decide you need something built to the
+          day it lands in your hands, ready to use.
         </p>
 
         <div className="relative mt-16 space-y-14">
           <div className="absolute bottom-0 left-8 top-2 hidden w-px bg-white/10 sm:block" aria-hidden />
           {STEPS.map((step) => (
             <div key={step.title} className="relative flex flex-col gap-5 sm:flex-row sm:items-start">
-              <div className="relative z-10 w-16 flex-none rounded-full bg-obsidian sm:w-16">
+              <div className="relative z-10 flex w-16 flex-none items-center justify-center rounded-full border border-gold/30 bg-white/5 p-3 shadow-gold-glow sm:w-16">
                 <ChapterArt type={step.art} className="w-full" />
               </div>
               <div className="glass-panel flex-1 rounded-2xl p-6">
