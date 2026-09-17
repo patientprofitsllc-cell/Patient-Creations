@@ -17,7 +17,7 @@ function money(cents: number) {
 }
 
 // The six flagship builds — the same lineup /services compares against the
-// market. Kept in this fixed order regardless of DB sortOrder.
+// market. Displayed lowest price to highest, not DB sortOrder.
 const FEATURED_SLUGS = ["site", "saas", "agents", "ad", "rental-listing-film", "lead-engine"];
 
 const NFC_SHOWCASE = [
@@ -34,9 +34,9 @@ export default async function HomePage() {
   const rawFeatured = await db.product.findMany({
     where: { slug: { in: FEATURED_SLUGS }, active: true },
   });
-  const featured = FEATURED_SLUGS.map((slug) => rawFeatured.find((p) => p.slug === slug)).filter(
-    (p): p is NonNullable<typeof p> => Boolean(p),
-  );
+  const featured = FEATURED_SLUGS.map((slug) => rawFeatured.find((p) => p.slug === slug))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p))
+    .sort((a, b) => a.priceCents - b.priceCents);
 
   return (
     <>
