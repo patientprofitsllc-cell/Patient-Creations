@@ -42,6 +42,18 @@ export function periodEndOf(sub: SubscriptionLike): Date | null {
 
 const idOf = (v: string | { id: string } | null | undefined): string | null => (typeof v === "string" ? v : (v?.id ?? null));
 
+type SubRef = string | { id: string } | null | undefined;
+
+/**
+ * The subscription an invoice belongs to. Older Stripe API versions put it on
+ * `invoice.subscription`; newer ones (2025 onward) moved it to
+ * `invoice.parent.subscription_details.subscription`. Webhook endpoints can be
+ * set to either version, so both are read.
+ */
+export function invoiceSubscriptionId(invoice: { subscription?: SubRef; parent?: { subscription_details?: { subscription?: SubRef } | null } | null }): string | null {
+  return idOf(invoice.subscription) ?? idOf(invoice.parent?.subscription_details?.subscription);
+}
+
 async function notifyAdmin(title: string, body: string) {
   await db.notification.create({ data: { audience: "admin", title, body } });
 }
@@ -180,8 +192,8 @@ export async function handleCareEvent(event: Stripe.Event): Promise<"handled" | 
     case "invoice.payment_failed":
     case "invoice.paid":
     case "invoice.payment_succeeded": {
-      const invoice = event.data.object as unknown as { subscription?: string | { id: string } | null };
-      const subscriptionId = idOf(invoice.subscription);
+      const invoice = event.data.object as unknown as Parameters<typeof invoiceSubscriptionId>[0];
+      const subscriptionId = invoiceSubscriptionId(invoice);
       if (!subscriptionId) return "ignored";
       return applyStatus(subscriptionId, event.type === "invoice.payment_failed" ? "PAST_DUE" : "ACTIVE");
     }

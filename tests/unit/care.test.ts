@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mapStripeStatus, periodEndOf } from "@/lib/care/events";
+import { invoiceSubscriptionId, mapStripeStatus, periodEndOf } from "@/lib/care/events";
 import { CARE_PLAN_INCLUDES, CARE_PLAN_NOT_INCLUDED, LIVE_CARE_STATUSES } from "@/lib/site/carePlan";
 
 describe("mapStripeStatus", () => {
@@ -51,5 +51,23 @@ describe("care plan wording", () => {
 
   it("counts both paid and retrying plans as having a plan", () => {
     expect([...LIVE_CARE_STATUSES]).toEqual(["ACTIVE", "PAST_DUE"]);
+  });
+});
+
+describe("invoiceSubscriptionId", () => {
+  it("reads the older invoice shape", () => {
+    expect(invoiceSubscriptionId({ subscription: "sub_old" })).toBe("sub_old");
+    expect(invoiceSubscriptionId({ subscription: { id: "sub_obj" } })).toBe("sub_obj");
+  });
+
+  it("reads the newer invoice shape, where the subscription moved under parent", () => {
+    expect(invoiceSubscriptionId({ parent: { subscription_details: { subscription: "sub_new" } } })).toBe("sub_new");
+    expect(invoiceSubscriptionId({ parent: { subscription_details: { subscription: { id: "sub_new2" } } } })).toBe("sub_new2");
+  });
+
+  it("returns null for a one-time invoice with no subscription", () => {
+    expect(invoiceSubscriptionId({})).toBeNull();
+    expect(invoiceSubscriptionId({ parent: null })).toBeNull();
+    expect(invoiceSubscriptionId({ parent: { subscription_details: null } })).toBeNull();
   });
 });
