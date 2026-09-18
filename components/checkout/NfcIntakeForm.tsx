@@ -88,7 +88,9 @@ export function NfcIntakeForm({
       <div className="mt-6 space-y-4">
         {showColorChoice && (
           <div>
-            <label className="mb-1 block text-xs text-ice/40">Which card color?</label>
+            <label className="mb-1 block text-xs text-ice/40">
+              {multi ? "Which color for your Google Review cards?" : "Which card color?"}
+            </label>
             <div className="flex gap-3">
               {(["black", "white"] as const).map((c) => (
                 <button

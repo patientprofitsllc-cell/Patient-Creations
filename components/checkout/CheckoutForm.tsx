@@ -6,7 +6,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { computeRushFeeCents, getApplicableSpeeds } from "@/lib/payments/deliverySpeed";
 import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
 import { calculateShippingCents } from "@/lib/payments/shipping";
-import { NFC_ADDON_SLUG, NFC_BUNDLE_SLUG, resolveNfcAddonPriceCents } from "@/lib/payments/nfcAddon";
+import {
+  NFC_ADDON_SLUG,
+  NFC_ADDON_BULK_MIN_QTY,
+  NFC_ADDON_BULK_UNIT_CENTS,
+  NFC_BUNDLE_SLUG,
+  priceNfcAddon,
+} from "@/lib/payments/nfcAddon";
+import { CARD_DESIGNS, CARD_MIX_PACK_SLUG } from "@/lib/payments/cardMix";
 import { supportsQuantity } from "@/lib/payments/quantityProducts";
 import { businessDays } from "@/lib/payments/deliveryWindow";
 import { PAYMENT_METHODS } from "@/lib/payments/paymentMethods";
@@ -60,6 +67,9 @@ export function CheckoutForm({
     ? Math.min(100, Math.max(1, Math.round(Number(params.get("qty"))) || 1))
     : 1;
   const [quantity, setQuantity] = useState(initialQty);
+  const [nfcAddonQty, setNfcAddonQty] = useState(1);
+  // Mix-and-match card pack: how many of each design.
+  const [mix, setMix] = useState<Record<string, number>>({});
   const [selectedBumps, setSelectedBumps] = useState<string[]>([]);
   const [coupon, setCoupon] = useState("");
   const [name, setName] = useState("");
@@ -71,15 +81,27 @@ export function CheckoutForm({
   const [error, setError] = useState<string | null>(null);
 
   const isMerch = primaryProduct.category === "Merch";
+  const isCardPack = primaryProduct.slug === CARD_MIX_PACK_SLUG;
   const usesQuantity = supportsQuantity(primaryProduct.category ?? "");
   const isBundle = primaryProduct.slug === NFC_BUNDLE_SLUG;
+  const mixTotal = Object.values(mix).reduce((sum, q) => sum + q, 0);
+  // The card pack's quantity is the sum across designs; everything else uses the stepper.
+  const qty = isCardPack ? mixTotal : quantity;
+  function changeMix(slug: string, delta: number) {
+    setMix((m) => {
+      const current = m[slug] ?? 0;
+      const next = Math.max(0, current + delta);
+      if (mixTotal - current + next > 100) return m;
+      return { ...m, [slug]: next };
+    });
+  }
   // The bundle already includes NFC cards, so the card add-on isn't offered on top of it.
   const shownBumps = isBundle ? orderBumps.filter((b) => b.slug !== NFC_ADDON_SLUG) : orderBumps;
   const selectedVariant = variants.find((v) => v.id === variantId);
-  const bulkDiscountApplies = Boolean(primaryProduct.setupFeeCents) && quantity >= BULK_SETUP_WAIVER_MIN_QTY;
+  const bulkDiscountApplies = Boolean(primaryProduct.setupFeeCents) && qty >= BULK_SETUP_WAIVER_MIN_QTY;
   const basePriceCents = selectedVariant?.priceCents ?? primaryProduct.priceCents;
   const primaryPriceCents = bulkDiscountApplies ? basePriceCents - (primaryProduct.setupFeeCents ?? 0) : basePriceCents;
-  const primaryLineTotal = primaryPriceCents * quantity;
+  const primaryLineTotal = primaryPriceCents * qty;
   const primaryLabel = selectedVariant
     ? `${primaryProduct.name} · ${selectedVariant.name}`
     : variants.length > 0
@@ -103,14 +125,19 @@ export function CheckoutForm({
   // displayed price always matches what's actually charged.
   const bumpPriceCents = (bump: ProductLite) =>
     bump.slug === NFC_ADDON_SLUG
-      ? resolveNfcAddonPriceCents(bump.priceCents, { slug: primaryProduct.slug, category: primaryProduct.category ?? "" }, primaryPriceCents)
+      ? priceNfcAddon(
+          bump.priceCents,
+          { slug: primaryProduct.slug, category: primaryProduct.category ?? "" },
+          primaryPriceCents,
+          selectedBumps.includes(bump.id) ? nfcAddonQty : 1,
+        ).totalCents
       : bump.priceCents;
 
   const bumpTotal = orderBumps.filter((b) => selectedBumps.includes(b.id)).reduce((s, b) => s + bumpPriceCents(b), 0);
   // Physical goods only, domestic US, box included — see lib/payments/shipping.ts.
   // Mirrors the server-side calculation in lib/payments/pricing.ts exactly, so what's
   // shown here always matches what Stripe actually charges as its own line item.
-  const shippingQuote = isMerch ? calculateShippingCents(quantity) : null;
+  const shippingQuote = isMerch && qty > 0 ? calculateShippingCents(qty) : null;
   const shippingCents = shippingQuote?.cents ?? 0;
   const subtotal = primaryLineTotal + bumpTotal + rushFeeCents + shippingCents;
 
@@ -124,7 +151,9 @@ export function CheckoutForm({
         body: JSON.stringify({
           productIds: [primaryProduct.id, ...selectedBumps],
           primaryVariantId: variantId,
-          primaryQuantity: quantity,
+          primaryQuantity: Math.max(1, qty),
+          nfcAddonQuantity: nfcAddonQty,
+          cardMix: isCardPack ? Object.fromEntries(Object.entries(mix).filter(([, q]) => q > 0)) : undefined,
           deliverySpeed,
           paymentMethod,
           couponCode: coupon || undefined,
@@ -193,7 +222,57 @@ export function CheckoutForm({
           </div>
         ) : (
         <>
-        {usesQuantity && (
+        {isCardPack && (
+          <div className="glass-panel rounded-2xl p-6">
+            <h2 className="mb-1 text-ice">How many of each?</h2>
+            <p className="mb-4 text-xs text-ice/40">
+              Pick as many of each design as you like. Order {BULK_SETUP_WAIVER_MIN_QTY} or more cards in total and the
+              setup fee is waived, so every card is {money(primaryProduct.priceCents - (primaryProduct.setupFeeCents ?? 0))}.
+            </p>
+            <div className="space-y-2">
+              {CARD_DESIGNS.map((d) => (
+                <div key={d.slug} className="flex items-center justify-between rounded-lg border border-white/5 p-3">
+                  <span className="text-ice">{d.name}</span>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => changeMix(d.slug, -1)}
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-ice hover:border-gold/40"
+                      aria-label={`Fewer ${d.name} cards`}
+                    >
+                      −
+                    </button>
+                    <span className="w-8 text-center text-ice" aria-live="polite">
+                      {mix[d.slug] ?? 0}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => changeMix(d.slug, 1)}
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-ice hover:border-gold/40"
+                      aria-label={`More ${d.name} cards`}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-sm text-ice/60">
+              {mixTotal === 0
+                ? "Choose at least one card to continue."
+                : `${mixTotal} card${mixTotal === 1 ? "" : "s"} total · ${money(primaryPriceCents)} each`}
+            </p>
+            {mixTotal > 0 && (
+              <p className="mt-1 text-xs text-champagne">
+                {bulkDiscountApplies
+                  ? `Bulk pricing applied: the $${((primaryProduct.setupFeeCents ?? 0) / 100).toFixed(0)} setup fee is waived at ${BULK_SETUP_WAIVER_MIN_QTY}+.`
+                  : `Add ${BULK_SETUP_WAIVER_MIN_QTY - mixTotal} more and the setup fee is waived on every card.`}
+              </p>
+            )}
+          </div>
+        )}
+
+        {usesQuantity && !isCardPack && (
           <div className="glass-panel rounded-2xl p-6">
             <h2 className="mb-4 text-ice">{isMerch ? "Quantity" : "How many ads?"}</h2>
             <div className="flex items-center gap-4">
@@ -344,21 +423,54 @@ export function CheckoutForm({
             )}
             <div className="space-y-3">
               {shownBumps.map((bump) => (
-                <label key={bump.id} className="flex cursor-pointer items-start gap-3 rounded-lg border border-white/5 p-3 hover:border-gold/30">
-                  <input
-                    type="checkbox"
-                    className="mt-1"
-                    checked={selectedBumps.includes(bump.id)}
-                    onChange={(e) =>
-                      setSelectedBumps((prev) => (e.target.checked ? [...prev, bump.id] : prev.filter((id) => id !== bump.id)))
-                    }
-                  />
-                  <span className="flex-1">
-                    <span className="block text-ice">{bump.name}</span>
-                    <span className="block text-sm text-ice/50">{bump.description}</span>
-                  </span>
-                  <span className="text-champagne">{bumpPriceCents(bump) === 0 ? "Free" : money(bumpPriceCents(bump))}</span>
-                </label>
+                <div key={bump.id}>
+                  <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-white/5 p-3 hover:border-gold/30">
+                    <input
+                      type="checkbox"
+                      className="mt-1"
+                      checked={selectedBumps.includes(bump.id)}
+                      onChange={(e) =>
+                        setSelectedBumps((prev) => (e.target.checked ? [...prev, bump.id] : prev.filter((id) => id !== bump.id)))
+                      }
+                    />
+                    <span className="flex-1">
+                      <span className="block text-ice">{bump.name}</span>
+                      <span className="block text-sm text-ice/50">{bump.description}</span>
+                    </span>
+                    <span className="text-champagne">{bumpPriceCents(bump) === 0 ? "Free" : money(bumpPriceCents(bump))}</span>
+                  </label>
+                  {bump.slug === NFC_ADDON_SLUG && selectedBumps.includes(bump.id) && (
+                    <div className="mx-3 mt-2 rounded-lg border border-gold/20 bg-gold/5 p-3">
+                      <div className="flex items-center gap-3 text-sm text-ice/70">
+                        <span>How many cards?</span>
+                        <button
+                          type="button"
+                          onClick={() => setNfcAddonQty((q) => Math.max(1, q - 1))}
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-ice hover:border-gold/40"
+                          aria-label="Fewer add-on cards"
+                        >
+                          −
+                        </button>
+                        <span className="w-8 text-center text-ice" aria-live="polite">
+                          {nfcAddonQty}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setNfcAddonQty((q) => Math.min(100, q + 1))}
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-ice hover:border-gold/40"
+                          aria-label="More add-on cards"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <p className="mt-2 text-xs text-champagne">
+                        {nfcAddonQty >= NFC_ADDON_BULK_MIN_QTY
+                          ? `Special applied: every card is ${money(NFC_ADDON_BULK_UNIT_CENTS)}.`
+                          : `Special: add ${NFC_ADDON_BULK_MIN_QTY} or more and every card is ${money(NFC_ADDON_BULK_UNIT_CENTS)} each.`}
+                      </p>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>
@@ -384,15 +496,33 @@ export function CheckoutForm({
       <div className="glass-panel h-fit rounded-2xl p-6">
         <h2 className="mb-4 text-ice">Order summary</h2>
         <div className="space-y-2 text-sm text-ice/70">
-          <div className="flex justify-between">
-            <span>{primaryLabel}{quantity > 1 ? ` × ${quantity}` : ""}</span>
-            <span>{money(primaryLineTotal)}</span>
-          </div>
+          {isCardPack ? (
+            mixTotal === 0 ? (
+              <div className="flex justify-between text-ice/40">
+                <span>Choose your cards</span>
+                <span>{money(0)}</span>
+              </div>
+            ) : (
+              CARD_DESIGNS.filter((d) => (mix[d.slug] ?? 0) > 0).map((d) => (
+                <div key={d.slug} className="flex justify-between">
+                  <span>
+                    {d.name} × {mix[d.slug]}
+                  </span>
+                  <span>{money((mix[d.slug] ?? 0) * primaryPriceCents)}</span>
+                </div>
+              ))
+            )
+          ) : (
+            <div className="flex justify-between">
+              <span>{primaryLabel}{qty > 1 ? ` × ${qty}` : ""}</span>
+              <span>{money(primaryLineTotal)}</span>
+            </div>
+          )}
           {orderBumps
             .filter((b) => selectedBumps.includes(b.id))
             .map((b) => (
               <div key={b.id} className="flex justify-between">
-                <span>{b.name}</span>
+                <span>{b.name}{b.slug === NFC_ADDON_SLUG && nfcAddonQty > 1 ? ` × ${nfcAddonQty}` : ""}</span>
                 <span>{bumpPriceCents(b) === 0 ? "Free" : money(bumpPriceCents(b))}</span>
               </div>
             ))}
@@ -416,7 +546,7 @@ export function CheckoutForm({
         </div>
         <button
           onClick={step === "details" ? goToPayment : submit}
-          disabled={loading || !detailsValid}
+          disabled={loading || !detailsValid || (isCardPack && mixTotal === 0)}
           className="mt-6 w-full rounded-full bg-gradient-to-b from-gold to-gold-deep px-6 py-3 text-sm font-semibold tracking-wide text-obsidian transition hover:brightness-110 disabled:opacity-40"
         >
           {loading ? "Processing…" : step === "details" ? "Continue to payment" : `Reserve this build, pay via ${selectedMethod.label}`}

@@ -148,9 +148,9 @@ const SERVICES: ServiceDef[] = [
   },
   {
     slug: "nfc-cards",
-    name: "NFC Cards",
+    name: "NFC Cards — Mix & Match",
     category: "Merch",
-    description: "Tap-to-share smart cards. A phone tap opens your contact info, socials, or booking link. No app required. Choose how many you need. Setup is included.",
+    description: "Tap-to-share smart cards. A phone tap opens your contact info, socials, or booking link. Choose how many of each design you want. Setup is included.",
     baseCents: 7500,
     setupFeeCents: 2500,
     tierable: false,
@@ -334,13 +334,14 @@ const ADD_ONS: {
     sortOrder: 4,
   },
   {
-    // Price is a default only — lib/payments/nfcAddon.ts overrides it to $45
-    // on the Starter Website and free on a $1,000+ cinematic video tier.
+    // Price is the default per-card price — lib/payments/nfcAddon.ts overrides
+    // the first card ($45 on the Starter Website, free on a $1,000+ cinematic
+    // video tier) and drops every card to $50 at 10 or more.
     slug: "nfc-card-addon",
     name: "NFC Card — Your Choice",
     category: "Add-on",
     type: "ORDER_BUMP",
-    description: "Add one NFC growth card in the design of your choice (Google Review, YouTube, Menu, WiFi, and more). Tell us which one right after checkout.",
+    description: "Add NFC growth cards in the designs of your choice (Google Review, YouTube, Menu, WiFi, and more). Special: add 10 or more and every card is $50. Tell us which designs right after checkout.",
     priceCents: 7500,
     revisionLimit: 0,
     sortOrder: 5,

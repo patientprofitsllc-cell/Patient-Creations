@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/security/authOptions";
 import { db } from "@/lib/db";
-import { priceOrder } from "@/lib/payments/pricing";
+import { priceOrder, priceCardMix } from "@/lib/payments/pricing";
 import { isStripeConfigured, getStripe } from "@/lib/payments/stripe";
 import { completeOrderPayment } from "@/lib/payments/completeOrder";
 import { ensureReferralForCustomer } from "@/lib/referrals/codes";
@@ -15,6 +15,10 @@ const checkoutSchema = z.object({
   productIds: z.array(z.string()).min(1),
   primaryVariantId: z.string().optional(),
   primaryQuantity: z.number().int().min(1).max(100).default(1),
+  // How many cards on the "NFC Card — Your Choice" add-on (10+ drops every card to $50).
+  nfcAddonQuantity: z.number().int().min(1).max(100).default(1),
+  // Mix-and-match card pack: { designSlug: quantity }. When present it replaces productIds pricing.
+  cardMix: z.record(z.string(), z.number().int().min(1).max(100)).optional(),
   deliverySpeed: z.enum(["standard", "priority", "express", "immediate"]).default("standard"),
   paymentMethod: z.enum(["stripe", "zelle", "apple_pay"]).default("stripe"),
   couponCode: z.string().optional(),
@@ -37,7 +41,7 @@ export async function POST(req: NextRequest) {
   const body = checkoutSchema.safeParse(await req.json());
   if (!body.success) return NextResponse.json({ error: body.error.flatten() }, { status: 400 });
 
-  const { productIds, primaryVariantId, primaryQuantity, deliverySpeed, paymentMethod, couponCode, campaignSource, referralCode, account } = body.data;
+  const { productIds, primaryVariantId, primaryQuantity, nfcAddonQuantity, cardMix, deliverySpeed, paymentMethod, couponCode, campaignSource, referralCode, account } = body.data;
 
   const session = await getServerSession(authOptions);
   let customerId: string;
@@ -70,7 +74,9 @@ export async function POST(req: NextRequest) {
 
   let priced;
   try {
-    priced = await priceOrder(productIds, couponCode, primaryVariantId, deliverySpeed, primaryQuantity);
+    priced = cardMix
+      ? await priceCardMix(cardMix, couponCode)
+      : await priceOrder(productIds, couponCode, primaryVariantId, deliverySpeed, primaryQuantity, nfcAddonQuantity);
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : "Invalid order" }, { status: 400 });
   }

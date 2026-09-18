@@ -19,6 +19,17 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
   const hasNfcAddon = order?.items.some((i) => i.product.slug === NFC_ADDON_SLUG) ?? false;
   const isBundle = order?.items[0]?.product.slug === NFC_BUNDLE_SLUG;
   const showCardSetup = isNfcOrder || hasNfcAddon || isBundle;
+  // How many cards this order covers, so the questionnaire can ask for each one.
+  const sumQty = (pred: (i: NonNullable<typeof order>["items"][number]) => boolean) =>
+    order?.items.filter(pred).reduce((s, i) => s + i.quantity, 0) ?? 0;
+  const cardCount = isBundle
+    ? NFC_BUNDLE_CARD_COUNT
+    : hasNfcAddon
+      ? sumQty((i) => i.product.slug === NFC_ADDON_SLUG)
+      : (order?.items.filter((i) => i.product.category === "Merch").length ?? 0) > 1
+        ? sumQty((i) => i.product.category === "Merch")
+        : 1;
+  const hasGoogleReviewCards = order?.items.some((i) => i.product.slug === "nfc-google-review") ?? false;
   // Every non-Merch purchase is a service build — a kickoff call is the
   // next real step, so it's the only category that gets the Calendly prompt.
   // A bundled NFC add-on doesn't change this: it's still a service build.
@@ -59,8 +70,8 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
         {showCardSetup && order && (
           <NfcIntakeForm
             orderId={order.id}
-            showColorChoice={order.items[0]?.product.slug === "nfc-google-review"}
-            cardCount={isBundle ? NFC_BUNDLE_CARD_COUNT : 1}
+            showColorChoice={hasGoogleReviewCards}
+            cardCount={cardCount}
             existing={
               order.nfcIntake
                 ? {

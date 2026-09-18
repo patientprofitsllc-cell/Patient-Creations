@@ -28,7 +28,10 @@ export async function POST(req: NextRequest) {
   const order = await db.order.findUnique({ where: { id: orderId }, include: { items: { include: { product: true } } } });
   if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
   const primaryItem = order.items[0];
-  const primaryQuantity = primaryItem?.quantity ?? 1;
+  // Google Review cards can be anywhere in the order (a mixed pack has one line per design).
+  const googleReviewQty = order.items
+    .filter((i) => i.product.slug === COLOR_CHOICE_SLUG)
+    .reduce((sum, i) => sum + i.quantity, 0);
   // Eligible either as a standalone card order (primary item is Merch) or as
   // a bundled card add-on on a service build.
   const isEligible =
@@ -38,7 +41,7 @@ export async function POST(req: NextRequest) {
   if (!isEligible) {
     return NextResponse.json({ error: "This order doesn't take card specs" }, { status: 400 });
   }
-  if (primaryItem?.product.slug === COLOR_CHOICE_SLUG && !answers.cardColor) {
+  if (googleReviewQty > 0 && !answers.cardColor) {
     return NextResponse.json({ error: "Please choose a card color" }, { status: 400 });
   }
 
@@ -52,13 +55,13 @@ export async function POST(req: NextRequest) {
 
   // Decrement the matching color bucket the first time we learn it — not on
   // every edit, or re-saving the form after a typo fix would double-count.
-  if (!existing && primaryItem?.product.slug === COLOR_CHOICE_SLUG && answers.cardColor) {
+  if (!existing && googleReviewQty > 0 && answers.cardColor) {
     const sku = `nfc-google-review-${answers.cardColor}`;
     const inventoryItem = await db.inventoryItem.findUnique({ where: { sku } });
     if (inventoryItem) {
       await db.inventoryItem.update({
         where: { id: inventoryItem.id },
-        data: { quantityOnHand: Math.max(0, inventoryItem.quantityOnHand - primaryQuantity) },
+        data: { quantityOnHand: Math.max(0, inventoryItem.quantityOnHand - googleReviewQty) },
       });
     }
   }

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/security/authOptions";
 import { db } from "@/lib/db";
 import { getProjectProgress } from "@/lib/workflows/progress";
+import { summarizeItems } from "@/lib/orders/summary";
 
 export default async function PortalDashboardPage() {
   const session = await getServerSession(authOptions);
@@ -60,7 +61,7 @@ export default async function PortalDashboardPage() {
           {customer.orders.map((order) => (
             <div key={order.id} className="flex items-center justify-between p-4 text-sm">
               <div>
-                <p className="text-ice">{order.items.map((i) => i.product.name).join(", ")}</p>
+                <p className="text-ice">{summarizeItems(order.items)}</p>
                 <p className="text-ice/40">{new Date(order.createdAt).toLocaleDateString()}</p>
               </div>
               <div className="text-right">

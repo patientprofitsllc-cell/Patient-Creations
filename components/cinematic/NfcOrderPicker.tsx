@@ -3,16 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const NFC_DESIGNS = [
-  { slug: "nfc-google-review", name: "Google Review" },
-  { slug: "nfc-youtube", name: "YouTube" },
-  { slug: "nfc-custom-menu", name: "Custom Menu" },
-  { slug: "nfc-whatsapp", name: "WhatsApp" },
-  { slug: "nfc-instagram", name: "Instagram" },
-  { slug: "nfc-tiktok", name: "TikTok" },
-  { slug: "nfc-wifi", name: "WiFi" },
-  { slug: "nfc-cards", name: "Mixed / Bulk Pack" },
-];
+import { CARD_DESIGNS, CARD_MIX_PACK_SLUG } from "@/lib/payments/cardMix";
+
+// One design at a time, or the mix-and-match pack where you choose how many of each.
+const NFC_DESIGNS = [...CARD_DESIGNS, { slug: CARD_MIX_PACK_SLUG, name: "Mix & Match Pack (choose how many of each)" }];
 
 export function NfcOrderPicker() {
   const router = useRouter();

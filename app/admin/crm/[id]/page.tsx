@@ -6,6 +6,7 @@ import { getCustomerTimeline } from "@/lib/admin/customerActivity";
 import { NoteForm } from "@/components/admin/NoteForm";
 import { MarkPaidButton } from "@/components/admin/MarkPaidButton";
 import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
+import { summarizeItems } from "@/lib/orders/summary";
 
 function money(cents: number) {
   return (cents / 100).toLocaleString(undefined, { style: "currency", currency: "USD" });
@@ -90,7 +91,7 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
               return (
                 <div key={o.id} className="p-4 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-ice">{o.items.map((i) => i.product.name).join(", ")}</span>
+                    <span className="text-ice">{summarizeItems(o.items)}</span>
                     <span className="text-champagne">{money(o.totalCents)}</span>
                   </div>
                   <p className="mt-1 text-xs text-ice/40">

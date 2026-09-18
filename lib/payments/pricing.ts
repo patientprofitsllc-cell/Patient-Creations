@@ -3,8 +3,9 @@ import { computeRushFeeCents, DeliverySpeedKey, DELIVERY_SPEEDS, getApplicableSp
 import { getActiveProjectCount } from "@/lib/payments/productionLoad";
 import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
 import { calculateShippingCents } from "@/lib/payments/shipping";
-import { NFC_ADDON_SLUG, NFC_BUNDLE_SLUG, resolveNfcAddonPriceCents } from "@/lib/payments/nfcAddon";
+import { NFC_ADDON_SLUG, NFC_BUNDLE_SLUG, priceNfcAddon } from "@/lib/payments/nfcAddon";
 import { AD_SPECIAL_CATEGORY } from "@/lib/payments/quantityProducts";
+import { CARD_DESIGN_SLUGS } from "@/lib/payments/cardMix";
 
 export interface PricedOrder {
   subtotalCents: number;
@@ -32,8 +33,12 @@ export async function priceOrder(
   primaryVariantId?: string,
   deliverySpeed: string = "standard",
   primaryQuantity: number = 1,
+  nfcAddonQuantity: number = 1,
 ): Promise<PricedOrder> {
   if (productIds.length === 0) throw new Error("No products selected");
+  if (!Number.isInteger(nfcAddonQuantity) || nfcAddonQuantity < 1 || nfcAddonQuantity > MAX_PRIMARY_QUANTITY) {
+    throw new Error(`Card quantity must be a whole number between 1 and ${MAX_PRIMARY_QUANTITY}`);
+  }
   if (!DELIVERY_SPEEDS.some((s) => s.key === deliverySpeed)) {
     throw new Error("Invalid delivery speed selected");
   }
@@ -79,24 +84,35 @@ export async function priceOrder(
     }
   }
 
-  const items = productIds.map((id, i) => {
+  const items = productIds.flatMap((id, i) => {
     const product = products.find((p) => p.id === id)!;
     const isPrimary = i === 0;
+
+    // The card add-on can carry a quantity, and is priced as one or two lines
+    // (first-card special + the rest, or one bulk line). See priceNfcAddon.
+    if (!isPrimary && product.slug === NFC_ADDON_SLUG) {
+      const primaryPriceCents = primaryVariant ? primaryVariant.priceCents : primaryProduct.priceCents;
+      return priceNfcAddon(product.priceCents, primaryProduct, primaryPriceCents, nfcAddonQuantity).lines.map((line) => ({
+        productId: id,
+        productVariantId: null as string | null,
+        priceCents: line.priceCents,
+        quantity: line.quantity,
+      }));
+    }
+
     let priceCents = isPrimary && primaryVariant ? primaryVariant.priceCents : product.priceCents;
     // Bulk order: waive the per-unit setup fee at BULK_SETUP_WAIVER_MIN_QTY+.
     if (isPrimary && product.setupFeeCents > 0 && primaryQuantity >= BULK_SETUP_WAIVER_MIN_QTY) {
       priceCents -= product.setupFeeCents;
     }
-    if (!isPrimary && product.slug === NFC_ADDON_SLUG) {
-      const primaryPriceCents = primaryVariant ? primaryVariant.priceCents : primaryProduct.priceCents;
-      priceCents = resolveNfcAddonPriceCents(priceCents, primaryProduct, primaryPriceCents);
-    }
-    return {
-      productId: id,
-      productVariantId: isPrimary && primaryVariant ? primaryVariant.id : null,
-      priceCents,
-      quantity: isPrimary ? primaryQuantity : 1,
-    };
+    return [
+      {
+        productId: id,
+        productVariantId: isPrimary && primaryVariant ? primaryVariant.id : null,
+        priceCents,
+        quantity: isPrimary ? primaryQuantity : 1,
+      },
+    ];
   });
 
   const subtotalCents = items.reduce((sum, i) => sum + i.priceCents * i.quantity, 0);
@@ -117,6 +133,56 @@ export async function priceOrder(
   const totalCents = Math.max(0, subtotalCents - discountCents + rushFeeCents + shippingCents);
 
   return { subtotalCents, discountCents, rushFeeCents, shippingCents, shippingBoxLabel, deliverySpeed, totalCents, items };
+}
+
+/**
+ * Prices a mix-and-match card order: how many of each design. Each design is
+ * its own order line (so the Stripe receipt, CRM, and inventory all show the
+ * real breakdown). The bulk setup-fee waiver and the shipping box are decided
+ * by the TOTAL card count across designs, not per design.
+ */
+export async function priceCardMix(mix: Record<string, number>, couponCode?: string): Promise<PricedOrder> {
+  const entries = Object.entries(mix).filter(([, qty]) => qty > 0);
+  if (entries.length === 0) throw new Error("Choose at least one card");
+  if (entries.some(([slug, qty]) => !CARD_DESIGN_SLUGS.includes(slug) || !Number.isInteger(qty) || qty < 1)) {
+    throw new Error("One or more selected card designs are invalid");
+  }
+  const totalQty = entries.reduce((sum, [, qty]) => sum + qty, 0);
+  if (totalQty > MAX_PRIMARY_QUANTITY) {
+    throw new Error(`You can order up to ${MAX_PRIMARY_QUANTITY} cards at a time`);
+  }
+
+  const products = await db.product.findMany({
+    where: { slug: { in: entries.map(([slug]) => slug) }, active: true, category: "Merch" },
+  });
+  if (products.length !== entries.length) throw new Error("One or more selected card designs are unavailable");
+
+  const waiveSetup = totalQty >= BULK_SETUP_WAIVER_MIN_QTY;
+  const items = entries.map(([slug, quantity]) => {
+    const product = products.find((p) => p.slug === slug)!;
+    return {
+      productId: product.id,
+      productVariantId: null as string | null,
+      priceCents: waiveSetup ? product.priceCents - product.setupFeeCents : product.priceCents,
+      quantity,
+    };
+  });
+
+  const subtotalCents = items.reduce((sum, i) => sum + i.priceCents * i.quantity, 0);
+  const discountCents = couponCode ? await resolveCouponDiscount(couponCode, subtotalCents) : 0;
+  const shipping = calculateShippingCents(totalQty);
+  const totalCents = Math.max(0, subtotalCents - discountCents + shipping.cents);
+
+  return {
+    subtotalCents,
+    discountCents,
+    rushFeeCents: 0,
+    shippingCents: shipping.cents,
+    shippingBoxLabel: shipping.boxLabel,
+    deliverySpeed: "standard",
+    totalCents,
+    items,
+  };
 }
 
 // Minimal, explicit coupon table. Replace with a `Coupon` DB model if the
