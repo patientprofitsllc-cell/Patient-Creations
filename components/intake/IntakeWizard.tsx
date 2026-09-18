@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BUSINESS_TYPES, WEBSITE_GOALS } from "@/lib/site/offer";
 import { FONT_STYLES } from "@/lib/intake/schema";
+import { CALENDLY_URL } from "@/lib/config/calendly";
+import { CONTACT_EMAIL } from "@/lib/config/site";
 
 export interface IntakeValues {
   businessName: string;
@@ -251,10 +253,23 @@ export function IntakeWizard({
 
         {step === 2 && (
           <>
-            <p className="text-xs text-ice/40">
-              Everything here is optional. To share a logo or photos, paste a link (Google Drive, Dropbox, Instagram, or a
-              website). Direct file upload is coming soon.
-            </p>
+            <div className="rounded-lg border border-white/10 bg-black/20 p-4 text-sm text-ice/60">
+              <p>Everything here is optional.</p>
+              <p className="mt-2">
+                To share a logo or photos, email them to{" "}
+                <a
+                  href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Logo and photos for ${values.businessName || "my website"}`)}`}
+                  className="break-all text-gold hover:brightness-110"
+                >
+                  {CONTACT_EMAIL}
+                </a>{" "}
+                with your business name in the subject, or{" "}
+                <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" className="text-gold hover:brightness-110">
+                  book a quick video call
+                </a>{" "}
+                and share them there. You can also paste a link below.
+              </p>
+            </div>
             <Field label="Logo link">
               <input className={INPUT} value={values.logoUrl} maxLength={300} onChange={(e) => set("logoUrl", e.target.value)} />
             </Field>

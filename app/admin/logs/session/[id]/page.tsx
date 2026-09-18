@@ -21,7 +21,7 @@ export default async function SessionDetailPage({ params }: { params: { id: stri
       perceptionReports: { orderBy: { createdAt: "asc" } },
       updates: { orderBy: { createdAt: "desc" } },
       messages: { orderBy: { createdAt: "asc" } },
-      websiteBuilds: { orderBy: { version: "desc" }, take: 1, select: { status: true, version: true, liveUrl: true, qaJson: true } },
+      websiteBuilds: { orderBy: { version: "desc" }, take: 1, select: { status: true, version: true, liveUrl: true, qaJson: true, copyMode: true } },
       revisions: { where: { status: "REQUESTED" }, orderBy: { createdAt: "desc" }, take: 1 },
     },
   });
@@ -61,6 +61,7 @@ export default async function SessionDetailPage({ params }: { params: { id: stri
             liveUrl={build.liveUrl}
             openRevisionNote={project.revisions[0]?.notes ?? null}
             warnings={(JSON.parse(build.qaJson) as QaResult).warnings}
+            copyMode={build.copyMode}
           />
         </section>
       )}

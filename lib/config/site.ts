@@ -9,3 +9,8 @@ export const SHARE_IMAGE_PATH = "/assets/brand/patient-creations-share.png";
 // Trenton's direct line, for questions from anyone holding an NFC card.
 export const CONTACT_PHONE_DISPLAY = "(762) 821-6367";
 export const CONTACT_PHONE_DIGITS = "+17628216367";
+
+// Where customers send anything that can't be typed into the intake, like a
+// logo or photos. We chose email and a booked video call over file uploads to
+// avoid storage costs.
+export const CONTACT_EMAIL = "patientprofitsllc@gmail.com";

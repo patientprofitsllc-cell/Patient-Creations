@@ -14,6 +14,7 @@ export function AdminWebsitePanel({
   liveUrl,
   openRevisionNote,
   warnings,
+  copyMode,
 }: {
   projectId: string;
   status: string;
@@ -22,6 +23,7 @@ export function AdminWebsitePanel({
   liveUrl: string | null;
   openRevisionNote: string | null;
   warnings: string[];
+  copyMode: string;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -64,12 +66,21 @@ export function AdminWebsitePanel({
         <p className="text-ice">
           Version {version} · <span className="text-gold">{status}</span>
         </p>
-        {previewUrl && (
-          <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-gold hover:brightness-110">
-            Open the customer preview →
+        <div className="flex flex-wrap gap-4">
+          {previewUrl && (
+            <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-gold hover:brightness-110">
+              Open the customer preview →
+            </a>
+          )}
+          <a href={`/api/admin/projects/${projectId}/website/download`} className="text-xs text-gold hover:brightness-110">
+            Download the site file (.html) ↓
           </a>
-        )}
+        </div>
       </div>
+
+      <p className="text-xs text-ice/50">
+        Copy: {copyMode === "model" ? "written by AI (Claude) from the customer's own facts" : "the customer's own wording (AI copy wasn't used for this build)"}
+      </p>
 
       {warnings.length > 0 && (
         <ul className="list-disc space-y-1 pl-5 text-xs text-ice/50">
@@ -105,7 +116,7 @@ export function AdminWebsitePanel({
 
       {status === "APPROVED" && (
         <div>
-          <p className="mb-2 text-sm text-ice/70">The customer approved this version. After you publish it, enter where it lives to close out the project.</p>
+          <p className="mb-2 text-sm text-ice/70">The customer approved this version. Download the site file above, put it on your hosting, and point their domain at it. Then enter the live address here to close out the project and email them.</p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <input className={INPUT} placeholder="https://their-website.com" value={live} onChange={(e) => setLive(e.target.value)} />
             <button type="button" disabled={busy || live.trim().length < 4} onClick={() => void send({ action: "launch", liveUrl: live }, "Marked live. The customer has been emailed.")} className={BUTTON}>
