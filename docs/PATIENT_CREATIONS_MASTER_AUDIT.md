@@ -131,7 +131,7 @@ Updated as work lands; see the end of the build summary for the final state.
 | 5 Upsell + subscription | NOT STARTED | Needs Stripe subscription/refund/dispute webhook events. |
 | 6 Referrals + partners | PARTIAL (pre-existing) | Referral codes/commissions exist; partner program and configurable rates not built. |
 | 7 Prospecting engine | NOT STARTED | |
-| 8 Analytics + AI auditor | NOT STARTED | Events are being collected; dashboard not built. |
+| 8 Analytics + AI auditor | PARTIAL | Admin **Growth** tab (`/admin/growth`, admin-only): 21-day/200-customer progress (goal, current, remaining, needed per day, actual pace, all from real counts), funnel with stage-to-stage rates, revenue, unique visitors, sources, and paid orders waiting on intake. Goal/length/start come from `ACQUISITION_GOAL`, `ACQUISITION_DAYS`, `ACQUISITION_START_DATE`. Not built: the AI auditor, outreach-pipeline metrics (need Phase 7), stages that nothing records yet (preview/approve/deploy). |
 
 ### Known risk carried into Phase 3
 
