@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CONTACT_PHONE_DIGITS, CONTACT_PHONE_DISPLAY } from "@/lib/config/site";
 
 export function SiteFooter() {
   return (
@@ -32,7 +33,20 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
-      <p className="mx-auto mt-12 max-w-7xl text-xs text-ice/30">
+      <div className="mx-auto mt-12 max-w-7xl border-t border-white/5 pt-8">
+        <p className="text-ice/70">Have an NFC card?</p>
+        <p className="mt-1">
+          Call or text Trenton at{" "}
+          <a href={`tel:${CONTACT_PHONE_DIGITS}`} className="text-gold hover:brightness-110">
+            {CONTACT_PHONE_DISPLAY}
+          </a>
+          {" · "}
+          <a href={`sms:${CONTACT_PHONE_DIGITS}`} className="text-gold hover:brightness-110">
+            Send a text
+          </a>
+        </p>
+      </div>
+      <p className="mx-auto mt-8 max-w-7xl text-xs text-ice/30">
         © {new Date().getFullYear()} Trenton · Patient Creations · Patient Profits, Global.
       </p>
     </footer>
