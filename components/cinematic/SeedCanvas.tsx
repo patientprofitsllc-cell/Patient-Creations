@@ -53,7 +53,11 @@ export function SeedCanvas({ className }: { className?: string }) {
 
     let width = 0;
     let height = 0;
-    let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    // Phones and low-core devices get a lighter version: fewer particles, no
+    // retina-density canvas, and about 30 frames a second instead of 60.
+    const lowPower = window.innerWidth < 768 || (navigator.hardwareConcurrency ?? 8) <= 4;
+    let dpr = lowPower ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
+    let frame = 0;
     let particles: Particle[] = [];
     let raf = 0;
     // Only animate while the canvas is actually visible on screen and the
@@ -70,7 +74,7 @@ export function SeedCanvas({ className }: { className?: string }) {
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       const count = Math.round((width * height) / 9000);
-      particles = Array.from({ length: Math.min(count, 140) }, () => spawnParticle());
+      particles = Array.from({ length: Math.min(count, lowPower ? 70 : 140) }, () => spawnParticle());
     }
 
     function spawnParticle(): Particle {
@@ -90,6 +94,7 @@ export function SeedCanvas({ className }: { className?: string }) {
 
     function draw() {
       raf = requestAnimationFrame(draw);
+      if (lowPower && !prefersReducedMotion && frame++ % 2 === 1) return;
       try {
         ctx!.clearRect(0, 0, width, height);
 

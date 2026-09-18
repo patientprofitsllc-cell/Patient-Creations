@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
-import { Providers } from "@/components/shared/Providers";
 import { LOGO_PATH, SHARE_IMAGE_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/config/site";
 import "./globals.css";
 
@@ -39,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
       <body className="bg-obsidian text-ice antialiased">
-        <Providers>{children}</Providers>
+        {children}
       </body>
     </html>
   );

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
-import { SeedCanvas } from "@/components/cinematic/SeedCanvas";
+import { SeedCanvasLazy } from "@/components/cinematic/SeedCanvasLazy";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { NfcShowcase } from "@/components/home/NfcShowcase";
 import { SeoWordbank } from "@/components/home/SeoWordbank";
@@ -93,7 +93,7 @@ export default async function HomePage() {
       <main>
         {/* 1. Hero */}
         <section className="relative flex min-h-[88vh] items-center overflow-hidden bg-studio-radial pt-24">
-          <SeedCanvas className="pointer-events-none absolute inset-0 h-full w-full" />
+          <SeedCanvasLazy className="pointer-events-none absolute inset-0 h-full w-full" />
           <div className="relative mx-auto max-w-4xl px-6 text-center">
             <p className="mb-6 text-xs uppercase tracking-[0.4em] text-gold/80">Patient Creations</p>
             <h1 className="font-display text-5xl leading-tight text-ice sm:text-6xl md:text-7xl">
@@ -136,7 +136,9 @@ export default async function HomePage() {
         </section>
 
         {/* 3. Problem */}
-        <ProblemSection />
+        <div className="defer-offscreen">
+          <ProblemSection />
+        </div>
 
         {/* 4. The offer */}
         <section id="offer" className="mx-auto max-w-5xl scroll-mt-24 px-6 py-12">
@@ -149,7 +151,7 @@ export default async function HomePage() {
         <CaseStudies />
 
         {/* 6. Examples */}
-        <section className="mx-auto max-w-6xl px-6 py-20">
+        <section className="defer-offscreen mx-auto max-w-6xl px-6 py-20">
           <div className="mb-10 text-center">
             <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Examples</p>
             <h2 className="mt-4 font-display text-3xl text-ice sm:text-4xl">
@@ -169,16 +171,22 @@ export default async function HomePage() {
         </section>
 
         {/* 7. How it works */}
-        <HowItWorksSimple />
+        <div className="defer-offscreen">
+          <HowItWorksSimple />
+        </div>
 
         {/* 8. FAQ */}
-        <FaqSection faqs={getFaqs(price)} />
+        <div className="defer-offscreen">
+          <FaqSection faqs={getFaqs(price)} />
+        </div>
 
         {/* 9. Growth ladder: what comes after the website */}
-        <GrowthLadder />
+        <div className="defer-offscreen">
+          <GrowthLadder />
+        </div>
 
         {/* 10. Everything else we sell, kept below the main offer */}
-        <div className="border-t border-white/5 pt-8">
+        <div className="defer-offscreen border-t border-white/5 pt-8">
           <div className="mx-auto max-w-3xl px-6 pt-12 text-center">
             <p className="text-xs uppercase tracking-[0.3em] text-gold/70">More from Patient Creations</p>
             <h2 className="mt-4 font-display text-3xl text-ice sm:text-4xl">
@@ -229,7 +237,7 @@ export default async function HomePage() {
         </div>
 
         {/* 11. Final call to action */}
-        <section className="mx-auto max-w-3xl px-6 py-24 text-center">
+        <section className="defer-offscreen mx-auto max-w-3xl px-6 py-24 text-center">
           <h2 className="font-display text-3xl text-ice sm:text-4xl">
             Ready to look <span className="text-gradient-champagne italic">professional online?</span>
           </h2>
@@ -244,7 +252,9 @@ export default async function HomePage() {
           </Link>
         </section>
 
-        <SeoWordbank />
+        <div className="defer-offscreen">
+          <SeoWordbank />
+        </div>
       </main>
       <SiteFooter />
     </>

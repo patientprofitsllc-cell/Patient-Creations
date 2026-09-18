@@ -59,3 +59,11 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Below-the-fold sections: the browser skips their layout and paint work until
+   they are close to the screen. The size hint stops the scrollbar jumping, and
+   "auto" makes the browser remember the real height once it has rendered. */
+.defer-offscreen {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 700px;
+}
