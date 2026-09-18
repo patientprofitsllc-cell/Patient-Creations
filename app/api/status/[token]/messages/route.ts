@@ -54,7 +54,7 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
     where: { projectId: project.id, sender: "CUSTOMER", createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) } },
   });
   if (recent >= DAILY_CUSTOMER_MESSAGE_CAP) {
-    return NextResponse.json({ error: "Daily message limit reached. Trenton will follow up on what's already sent." }, { status: 429, headers: NO_STORE });
+    return NextResponse.json({ error: "Daily message limit reached. Our team will follow up on what's already sent." }, { status: 429, headers: NO_STORE });
   }
 
   const customerMessage = await db.projectMessage.create({

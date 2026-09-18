@@ -12,7 +12,7 @@ export function CalendlyBooking({ name, email }: { name: string; email: string }
   return (
     <div className="glass-panel mt-10 rounded-2xl p-6 text-left">
       <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Kickoff Call</p>
-      <h2 className="mt-2 font-display text-2xl text-ice">Grab a time on Trenton&apos;s calendar</h2>
+      <h2 className="mt-2 font-display text-2xl text-ice">Grab a time on our calendar</h2>
       <p className="mt-2 text-sm text-ice/50">
         A quick 30-minute call to lock in scope and answer questions before the agents start building.
       </p>

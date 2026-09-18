@@ -109,7 +109,7 @@ export async function createProjectForOrder(orderId: string) {
   return project;
 }
 
-async function markTask(projectId: string, phase: ProjectState, status: "IN_PROGRESS" | "PASSED" | "FAILED") {
+export async function markTask(projectId: string, phase: ProjectState, status: "IN_PROGRESS" | "PASSED" | "FAILED") {
   const task = await db.projectTask.findFirst({ where: { projectId, phase } });
   if (!task) return;
   await db.projectTask.update({
@@ -126,7 +126,7 @@ async function markTask(projectId: string, phase: ProjectState, status: "IN_PROG
   return task;
 }
 
-async function escalateToException(projectId: string, reason: string) {
+export async function escalateToException(projectId: string, reason: string) {
   await db.project.update({ where: { id: projectId }, data: { exceptionNote: reason } });
   await transitionProject(projectId, "EXCEPTION", reason);
   await announce(projectId, "EXCEPTION");

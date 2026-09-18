@@ -65,11 +65,11 @@ describe("funnelRows", () => {
     expect(byEvent.checkout_completed.rateFromPrevious).toBe(25);
   });
 
-  it("marks events nothing emits yet instead of implying a zero", () => {
+  it("reports every funnel stage as recorded, so a zero means zero", () => {
     const rows = funnelRows({});
-    expect(rows.find((r) => r.event === "approved")?.instrumented).toBe(false);
-    expect(rows.find((r) => r.event === "approved")?.rateFromPrevious).toBeNull();
+    expect(rows.every((r) => r.instrumented)).toBe(true);
     expect(rows.find((r) => r.event === "checkout_completed")?.instrumented).toBe(true);
+    expect(rows.find((r) => r.event === "approved")?.instrumented).toBe(true);
   });
 
   it("does not divide by zero when an earlier stage has no traffic", () => {

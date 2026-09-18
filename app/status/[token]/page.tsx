@@ -31,6 +31,7 @@ export default async function PublicStatusPage({ params }: { params: { token: st
       updates: { orderBy: { createdAt: "desc" } },
       deliverables: true,
       order: { select: { websiteIntake: { select: { token: true, status: true } } } },
+      websiteBuilds: { orderBy: { version: "desc" }, take: 1, select: { status: true, version: true, liveUrl: true } },
     },
   });
 
@@ -38,6 +39,7 @@ export default async function PublicStatusPage({ params }: { params: { token: st
 
   const progress = await getProjectProgress(project.id);
   // A paid website that's still waiting on the customer's business info.
+  const build = project.websiteBuilds[0] ?? null;
   const pendingIntake =
     project.order.websiteIntake && project.order.websiteIntake.status !== "COMPLETE" ? project.order.websiteIntake : null;
 
@@ -73,6 +75,37 @@ export default async function PublicStatusPage({ params }: { params: { token: st
             <p className="mt-3 text-sm text-gold">Delivered. Check your email for access details.</p>
           )}
         </div>
+
+        {project.previewToken && build && (
+          <div className="mt-6 rounded-2xl border border-gold/40 bg-gold/10 p-6 text-center">
+            {build.status === "LIVE" ? (
+              <>
+                <p className="font-display text-xl text-ice">Your website is live</p>
+                {build.liveUrl && (
+                  <a href={build.liveUrl} rel="noopener noreferrer" className="mt-2 inline-block break-all text-gold hover:brightness-110">
+                    {build.liveUrl}
+                  </a>
+                )}
+              </>
+            ) : build.status === "APPROVED" ? (
+              <>
+                <p className="font-display text-xl text-ice">Approved, launching soon</p>
+                <p className="mt-2 text-sm text-ice/60">You approved your website. We&apos;ll post here as soon as it&apos;s live.</p>
+              </>
+            ) : (
+              <>
+                <p className="font-display text-xl text-ice">Your website preview is ready</p>
+                <p className="mt-2 text-sm text-ice/60">Take a look, then approve it or ask for your included revision.</p>
+                <Link
+                  href={`/preview/${project.previewToken}`}
+                  className="mt-4 inline-block rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-3 text-sm font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110"
+                >
+                  View my preview
+                </Link>
+              </>
+            )}
+          </div>
+        )}
 
         {pendingIntake && (
           <div className="mt-6 rounded-2xl border border-gold/40 bg-gold/10 p-6 text-center">

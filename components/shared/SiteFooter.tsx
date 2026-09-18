@@ -7,10 +7,10 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-7xl flex-col gap-10 md:flex-row md:justify-between">
         <div>
           <p className="font-display text-lg text-ice">
-            <span className="text-gold">Trenton</span> · Patient Creations
+            <span className="text-gold">Patient Profits LLC</span> · Patient Creations
           </p>
           <p className="mt-1 text-xs italic text-champagne/60">The Digital Master.</p>
-          <p className="mt-3 max-w-xs text-ice/40">Patient Profits, Global. Build once. Own the machine.</p>
+          <p className="mt-3 max-w-xs text-ice/40">Patient Profits LLC, Global. Build once. Own the machine.</p>
         </div>
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           <div>
@@ -36,7 +36,7 @@ export function SiteFooter() {
       <div className="mx-auto mt-12 max-w-7xl border-t border-white/5 pt-8">
         <p className="text-ice/70">Have an NFC card?</p>
         <p className="mt-1">
-          Call or text Trenton at{" "}
+          Call or text Patient Profits LLC at{" "}
           <a href={`tel:${CONTACT_PHONE_DIGITS}`} className="text-gold hover:brightness-110">
             {CONTACT_PHONE_DISPLAY}
           </a>
@@ -47,7 +47,7 @@ export function SiteFooter() {
         </p>
       </div>
       <p className="mx-auto mt-8 max-w-7xl text-xs text-ice/30">
-        © {new Date().getFullYear()} Trenton · Patient Creations · Patient Profits, Global.
+        © {new Date().getFullYear()} Patient Profits LLC · Patient Creations.
       </p>
     </footer>
   );

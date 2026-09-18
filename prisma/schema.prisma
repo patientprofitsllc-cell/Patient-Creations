@@ -188,6 +188,9 @@ model Project {
   exceptionNote String?
   statusToken  String?      @unique // powers the public, no-login /status/[token] page
   productionStartedAt DateTime? // set once, atomically, when production begins (payment + intake both done)
+  previewToken String?      // random 128-bit token for the private /preview/[token] page where the customer approves the website
+  websiteBuilds WebsiteBuild[]
+  @@index([previewToken])
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
@@ -593,4 +596,24 @@ model AuditLog {
   entityId   String?
   payloadJson String  @default("{}")
   createdAt  DateTime @default(now())
+}
+
+// One generated version of a customer's website. `siteJson` is the structured
+// content and design the page was rendered from; `html` is the finished static
+// page (also the artifact that gets deployed).
+model WebsiteBuild {
+  id         String    @id @default(cuid())
+  projectId  String
+  project    Project   @relation(fields: [projectId], references: [id])
+  version    Int       @default(1)
+  status     String    @default("PREVIEW") // PREVIEW | APPROVED | LIVE | SUPERSEDED
+  siteJson   String
+  html       String
+  qaJson     String
+  copyMode   String    // "model" (AI-written from the customer's facts) | "template" (the customer's own wording)
+  liveUrl    String?
+  approvedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@unique([projectId, version])
 }

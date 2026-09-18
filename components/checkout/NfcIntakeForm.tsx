@@ -68,7 +68,7 @@ export function NfcIntakeForm({
     return (
       <div className="glass-panel mt-10 rounded-2xl p-6 text-left">
         <p className="text-sm text-gold">Card specs received.</p>
-        <p className="mt-1 text-sm text-ice/50">Trenton will program your card exactly as described and reach out if anything needs a closer look.</p>
+        <p className="mt-1 text-sm text-ice/50">We will program your card exactly as described and reach out if anything needs a closer look.</p>
         <button onClick={() => setSaved(false)} className="mt-4 text-xs text-ice/40 hover:text-gold">
           Edit your answers →
         </button>

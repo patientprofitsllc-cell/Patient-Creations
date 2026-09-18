@@ -454,7 +454,7 @@ async function main() {
   if (!existingAdmin) {
     const passwordHash = await bcrypt.hash(adminPassword, 10);
     await db.user.create({
-      data: { email: adminEmail, name: "Trenton", passwordHash, role: "ADMIN" },
+      data: { email: adminEmail, name: "Patient Profits LLC", passwordHash, role: "ADMIN" },
     });
     console.log(`Seeded admin user: ${adminEmail} / ${adminPassword}`);
   }

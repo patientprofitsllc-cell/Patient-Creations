@@ -6,7 +6,9 @@ export type EmailTemplateKey =
   | "delivery"
   | "review_request"
   | "referral_invite"
-  | "retention";
+  | "retention"
+  | "preview_ready"
+  | "website_live";
 
 // Appended to every project-related email so a customer never has to
 // wonder "is it done yet?" — one link, always current, no login required.
@@ -46,6 +48,14 @@ ${p.intakeUrl}${statusLine(p)}`
   referral_invite: () => ({
     subject: "Share your creation and earn.",
     body: `Share your referral link and earn 10% commission on purchases you send our way.`,
+  }),
+  preview_ready: (p) => ({
+    subject: p.updated ? "Your updated website preview is ready." : "Your website preview is ready.",
+    body: `${p.updated ? "Your change is done. Take another look" : "Your website is built. Take a look"} and approve it, or ask for your one revision:\n\n${p.previewUrl}${statusLine(p)}`,
+  }),
+  website_live: (p) => ({
+    subject: "Your website is live.",
+    body: `"${p.projectName}" is live${p.liveUrl ? `: ${p.liveUrl}` : "."}${statusLine(p)}`,
   }),
   retention: (p) => ({
     subject: "A next step worth considering.",

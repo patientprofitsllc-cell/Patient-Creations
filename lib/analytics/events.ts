@@ -29,7 +29,11 @@ export type StudioEvent =
   | "agent.run_started"
   | "agent.run_succeeded"
   | "agent.run_failed"
-  | "agent.escalated";
+  | "agent.escalated"
+  | "website.approved"
+  | "website.revision_requested"
+  | "website.patched"
+  | "website.launched";
 
 export async function logEvent(
   event: StudioEvent,

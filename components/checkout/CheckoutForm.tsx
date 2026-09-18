@@ -218,7 +218,7 @@ export function CheckoutForm({
             </button>
             <h2 className="mb-1 text-ice">Choose how you&apos;d like to pay</h2>
             <p className="mb-4 text-xs text-ice/40">
-              Card checkout via Stripe processes instantly. Every other option is collected by Trenton directly.
+              Card checkout via Stripe processes instantly. Every other option is collected by Patient Profits LLC directly.
               He&apos;ll follow up with instructions.
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -631,7 +631,7 @@ export function CheckoutForm({
         </button>
         <p className="mt-3 text-center text-xs text-ice/30">
           {step === "payment" && !selectedMethod.live
-            ? "Your project starts production once Trenton confirms your payment."
+            ? "Your project starts production once we confirm your payment."
             : "Secured checkout. Your project starts production immediately after payment is verified."}
         </p>
       </div>

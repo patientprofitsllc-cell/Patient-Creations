@@ -20,7 +20,7 @@ export function SiteHeader() {
     <header className="fixed top-0 z-50 w-full border-b border-white/5 bg-obsidian/70 backdrop-blur-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2 text-sm font-semibold tracking-wide text-ice" onClick={() => setOpen(false)}>
-          <span className="text-gold">Trenton</span>
+          <span className="text-gold">Patient Profits LLC</span>
           <span className="text-ice/40">· Patient Creations</span>
         </Link>
         <nav className="hidden items-center gap-8 text-sm tracking-wide text-ice/70 md:flex">

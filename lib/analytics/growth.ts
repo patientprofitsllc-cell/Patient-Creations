@@ -79,6 +79,10 @@ export const INSTRUMENTED: ReadonlySet<FunnelEvent> = new Set<FunnelEvent>([
   "intake_started",
   "intake_completed",
   "production_started",
+  "preview_created",
+  "revision_requested",
+  "approved",
+  "deployed",
 ]);
 
 export interface FunnelRow {

@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { FUNNEL_EVENTS, type FunnelEvent } from "@/lib/analytics/funnel";
-import { FUNNEL_STAGES, acquisitionProgress, funnelRows, getAcquisitionConfig } from "@/lib/analytics/growth";
+import { acquisitionProgress, funnelRows, getAcquisitionConfig } from "@/lib/analytics/growth";
 import { NFC_BUNDLE_SLUG } from "@/lib/payments/nfcAddon";
 import { OFFER_SLUG } from "@/lib/site/offer";
 
@@ -80,6 +80,7 @@ export default async function AdminGrowthPage() {
     }
   }
   const rows = funnelRows(counts);
+  const untracked = rows.filter((r) => !r.instrumented).length;
 
   const bySource = new Map<string, { orders: number; cents: number }>();
   for (const o of paidOrders) {
@@ -160,10 +161,11 @@ export default async function AdminGrowthPage() {
             </tbody>
           </table>
         </div>
-        <p className="mt-2 text-xs text-ice/40">
-          {FUNNEL_STAGES.filter((s) => rows.find((r) => r.event === s && !r.instrumented)).length} stages are defined but nothing
-          records them yet; they need the preview, approval, and deploy steps (later phases) to exist first.
-        </p>
+        {untracked > 0 && (
+          <p className="mt-2 text-xs text-ice/40">
+            {untracked} stages are defined but nothing records them yet.
+          </p>
+        )}
       </section>
 
       <section className="grid grid-cols-1 gap-8 lg:grid-cols-2">

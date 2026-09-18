@@ -25,7 +25,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
     const message = await db.projectMessage.create({
-      data: { projectId: project.id, sender: "ADMIN", authorName: session.user.name ?? "Trenton", body: body.data.body },
+      data: { projectId: project.id, sender: "ADMIN", authorName: session.user.name ?? "Patient Profits LLC", body: body.data.body },
     });
 
     if (body.data.notifyEmail) {

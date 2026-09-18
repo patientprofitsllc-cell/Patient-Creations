@@ -68,7 +68,7 @@ const NOTES: Record<RelayPhase, { agent: string; message: string }> = {
   },
   EXCEPTION: {
     agent: "Coordinator Agent",
-    message: "One step needs a manual check from Trenton. He's been notified and will update you on this page.",
+    message: "One step needs a manual check from our team. They've been notified and will update you on this page.",
   },
 };
 

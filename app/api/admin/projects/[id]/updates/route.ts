@@ -31,7 +31,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         projectId: project.id,
         message: body.data.message,
         notifyEmail: body.data.notifyEmail,
-        authorName: session.user.name ?? "Trenton",
+        authorName: session.user.name ?? "Patient Profits LLC",
       },
     });
 

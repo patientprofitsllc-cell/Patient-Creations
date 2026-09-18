@@ -72,7 +72,7 @@ export function ProjectMessages({ token }: { token: string }) {
         Message your agent team
       </h2>
       <p className="mb-4 text-xs text-ice/40">
-        Your concierge agent answers right away and passes anything it can&apos;t handle to Trenton, who replies here.
+        Your concierge agent answers right away and passes anything it can&apos;t handle to our team, who reply here.
       </p>
 
       <div className="glass-panel rounded-2xl p-4">

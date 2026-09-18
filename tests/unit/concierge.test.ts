@@ -33,23 +33,23 @@ describe("ruleBasedReply", () => {
     expect(r.reply).toContain("3-5 business days");
   });
 
-  it("hands billing, refund, and contract questions to Trenton", () => {
+  it("hands billing, refund, and contract questions to the team", () => {
     for (const q of ["Can I get a refund?", "I was charged twice", "Can you send an invoice", "I want to cancel"]) {
       const r = ruleBasedReply(q, facts);
       expect(r.escalate, q).toBe(true);
-      expect(r.reply).toContain("Trenton");
+      expect(r.reply).toContain("our team");
     }
   });
 
-  it("hands scope changes and rush requests to Trenton", () => {
+  it("hands scope changes and rush requests to the team", () => {
     expect(ruleBasedReply("Can you change the logo to blue?", facts).escalate).toBe(true);
     expect(ruleBasedReply("I need this ASAP", facts).escalate).toBe(true);
   });
 
-  it("hands anything it doesn't understand to Trenton rather than guessing", () => {
+  it("hands anything it doesn't understand to the team rather than guessing", () => {
     const r = ruleBasedReply("purple monkey dishwasher", facts);
     expect(r.escalate).toBe(true);
-    expect(r.reply).toContain("Trenton");
+    expect(r.reply).toContain("our team");
   });
 
   it("says when a project is delivered or needs a manual check", () => {
@@ -76,8 +76,8 @@ describe("parseModelReply", () => {
   });
 
   it("finds the JSON inside surrounding text", () => {
-    expect(parseModelReply('Sure!\n{"reply":"Trenton will follow up.","escalate":true}\nThanks')).toEqual({
-      reply: "Trenton will follow up.",
+    expect(parseModelReply('Sure!\n{"reply":"Our team will follow up.","escalate":true}\nThanks')).toEqual({
+      reply: "Our team will follow up.",
       escalate: true,
     });
   });
@@ -101,7 +101,7 @@ describe("looksLikeUnauthorizedPromise", () => {
 
   it("lets ordinary status replies through", () => {
     expect(looksLikeUnauthorizedPromise("Your project is 62% complete and in the build step.")).toBe(false);
-    expect(looksLikeUnauthorizedPromise("Trenton handles refunds, so I've passed this to him.")).toBe(false);
+    expect(looksLikeUnauthorizedPromise("Our team handles refunds, so I've passed this on.")).toBe(false);
   });
 });
 

@@ -53,7 +53,7 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
         </h1>
         <p className="mt-4 text-ice/50">
           {awaitingManualPayment
-            ? `Trenton will reach out shortly with ${paymentMethodLabel(order!.paymentMethod)} instructions. Production starts the moment payment is confirmed.`
+            ? `We'll reach out shortly with ${paymentMethodLabel(order!.paymentMethod)} instructions. Production starts the moment payment is confirmed.`
             : intakePending
               ? "Tell us about your business so we can start building. It takes about 3 to 5 minutes."
               : order?.project

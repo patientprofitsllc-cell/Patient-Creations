@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { trackFunnel } from "@/lib/analytics/funnel";
 import { loadBible, mergeBibleSection } from "@/lib/agents/bible";
 import { runOrchestrator } from "@/lib/agents/orchestrator";
+import { runWebsitePipeline } from "@/lib/projects/websitePipeline";
 import { postAgentUpdate } from "@/lib/agents/relay";
 import { transitionProject } from "@/lib/workflows/stateMachine";
 import { lines } from "@/lib/intake/schema";
@@ -43,9 +44,17 @@ export async function startProductionIfReady(projectId: string): Promise<StartRe
   }
   await trackFunnel("production_started", { projectId, orderId: project.orderId });
 
-  // Not awaited on purpose (same reasoning as completeOrderPayment): the
-  // caller responds right away, and runOrchestrator has its own top-level
-  // catch that escalates any failure to EXCEPTION.
+  if (intake) {
+    // A website build takes seconds, so it is awaited: the work finishes inside
+    // this request instead of depending on a serverless function staying alive
+    // after it responds. It has its own catch that escalates failures to EXCEPTION.
+    await runWebsitePipeline(projectId);
+    return "started";
+  }
+
+  // Everything else runs the longer agent pipeline in the background, without
+  // blocking the caller (same reasoning as before): runOrchestrator has its own
+  // top-level catch that escalates any failure to EXCEPTION.
   runOrchestrator(projectId).catch((err) => {
     console.error(`Orchestrator failed to start for project ${projectId}:`, err);
   });

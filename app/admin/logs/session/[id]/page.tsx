@@ -6,6 +6,9 @@ import { ensureStatusToken } from "@/lib/projects/ensureStatusToken";
 import { statusUrlFor } from "@/lib/projects/statusToken";
 import { ProjectUpdateForm } from "@/components/admin/ProjectUpdateForm";
 import { AdminMessageReply } from "@/components/admin/AdminMessageReply";
+import { AdminWebsitePanel } from "@/components/admin/AdminWebsitePanel";
+import { previewUrlFor } from "@/lib/site/build/store";
+import type { QaResult } from "@/lib/site/build/qa";
 
 export default async function SessionDetailPage({ params }: { params: { id: string } }) {
   const project = await db.project.findUnique({
@@ -18,10 +21,13 @@ export default async function SessionDetailPage({ params }: { params: { id: stri
       perceptionReports: { orderBy: { createdAt: "asc" } },
       updates: { orderBy: { createdAt: "desc" } },
       messages: { orderBy: { createdAt: "asc" } },
+      websiteBuilds: { orderBy: { version: "desc" }, take: 1, select: { status: true, version: true, liveUrl: true, qaJson: true } },
+      revisions: { where: { status: "REQUESTED" }, orderBy: { createdAt: "desc" }, take: 1 },
     },
   });
 
   if (!project) notFound();
+  const build = project.websiteBuilds[0] ?? null;
 
   const progress = await getProjectProgress(project.id);
   const statusToken = await ensureStatusToken(project.id, project.statusToken);
@@ -43,6 +49,21 @@ export default async function SessionDetailPage({ params }: { params: { id: stri
         </p>
         {project.exceptionNote && <p className="mt-2 text-sm text-red-400">{project.exceptionNote}</p>}
       </div>
+
+      {build && (
+        <section>
+          <h3 className="mb-4 text-ice/70">Website</h3>
+          <AdminWebsitePanel
+            projectId={project.id}
+            status={build.status}
+            version={build.version}
+            previewUrl={project.previewToken ? previewUrlFor(project.previewToken) : null}
+            liveUrl={build.liveUrl}
+            openRevisionNote={project.revisions[0]?.notes ?? null}
+            warnings={(JSON.parse(build.qaJson) as QaResult).warnings}
+          />
+        </section>
+      )}
 
       <section>
         <h3 className="mb-4 text-ice/70">Customer Status Page</h3>
