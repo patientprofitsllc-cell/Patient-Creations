@@ -3,7 +3,8 @@ import { computeRushFeeCents, DeliverySpeedKey, DELIVERY_SPEEDS, getApplicableSp
 import { getActiveProjectCount } from "@/lib/payments/productionLoad";
 import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
 import { calculateShippingCents } from "@/lib/payments/shipping";
-import { NFC_ADDON_SLUG, resolveNfcAddonPriceCents } from "@/lib/payments/nfcAddon";
+import { NFC_ADDON_SLUG, NFC_BUNDLE_SLUG, resolveNfcAddonPriceCents } from "@/lib/payments/nfcAddon";
+import { AD_SPECIAL_CATEGORY } from "@/lib/payments/quantityProducts";
 
 export interface PricedOrder {
   subtotalCents: number;
@@ -53,6 +54,16 @@ export async function priceOrder(
   if (primaryProduct.category === "Merch") {
     if (productIds.length > 1) throw new Error("Add-ons aren't available for this product");
     if (deliverySpeed !== "standard") throw new Error("Delivery speed options aren't available for this product");
+  }
+
+  // Per-ad special: flat per-unit pricing, so rush tiers (which are computed
+  // on a single unit's price) aren't offered. Enforced here, not just in the UI.
+  if (primaryProduct.category === AD_SPECIAL_CATEGORY && deliverySpeed !== "standard") {
+    throw new Error("Delivery speed options aren't available for this special");
+  }
+
+  if (primaryProduct.slug === NFC_BUNDLE_SLUG && products.some((p) => p.slug === NFC_ADDON_SLUG)) {
+    throw new Error("This bundle already includes your NFC cards");
   }
 
   const applicableSpeeds = getApplicableSpeeds(primaryProduct.turnaround);

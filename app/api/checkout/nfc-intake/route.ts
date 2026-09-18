@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { logEvent } from "@/lib/analytics/events";
-import { NFC_ADDON_SLUG } from "@/lib/payments/nfcAddon";
+import { NFC_ADDON_SLUG, NFC_BUNDLE_SLUG } from "@/lib/payments/nfcAddon";
 
 // The only design that ships in two colors and needs the choice captured
 // here — checkout itself never asks, so this is the one place we learn it.
@@ -31,7 +31,10 @@ export async function POST(req: NextRequest) {
   const primaryQuantity = primaryItem?.quantity ?? 1;
   // Eligible either as a standalone card order (primary item is Merch) or as
   // a bundled card add-on on a service build.
-  const isEligible = primaryItem?.product.category === "Merch" || order.items.some((i) => i.product.slug === NFC_ADDON_SLUG);
+  const isEligible =
+    primaryItem?.product.category === "Merch" ||
+    primaryItem?.product.slug === NFC_BUNDLE_SLUG ||
+    order.items.some((i) => i.product.slug === NFC_ADDON_SLUG);
   if (!isEligible) {
     return NextResponse.json({ error: "This order doesn't take card specs" }, { status: 400 });
   }

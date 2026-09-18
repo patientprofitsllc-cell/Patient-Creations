@@ -15,11 +15,14 @@ export function NfcIntakeForm({
   orderId,
   existing,
   showColorChoice,
+  cardCount = 1,
 }: {
   orderId: string;
   existing: NfcIntakeExisting | null;
   showColorChoice: boolean;
+  cardCount?: number;
 }) {
+  const multi = cardCount > 1;
   const [socialMediaPage, setSocialMediaPage] = useState(existing?.socialMediaPage ?? "");
   const [nfcContent, setNfcContent] = useState(existing?.nfcContent ?? "");
   const [targetLink, setTargetLink] = useState(existing?.targetLink ?? "");
@@ -116,12 +119,12 @@ export function NfcIntakeForm({
         </div>
         <div>
           <label htmlFor="intake-content" className="mb-1 block text-xs text-ice/40">
-            What do you want the NFC to show?
+            {multi ? `What do you want your ${cardCount} NFC cards to show? List each one.` : "What do you want the NFC to show?"}
           </label>
           <input
             id="intake-content"
             className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-ice placeholder:text-ice/30"
-            placeholder="e.g. Google review page, menu, contact card"
+            placeholder={multi ? "e.g. Google review, menu, WiFi" : "e.g. Google review page, menu, contact card"}
             value={nfcContent}
             onChange={(e) => setNfcContent(e.target.value)}
           />

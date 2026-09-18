@@ -1,5 +1,10 @@
 export const NFC_ADDON_SLUG = "nfc-card-addon";
 
+// The all-in-one bundle already includes this many NFC cards, so the card
+// add-on isn't offered on top of it.
+export const NFC_BUNDLE_SLUG = "all-in-one-bundle";
+export const NFC_BUNDLE_CARD_COUNT = 3;
+
 const STARTER_WEBSITE_SLUG = "starter-website";
 const VIDEO_FREE_THRESHOLD_CENTS = 100000; // $1,000+ cinematic video tier ships with a free card
 

@@ -6,7 +6,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { computeRushFeeCents, getApplicableSpeeds } from "@/lib/payments/deliverySpeed";
 import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
 import { calculateShippingCents } from "@/lib/payments/shipping";
-import { NFC_ADDON_SLUG, resolveNfcAddonPriceCents } from "@/lib/payments/nfcAddon";
+import { NFC_ADDON_SLUG, NFC_BUNDLE_SLUG, resolveNfcAddonPriceCents } from "@/lib/payments/nfcAddon";
+import { supportsQuantity } from "@/lib/payments/quantityProducts";
+import { businessDays } from "@/lib/payments/deliveryWindow";
 import { PAYMENT_METHODS } from "@/lib/payments/paymentMethods";
 import type { PaymentMethod } from "@/lib/types";
 
@@ -53,7 +55,11 @@ export function CheckoutForm({
     variants.some((v) => v.id === initialVariant) ? initialVariant : undefined,
   );
   const [deliverySpeed, setDeliverySpeed] = useState<string>("standard");
-  const [quantity, setQuantity] = useState(1);
+  // ?qty= comes from the homepage ad special; only honored for products sold per-unit.
+  const initialQty = supportsQuantity(primaryProduct.category ?? "")
+    ? Math.min(100, Math.max(1, Math.round(Number(params.get("qty"))) || 1))
+    : 1;
+  const [quantity, setQuantity] = useState(initialQty);
   const [selectedBumps, setSelectedBumps] = useState<string[]>([]);
   const [coupon, setCoupon] = useState("");
   const [name, setName] = useState("");
@@ -65,6 +71,10 @@ export function CheckoutForm({
   const [error, setError] = useState<string | null>(null);
 
   const isMerch = primaryProduct.category === "Merch";
+  const usesQuantity = supportsQuantity(primaryProduct.category ?? "");
+  const isBundle = primaryProduct.slug === NFC_BUNDLE_SLUG;
+  // The bundle already includes NFC cards, so the card add-on isn't offered on top of it.
+  const shownBumps = isBundle ? orderBumps.filter((b) => b.slug !== NFC_ADDON_SLUG) : orderBumps;
   const selectedVariant = variants.find((v) => v.id === variantId);
   const bulkDiscountApplies = Boolean(primaryProduct.setupFeeCents) && quantity >= BULK_SETUP_WAIVER_MIN_QTY;
   const basePriceCents = selectedVariant?.priceCents ?? primaryProduct.priceCents;
@@ -86,7 +96,8 @@ export function CheckoutForm({
   // "Standard" varies by build complexity — use this service's own estimate
   // rather than a one-size-fits-all number. Rush tiers are a fixed, paid
   // commitment regardless of the build, so they keep their own windows.
-  const displayDays = (speedKey: string) => (speedKey === "standard" ? primaryProduct.turnaround ?? "1-2 weeks" : applicableSpeeds.find((s) => s.key === speedKey)!.days);
+  const displayDays = (speedKey: string) =>
+    businessDays(speedKey === "standard" ? primaryProduct.turnaround ?? "1-2 weeks" : applicableSpeeds.find((s) => s.key === speedKey)!.days);
 
   // Mirrors the server-side override in lib/payments/pricing.ts so the
   // displayed price always matches what's actually charged.
@@ -182,9 +193,9 @@ export function CheckoutForm({
           </div>
         ) : (
         <>
-        {isMerch && (
+        {usesQuantity && (
           <div className="glass-panel rounded-2xl p-6">
-            <h2 className="mb-4 text-ice">Quantity</h2>
+            <h2 className="mb-4 text-ice">{isMerch ? "Quantity" : "How many ads?"}</h2>
             <div className="flex items-center gap-4">
               <button
                 type="button"
@@ -253,7 +264,7 @@ export function CheckoutForm({
           </div>
         )}
 
-        {applicableSpeeds.length > 1 && !isMerch && (
+        {applicableSpeeds.length > 1 && !usesQuantity && (
         <div className="glass-panel rounded-2xl p-6">
           <h2 className="mb-1 text-ice">Delivery speed</h2>
           <p className="mb-4 text-xs text-ice/40">
@@ -325,14 +336,14 @@ export function CheckoutForm({
           </div>
         )}
 
-        {orderBumps.length > 0 && !isMerch && (
+        {shownBumps.length > 0 && !isMerch && (
           <div className="glass-panel rounded-2xl p-6">
             <h2 className="mb-4 text-ice">Add to your build</h2>
-            {applicableSpeeds.length > 1 && (
+            {applicableSpeeds.length > 1 && !usesQuantity && (
               <p className="mb-4 text-xs text-ice/40">Each add-on can extend a Standard timeline, see delivery speed above.</p>
             )}
             <div className="space-y-3">
-              {orderBumps.map((bump) => (
+              {shownBumps.map((bump) => (
                 <label key={bump.id} className="flex cursor-pointer items-start gap-3 rounded-lg border border-white/5 p-3 hover:border-gold/30">
                   <input
                     type="checkbox"

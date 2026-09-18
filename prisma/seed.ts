@@ -16,6 +16,7 @@ interface ServiceDef {
   category: string;
   description: string;
   baseCents: number;
+  type?: "PRIMARY" | "SPECIAL"; // defaults to PRIMARY; SPECIAL stays off the regular /services grid
   setupFeeCents?: number; // per-unit setup fee folded into baseCents, waived in bulk (see BULK_SETUP_WAIVER_MIN_QTY)
   tierable: boolean;
   revisionLimit: number;
@@ -241,6 +242,44 @@ const SERVICES: ServiceDef[] = [
     turnaround: "5-7 business days",
     sortOrder: 19,
   },
+  // Homepage specials. type "SPECIAL" keeps them out of the regular /services
+  // grid; they're bought through the special cards on the homepage.
+  {
+    slug: "cinematic-ad-special",
+    name: "Cinematic Ad Special",
+    category: "Ad Special",
+    type: "SPECIAL",
+    description: "A cinematic, scroll-stopping ad, priced per ad. Choose how many you want.",
+    baseCents: 40000,
+    tierable: false,
+    revisionLimit: 1,
+    turnaround: "5-7 days",
+    sortOrder: 20,
+  },
+  {
+    slug: "ugc-ad-special",
+    name: "UGC Ad Special",
+    category: "Ad Special",
+    type: "SPECIAL",
+    description: "A real-feeling, creator-style ad that looks like a customer made it, priced per ad. Choose how many you want.",
+    baseCents: 25000,
+    tierable: false,
+    revisionLimit: 1,
+    turnaround: "5-7 days",
+    sortOrder: 21,
+  },
+  {
+    slug: "all-in-one-bundle",
+    name: "All-in-One Launch Bundle",
+    category: "Bundle",
+    type: "SPECIAL",
+    description: "Everything to launch: a Starter Website, 2 Cinematic Ads, 2 UGC Ads, and 3 NFC cards of your choice, for one fixed price.",
+    baseCents: 129900,
+    tierable: false,
+    revisionLimit: 2,
+    turnaround: "2-3 weeks",
+    sortOrder: 22,
+  },
 ];
 
 const ADD_ONS: {
@@ -357,7 +396,7 @@ async function main() {
       update: {
         name: s.name,
         category: s.category,
-        type: "PRIMARY",
+        type: s.type ?? "PRIMARY",
         description: s.description,
         priceCents: s.baseCents,
         setupFeeCents: s.setupFeeCents ?? 0,
@@ -369,7 +408,7 @@ async function main() {
         slug: s.slug,
         name: s.name,
         category: s.category,
-        type: "PRIMARY",
+        type: s.type ?? "PRIMARY",
         description: s.description,
         priceCents: s.baseCents,
         setupFeeCents: s.setupFeeCents ?? 0,

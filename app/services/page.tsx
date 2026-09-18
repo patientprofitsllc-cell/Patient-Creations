@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { ReserveLink } from "@/components/services/ReserveLink";
 import { db } from "@/lib/db";
+import { businessDays } from "@/lib/payments/deliveryWindow";
 
 function money(cents: number) {
   return (cents / 100).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
@@ -17,6 +18,8 @@ const PRICING = [
   { svc: "Rental Listing Film", you: 50000, lo: 100000, hi: 500000, src: "social video $1k–$5k" },
   { svc: "Lead Engine", you: 170000, lo: 250000, hi: 1500000, src: "retainer $1.25k–$5k/mo" },
 ];
+// Lowest price to highest, so the comparison table reads as a price ladder.
+PRICING.sort((a, b) => a.you - b.you);
 const MACHINE_TOTAL = PRICING.reduce((s, p) => s + p.you, 0);
 const FLOOR_TOTAL = PRICING.reduce((s, p) => s + p.lo, 0);
 
@@ -30,7 +33,8 @@ export default async function ServicesPage() {
   const products = await db.product.findMany({
     where: { type: "PRIMARY", active: true },
     include: { variants: { where: { active: true }, orderBy: { priceCents: "asc" } } },
-    orderBy: { sortOrder: "asc" },
+    // Lowest price first; sortOrder only breaks ties so equal prices stay stable.
+    orderBy: [{ priceCents: "asc" }, { sortOrder: "asc" }],
   });
 
   return (
@@ -158,7 +162,7 @@ export default async function ServicesPage() {
                 <p className="text-xs uppercase tracking-widest text-gold/60">{product.category}</p>
                 <h3 className="mt-3 font-display text-2xl text-ice">{product.name}</h3>
                 <p className="mt-3 flex-1 text-sm text-ice/50">{product.description}</p>
-                {product.turnaround && <p className="mt-3 text-xs text-ice/30">Turnaround: {product.turnaround}</p>}
+                {product.turnaround && <p className="mt-3 text-xs text-ice/30">Turnaround: {businessDays(product.turnaround)}</p>}
                 <p className="mt-6 font-display text-3xl text-champagne">
                   {money(product.priceCents)}
                   {product.variants.length > 0 && <span className="ml-1 text-sm text-ice/40">from</span>}

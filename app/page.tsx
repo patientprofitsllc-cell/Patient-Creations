@@ -1,24 +1,42 @@
-import Image from "next/image";
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { SeedCanvas } from "@/components/cinematic/SeedCanvas";
 import { HowItWorks } from "@/components/cinematic/HowItWorks";
-import { NfcOrderPicker } from "@/components/cinematic/NfcOrderPicker";
+import { AdSpecial } from "@/components/home/AdSpecial";
+import { NfcShowcase } from "@/components/home/NfcShowcase";
+import { SeoWordbank } from "@/components/home/SeoWordbank";
+import { SpecialPriceCard } from "@/components/home/SpecialPriceCard";
+import { money } from "@/components/home/specialFrame";
 import { db } from "@/lib/db";
+import { businessDays } from "@/lib/payments/deliveryWindow";
+import { LOGO_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/config/site";
 
 // Same catalog/pricing data, cached and refreshed every 60s — a price or
 // catalog change shows up within a minute with no redeploy, matching the
 // revalidate strategy already used on /services.
 export const revalidate = 60;
 
-function money(cents: number) {
-  return (cents / 100).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
-}
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 // The six flagship builds — the same lineup /services compares against the
 // market. Displayed lowest price to highest, not DB sortOrder.
 const FEATURED_SLUGS = ["site", "saas", "agents", "ad", "rental-listing-film", "lead-engine"];
+const SPECIAL_SLUGS = [
+  "starter-website",
+  "cinematic-ad-special",
+  "ugc-ad-special",
+  "all-in-one-bundle",
+  "strategy-session",
+  "nfc-cards",
+];
+
+// Display-only "was" prices for the two website specials. What checkout
+// actually charges is always the live database price, shown as the "now" price.
+const STARTER_WAS_CENTS = 50000;
+const SITE_WAS_CENTS = 500000;
 
 // Plain-language taglines for this homepage teaser only — quick to read at a
 // glance. The fuller, more detailed copy still lives on /services and at
@@ -32,32 +50,136 @@ const TAGLINES: Record<string, string> = {
   "lead-engine": "Finds new customers and sends them straight to you.",
 };
 
-// Display-only "was" price for the Starter Website special. What checkout
-// actually charges is always the live database price, shown as the "now" price.
-const SPECIAL_SLUG = "starter-website";
-const SPECIAL_WAS_CENTS = 50000;
-
-const NFC_SHOWCASE = [
-  { name: "Google Review", slug: "nfc-google-review", src: "/assets/nfc-cards/google-review.jpeg", rotate: "-rotate-6", translate: "sm:translate-x-6", z: "z-0" },
-  { name: "YouTube", slug: "nfc-youtube", src: "/assets/nfc-cards/youtube.jpeg", rotate: "rotate-3", translate: "sm:translate-x-3", z: "z-10" },
-  { name: "Custom Menu", slug: "nfc-custom-menu", src: "/assets/nfc-cards/menu.jpeg", rotate: "rotate-0", translate: "", z: "z-20" },
-  { name: "WhatsApp", slug: "nfc-whatsapp", src: "/assets/nfc-cards/whatsapp.jpeg", rotate: "-rotate-3", translate: "sm:-translate-x-3", z: "z-10" },
-  { name: "Instagram", slug: "nfc-instagram", src: "/assets/nfc-cards/instagram.jpeg", rotate: "rotate-6", translate: "sm:-translate-x-6", z: "z-0" },
-  { name: "TikTok", slug: "nfc-tiktok", src: "/assets/nfc-cards/tiktok.jpeg", rotate: "-rotate-6", translate: "sm:translate-x-9", z: "z-0" },
-  { name: "WiFi", slug: "nfc-wifi", src: "/assets/nfc-cards/wifi.jpeg", rotate: "rotate-6", translate: "sm:-translate-x-9", z: "z-0" },
-];
-
 export default async function HomePage() {
-  const rawFeatured = await db.product.findMany({
-    where: { slug: { in: FEATURED_SLUGS }, active: true },
+  const rows = await db.product.findMany({
+    where: { slug: { in: [...FEATURED_SLUGS, ...SPECIAL_SLUGS] }, active: true },
   });
-  const featured = FEATURED_SLUGS.map((slug) => rawFeatured.find((p) => p.slug === slug))
+  const bySlug = new Map(rows.map((p) => [p.slug, p]));
+
+  const featured = FEATURED_SLUGS.map((slug) => bySlug.get(slug))
     .filter((p): p is NonNullable<typeof p> => Boolean(p))
     .sort((a, b) => a.priceCents - b.priceCents);
-  const special = await db.product.findFirst({ where: { slug: SPECIAL_SLUG, active: true } });
+
+  const starter = bySlug.get("starter-website");
+  const siteProduct = bySlug.get("site");
+  const regularAd = bySlug.get("ad");
+  const cinAd = bySlug.get("cinematic-ad-special");
+  const ugcAd = bySlug.get("ugc-ad-special");
+  const consult = bySlug.get("strategy-session");
+  const bundle = bySlug.get("all-in-one-bundle");
+  const nfc = bySlug.get("nfc-cards");
+
+  // Each special carries the price it's sorted by, so the grid always reads
+  // lowest price to highest no matter which specials are active.
+  const specials: { key: string; sortCents: number; node: ReactNode }[] = [];
+
+  if (cinAd && ugcAd && consult) {
+    specials.push({
+      key: "ads",
+      sortCents: Math.min(cinAd.priceCents, ugcAd.priceCents),
+      node: (
+        <AdSpecial
+          cinematic={{
+            slug: cinAd.slug,
+            priceCents: cinAd.priceCents,
+            wasCents: regularAd && regularAd.priceCents > cinAd.priceCents ? regularAd.priceCents : undefined,
+          }}
+          ugc={{ slug: ugcAd.slug, priceCents: ugcAd.priceCents }}
+          consultation={{ slug: consult.slug, priceCents: consult.priceCents }}
+        />
+      ),
+    });
+  }
+
+  if (starter && starter.priceCents < STARTER_WAS_CENTS) {
+    specials.push({
+      key: "starter",
+      sortCents: starter.priceCents,
+      node: (
+        <SpecialPriceCard
+          lead="Your website,"
+          accent={`now ${money(starter.priceCents)}`}
+          blurb={`A simple one-page website with your products, pictures, and descriptions. Live in ${businessDays(starter.turnaround ?? "3-5 days")}.`}
+          wasCents={STARTER_WAS_CENTS}
+          nowCents={starter.priceCents}
+          href={`/checkout?product=${starter.slug}`}
+          cta="Claim this special"
+          footnote="Add a matching NFC card for just $45 at checkout."
+        />
+      ),
+    });
+  }
+
+  if (bundle) {
+    const separately =
+      starter && cinAd && ugcAd && nfc
+        ? starter.priceCents + 2 * cinAd.priceCents + 2 * ugcAd.priceCents + 3 * nfc.priceCents
+        : undefined;
+    specials.push({
+      key: "bundle",
+      sortCents: bundle.priceCents,
+      node: (
+        <SpecialPriceCard
+          lead="The all-in-one"
+          accent="launch bundle"
+          blurb="Everything you need to launch, for one fixed price."
+          items={["A Starter Website", "2 Cinematic Ads", "2 UGC Ads", "3 NFC cards of your choice"]}
+          wasCents={separately && separately > bundle.priceCents ? separately : undefined}
+          nowCents={bundle.priceCents}
+          href={`/checkout?product=${bundle.slug}`}
+          cta="Get the bundle"
+          footnote="You pick your NFC card designs right after checkout."
+        />
+      ),
+    });
+  }
+
+  if (siteProduct && siteProduct.priceCents < SITE_WAS_CENTS) {
+    specials.push({
+      key: "site",
+      sortCents: siteProduct.priceCents,
+      node: (
+        <SpecialPriceCard
+          lead="Cinematic AI Website,"
+          accent={`now ${money(siteProduct.priceCents)}`}
+          blurb={`A stunning, professional website built fast and easy for anyone to use. Live in ${businessDays(siteProduct.turnaround ?? "2-3 weeks")}.`}
+          wasCents={SITE_WAS_CENTS}
+          nowCents={siteProduct.priceCents}
+          href={`/checkout?product=${siteProduct.slug}`}
+          cta="Claim this special"
+          footnote={`Includes ${siteProduct.revisionLimit} rounds of revisions.`}
+        />
+      ),
+    });
+  }
+
+  specials.sort((a, b) => a.sortCents - b.sortCents);
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: SITE_NAME,
+        alternateName: ["Patient Profits", "The Digital Master"],
+        url: SITE_URL,
+        logo: `${SITE_URL}${LOGO_PATH}`,
+        description: SITE_DESCRIPTION,
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: SITE_NAME,
+        publisher: { "@id": `${SITE_URL}/#organization` },
+      },
+    ],
+  };
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <SiteHeader />
       <main>
         <section className="relative flex min-h-screen items-center overflow-hidden bg-studio-radial pt-24">
@@ -82,76 +204,26 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {special && special.priceCents < SPECIAL_WAS_CENTS && (
-          <section className="mx-auto max-w-4xl px-6 pt-16">
-            <Link
-              href={`/checkout?product=${special.slug}`}
-              className="group relative block overflow-hidden rounded-3xl border border-gold/40 bg-gradient-to-br from-gold/15 via-white/[0.03] to-transparent p-8 text-center shadow-gold-glow transition hover:border-gold sm:p-12"
-            >
-              <span className="inline-block rounded-full bg-gradient-to-b from-gold to-gold-deep px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-obsidian">
-                Special Offer
-              </span>
-              <h2 className="mt-5 font-display text-4xl text-ice sm:text-5xl">
-                Your website, <span className="text-gradient-champagne italic">now {money(special.priceCents)}</span>
+        {specials.length > 0 && (
+          <section id="specials" className="mx-auto max-w-5xl scroll-mt-24 px-6 pt-16">
+            <div className="mb-10 text-center">
+              <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Specials</p>
+              <h2 className="mt-4 font-display text-4xl text-ice sm:text-5xl">
+                Current <span className="text-gradient-champagne italic">specials</span>
               </h2>
-              <p className="mx-auto mt-4 max-w-md text-ice/60">
-                A simple one-page website with your products, pictures, and descriptions. Live in {special.turnaround ?? "3-5 days"}.
-              </p>
-              <p className="mt-6 flex items-baseline justify-center gap-4 font-display">
-                <span className="text-2xl text-ice/40 line-through decoration-red-400/70 decoration-2">
-                  {money(SPECIAL_WAS_CENTS)}
-                </span>
-                <span className="text-6xl text-champagne sm:text-7xl">{money(special.priceCents)}</span>
-              </p>
-              <p className="mt-2 text-sm font-semibold text-emerald-400">
-                You save {money(SPECIAL_WAS_CENTS - special.priceCents)}
-              </p>
-              <span className="mt-8 inline-block rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-3 text-sm font-semibold tracking-wide text-obsidian transition group-hover:brightness-110">
-                Claim this special
-              </span>
-              <p className="mt-4 text-xs text-ice/40">Add a matching NFC card for just $45 at checkout.</p>
-            </Link>
+              <p className="mx-auto mt-4 max-w-xl text-ice/50">Every special below, lowest price first.</p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              {specials.map((s) => (
+                <div key={s.key} className="flex flex-col [&>*]:flex-1">
+                  {s.node}
+                </div>
+              ))}
+            </div>
           </section>
         )}
 
-        <section className="mx-auto max-w-5xl px-6 pb-8 pt-16">
-          <p className="mb-2 text-center text-xs uppercase tracking-[0.3em] text-gold/70">Real cards, real designs</p>
-          <p className="mx-auto mb-8 max-w-md text-center text-sm text-ice/40">
-            Tap a design to order that exact card, or pick one below.
-          </p>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-4">
-            {NFC_SHOWCASE.map((card) => (
-              <Link
-                key={card.slug}
-                href={`/checkout?product=${card.slug}`}
-                className={`group relative mx-auto w-32 shrink-0 transition-transform duration-300 hover:z-20 hover:-translate-y-2 hover:rotate-0 sm:w-36 ${card.rotate}`}
-              >
-                <div className="overflow-hidden rounded-2xl border border-gold/20 bg-white p-2 shadow-xl shadow-black/40">
-                  <div className="relative aspect-[2/3] overflow-hidden rounded-lg">
-                    <Image src={card.src} alt={`${card.name} NFC card`} fill sizes="144px" className="object-cover" />
-                  </div>
-                </div>
-                <p className="mt-3 text-center text-xs uppercase tracking-[0.2em] text-ice/50 transition group-hover:text-gold">
-                  {card.name}
-                </p>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-4xl px-6 pt-4">
-          <div className="glass-panel flex flex-col items-center justify-between gap-6 rounded-2xl p-8 text-center sm:flex-row sm:text-left">
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Merch</p>
-              <h3 className="mt-2 font-display text-2xl text-ice">NFC Cards, $75 each — setup included</h3>
-              <p className="mt-2 max-w-sm text-sm text-ice/50">
-                Tap-to-share smart cards. A phone tap opens your contact info, socials, or booking link. The $25
-                setup fee is already folded into the price.
-              </p>
-            </div>
-            <NfcOrderPicker />
-          </div>
-        </section>
+        {nfc && <NfcShowcase priceCents={nfc.priceCents} />}
 
         <section className="mx-auto max-w-6xl px-6 pb-8 pt-20">
           <div className="mb-10 text-center">
@@ -228,7 +300,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-4xl px-6 pb-28 pt-4 text-center">
+        <section className="mx-auto max-w-4xl px-6 pb-16 pt-4 text-center">
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="#tour"
@@ -244,6 +316,8 @@ export default async function HomePage() {
             </Link>
           </div>
         </section>
+
+        <SeoWordbank />
       </main>
       <Link
         href="/services"

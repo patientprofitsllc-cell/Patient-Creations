@@ -1,15 +1,38 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { Providers } from "@/components/shared/Providers";
+import { LOGO_PATH, SHARE_IMAGE_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/config/site";
 import "./globals.css";
 
 const display = Fraunces({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-display" });
 const body = Inter({ subsets: ["latin"], variable: "--font-body" });
 
 export const metadata: Metadata = {
-  title: "Patient Creations · The Digital Master · Trenton, Patient Profits",
-  description:
-    "Cinematic AI websites, software, and agent systems. Agency quality at freelancer-floor pricing. Book Trenton, of Patient Profits.",
+  metadataBase: new URL(SITE_URL),
+  title: { default: SITE_TITLE, template: `%s | ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "Patient Creations",
+    "Patient Profits",
+    "AI website design",
+    "cinematic AI website",
+    "UGC ads",
+    "cinematic video ads",
+    "NFC business cards",
+    "Google review NFC card",
+    "multi-agent AI systems",
+  ],
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [{ url: SHARE_IMAGE_PATH, width: 1186, height: 667, alt: "Patient Creations" }],
+  },
+  twitter: { card: "summary_large_image", title: SITE_TITLE, description: SITE_DESCRIPTION, images: [SHARE_IMAGE_PATH] },
+  icons: { apple: LOGO_PATH },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
