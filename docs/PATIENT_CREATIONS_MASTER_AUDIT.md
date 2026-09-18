@@ -125,10 +125,14 @@ Updated as work lands; see the end of the build summary for the final state.
 |---|---|---|
 | 0 Audit | IMPLEMENTED | This document. |
 | 1 Conversion funnel | IMPLEMENTED (with gaps) | Homepage rebuilt around the offer; `/pricing`, `/examples`, `/websites` + 12 industry pages; sitemap; checkout collects business name/type/phone/existing site and creates a `WebsiteIntake` with a private token; funnel events stored via whitelisted `/api/track`; attribution (`ref`, `utm_*`) saved and credited to the order. Gaps: password is still required at checkout (no guest checkout); no case studies exist until a real one is published. |
-| 2 Payment + intake | NOT STARTED | Intake wizard, production gating on payment AND intake, reminders. |
+| 2 Payment + intake | IMPLEMENTED (with gaps) | Private `/intake/[token]` wizard (4 steps, autosave, skippable, noindex); production starts only when the order is paid AND the intake is complete, in either order, exactly once (atomic claim on `Project.productionStartedAt`); intake answers written into the Project Bible; agent output now merges into bible sections instead of overwriting them; funnel events `intake_started/completed`, `production_started`; status page, success page, and confirmation email link to the intake. Gaps: **file upload BLOCKED** (needs a storage choice: S3 or Netlify Blobs), so logo/photos are pasted links; **reminders and abandoned-checkout emails NOT STARTED** (need a scheduler); customers can't edit answers after submitting. |
 | 3 Production engine | NOT STARTED | Structured generation, templates, QA automation, preview/approval. |
 | 4 Deployment + portal | NOT STARTED | Needs a deploy target/token (see blockers). |
 | 5 Upsell + subscription | NOT STARTED | Needs Stripe subscription/refund/dispute webhook events. |
 | 6 Referrals + partners | PARTIAL (pre-existing) | Referral codes/commissions exist; partner program and configurable rates not built. |
 | 7 Prospecting engine | NOT STARTED | |
 | 8 Analytics + AI auditor | NOT STARTED | Events are being collected; dashboard not built. |
+
+### Known risk carried into Phase 3
+
+`startProductionIfReady` (like the original `completeOrderPayment`) starts the pipeline without awaiting it so the webhook or submit request returns fast. On a serverless host the platform may freeze a function once its response is sent, which could interrupt a long pipeline (especially once real model calls are slow). Locally the pipeline completes, and paid orders have been reaching production, but it should move to a durable background runner (Netlify background function or a queue) as part of Phase 3 before volume grows.

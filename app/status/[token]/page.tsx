@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProjectMessages } from "@/components/status/ProjectMessages";
 import { SiteHeader } from "@/components/shared/SiteHeader";
@@ -25,12 +26,20 @@ export const metadata: Metadata = {
 export default async function PublicStatusPage({ params }: { params: { token: string } }) {
   const project = await db.project.findUnique({
     where: { statusToken: params.token },
-    include: { tasks: true, updates: { orderBy: { createdAt: "desc" } }, deliverables: true },
+    include: {
+      tasks: true,
+      updates: { orderBy: { createdAt: "desc" } },
+      deliverables: true,
+      order: { select: { websiteIntake: { select: { token: true, status: true } } } },
+    },
   });
 
   if (!project) notFound();
 
   const progress = await getProjectProgress(project.id);
+  // A paid website that's still waiting on the customer's business info.
+  const pendingIntake =
+    project.order.websiteIntake && project.order.websiteIntake.status !== "COMPLETE" ? project.order.websiteIntake : null;
 
   return (
     <>
@@ -44,7 +53,7 @@ export default async function PublicStatusPage({ params }: { params: { token: st
 
         <div className="glass-panel mt-8 rounded-2xl p-6">
           <div className="flex items-center justify-between">
-            <p className="text-ice">{progress.currentPhaseLabel}</p>
+            <p className="text-ice">{pendingIntake ? "Waiting for your business info" : progress.currentPhaseLabel}</p>
             <span className={progress.isException ? "text-red-400" : "text-gold"}>
               {progress.isException ? "Needs a quick check-in" : `${progress.percent}%`}
             </span>
@@ -64,6 +73,21 @@ export default async function PublicStatusPage({ params }: { params: { token: st
             <p className="mt-3 text-sm text-gold">Delivered. Check your email for access details.</p>
           )}
         </div>
+
+        {pendingIntake && (
+          <div className="mt-6 rounded-2xl border border-gold/40 bg-gold/10 p-6 text-center">
+            <p className="font-display text-xl text-ice">One step left before we can build</p>
+            <p className="mt-2 text-sm text-ice/60">
+              Tell us about your business. It takes about 3 to 5 minutes, and you can skip anything you don&apos;t have.
+            </p>
+            <Link
+              href={`/intake/${pendingIntake.token}`}
+              className="mt-4 inline-block rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-3 text-sm font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110"
+            >
+              Finish your intake
+            </Link>
+          </div>
+        )}
 
         <ProjectMessages token={params.token} />
 

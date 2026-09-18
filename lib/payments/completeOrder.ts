@@ -1,7 +1,8 @@
 import { db } from "@/lib/db";
 import { logEvent } from "@/lib/analytics/events";
 import { trackFunnel } from "@/lib/analytics/funnel";
-import { createProjectForOrder, runOrchestrator } from "@/lib/agents/orchestrator";
+import { createProjectForOrder } from "@/lib/agents/orchestrator";
+import { holdForIntake, startProductionIfReady } from "@/lib/projects/production";
 import { recordReferralPurchase } from "@/lib/referrals/commissions";
 import { decrementInventoryForOrder } from "@/lib/inventory/decrement";
 import type { PaymentProvider } from "@/lib/types";
@@ -39,19 +40,14 @@ export async function completeOrderPayment(orderId: string, provider: PaymentPro
 
   const project = await createProjectForOrder(orderId);
 
-  // Deliberately NOT awaited: the caller (Stripe webhook, mock-checkout
-  // route, or the admin mark-paid route) responds as soon as the order is
-  // marked paid and the project exists, instead of blocking on the full
-  // multi-agent pipeline. This matters on serverless hosts with a request
-  // execution timeout (Netlify Functions, etc.) — awaiting the whole
-  // pipeline here risked the platform killing the function mid-run and
-  // leaving a paid order stuck with no project progress. runOrchestrator
-  // already wraps its own work in a top-level try/catch that escalates to
-  // EXCEPTION on any failure, so the `.catch()` below is only a last-resort
-  // net for a failure before that try block is even entered.
-  runOrchestrator(project.id).catch((err) => {
-    console.error(`Orchestrator failed to start for project ${project.id}:`, err);
-  });
+  // Production starts only when the order is paid AND (for website orders) the
+  // customer has completed their intake; otherwise the project waits in
+  // INTAKE_REQUIRED and the intake submission starts it. The gate is
+  // idempotent, and it kicks off the pipeline without blocking this response
+  // (a webhook on a serverless host must return quickly). runOrchestrator has
+  // its own top-level catch that escalates any failure to EXCEPTION.
+  const result = await startProductionIfReady(project.id);
+  if (result === "waiting_for_intake") await holdForIntake(project.id);
 
   return project;
 }

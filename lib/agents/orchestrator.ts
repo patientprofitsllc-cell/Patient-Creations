@@ -27,6 +27,7 @@ import { sendEmail } from "@/lib/email/provider";
 import { notifyAdmin } from "@/lib/security/notify";
 import { generateStatusToken, statusUrlFor } from "@/lib/projects/statusToken";
 import { announce } from "@/lib/agents/relay";
+import { intakeUrlFor } from "@/lib/intake/url";
 
 export const MAX_RETRIES = 5;
 
@@ -94,9 +95,12 @@ export async function createProjectForOrder(orderId: string) {
   await transitionProject(project.id, "PAID");
   await markTask(project.id, "PAID", "PASSED");
   await announce(project.id, "PAID");
+  // Website orders still need the customer's intake before the build can start.
+  const intake = await db.websiteIntake.findUnique({ where: { orderId }, select: { token: true, status: true } });
   await sendEmail(order.customer.user.email, "purchase_confirmation", {
     projectName: project.name,
     statusUrl: statusUrlFor(project.statusToken!),
+    intakeUrl: intake && intake.status !== "COMPLETE" ? intakeUrlFor(intake.token) : undefined,
   });
 
   // Fire-and-continue: run the pipeline in-process. A slow first task
@@ -152,7 +156,10 @@ export async function runOrchestrator(projectId: string) {
 }
 
 async function runPipeline(projectId: string) {
-  await transitionProject(projectId, "INTAKE_REQUIRED");
+  // A website order is parked in INTAKE_REQUIRED until the customer finishes
+  // the intake; everything else arrives here still in PAID.
+  const current = await db.project.findUniqueOrThrow({ where: { id: projectId }, select: { state: true } });
+  if (current.state === "PAID") await transitionProject(projectId, "INTAKE_REQUIRED");
   await markTask(projectId, "INTAKE_REQUIRED", "PASSED");
 
   await transitionProject(projectId, "QUEUED");

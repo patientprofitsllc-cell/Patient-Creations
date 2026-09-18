@@ -16,8 +16,12 @@ function statusLine(p: Record<string, unknown>) {
 
 const TEMPLATES: Record<EmailTemplateKey, (p: Record<string, unknown>) => { subject: string; body: string }> = {
   purchase_confirmation: (p) => ({
-    subject: "Your creation has entered the studio.",
-    body: `Thanks for your order. "${p.projectName}" has entered production with Patient Creations.${statusLine(p)}`,
+    subject: p.intakeUrl ? "One quick step to start your website." : "Your creation has entered the studio.",
+    body: p.intakeUrl
+      ? `Thanks for your order. To start building "${p.projectName}" we need a few details about your business. It takes about 3 to 5 minutes, and you can skip anything you don't have:
+
+${p.intakeUrl}${statusLine(p)}`
+      : `Thanks for your order. "${p.projectName}" has entered production with Patient Creations.${statusLine(p)}`,
   }),
   production_start: (p) => ({
     subject: "Your project is now being created.",

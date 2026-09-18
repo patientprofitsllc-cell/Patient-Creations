@@ -12,7 +12,7 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
   const order = searchParams.order
     ? await db.order.findUnique({
         where: { id: searchParams.order },
-        include: { project: true, items: { include: { product: true } }, nfcIntake: true, customer: { include: { user: true } } },
+        include: { project: true, items: { include: { product: true } }, nfcIntake: true, websiteIntake: true, customer: { include: { user: true } } },
       })
     : null;
   const awaitingManualPayment = order && order.paymentMethod !== "stripe" && order.status !== "PAID";
@@ -35,6 +35,9 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
   // next real step, so it's the only category that gets the Calendly prompt.
   // A bundled NFC add-on doesn't change this: it's still a service build.
   const isServiceBuild = order && !isNfcOrder;
+  // Website orders start with a short intake instead of a kickoff call.
+  const intake = order?.websiteIntake ?? null;
+  const intakePending = Boolean(intake && intake.status !== "COMPLETE");
 
   return (
     <>
@@ -42,15 +45,36 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
       <main className="mx-auto max-w-2xl px-6 pb-28 pt-40 text-center">
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Order Confirmed</p>
         <h1 className="mt-4 font-display text-4xl text-ice">
-          {awaitingManualPayment ? "Your order is in. Payment is next." : "Your build has entered the queue."}
+          {awaitingManualPayment
+            ? "Your order is in. Payment is next."
+            : intakePending
+              ? "Your order is confirmed. One quick step left."
+              : "Your build has entered the queue."}
         </h1>
         <p className="mt-4 text-ice/50">
           {awaitingManualPayment
             ? `Trenton will reach out shortly with ${paymentMethodLabel(order!.paymentMethod)} instructions. Production starts the moment payment is confirmed.`
-            : order?.project
+            : intakePending
+              ? "Tell us about your business so we can start building. It takes about 3 to 5 minutes."
+              : order?.project
               ? "Production has started. You can watch real progress in your portal."
               : "We're finishing setup on your order."}
         </p>
+        {intake && intakePending && (
+          <div className="mt-8">
+            <Link
+              href={`/intake/${intake.token}`}
+              className="inline-block rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-4 text-base font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110"
+            >
+              FINISH YOUR INTAKE
+            </Link>
+            <p className="mt-3 text-xs text-ice/40">
+              We&apos;ve also emailed you this link. Your answers save as you go, so you can come back to it.
+              {awaitingManualPayment ? " Building starts once your payment is confirmed." : ""}
+            </p>
+          </div>
+        )}
+
         <div className="mt-10 flex justify-center gap-4">
           <Link
             href="/portal/dashboard"
@@ -110,7 +134,7 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
           />
         )}
 
-        {isServiceBuild && order && (
+        {isServiceBuild && order && !intake && (
           <CalendlyBooking name={order.customer.user.name ?? order.customer.user.email} email={order.customer.user.email} />
         )}
       </main>

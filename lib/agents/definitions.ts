@@ -58,7 +58,10 @@ function definePipelineAgent(config: {
       });
 
       if (config.bibleSection) {
+        // Merge into the section rather than replacing it, so what the customer
+        // supplied at intake (services, pricing, links, brand) survives the agents.
         await mergeBibleSection(input.projectId, config.bibleSection, {
+          ...(Array.isArray(bible[config.bibleSection]) ? {} : (bible[config.bibleSection] as Record<string, unknown>)),
           agent: config.key,
           content: result.text,
           mocked: result.mocked,
