@@ -1,27 +1,41 @@
-# AI Creation Studio
+# Patient Creations
 
-A cinematic AI creation studio platform: marketing site → checkout → AI orchestrator/worker
-production pipeline → QA/perception audit loop → customer portal → referrals/commissions →
-admin command center.
+Flagship AI-powered creation studio for websites, software, automation, and digital experiences.
 
-Built from the spec in `docs/` (copied verbatim from the original master package). See
-`docs/IMPLEMENTATION_STATUS.md` for exactly what's real vs. mocked and how to go live.
+Live: https://patientcreations.com
 
-## Quick start
+## What it does
 
-```bash
-npm install
-npx prisma migrate dev --name init
-npm run db:seed
-npm run dev
-```
+Patient Creations is designed around a multi-agent AI workflow that coordinates specialized agents across research, sales, production, quality assurance, and delivery.
 
-Open http://localhost:3000. No external accounts are required — payments, email, and AI
-model calls all run in mock mode until you add the relevant key to `.env`.
+The platform is designed to streamline the process from:
 
-## Scripts
+Client Intake → Research → Strategy → Creation → QA → Approval → Deployment → Delivery
 
-- `npm run dev` — start the dev server
-- `npm run test` — unit tests (Vitest)
-- `npm run test:e2e` — end-to-end smoke tests (Playwright)
-- `npm run db:migrate` / `npm run db:seed` — database
+## Key Features
+
+* AI-assisted website and software creation
+* Multi-agent AI orchestration
+* Client intake workflows
+* Project management
+* Checkout and payment workflows
+* Client portal
+* Authentication
+* Referral system
+* Automated delivery workflows
+* Production deployment
+* QA and auditing workflows
+
+## Technology
+
+* AI agent orchestration
+* Web application development
+* UX/UI
+* Payment integrations
+* Client portals
+* Automation
+* Production deployment
+
+## Live Project
+
+https://patientcreations.com
