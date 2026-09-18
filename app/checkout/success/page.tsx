@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
 import { NfcIntakeForm } from "@/components/checkout/NfcIntakeForm";
 import { CalendlyBooking } from "@/components/checkout/CalendlyBooking";
+import { statusUrlFor } from "@/lib/projects/statusToken";
 import { NFC_ADDON_SLUG, NFC_BUNDLE_SLUG, NFC_BUNDLE_CARD_COUNT } from "@/lib/payments/nfcAddon";
 
 export default async function CheckoutSuccessPage({ searchParams }: { searchParams: { order?: string } }) {
@@ -66,6 +67,28 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
             </Link>
           )}
         </div>
+
+        {order?.project?.statusToken ? (
+          <div className="glass-panel mt-10 rounded-2xl p-6 text-left">
+            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Your Private Project Link</p>
+            <p className="mt-2 text-sm text-ice/60">
+              Bookmark this. Only someone with this exact link can see your project. Your agent team posts updates
+              there as they work, and you can message them from that page. We also email it to you.
+            </p>
+            <Link
+              href={`/status/${order.project.statusToken}`}
+              className="mt-3 block break-all rounded-lg bg-black/40 p-3 text-xs text-gold hover:brightness-110"
+            >
+              {statusUrlFor(order.project.statusToken)}
+            </Link>
+          </div>
+        ) : (
+          order && (
+            <p className="mt-10 text-sm text-ice/40">
+              Your private project link will appear here, and arrive by email, as soon as your order is confirmed.
+            </p>
+          )
+        )}
 
         {showCardSetup && order && (
           <NfcIntakeForm

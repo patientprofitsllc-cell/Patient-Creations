@@ -26,6 +26,7 @@ import { masterEditorAgent } from "@/lib/agents/masterEditor";
 import { sendEmail } from "@/lib/email/provider";
 import { notifyAdmin } from "@/lib/security/notify";
 import { generateStatusToken, statusUrlFor } from "@/lib/projects/statusToken";
+import { announce } from "@/lib/agents/relay";
 
 export const MAX_RETRIES = 5;
 
@@ -92,6 +93,7 @@ export async function createProjectForOrder(orderId: string) {
 
   await transitionProject(project.id, "PAID");
   await markTask(project.id, "PAID", "PASSED");
+  await announce(project.id, "PAID");
   await sendEmail(order.customer.user.email, "purchase_confirmation", {
     projectName: project.name,
     statusUrl: statusUrlFor(project.statusToken!),
@@ -123,6 +125,7 @@ async function markTask(projectId: string, phase: ProjectState, status: "IN_PROG
 async function escalateToException(projectId: string, reason: string) {
   await db.project.update({ where: { id: projectId }, data: { exceptionNote: reason } });
   await transitionProject(projectId, "EXCEPTION", reason);
+  await announce(projectId, "EXCEPTION");
   await notifyAdmin(`Project ${projectId} escalated to EXCEPTION: ${reason}`);
 }
 
@@ -157,6 +160,7 @@ async function runPipeline(projectId: string) {
   // RESEARCH
   await transitionProject(projectId, "RESEARCH");
   await markTask(projectId, "RESEARCH", "IN_PROGRESS");
+  await announce(projectId, "RESEARCH");
   const research = await runAgent(researchAgent, { projectId, focusPrompt: "Research this project." }, { projectId });
   if (research.status !== "succeeded") return escalateToException(projectId, `Research failed: ${research.status === "failed" ? research.reason : "escalated"}`);
   await markTask(projectId, "RESEARCH", "PASSED");
@@ -164,6 +168,7 @@ async function runPipeline(projectId: string) {
   // STRATEGY
   await transitionProject(projectId, "STRATEGY");
   await markTask(projectId, "STRATEGY", "IN_PROGRESS");
+  await announce(projectId, "STRATEGY");
   const strategy = await runAgent(strategyAgent, { projectId, focusPrompt: "Define strategy and offer." }, { projectId });
   if (strategy.status !== "succeeded") return escalateToException(projectId, "Strategy phase failed");
   await markTask(projectId, "STRATEGY", "PASSED");
@@ -171,6 +176,7 @@ async function runPipeline(projectId: string) {
   // CONCEPT
   await transitionProject(projectId, "CONCEPT");
   await markTask(projectId, "CONCEPT", "IN_PROGRESS");
+  await announce(projectId, "CONCEPT");
   const creative = await runAgent(creativeDirectorAgent, { projectId, focusPrompt: "Define the creative concept." }, { projectId });
   const visual = await runAgent(visualDirectorAgent, { projectId, focusPrompt: "Define the visual system." }, { projectId });
   const ux = await runAgent(uxAgent, { projectId, focusPrompt: "Design the user journey." }, { projectId });
@@ -183,6 +189,7 @@ async function runPipeline(projectId: string) {
   // GENERATION
   await transitionProject(projectId, "GENERATION");
   await markTask(projectId, "GENERATION", "IN_PROGRESS");
+  await announce(projectId, "GENERATION");
   const copy = await runAgent(copyAgent, { projectId, focusPrompt: "Write core site copy." }, { projectId });
   const image = await runAgent(imageAgent, { projectId, focusPrompt: "Brief the required image assets." }, { projectId });
   const video = await runAgent(videoAgent, { projectId, focusPrompt: "Brief the required video assets." }, { projectId });
@@ -195,6 +202,7 @@ async function runPipeline(projectId: string) {
   // BUILD
   await transitionProject(projectId, "BUILD");
   await markTask(projectId, "BUILD", "IN_PROGRESS");
+  await announce(projectId, "BUILD");
   const build = await runAgent(developmentAgent, { projectId, focusPrompt: "Plan and execute the build tasks." }, { projectId });
   if (build.status !== "succeeded") return escalateToException(projectId, "Build phase failed");
   await markTask(projectId, "BUILD", "PASSED");
@@ -202,6 +210,7 @@ async function runPipeline(projectId: string) {
   // AUTOMATION
   await transitionProject(projectId, "AUTOMATION");
   await markTask(projectId, "AUTOMATION", "IN_PROGRESS");
+  await announce(projectId, "AUTOMATION");
   const marketing = await runAgent(marketingAgent, { projectId, focusPrompt: "Set up marketing automation." }, { projectId });
   const seo = await runAgent(seoAgent, { projectId, focusPrompt: "Set up SEO." }, { projectId });
   const analytics = await runAgent(analyticsAgentDef, { projectId, focusPrompt: "Set up analytics tracking." }, { projectId });
@@ -214,6 +223,7 @@ async function runPipeline(projectId: string) {
   await transitionProject(projectId, "QA");
   await markTask(projectId, "QA", "IN_PROGRESS");
   await logEvent("qa.started", "Project", projectId);
+  await announce(projectId, "QA");
 
   const projectForEmail = await db.project.findUniqueOrThrow({
     where: { id: projectId },
@@ -232,6 +242,7 @@ async function runPipeline(projectId: string) {
       await logEvent("qa.failed", "Project", projectId, { attempt });
       await db.project.update({ where: { id: projectId }, data: { retryCount: { increment: 1 } } });
       await transitionProject(projectId, "REVISION");
+      await announce(projectId, "REVISION");
       await transitionProject(projectId, "QA");
       continue;
     }
@@ -239,6 +250,7 @@ async function runPipeline(projectId: string) {
     await logEvent("qa.passed", "Project", projectId, { attempt });
 
     await transitionProject(projectId, "PERCEPTION");
+    await announce(projectId, "PERCEPTION");
     const perceptionResult = await runAgent(perceptionAgent, { projectId }, { projectId });
     if (perceptionResult.status !== "succeeded") return escalateToException(projectId, "Perception agent failed to run");
 
@@ -257,6 +269,7 @@ async function runPipeline(projectId: string) {
 
     await db.project.update({ where: { id: projectId }, data: { retryCount: { increment: 1 } } });
     await transitionProject(projectId, "REVISION");
+    await announce(projectId, "REVISION");
     await transitionProject(projectId, "QA");
   }
 
@@ -277,6 +290,7 @@ async function finalizeDelivery(projectId: string) {
   const statusUrl = statusUrlFor(project.statusToken!);
 
   await transitionProject(projectId, "DELIVERED");
+  await announce(projectId, "DELIVERED");
   await sendEmail(project.customer.user.email, "delivery", { projectName: project.name, statusUrl });
 
   await transitionProject(projectId, "REVIEW_REQUESTED");

@@ -201,6 +201,7 @@ model Project {
   revisions    Revision[]
   review       Review?
   updates      ProjectUpdate[]
+  messages     ProjectMessage[]
 }
 
 // A plain-language progress note Trenton posts for a customer — shown on
@@ -214,6 +215,22 @@ model ProjectUpdate {
   authorName String   @default("Trenton")
   notifyEmail Boolean @default(false)
   createdAt  DateTime @default(now())
+}
+
+// Two-way thread on a customer's private status page. Customers write from the
+// link; the concierge agent (or Trenton) answers. `escalated` marks messages the
+// agent couldn't or shouldn't handle (billing, scope changes, anything unclear).
+model ProjectMessage {
+  id         String   @id @default(cuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id])
+  sender     String   // "CUSTOMER" | "AGENT" | "ADMIN"
+  authorName String
+  body       String
+  escalated  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([projectId, createdAt])
 }
 
 model CreativeBible {

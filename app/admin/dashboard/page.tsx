@@ -1,6 +1,8 @@
 import { db } from "@/lib/db";
 import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
 import { MarkPaidButton } from "@/components/admin/MarkPaidButton";
+import { getMessagesNeedingAdmin } from "@/lib/projects/messages";
+import Link from "next/link";
 
 function money(cents: number) {
   return (cents / 100).toLocaleString(undefined, { style: "currency", currency: "USD" });
@@ -28,6 +30,7 @@ export default async function AdminDashboardPage() {
     }),
   ]);
 
+  const messagesNeedingYou = await getMessagesNeedingAdmin();
   const revenue = orders.reduce((s, o) => s + o.totalCents, 0);
   const aov = orders.length ? revenue / orders.length : 0;
   const activeProjects = projects.filter((p) => !["COMPLETED", "CANCELLED", "EXCEPTION"].includes(p.state));
@@ -74,6 +77,29 @@ export default async function AdminDashboardPage() {
           />
         </div>
       </section>
+
+      {messagesNeedingYou.length > 0 && (
+        <section>
+          <h2 className="mb-4 text-gold">Customer Messages Needing You</h2>
+          <p className="mb-4 text-xs text-ice/40">
+            Your concierge agent handed these off (billing, changes, rush requests, or anything it wasn&apos;t sure
+            about). Reply in the customer&apos;s private thread.
+          </p>
+          <div className="glass-panel divide-y divide-white/5 rounded-2xl">
+            {messagesNeedingYou.map((m) => (
+              <div key={m.id} className="flex items-center justify-between gap-4 p-4 text-sm">
+                <div>
+                  <p className="text-ice">{m.project.name}</p>
+                  <p className="text-ice/50">&ldquo;{m.body.slice(0, 140)}&rdquo;</p>
+                </div>
+                <Link href={`/admin/logs/session/${m.projectId}`} className="whitespace-nowrap text-xs text-gold hover:brightness-110">
+                  Reply →
+                </Link>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {pendingManualOrders.length > 0 && (
         <section>

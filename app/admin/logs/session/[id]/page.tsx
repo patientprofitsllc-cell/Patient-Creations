@@ -5,6 +5,7 @@ import { getProjectProgress } from "@/lib/workflows/progress";
 import { ensureStatusToken } from "@/lib/projects/ensureStatusToken";
 import { statusUrlFor } from "@/lib/projects/statusToken";
 import { ProjectUpdateForm } from "@/components/admin/ProjectUpdateForm";
+import { AdminMessageReply } from "@/components/admin/AdminMessageReply";
 
 export default async function SessionDetailPage({ params }: { params: { id: string } }) {
   const project = await db.project.findUnique({
@@ -16,6 +17,7 @@ export default async function SessionDetailPage({ params }: { params: { id: stri
       qaReports: { orderBy: { createdAt: "asc" } },
       perceptionReports: { orderBy: { createdAt: "asc" } },
       updates: { orderBy: { createdAt: "desc" } },
+      messages: { orderBy: { createdAt: "asc" } },
     },
   });
 
@@ -57,6 +59,23 @@ export default async function SessionDetailPage({ params }: { params: { id: stri
             ))}
           </div>
         )}
+      </section>
+
+      <section>
+        <h3 className="mb-4 text-ice/70">Customer Messages ({project.messages.length})</h3>
+        <div className="glass-panel divide-y divide-white/5 rounded-2xl">
+          {project.messages.map((m) => (
+            <div key={m.id} className="p-4 text-sm">
+              <p className="whitespace-pre-wrap text-ice/80">{m.body}</p>
+              <p className="mt-1 text-xs text-ice/30">
+                {m.authorName} ({m.sender.toLowerCase()}) · {new Date(m.createdAt).toLocaleString()}
+                {m.escalated && <span className="ml-2 text-red-400">· handed to you</span>}
+              </p>
+            </div>
+          ))}
+          {project.messages.length === 0 && <p className="p-4 text-sm text-ice/40">No messages from this customer yet.</p>}
+        </div>
+        <AdminMessageReply projectId={project.id} />
       </section>
 
       <section>

@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ProjectMessages } from "@/components/status/ProjectMessages";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { db } from "@/lib/db";
@@ -11,6 +13,14 @@ import { PHASE_WEIGHTS } from "@/lib/workflows/progress";
 // customer checking a few times in a row gets a fast cached response
 // instead of a fresh DB round-trip every time.
 export const revalidate = 10;
+
+// A private page: never indexed, and the token in the URL is never sent to
+// other sites in a Referer header.
+export const metadata: Metadata = {
+  title: "Project status",
+  robots: { index: false, follow: false },
+  referrer: "no-referrer",
+};
 
 export default async function PublicStatusPage({ params }: { params: { token: string } }) {
   const project = await db.project.findUnique({
@@ -54,6 +64,8 @@ export default async function PublicStatusPage({ params }: { params: { token: st
             <p className="mt-3 text-sm text-gold">Delivered. Check your email for access details.</p>
           )}
         </div>
+
+        <ProjectMessages token={params.token} />
 
         {project.updates.length > 0 && (
           <section className="mt-10">

@@ -35,7 +35,7 @@ const STEPS: { art: ChapterArtType; title: string; body: string; href: string; l
   {
     art: "wave",
     title: "5. Watch it happen, anytime.",
-    body: "You get a private link to check on your project whenever you want — no login needed. It shows real progress, not a guess, plus any updates we send along the way.",
+    body: "You get a private link, just for you, to check on your project whenever you want. No login needed. It shows real progress, not a guess, updates from your AI team as they work, and a message box to ask them anything.",
     href: "/portal/dashboard",
     linkLabel: "Open your portal",
   },
