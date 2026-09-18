@@ -137,13 +137,13 @@ const SERVICES: ServiceDef[] = [
   },
   {
     slug: "starter-website",
-    name: "Starter Website",
+    name: "Quick Business Website",
     category: "Websites",
-    description: "A simple one-page website with your products, pictures, and descriptions. The fast, affordable way to get online.",
+    description: "A custom one-page website built around your business: your services, contact details, call and text button, map, and basic SEO, deployed live with one revision. Our target is 72 hours once we have your info.",
     baseCents: 30000,
     tierable: false,
     revisionLimit: 1,
-    turnaround: "3-5 days",
+    turnaround: "3 days",
     sortOrder: 11,
   },
   {

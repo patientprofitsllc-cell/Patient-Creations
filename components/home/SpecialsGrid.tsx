@@ -26,7 +26,16 @@ const SLUGS = [
  * so both pages always show the same offers, prices, and wording, all read from
  * the same product rows as every other listing.
  */
-export async function SpecialsGrid({ className = "" }: { className?: string }) {
+export async function SpecialsGrid({
+  className = "",
+  exclude = [],
+  heading = "Current",
+}: {
+  className?: string;
+  /** Specials to leave out ("starter" on the homepage, where the main offer card already covers it). */
+  exclude?: ("ads" | "starter" | "bundle" | "site")[];
+  heading?: string;
+}) {
   const rows = await db.product.findMany({ where: { slug: { in: SLUGS }, active: true } });
   const bySlug = new Map(rows.map((p) => [p.slug, p]));
 
@@ -43,7 +52,7 @@ export async function SpecialsGrid({ className = "" }: { className?: string }) {
   // lowest price to highest no matter which specials are active.
   const specials: { key: string; sortCents: number; node: ReactNode }[] = [];
 
-  if (cinAd && ugcAd && consult) {
+  if (!exclude.includes("ads") && cinAd && ugcAd && consult) {
     specials.push({
       key: "ads",
       sortCents: Math.min(cinAd.priceCents, ugcAd.priceCents),
@@ -62,7 +71,7 @@ export async function SpecialsGrid({ className = "" }: { className?: string }) {
     });
   }
 
-  if (starter && starter.priceCents < STARTER_WAS_CENTS) {
+  if (!exclude.includes("starter") && starter && starter.priceCents < STARTER_WAS_CENTS) {
     specials.push({
       key: "starter",
       sortCents: starter.priceCents,
@@ -82,7 +91,7 @@ export async function SpecialsGrid({ className = "" }: { className?: string }) {
     });
   }
 
-  if (bundle) {
+  if (!exclude.includes("bundle") && bundle) {
     const separately =
       starter && cinAd && ugcAd && nfc
         ? starter.priceCents + 2 * cinAd.priceCents + 2 * ugcAd.priceCents + 3 * nfc.priceCents
@@ -97,7 +106,7 @@ export async function SpecialsGrid({ className = "" }: { className?: string }) {
           accent={rest.join(" ")}
           description={bundle.description}
           delivery={deliveryLine(bundle.turnaround)}
-          items={["A Starter Website", "2 Cinematic Ads", "2 UGC Ads", "3 NFC cards of your choice"]}
+          items={["A Quick Business Website", "2 Cinematic Ads", "2 UGC Ads", "3 NFC cards of your choice"]}
           wasCents={separately && separately > bundle.priceCents ? separately : undefined}
           nowCents={bundle.priceCents}
           href={`/checkout?product=${bundle.slug}`}
@@ -108,7 +117,7 @@ export async function SpecialsGrid({ className = "" }: { className?: string }) {
     });
   }
 
-  if (siteProduct && siteProduct.priceCents < SITE_WAS_CENTS) {
+  if (!exclude.includes("site") && siteProduct && siteProduct.priceCents < SITE_WAS_CENTS) {
     specials.push({
       key: "site",
       sortCents: siteProduct.priceCents,
@@ -136,7 +145,7 @@ export async function SpecialsGrid({ className = "" }: { className?: string }) {
       <div className="mb-10 text-center">
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Specials</p>
         <h2 className="mt-4 font-display text-4xl text-ice sm:text-5xl">
-          Current <span className="text-gradient-champagne italic">specials</span>
+          {heading} <span className="text-gradient-champagne italic">specials</span>
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-ice/50">Every special below, lowest price first.</p>
       </div>

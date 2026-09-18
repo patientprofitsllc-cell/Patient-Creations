@@ -10,6 +10,9 @@ import { completeOrderPayment } from "@/lib/payments/completeOrder";
 import { ensureReferralForCustomer } from "@/lib/referrals/codes";
 import { logEvent } from "@/lib/analytics/events";
 import { rateLimit } from "@/lib/security/rateLimit";
+import { randomBytes } from "crypto";
+import { NFC_BUNDLE_SLUG } from "@/lib/payments/nfcAddon";
+import { OFFER_SLUG } from "@/lib/site/offer";
 
 const checkoutSchema = z.object({
   productIds: z.array(z.string()).min(1),
@@ -22,7 +25,16 @@ const checkoutSchema = z.object({
   deliverySpeed: z.enum(["standard", "priority", "express", "immediate"]).default("standard"),
   paymentMethod: z.enum(["stripe", "zelle", "apple_pay"]).default("stripe"),
   couponCode: z.string().optional(),
-  campaignSource: z.string().optional(),
+  campaignSource: z.string().max(80).optional(),
+  // Business details, required when the order includes a website (see below).
+  website: z
+    .object({
+      businessName: z.string().trim().min(1).max(120),
+      businessType: z.string().trim().min(1).max(80),
+      phone: z.string().trim().min(7).max(40),
+      existingWebsite: z.string().trim().max(200).optional(),
+    })
+    .optional(),
   referralCode: z.string().optional(),
   account: z
     .object({
@@ -41,7 +53,15 @@ export async function POST(req: NextRequest) {
   const body = checkoutSchema.safeParse(await req.json());
   if (!body.success) return NextResponse.json({ error: body.error.flatten() }, { status: 400 });
 
-  const { productIds, primaryVariantId, primaryQuantity, nfcAddonQuantity, cardMix, deliverySpeed, paymentMethod, couponCode, campaignSource, referralCode, account } = body.data;
+  const { productIds, primaryVariantId, primaryQuantity, nfcAddonQuantity, cardMix, deliverySpeed, paymentMethod, couponCode, campaignSource, referralCode, account, website } = body.data;
+
+  // Website orders need the business basics up front so production can start from them.
+  const includesWebsite =
+    !cardMix &&
+    (await db.product.count({ where: { id: { in: productIds }, slug: { in: [OFFER_SLUG, NFC_BUNDLE_SLUG] } } })) > 0;
+  if (includesWebsite && !website) {
+    return NextResponse.json({ error: "Tell us your business name, type, and phone so we can build your website." }, { status: 400 });
+  }
 
   const session = await getServerSession(authOptions);
   let customerId: string;
@@ -105,6 +125,20 @@ export async function POST(req: NextRequest) {
       },
     },
   });
+
+  if (includesWebsite && website) {
+    // One private, unguessable intake link per website order (22 url-safe chars from 128 random bits).
+    await db.websiteIntake.create({
+      data: {
+        orderId: order.id,
+        token: randomBytes(16).toString("base64url"),
+        businessName: website.businessName,
+        businessType: website.businessType,
+        phone: website.phone,
+        existingWebsite: website.existingWebsite || null,
+      },
+    });
+  }
 
   await logEvent("order.created", "Order", order.id, { totalCents: order.totalCents, paymentMethod });
 

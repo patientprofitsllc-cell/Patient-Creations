@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 
+import { OFFER_CHECKOUT_HREF } from "@/lib/site/offer";
+
 const NAV = [
-  { href: "/gallery", label: "Fleet" },
+  { href: "/examples", label: "Examples" },
+  { href: "/pricing", label: "Pricing" },
   { href: "/services", label: "Services" },
-  { href: "/services#pricing", label: "Pricing" },
   { href: "/agents", label: "Agent Network" },
   { href: "/guided-app-tour", label: "Guided Tour" },
 ];
@@ -33,10 +35,10 @@ export function SiteHeader() {
             Portal
           </Link>
           <Link
-            href="/services#book"
+            href={OFFER_CHECKOUT_HREF}
             className="hidden rounded-full bg-gradient-to-b from-gold to-gold-deep px-5 py-2 text-sm font-semibold tracking-wide text-obsidian transition hover:brightness-110 sm:block"
           >
-            Book a build
+            Build my website
           </Link>
           <button
             type="button"
@@ -71,11 +73,11 @@ export function SiteHeader() {
             </li>
             <li className="pt-2">
               <Link
-                href="/services#book"
+                href={OFFER_CHECKOUT_HREF}
                 onClick={() => setOpen(false)}
                 className="block rounded-full bg-gradient-to-b from-gold to-gold-deep px-5 py-3 text-center font-semibold text-obsidian"
               >
-                Book a build
+                Build my website
               </Link>
             </li>
           </ul>

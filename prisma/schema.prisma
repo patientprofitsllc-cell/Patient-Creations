@@ -112,6 +112,7 @@ model Order {
   payments       Payment[]
   project        Project?
   nfcIntake      NfcIntake?
+  websiteIntake  WebsiteIntake?
 }
 
 // Physical stock on hand for merch (NFC cards). Tracked per design/color
@@ -215,6 +216,57 @@ model ProjectUpdate {
   authorName String   @default("Trenton")
   notifyEmail Boolean @default(false)
   createdAt  DateTime @default(now())
+}
+
+// The customer's business information for a website build. The basics are
+// captured at checkout; the rest is filled in through the no-login intake
+// wizard, which is reached with the unguessable `token` (same pattern as the
+// private status link). Production starts once status is COMPLETE and paid.
+model WebsiteIntake {
+  id              String    @id @default(cuid())
+  orderId         String    @unique
+  order           Order     @relation(fields: [orderId], references: [id])
+  token           String    @unique
+  status          String    @default("STARTED") // STARTED | COMPLETE
+  businessName    String
+  businessType    String
+  phone           String
+  existingWebsite String?
+  description     String?
+  address         String?
+  hours           String?
+  services        String?
+  pricing         String?
+  bookingUrl      String?
+  socialUrls      String?   // one per line
+  logoUrl         String?
+  colors          String?
+  fontStyle       String?
+  styleNotes      String?
+  mediaLinks      String?   // one per line: links to photos and videos
+  goal            String?   // CALL | TEXT | BOOK | QUOTE | VISIT | BUY | FORM | OTHER
+  goalNotes       String?
+  startedAt       DateTime? // first time the wizard was opened
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Real, published customer results only. Nothing renders until `published` is
+// true, and nothing is seeded, so the site never shows invented case studies.
+model CaseStudy {
+  id                String   @id @default(cuid())
+  slug              String   @unique
+  businessName      String
+  industry          String
+  problem           String
+  improvements      String   // one per line
+  beforeUrl         String?
+  afterUrl          String?
+  testimonial       String?  // only with the customer's permission
+  testimonialAuthor String?
+  published         Boolean  @default(false)
+  createdAt         DateTime @default(now())
 }
 
 // Two-way thread on a customer's private status page. Customers write from the

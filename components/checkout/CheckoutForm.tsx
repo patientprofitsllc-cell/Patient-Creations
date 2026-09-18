@@ -18,6 +18,9 @@ import { supportsQuantity } from "@/lib/payments/quantityProducts";
 import { businessDays } from "@/lib/payments/deliveryWindow";
 import { PAYMENT_METHODS } from "@/lib/payments/paymentMethods";
 import type { PaymentMethod } from "@/lib/types";
+import { BUSINESS_TYPES, OFFER_SLUG } from "@/lib/site/offer";
+import { readAttribution, sourceLabel } from "@/lib/analytics/attribution";
+import { TrackView } from "@/components/analytics/Track";
 
 interface ProductLite {
   id: string;
@@ -55,7 +58,16 @@ export function CheckoutForm({
   const { data: session } = useSession();
   const router = useRouter();
   const params = useSearchParams();
-  const referralCode = params.get("ref") ?? undefined;
+  // Falls back to the code remembered from the visitor's first landing, so a
+  // referral still counts if they came back to check out later.
+  const [storedRef] = useState(() => {
+    try {
+      return readAttribution().ref;
+    } catch {
+      return undefined;
+    }
+  });
+  const referralCode = params.get("ref") ?? storedRef ?? undefined;
   const initialVariant = params.get("variant") ?? undefined;
 
   const [variantId, setVariantId] = useState<string | undefined>(
@@ -75,6 +87,11 @@ export function CheckoutForm({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // Business details, collected only for website orders so the build can start from the intake.
+  const [businessName, setBusinessName] = useState("");
+  const [businessType, setBusinessType] = useState("");
+  const [phone, setPhone] = useState("");
+  const [existingWebsite, setExistingWebsite] = useState("");
   const [step, setStep] = useState<"details" | "payment">("details");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("stripe");
   const [loading, setLoading] = useState(false);
@@ -84,6 +101,7 @@ export function CheckoutForm({
   const isCardPack = primaryProduct.slug === CARD_MIX_PACK_SLUG;
   const usesQuantity = supportsQuantity(primaryProduct.category ?? "");
   const isBundle = primaryProduct.slug === NFC_BUNDLE_SLUG;
+  const needsWebsite = primaryProduct.slug === OFFER_SLUG || isBundle;
   const mixTotal = Object.values(mix).reduce((sum, q) => sum + q, 0);
   // The card pack's quantity is the sum across designs; everything else uses the stepper.
   const qty = isCardPack ? mixTotal : quantity;
@@ -159,6 +177,10 @@ export function CheckoutForm({
           couponCode: coupon || undefined,
           referralCode,
           account: session?.user ? undefined : { name, email, password },
+          website: needsWebsite
+            ? { businessName, businessType, phone, existingWebsite: existingWebsite || undefined }
+            : undefined,
+          campaignSource: sourceLabel(readAttribution()),
         }),
       });
       const data = await res.json();
@@ -174,7 +196,9 @@ export function CheckoutForm({
     }
   }
 
-  const detailsValid = session?.user || (name && email && password.length >= 8);
+  const accountValid = Boolean(session?.user) || Boolean(name && email && password.length >= 8);
+  const websiteValid = !needsWebsite || Boolean(businessName.trim() && businessType && phone.replace(/D/g, "").length >= 7);
+  const detailsValid = accountValid && websiteValid;
   const selectedMethod = PAYMENT_METHODS.find((m) => m.key === paymentMethod)!;
 
   function goToPayment() {
@@ -185,6 +209,7 @@ export function CheckoutForm({
 
   return (
     <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.4fr_1fr]">
+      <TrackView event="checkout_started" data={{ product: primaryProduct.slug }} />
       <div className="space-y-8">
         {step === "payment" ? (
           <div className="glass-panel rounded-2xl p-6">
@@ -376,6 +401,59 @@ export function CheckoutForm({
             </p>
           )}
         </div>
+        )}
+
+        {needsWebsite && (
+          <div className="glass-panel rounded-2xl p-6">
+            <h2 className="mb-1 text-ice">About your business</h2>
+            <p className="mb-4 text-xs text-ice/40">
+              Four quick details so we can start. You&apos;ll add the rest (hours, services, photos) in a short intake after you pay.
+            </p>
+            <div className="space-y-3">
+              <label htmlFor="checkout-business" className="sr-only">Business name</label>
+              <input
+                id="checkout-business"
+                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-ice placeholder:text-ice/30"
+                placeholder="Business name"
+                autoComplete="organization"
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
+              />
+              <label htmlFor="checkout-business-type" className="sr-only">Business type</label>
+              <select
+                id="checkout-business-type"
+                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-ice"
+                value={businessType}
+                onChange={(e) => setBusinessType(e.target.value)}
+              >
+                <option value="">Business type</option>
+                {BUSINESS_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+              <label htmlFor="checkout-phone" className="sr-only">Business phone</label>
+              <input
+                id="checkout-phone"
+                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-ice placeholder:text-ice/30"
+                placeholder="Business phone (shown on your site)"
+                type="tel"
+                autoComplete="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+              <label htmlFor="checkout-existing-site" className="sr-only">Existing website or domain (optional)</label>
+              <input
+                id="checkout-existing-site"
+                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-ice placeholder:text-ice/30"
+                placeholder="Existing website or domain (optional)"
+                autoComplete="url"
+                value={existingWebsite}
+                onChange={(e) => setExistingWebsite(e.target.value)}
+              />
+            </div>
+          </div>
         )}
 
         {!session?.user && (

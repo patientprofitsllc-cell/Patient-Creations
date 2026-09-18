@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { logEvent } from "@/lib/analytics/events";
+import { trackFunnel } from "@/lib/analytics/funnel";
 import { createProjectForOrder, runOrchestrator } from "@/lib/agents/orchestrator";
 import { recordReferralPurchase } from "@/lib/referrals/commissions";
 import { decrementInventoryForOrder } from "@/lib/inventory/decrement";
@@ -24,6 +25,11 @@ export async function completeOrderPayment(orderId: string, provider: PaymentPro
   });
 
   await logEvent("payment.succeeded", "Order", orderId, { provider });
+  await trackFunnel("checkout_completed", {
+    orderId,
+    source: order.campaignSource ?? undefined,
+    totalCents: order.totalCents,
+  });
 
   if (order.customer.referredByCode) {
     await recordReferralPurchase(order.customer.referredByCode, order.customerId, orderId, order.totalCents);

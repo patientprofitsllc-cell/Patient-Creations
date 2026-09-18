@@ -3,37 +3,56 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { SeedCanvas } from "@/components/cinematic/SeedCanvas";
-import { HowItWorks } from "@/components/cinematic/HowItWorks";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { NfcShowcase } from "@/components/home/NfcShowcase";
 import { SeoWordbank } from "@/components/home/SeoWordbank";
 import { SpecialsGrid } from "@/components/home/SpecialsGrid";
-import { CARD_CTA_CLASS } from "@/components/home/specialFrame";
+import { CARD_CTA_CLASS, money } from "@/components/home/specialFrame";
+import { TrackOnScreen, TrackView } from "@/components/analytics/Track";
+import { CaseStudies } from "@/components/marketing/CaseStudies";
+import { FaqSection } from "@/components/marketing/FaqSection";
+import { GrowthLadder } from "@/components/marketing/GrowthLadder";
+import { HowItWorksSimple } from "@/components/marketing/HowItWorksSimple";
+import { IndustryGrid } from "@/components/marketing/IndustryGrid";
+import { OfferCard } from "@/components/marketing/OfferCard";
+import { ProblemSection } from "@/components/marketing/ProblemSection";
 import { db } from "@/lib/db";
 import { LOGO_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/config/site";
+import { OFFER_CHECKOUT_HREF, TRUST_ITEMS, getFaqs } from "@/lib/site/offer";
+import { FALLBACK_OFFER_PRICE_CENTS, getOfferProduct } from "@/lib/site/offerData";
 
-// Same catalog/pricing data, cached and refreshed every 60s — a price or
+// Same catalog/pricing data, cached and refreshed every 60s: a price or
 // catalog change shows up within a minute with no redeploy, matching the
 // revalidate strategy already used on /services.
 export const revalidate = 60;
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
-// The six flagship builds — the same lineup /services compares against the
+// Display-only "regular" price for the main offer. Checkout always charges the
+// live product price.
+const OFFER_WAS_CENTS = 50000;
+
+// The six flagship builds, the same lineup /services compares against the
 // market. Displayed lowest price to highest, not DB sortOrder.
 const FEATURED_SLUGS = ["site", "saas", "agents", "ad", "rental-listing-film", "lead-engine"];
 
 export default async function HomePage() {
-  const rows = await db.product.findMany({
-    where: { slug: { in: [...FEATURED_SLUGS, "nfc-cards"] }, active: true },
-    include: { variants: { where: { active: true }, orderBy: { priceCents: "asc" } } },
-  });
+  const [offer, rows] = await Promise.all([
+    getOfferProduct(),
+    db.product.findMany({
+      where: { slug: { in: [...FEATURED_SLUGS, "nfc-cards"] }, active: true },
+      include: { variants: { where: { active: true }, orderBy: { priceCents: "asc" } } },
+    }),
+  ]);
   const bySlug = new Map(rows.map((p) => [p.slug, p]));
 
   const featured = FEATURED_SLUGS.map((slug) => bySlug.get(slug))
     .filter((p): p is NonNullable<typeof p> => Boolean(p))
     .sort((a, b) => a.priceCents - b.priceCents);
   const nfc = bySlug.get("nfc-cards");
+
+  const offerCents = offer?.priceCents ?? FALLBACK_OFFER_PRICE_CENTS;
+  const price = money(offerCents);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -54,6 +73,15 @@ export default async function HomePage() {
         name: SITE_NAME,
         publisher: { "@id": `${SITE_URL}/#organization` },
       },
+      {
+        "@type": "Offer",
+        name: "Quick Business Website",
+        description: "A custom one-page business website: mobile optimized, business-specific copy, basic SEO, deployed live, one revision.",
+        price: (offerCents / 100).toFixed(2),
+        priceCurrency: "USD",
+        url: `${SITE_URL}${OFFER_CHECKOUT_HREF}`,
+        seller: { "@id": `${SITE_URL}/#organization` },
+      },
     ],
   };
 
@@ -61,128 +89,163 @@ export default async function HomePage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <SiteHeader />
+      <TrackView event="landing_page_view" />
       <main>
-        <section className="relative flex min-h-screen items-center overflow-hidden bg-studio-radial pt-24">
+        {/* 1. Hero */}
+        <section className="relative flex min-h-[88vh] items-center overflow-hidden bg-studio-radial pt-24">
           <SeedCanvas className="pointer-events-none absolute inset-0 h-full w-full" />
-          <div className="relative mx-auto max-w-3xl px-6">
-            <Link
-              href="/services#pricing"
-              className="champagne-border mb-6 inline-block rounded-full px-5 py-2 text-xs tracking-wide text-champagne transition hover:bg-champagne/10"
-            >
-              Compare the pricing
-            </Link>
-            <p className="mb-6 text-xs uppercase tracking-[0.4em] text-gold/80">Patient Profits · Global</p>
-            <p className="mb-3 font-display text-lg italic text-champagne/80">The Digital Master.</p>
+          <div className="relative mx-auto max-w-4xl px-6 text-center">
+            <p className="mb-6 text-xs uppercase tracking-[0.4em] text-gold/80">Patient Creations</p>
             <h1 className="font-display text-5xl leading-tight text-ice sm:text-6xl md:text-7xl">
-              The machine that <span className="text-gradient-champagne italic">builds your wealth</span>, built to order.
+              Your Business Deserves a{" "}
+              <span className="text-gradient-champagne italic">Website That Works.</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-lg text-ice/60">
-              Cinematic websites, software, and multi-agent systems. Agency quality at freelancer-floor pricing. A
-              community of AI agents handles your questions, your timeline, and your checkout, so the work moves
-              while you do.
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-ice/60">
+              A professional, mobile-ready website for your local business, built around what you do and ready to
+              take calls, texts, and bookings. One clear price, one revision included.
             </p>
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Link
+                href={OFFER_CHECKOUT_HREF}
+                className="w-full rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-4 text-base font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110 sm:w-auto"
+              >
+                BUILD MY WEBSITE, {price}
+              </Link>
+              <Link
+                href="/examples"
+                className="champagne-border w-full rounded-full px-8 py-4 text-sm tracking-wide text-champagne transition hover:bg-champagne/10 sm:w-auto"
+              >
+                VIEW EXAMPLES
+              </Link>
+            </div>
           </div>
         </section>
 
-        <SpecialsGrid />
+        {/* 2. Trust row */}
+        <section aria-label="What you get" className="border-y border-white/5 bg-white/[0.02]">
+          <ul className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-6 py-5 text-sm text-ice/70">
+            {TRUST_ITEMS.map((item) => (
+              <li key={item} className="flex items-center gap-2">
+                <span aria-hidden className="text-gold">
+                  ✓
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </section>
 
-        {nfc && <NfcShowcase priceCents={nfc.priceCents} />}
+        {/* 3. Problem */}
+        <ProblemSection />
 
-        <section className="mx-auto max-w-6xl px-6 pb-8 pt-20">
+        {/* 4. The offer */}
+        <section id="offer" className="mx-auto max-w-5xl scroll-mt-24 px-6 py-12">
+          <TrackOnScreen event="offer_view">
+            <OfferCard priceCents={offerCents} wasCents={OFFER_WAS_CENTS} />
+          </TrackOnScreen>
+        </section>
+
+        {/* 5. Real results (renders only when a published case study exists) */}
+        <CaseStudies />
+
+        {/* 6. Examples */}
+        <section className="mx-auto max-w-6xl px-6 py-20">
           <div className="mb-10 text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Featured</p>
-            <h2 className="mt-4 font-display text-4xl text-ice sm:text-5xl">
-              What <span className="text-gradient-champagne italic">We Build</span>
+            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Examples</p>
+            <h2 className="mt-4 font-display text-3xl text-ice sm:text-4xl">
+              One system, <span className="text-gradient-champagne italic">every kind of business.</span>
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-ice/50">
-              Six builds, one production system. Every service enters the same automated pipeline: research,
-              strategy, build, QA, and perception review before delivery.
+              Sample designs that show how a one-page site adapts to your industry. They&apos;re design concepts, not
+              real customer results.
             </p>
           </div>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {featured.map((product) => (
-              <ProductCard
-                key={product.slug}
-                category={product.category}
-                name={product.name}
-                description={product.description}
-                priceCents={product.priceCents}
-                hasTiers={product.variants.length > 0}
-                topTierCents={product.variants[product.variants.length - 1]?.priceCents}
-                turnaround={product.turnaround}
-                action={
-                  <Link href={`/checkout?product=${product.slug}`} className={CARD_CTA_CLASS}>
-                    Reserve this build
-                  </Link>
-                }
-              />
-            ))}
-          </div>
+          <IndustryGrid />
           <div className="mt-10 text-center">
-            <Link href="/services" className="text-sm text-gold hover:brightness-110">
-              See every service &amp; compare pricing →
+            <Link href="/examples" className="text-sm text-gold hover:brightness-110">
+              See all examples →
             </Link>
           </div>
         </section>
 
-        <section className="mx-auto max-w-5xl px-6 py-28 text-center">
-          <h2 className="font-display text-3xl text-ice sm:text-4xl">
-            Build once. <span className="text-gradient-champagne">Own the machine.</span>
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-ice/50">
-            Every enquiry is handled by the agent community. See what a build costs against the market, or meet the
-            fleet this same system already runs.
-          </p>
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              href="/services#book"
-              className="rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-3 text-sm font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110"
-            >
-              Pick a service for building
-            </Link>
-          </div>
-        </section>
+        {/* 7. How it works */}
+        <HowItWorksSimple />
 
-        <section id="tour" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-28">
-          <div className="mb-16 max-w-2xl">
-            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">How It Works</p>
+        {/* 8. FAQ */}
+        <FaqSection faqs={getFaqs(price)} />
+
+        {/* 9. Growth ladder: what comes after the website */}
+        <GrowthLadder />
+
+        {/* 10. Everything else we sell, kept below the main offer */}
+        <div className="border-t border-white/5 pt-8">
+          <div className="mx-auto max-w-3xl px-6 pt-12 text-center">
+            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">More from Patient Creations</p>
             <h2 className="mt-4 font-display text-3xl text-ice sm:text-4xl">
-              An automated production system, not a freelancer.
+              Ads, cards, and <span className="text-gradient-champagne italic">custom builds.</span>
             </h2>
           </div>
-          <HowItWorks />
-          <div className="mt-16">
-            <Link href="/guided-app-tour" className="text-sm text-gold hover:brightness-110">
-              Take the full guided tour →
-            </Link>
-          </div>
-        </section>
 
-        <section className="mx-auto max-w-4xl px-6 pb-16 pt-4 text-center">
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              href="#tour"
-              className="rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-3 text-sm font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110"
-            >
-              See how it works
-            </Link>
-            <Link
-              href="/gallery"
-              className="champagne-border rounded-full px-8 py-3 text-sm tracking-wide text-champagne transition hover:bg-champagne/10"
-            >
-              See the fleet
-            </Link>
-          </div>
+          <SpecialsGrid exclude={["starter"]} heading="More" />
+
+          {nfc && <NfcShowcase priceCents={nfc.priceCents} />}
+
+          <section className="mx-auto max-w-6xl px-6 pb-8 pt-20">
+            <div className="mb-10 text-center">
+              <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Featured</p>
+              <h2 className="mt-4 font-display text-3xl text-ice sm:text-4xl">
+                What <span className="text-gradient-champagne italic">We Build</span>
+              </h2>
+              <p className="mx-auto mt-4 max-w-xl text-ice/50">
+                Bigger projects go through the same production system: research, strategy, build, QA, and review
+                before delivery.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {featured.map((product) => (
+                <ProductCard
+                  key={product.slug}
+                  category={product.category}
+                  name={product.name}
+                  description={product.description}
+                  priceCents={product.priceCents}
+                  hasTiers={product.variants.length > 0}
+                  topTierCents={product.variants[product.variants.length - 1]?.priceCents}
+                  turnaround={product.turnaround}
+                  action={
+                    <Link href={`/checkout?product=${product.slug}`} className={CARD_CTA_CLASS}>
+                      Reserve this build
+                    </Link>
+                  }
+                />
+              ))}
+            </div>
+            <div className="mt-10 text-center">
+              <Link href="/services" className="text-sm text-gold hover:brightness-110">
+                See every service &amp; compare pricing →
+              </Link>
+            </div>
+          </section>
+        </div>
+
+        {/* 11. Final call to action */}
+        <section className="mx-auto max-w-3xl px-6 py-24 text-center">
+          <h2 className="font-display text-3xl text-ice sm:text-4xl">
+            Ready to look <span className="text-gradient-champagne italic">professional online?</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-ice/50">
+            Order in a couple of minutes, fill in a short intake, and follow your project on a private page.
+          </p>
+          <Link
+            href={OFFER_CHECKOUT_HREF}
+            className="mt-8 inline-block rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-4 text-base font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110"
+          >
+            BUILD MY WEBSITE, {price}
+          </Link>
         </section>
 
         <SeoWordbank />
       </main>
-      <Link
-        href="/services"
-        className="fixed bottom-6 right-6 z-40 rounded-full bg-gold px-4 py-2 text-xs font-semibold tracking-wide text-obsidian shadow-lg shadow-black/40 transition hover:brightness-110"
-      >
-        Products &amp; Services
-      </Link>
       <SiteFooter />
     </>
   );

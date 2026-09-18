@@ -1,0 +1,108 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { SiteHeader } from "@/components/shared/SiteHeader";
+import { SiteFooter } from "@/components/shared/SiteFooter";
+import { TrackView } from "@/components/analytics/Track";
+import { FaqSection } from "@/components/marketing/FaqSection";
+import { GrowthLadder } from "@/components/marketing/GrowthLadder";
+import { OfferCard } from "@/components/marketing/OfferCard";
+import { money } from "@/components/home/specialFrame";
+import { db } from "@/lib/db";
+import { getFaqs } from "@/lib/site/offer";
+import { FALLBACK_OFFER_PRICE_CENTS, getOfferProduct } from "@/lib/site/offerData";
+
+export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const offer = await getOfferProduct();
+  const price = money(offer?.priceCents ?? FALLBACK_OFFER_PRICE_CENTS);
+  return {
+    title: `Pricing: a professional website starting at ${price}`,
+    description: `Simple pricing for small business websites. The ${price} Quick Business Website includes custom one-page design, mobile optimization, copy, basic SEO, deployment, and one revision.`,
+    alternates: { canonical: "/pricing" },
+  };
+}
+
+const NOT_INCLUDED = [
+  "Multi-page websites or online stores",
+  "Custom features or integrations beyond a booking, call, or text link",
+  "Logo and brand design (available as an add-on)",
+  "More than one revision round (extra rounds are an add-on)",
+  "Ongoing hosting, updates, and monitoring after launch",
+];
+
+export default async function PricingPage() {
+  const [offer, addOns] = await Promise.all([
+    getOfferProduct(),
+    db.product.findMany({ where: { type: "ORDER_BUMP", active: true }, orderBy: { priceCents: "asc" } }),
+  ]);
+
+  const price = money(offer?.priceCents ?? FALLBACK_OFFER_PRICE_CENTS);
+
+  return (
+    <>
+      <SiteHeader />
+      <TrackView event="landing_page_view" />
+      <main>
+        <section className="mx-auto max-w-4xl px-6 pb-12 pt-32 text-center">
+          <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Pricing</p>
+          <h1 className="mt-4 font-display text-4xl text-ice sm:text-5xl">
+            One clear price to <span className="text-gradient-champagne italic">get online.</span>
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-ice/60">
+            No quote calls and no surprise fees. Everything else is optional.
+          </p>
+        </section>
+
+        <section className="mx-auto max-w-5xl px-6 pb-12">
+          <OfferCard priceCents={offer?.priceCents ?? FALLBACK_OFFER_PRICE_CENTS} />
+        </section>
+
+        <section className="mx-auto max-w-4xl px-6 py-12">
+          <h2 className="font-display text-2xl text-ice sm:text-3xl">What&apos;s not included</h2>
+          <p className="mt-2 text-sm text-ice/50">So there are no surprises, here&apos;s what the {price} website doesn&apos;t cover.</p>
+          <ul className="mt-6 space-y-2">
+            {NOT_INCLUDED.map((item) => (
+              <li key={item} className="flex items-start gap-3 text-sm text-ice/70">
+                <span aria-hidden className="mt-0.5 text-ice/40">
+                  –
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {addOns.length > 0 && (
+          <section className="mx-auto max-w-4xl px-6 py-12">
+            <h2 className="font-display text-2xl text-ice sm:text-3xl">Add-ons at checkout</h2>
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {addOns.map((a) => (
+                <div key={a.id} className="glass-panel rounded-xl p-5">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="font-display text-lg text-ice">{a.name}</p>
+                    <p className="text-champagne">{money(a.priceCents)}</p>
+                  </div>
+                  <p className="mt-2 text-sm text-ice/60">{a.description}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <GrowthLadder />
+        <FaqSection faqs={getFaqs(price)} />
+
+        <section className="mx-auto max-w-3xl px-6 pb-24 text-center">
+          <Link
+            href="/checkout?product=starter-website"
+            className="inline-block rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-4 text-base font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110"
+          >
+            BUILD MY WEBSITE
+          </Link>
+        </section>
+      </main>
+      <SiteFooter />
+    </>
+  );
+}
