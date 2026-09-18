@@ -17,10 +17,12 @@ export function AdSpecial({
   cinematic,
   ugc,
   consultation,
+  delivery,
 }: {
   cinematic: Omit<AdOption, "label" | "blurb">;
   ugc: Omit<AdOption, "label" | "blurb">;
   consultation: { slug: string; priceCents: number };
+  delivery?: string | null;
 }) {
   const router = useRouter();
   const options: Record<"cinematic" | "ugc", AdOption> = {
@@ -37,10 +39,11 @@ export function AdSpecial({
       <span className="rounded-full bg-gradient-to-b from-gold to-gold-deep px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-obsidian">
         Special Offer
       </span>
-      <h3 className="mt-5 font-display text-3xl text-ice sm:text-4xl">
+      <h3 className="mt-5 font-display text-3xl text-ice">
         Ads that sell, <span className="text-gradient-champagne italic">your pick</span>
       </h3>
       <p className="mt-3 max-w-sm text-sm text-ice/60">Choose the style, then how many ads you want.</p>
+      {delivery && <p className="mt-3 text-xs text-ice/40">{delivery}</p>}
 
       <div className="mt-6 grid w-full grid-cols-2 gap-3">
         {(Object.keys(options) as Array<"cinematic" | "ugc">).map((key) => {

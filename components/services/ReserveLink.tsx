@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { CARD_CTA_CLASS } from "@/components/home/specialFrame";
 
 // Reads ?ref= client-side so the parent /services page never touches
 // searchParams itself — that's what let the page opt into full static
@@ -12,10 +13,7 @@ export function ReserveLink({ slug }: { slug: string }) {
   const href = `/checkout?product=${slug}${ref ? `&ref=${encodeURIComponent(ref)}` : ""}`;
 
   return (
-    <Link
-      href={href}
-      className="mt-6 rounded-full bg-gradient-to-b from-gold to-gold-deep px-6 py-3 text-center text-sm font-semibold tracking-wide text-obsidian transition hover:brightness-110"
-    >
+    <Link href={href} className={CARD_CTA_CLASS}>
       Reserve this build
     </Link>
   );

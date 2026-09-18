@@ -29,8 +29,15 @@ export function NfcShowcase({ priceCents }: { priceCents: number }) {
               className="group block transition-transform duration-300 hover:-translate-y-1"
             >
               <div className="overflow-hidden rounded-xl border border-gold/20 bg-white p-1 shadow-lg shadow-black/40">
-                <div className="relative aspect-[2/3] overflow-hidden rounded-md">
-                  <Image src={card.src} alt={`${card.name} NFC card`} fill sizes="96px" className="object-cover" />
+                <div className="relative aspect-[3/4] overflow-hidden rounded-md">
+                  <Image
+                    src={card.src}
+                    alt={`${card.name} NFC card`}
+                    fill
+                    sizes="(max-width: 640px) 25vw, 120px"
+                    quality={90}
+                    className="object-cover"
+                  />
                 </div>
               </div>
               <p className="mt-2 text-center text-[10px] uppercase tracking-[0.15em] text-ice/50 transition group-hover:text-gold">

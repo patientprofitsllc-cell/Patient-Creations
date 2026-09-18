@@ -4,7 +4,8 @@ import { SPECIAL_FRAME, money } from "./specialFrame";
 export function SpecialPriceCard({
   lead,
   accent,
-  blurb,
+  description,
+  delivery,
   items,
   wasCents,
   nowCents,
@@ -14,7 +15,8 @@ export function SpecialPriceCard({
 }: {
   lead: string;
   accent: string;
-  blurb: string;
+  description: string;
+  delivery?: string | null;
   items?: string[];
   wasCents?: number;
   nowCents: number;
@@ -30,10 +32,11 @@ export function SpecialPriceCard({
       <span className="rounded-full bg-gradient-to-b from-gold to-gold-deep px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-obsidian">
         Special Offer
       </span>
-      <h3 className="mt-5 font-display text-3xl text-ice sm:text-4xl">
+      <h3 className="mt-5 font-display text-3xl text-ice">
         {lead} <span className="text-gradient-champagne italic">{accent}</span>
       </h3>
-      <p className="mt-3 max-w-sm text-sm text-ice/60">{blurb}</p>
+      <p className="mt-3 max-w-sm text-sm text-ice/60">{description}</p>
+      {delivery && <p className="mt-3 text-xs text-ice/40">{delivery}</p>}
       {items && (
         <ul className="mt-4 space-y-1 text-left text-sm text-ice/70">
           {items.map((item) => (
@@ -48,7 +51,7 @@ export function SpecialPriceCard({
         {wasCents !== undefined && (
           <span className="text-xl text-ice/40 line-through decoration-red-400/70 decoration-2">{money(wasCents)}</span>
         )}
-        <span className="text-5xl text-champagne sm:text-6xl">{money(nowCents)}</span>
+        <span className="text-5xl text-champagne">{money(nowCents)}</span>
       </p>
       {wasCents !== undefined && (
         <p className="mt-2 text-sm font-semibold text-emerald-400">You save {money(wasCents - nowCents)}</p>

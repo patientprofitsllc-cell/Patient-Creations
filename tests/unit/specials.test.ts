@@ -1,7 +1,25 @@
 import { describe, it, expect } from "vitest";
 import { resolveNfcAddonPriceCents } from "@/lib/payments/nfcAddon";
 import { supportsQuantity, AD_SPECIAL_CATEGORY } from "@/lib/payments/quantityProducts";
-import { businessDays } from "@/lib/payments/deliveryWindow";
+import { businessDays, deliveryLine } from "@/lib/payments/deliveryWindow";
+
+describe("deliveryLine", () => {
+  it("labels day and week windows as a delivery, in business days", () => {
+    expect(deliveryLine("3-5 days")).toBe("Delivery: 3-5 business days");
+    expect(deliveryLine("2-3 weeks")).toBe("Delivery: 2-3 weeks");
+    expect(deliveryLine("5-7 business days")).toBe("Delivery: 5-7 business days");
+  });
+
+  it("labels sessions and scoped-on-a-call items as a timeline", () => {
+    expect(deliveryLine("60 minutes")).toBe("Timeline: 60 minutes");
+    expect(deliveryLine("scoped on the call")).toBe("Timeline: scoped on the call");
+  });
+
+  it("returns null when there's no turnaround", () => {
+    expect(deliveryLine(null)).toBeNull();
+    expect(deliveryLine(undefined)).toBeNull();
+  });
+});
 
 describe("businessDays", () => {
   it("adds 'business' to day windows", () => {
