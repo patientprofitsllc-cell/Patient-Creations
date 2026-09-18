@@ -53,6 +53,12 @@ export async function priceOrder(
 
   const primaryProduct = products.find((p) => p.id === productIds[0])!;
 
+  // A subscription is started from the customer's project page once their site
+  // is live, through its own checkout. It can never be bought as a one-time order.
+  if (products.some((p) => p.type === "SUBSCRIPTION")) {
+    throw new Error("This plan is started from your project page after your website is live");
+  }
+
   // Merch (NFC cards, etc.) is a flat physical-goods purchase: no rush
   // production tiers, no add-ons, quantity instead. Enforced here, not just
   // hidden in the UI, so a manipulated request can't slip either past.

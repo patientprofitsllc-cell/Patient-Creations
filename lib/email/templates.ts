@@ -8,7 +8,8 @@ export type EmailTemplateKey =
   | "referral_invite"
   | "retention"
   | "preview_ready"
-  | "website_live";
+  | "website_live"
+  | "care_plan_started";
 
 // Appended to every project-related email so a customer never has to
 // wonder "is it done yet?" — one link, always current, no login required.
@@ -56,6 +57,10 @@ ${p.intakeUrl}${statusLine(p)}`
   website_live: (p) => ({
     subject: "Your website is live.",
     body: `"${p.projectName}" is live${p.liveUrl ? `: ${p.liveUrl}` : "."}${statusLine(p)}`,
+  }),
+  care_plan_started: (p) => ({
+    subject: "Your website care plan is active.",
+    body: `Thanks for starting the care plan for "${p.projectName}". To request an update, message us on your project page.${statusLine(p)}`,
   }),
   retention: (p) => ({
     subject: "A next step worth considering.",

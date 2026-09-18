@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyWebhookSignature } from "@/lib/payments/stripe";
 import { completeOrderPayment } from "@/lib/payments/completeOrder";
 import { db } from "@/lib/db";
+import { handleCareEvent } from "@/lib/care/events";
 
 // Stripe webhook is the ONLY server-side path (besides the mock-payment
 // route used only when Stripe isn't configured) allowed to mark an order
@@ -30,6 +31,15 @@ export async function POST(req: NextRequest) {
         await completeOrderPayment(orderId, "STRIPE", session.id);
       }
     }
+  }
+
+  // Monthly care plan events keep subscription status current. The handler is
+  // idempotent, so a failure here returns 500 and Stripe safely retries.
+  try {
+    await handleCareEvent(event);
+  } catch (err) {
+    console.error("care plan webhook handling failed", err);
+    return NextResponse.json({ error: "Handler failed" }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });

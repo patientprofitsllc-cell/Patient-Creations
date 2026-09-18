@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CarePlanCard } from "@/components/care/CarePlanCard";
+import { money } from "@/components/home/specialFrame";
+import { CARE_PLAN_INCLUDES, CARE_PLAN_NOT_INCLUDED, CARE_PLAN_TIMING_NOTE, getCarePlanProduct } from "@/lib/site/carePlan";
 import { notFound } from "next/navigation";
 import { ProjectMessages } from "@/components/status/ProjectMessages";
 import { SiteHeader } from "@/components/shared/SiteHeader";
@@ -32,6 +35,7 @@ export default async function PublicStatusPage({ params }: { params: { token: st
       deliverables: true,
       order: { select: { websiteIntake: { select: { token: true, status: true } } } },
       websiteBuilds: { orderBy: { version: "desc" }, take: 1, select: { status: true, version: true, liveUrl: true } },
+      careSubscriptions: { orderBy: { createdAt: "desc" }, take: 1, select: { status: true, currentPeriodEnd: true, cancelAtPeriodEnd: true } },
     },
   });
 
@@ -40,6 +44,10 @@ export default async function PublicStatusPage({ params }: { params: { token: st
   const progress = await getProjectProgress(project.id);
   // A paid website that's still waiting on the customer's business info.
   const build = project.websiteBuilds[0] ?? null;
+  // The care plan is offered once the website is live.
+  const careProduct = build?.status === "LIVE" ? await getCarePlanProduct() : null;
+  const care = project.careSubscriptions[0] ?? null;
+  const careState = care && care.status !== "CANCELED" ? (care.status === "PAST_DUE" ? "past_due" : "active") : "offer";
   const pendingIntake =
     project.order.websiteIntake && project.order.websiteIntake.status !== "COMPLETE" ? project.order.websiteIntake : null;
 
@@ -105,6 +113,19 @@ export default async function PublicStatusPage({ params }: { params: { token: st
               </>
             )}
           </div>
+        )}
+
+        {build?.status === "LIVE" && careProduct && (
+          <CarePlanCard
+            token={params.token}
+            state={careState}
+            priceLabel={money(careProduct.priceCents)}
+            includes={CARE_PLAN_INCLUDES}
+            notIncluded={CARE_PLAN_NOT_INCLUDED}
+            timingNote={CARE_PLAN_TIMING_NOTE}
+            renewsOn={care?.currentPeriodEnd ? care.currentPeriodEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : null}
+            cancelsAtPeriodEnd={care?.cancelAtPeriodEnd ?? false}
+          />
         )}
 
         {pendingIntake && (

@@ -18,10 +18,19 @@ export interface ModelCallResult {
   model: string;
 }
 
+/** True only when the operator has deliberately turned AI on. */
+export function aiEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return env.AI_ENABLED === "true";
+}
+
 export async function callModel({ agentKey, system, prompt, maxTokens = 1024 }: ModelCallInput): Promise<ModelCallResult> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
-  if (!apiKey) {
+  // Master switch: the model is called only when AI_ENABLED is explicitly "true".
+  // With it off (the default), nothing is ever sent to or billed by the AI
+  // provider, even if a key happens to be configured. Everything that uses this
+  // seam has a no-AI fallback.
+  if (!apiKey || !aiEnabled()) {
     return {
       text: mockResponseFor(agentKey, prompt),
       mocked: true,

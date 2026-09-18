@@ -8,6 +8,7 @@ import { GrowthLadder } from "@/components/marketing/GrowthLadder";
 import { OfferCard } from "@/components/marketing/OfferCard";
 import { money } from "@/components/home/specialFrame";
 import { db } from "@/lib/db";
+import { CARE_PLAN_INCLUDES, CARE_PLAN_TIMING_NOTE, getCarePlanProduct } from "@/lib/site/carePlan";
 import { getFaqs } from "@/lib/site/offer";
 import { FALLBACK_OFFER_PRICE_CENTS, getOfferProduct } from "@/lib/site/offerData";
 
@@ -32,9 +33,10 @@ const NOT_INCLUDED = [
 ];
 
 export default async function PricingPage() {
-  const [offer, addOns] = await Promise.all([
+  const [offer, addOns, care] = await Promise.all([
     getOfferProduct(),
     db.product.findMany({ where: { type: "ORDER_BUMP", active: true }, orderBy: { priceCents: "asc" } }),
+    getCarePlanProduct(),
   ]);
 
   const price = money(offer?.priceCents ?? FALLBACK_OFFER_PRICE_CENTS);
@@ -87,6 +89,26 @@ export default async function PricingPage() {
                 </div>
               ))}
             </div>
+          </section>
+        )}
+
+        {care && (
+          <section className="mx-auto max-w-4xl px-6 py-12">
+            <h2 className="font-display text-2xl text-ice sm:text-3xl">After you&apos;re live: the care plan</h2>
+            <p className="mt-2 text-sm text-ice/50">
+              {money(care.priceCents)} a month, optional, and started from your project page once your website is live.
+            </p>
+            <ul className="mt-6 space-y-2">
+              {CARE_PLAN_INCLUDES.map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm text-ice/80">
+                  <span aria-hidden className="mt-0.5 text-gold">
+                    ✓
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 text-xs text-ice/40">{CARE_PLAN_TIMING_NOTE}</p>
           </section>
         )}
 

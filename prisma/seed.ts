@@ -367,6 +367,19 @@ const ADD_ONS: {
     revisionLimit: 0,
     sortOrder: 2,
   },
+  {
+    // Started from the customer's project page once their website is live (see
+    // app/api/care/checkout). Never sold through the ordinary one-time checkout.
+    slug: "care-plan",
+    name: "Website Care Plan",
+    category: "Care Plan",
+    type: "SUBSCRIPTION",
+    description: "Monthly care for your live website: small updates, and we keep it online and your domain looked after. Cancel any time.",
+    priceCents: 7900,
+    billingPeriod: "monthly",
+    revisionLimit: 0,
+    sortOrder: 3,
+  },
 ];
 
 // Current physical stock on hand, as counted by Trenton. `update` never

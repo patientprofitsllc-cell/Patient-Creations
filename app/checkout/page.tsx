@@ -12,7 +12,7 @@ export default async function CheckoutPage({ searchParams }: { searchParams: { p
     where: { slug: searchParams.product },
     include: { variants: { where: { active: true } } },
   });
-  if (!primaryProduct) redirect("/services");
+  if (!primaryProduct || primaryProduct.type === "SUBSCRIPTION") redirect("/services");
 
   const [orderBumps, activeProjectCount] = await Promise.all([
     db.product.findMany({ where: { type: "ORDER_BUMP", active: true }, orderBy: { sortOrder: "asc" } }),

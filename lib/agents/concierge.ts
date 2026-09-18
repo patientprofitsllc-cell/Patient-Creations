@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { callModel } from "@/lib/ai/callModel";
+import { aiEnabled, callModel } from "@/lib/ai/callModel";
 import { getProjectProgress } from "@/lib/workflows/progress";
 import {
   CONCIERGE_SYSTEM,
@@ -46,7 +46,7 @@ async function loadProjectFacts(projectId: string): Promise<ProjectFacts> {
 export async function replyToCustomer(projectId: string, question: string): Promise<ConciergeReply> {
   const facts = await loadProjectFacts(projectId);
   const fallback = ruleBasedReply(question, facts);
-  if (!process.env.ANTHROPIC_API_KEY) return fallback;
+  if (!process.env.ANTHROPIC_API_KEY || !aiEnabled()) return fallback;
 
   try {
     const result = await callModel({

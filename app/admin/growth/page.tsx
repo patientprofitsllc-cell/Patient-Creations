@@ -41,7 +41,7 @@ export default async function AdminGrowthPage() {
   const cfg = getAcquisitionConfig();
   const now = new Date();
 
-  const [paidOrders, eventGroups, landingRows, waiting] = await Promise.all([
+  const [paidOrders, eventGroups, landingRows, waiting, carePlans] = await Promise.all([
     db.order.findMany({
       where: { status: "PAID", paidAt: { gte: cfg.start } },
       select: { customerId: true, totalCents: true, campaignSource: true, items: { select: { product: { select: { slug: true } } } } },
@@ -61,7 +61,14 @@ export default async function AdminGrowthPage() {
       select: { businessName: true, order: { select: { paidAt: true } } },
       orderBy: { createdAt: "asc" },
     }),
+    db.careSubscription.findMany({
+      where: { status: { in: ["ACTIVE", "PAST_DUE"] } },
+      select: { priceCents: true, status: true, cancelAtPeriodEnd: true, project: { select: { name: true } } },
+    }),
   ]);
+  const activeCare = carePlans.filter((c) => c.status === "ACTIVE");
+  const pastDueCare = carePlans.filter((c) => c.status === "PAST_DUE");
+  const monthlyRecurring = activeCare.reduce((sum, c) => sum + c.priceCents, 0);
 
   const customers = new Set(paidOrders.map((o) => o.customerId));
   const progress = acquisitionProgress(cfg, customers.size, now);
@@ -128,6 +135,19 @@ export default async function AdminGrowthPage() {
           value={visitors.size > 0 ? `${((progress.current / visitors.size) * 100).toFixed(1)}%` : "n/a"}
           sub="paying customers / unique visitors"
         />
+      </section>
+
+      <section>
+        <h2 className="font-display text-2xl text-ice">Care plans</h2>
+        <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <Stat label="Active plans" value={String(activeCare.length)} sub="paying monthly" />
+          <Stat label="Monthly recurring" value={money(monthlyRecurring)} sub="from active plans" />
+          <Stat label="Payment failed" value={String(pastDueCare.length)} sub="Stripe is retrying" />
+          <Stat label="Ending soon" value={String(carePlans.filter((c) => c.cancelAtPeriodEnd).length)} sub="won't renew" />
+        </div>
+        {pastDueCare.length > 0 && (
+          <p className="mt-3 text-xs text-ice/50">Payment failed: {pastDueCare.map((c) => c.project.name).join("; ")}</p>
+        )}
       </section>
 
       <section>

@@ -33,7 +33,10 @@ export type StudioEvent =
   | "website.approved"
   | "website.revision_requested"
   | "website.patched"
-  | "website.launched";
+  | "website.launched"
+  | "care.started"
+  | "care.payment_failed"
+  | "care.canceled";
 
 export async function logEvent(
   event: StudioEvent,
