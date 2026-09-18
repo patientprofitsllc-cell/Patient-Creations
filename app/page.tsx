@@ -32,6 +32,11 @@ const TAGLINES: Record<string, string> = {
   "lead-engine": "Finds new customers and sends them straight to you.",
 };
 
+// Display-only "was" price for the Starter Website special. What checkout
+// actually charges is always the live database price, shown as the "now" price.
+const SPECIAL_SLUG = "starter-website";
+const SPECIAL_WAS_CENTS = 50000;
+
 const NFC_SHOWCASE = [
   { name: "Google Review", slug: "nfc-google-review", src: "/assets/nfc-cards/google-review.jpeg", rotate: "-rotate-6", translate: "sm:translate-x-6", z: "z-0" },
   { name: "YouTube", slug: "nfc-youtube", src: "/assets/nfc-cards/youtube.jpeg", rotate: "rotate-3", translate: "sm:translate-x-3", z: "z-10" },
@@ -49,6 +54,7 @@ export default async function HomePage() {
   const featured = FEATURED_SLUGS.map((slug) => rawFeatured.find((p) => p.slug === slug))
     .filter((p): p is NonNullable<typeof p> => Boolean(p))
     .sort((a, b) => a.priceCents - b.priceCents);
+  const special = await db.product.findFirst({ where: { slug: SPECIAL_SLUG, active: true } });
 
   return (
     <>
@@ -75,6 +81,38 @@ export default async function HomePage() {
             </p>
           </div>
         </section>
+
+        {special && special.priceCents < SPECIAL_WAS_CENTS && (
+          <section className="mx-auto max-w-4xl px-6 pt-16">
+            <Link
+              href={`/checkout?product=${special.slug}`}
+              className="group relative block overflow-hidden rounded-3xl border border-gold/40 bg-gradient-to-br from-gold/15 via-white/[0.03] to-transparent p-8 text-center shadow-gold-glow transition hover:border-gold sm:p-12"
+            >
+              <span className="inline-block rounded-full bg-gradient-to-b from-gold to-gold-deep px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-obsidian">
+                Special Offer
+              </span>
+              <h2 className="mt-5 font-display text-4xl text-ice sm:text-5xl">
+                Your website, <span className="text-gradient-champagne italic">now {money(special.priceCents)}</span>
+              </h2>
+              <p className="mx-auto mt-4 max-w-md text-ice/60">
+                A simple one-page website with your products, pictures, and descriptions. Live in {special.turnaround ?? "3-5 days"}.
+              </p>
+              <p className="mt-6 flex items-baseline justify-center gap-4 font-display">
+                <span className="text-2xl text-ice/40 line-through decoration-red-400/70 decoration-2">
+                  {money(SPECIAL_WAS_CENTS)}
+                </span>
+                <span className="text-6xl text-champagne sm:text-7xl">{money(special.priceCents)}</span>
+              </p>
+              <p className="mt-2 text-sm font-semibold text-emerald-400">
+                You save {money(SPECIAL_WAS_CENTS - special.priceCents)}
+              </p>
+              <span className="mt-8 inline-block rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-3 text-sm font-semibold tracking-wide text-obsidian transition group-hover:brightness-110">
+                Claim this special
+              </span>
+              <p className="mt-4 text-xs text-ice/40">Add a matching NFC card for just $45 at checkout.</p>
+            </Link>
+          </section>
+        )}
 
         <section className="mx-auto max-w-5xl px-6 pb-8 pt-16">
           <p className="mb-2 text-center text-xs uppercase tracking-[0.3em] text-gold/70">Real cards, real designs</p>
