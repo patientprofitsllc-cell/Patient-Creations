@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { computeRushFeeCents, getApplicableSpeeds } from "@/lib/payments/deliverySpeed";
@@ -19,7 +19,7 @@ import { businessDays } from "@/lib/payments/deliveryWindow";
 import { PAYMENT_METHODS } from "@/lib/payments/paymentMethods";
 import type { PaymentMethod } from "@/lib/types";
 import { BUSINESS_TYPES, OFFER_SLUG } from "@/lib/site/offer";
-import { readAttribution, sourceLabel } from "@/lib/analytics/attribution";
+import { captureAttribution, readAttribution, sourceLabel } from "@/lib/analytics/attribution";
 import { TrackView } from "@/components/analytics/Track";
 import { AddOnCard } from "@/components/checkout/AddOnCard";
 import { ADD_ON_PITCH, addOnAvailable } from "@/lib/site/addOnPitch";
@@ -98,6 +98,28 @@ export function CheckoutForm({
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("stripe");
   const [loading, setLoading] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  // The 5% return-visitor offer, if the server decides this visitor has earned it.
+  const [offer, setOffer] = useState<{ token: string; percent: number; expiresAt: string } | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/cart-offer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ visitorId: captureAttribution().visitorId }),
+        });
+        const data = (await res.json()) as { offer: { token: string; percent: number; expiresAt: string } | null };
+        if (!cancelled && data.offer && new Date(data.offer.expiresAt).getTime() > Date.now()) setOffer(data.offer);
+      } catch {
+        /* an offer is a bonus; checkout works without it */
+      }
+    }, 1200);
+    return () => {
+      clearTimeout(timer);
+      cancelled = true;
+    };
+  }, []);
   const [error, setError] = useState<string | null>(null);
 
   const isMerch = primaryProduct.category === "Merch";
@@ -160,7 +182,8 @@ export function CheckoutForm({
   // shown here always matches what Stripe actually charges as its own line item.
   const shippingQuote = isMerch && qty > 0 ? calculateShippingCents(qty) : null;
   const shippingCents = shippingQuote?.cents ?? 0;
-  const subtotal = primaryLineTotal + bumpTotal + rushFeeCents + shippingCents;
+  const offerDiscount = offer ? Math.round(((primaryLineTotal + bumpTotal) * offer.percent) / 100) : 0;
+  const subtotal = primaryLineTotal + bumpTotal + rushFeeCents + shippingCents - offerDiscount;
 
   async function submit() {
     if (!agreed) {
@@ -189,6 +212,8 @@ export function CheckoutForm({
             ? { businessName, businessType, phone, existingWebsite: existingWebsite || undefined }
             : undefined,
           campaignSource: sourceLabel(readAttribution()),
+          visitorId: readAttribution().visitorId,
+          recoveryOffer: offer?.token,
         }),
       });
       const data = await res.json();
@@ -219,6 +244,16 @@ export function CheckoutForm({
     <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.4fr_1fr]">
       <TrackView event="checkout_started" data={{ product: primaryProduct.slug }} />
       <div className="space-y-8">
+        {offer && (
+          <div role="status" className="rounded-2xl border border-gold/50 bg-gold/10 p-5">
+            <p className="text-xs uppercase tracking-[0.3em] text-gold/80">Welcome back</p>
+            <p className="mt-2 font-display text-2xl text-ice">{offer.percent}% off your order, on us.</p>
+            <p className="mt-2 text-sm text-ice/70">
+              You have been here before, so we took {offer.percent}% off. It is applied automatically when you pay, works one time, and ends{" "}
+              {new Date(offer.expiresAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}. If you also enter a coupon code, you get whichever saves more, not both.
+            </p>
+          </div>
+        )}
         {step === "payment" ? (
           <div className="glass-panel rounded-2xl p-6">
             <button onClick={() => setStep("details")} className="mb-4 text-xs text-ice/40 hover:text-gold">
@@ -613,6 +648,12 @@ export function CheckoutForm({
                 <span>{bumpPriceCents(b) === 0 ? "Free" : money(bumpPriceCents(b))}</span>
               </div>
             ))}
+          {offerDiscount > 0 && (
+            <div className="flex justify-between text-gold">
+              <span>Welcome back offer ({offer?.percent}%)</span>
+              <span>-{money(offerDiscount)}</span>
+            </div>
+          )}
           {rushFeeCents > 0 && (
             <div className="flex justify-between">
               <span>Rush delivery · {selectedSpeed.label}</span>

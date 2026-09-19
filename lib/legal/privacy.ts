@@ -36,7 +36,7 @@ export const privacyDoc: LegalDoc = {
         `Information collected automatically:`,
         {
           list: [
-            "a random visitor identifier and, if you arrived through a link, the referral code or campaign source (utm details), stored in your browser so we can tell which links lead to orders;",
+            "a random visitor identifier and, if you arrived through a link, the referral code or campaign source (utm details), stored in your browser so we can tell which links lead to orders and recognize a returning visitor, for example to show a one-time welcome-back discount to someone who has looked at checkout more than once without ordering;",
             "the pages you view and actions you take on our Site, with times, so we can count visits and see where people drop off;",
             "your internet address and browser type, used to keep the Site secure, limit abuse, prevent fraud, and keep records of your agreement. For referral clicks we keep a scrambled (hashed) version of the internet address;",
             "a sign-in cookie, only if you sign in or check out with an account.",

@@ -7,6 +7,8 @@ import { FUNNEL_EVENTS, type FunnelEvent } from "@/lib/analytics/funnel";
 import { acquisitionProgress, funnelRows, getAcquisitionConfig } from "@/lib/analytics/growth";
 import { NFC_BUNDLE_SLUG } from "@/lib/payments/nfcAddon";
 import { OFFER_SLUG } from "@/lib/site/offer";
+import { cartRecoveryStats, OFFER_PERCENT, OFFER_VISIT_THRESHOLD } from "@/lib/funnel/cartRecovery";
+import { smsConfig } from "@/lib/alerts/ownerAlerts";
 
 function money(cents: number) {
   return (cents / 100).toLocaleString(undefined, { style: "currency", currency: "USD" });
@@ -45,7 +47,7 @@ export default async function AdminGrowthPage() {
   const cfg = getAcquisitionConfig();
   const now = new Date();
 
-  const [paidOrders, eventGroups, landingRows, waiting, carePlans, outreach] = await Promise.all([
+  const [paidOrders, eventGroups, landingRows, waiting, carePlans, outreach, recovery] = await Promise.all([
     db.order.findMany({
       where: { status: "PAID", paidAt: { gte: cfg.start } },
       select: { customerId: true, totalCents: true, campaignSource: true, items: { select: { product: { select: { slug: true } } } } },
@@ -66,7 +68,9 @@ export default async function AdminGrowthPage() {
       select: { priceCents: true, status: true, cancelAtPeriodEnd: true, project: { select: { name: true } } },
     }),
     prospectStats(),
+    cartRecoveryStats(cfg.start),
   ]);
+  const textAlerts = smsConfig() !== null;
   const activeCare = carePlans.filter((c) => c.status === "ACTIVE");
   const pastDueCare = carePlans.filter((c) => c.status === "PAST_DUE");
   const monthlyRecurring = activeCare.reduce((sum, c) => sum + c.priceCents, 0);
@@ -136,6 +140,30 @@ export default async function AdminGrowthPage() {
           value={visitors.size > 0 ? `${((progress.current / visitors.size) * 100).toFixed(1)}%` : "n/a"}
           sub="paying customers / unique visitors"
         />
+      </section>
+
+      <section>
+        <h2 className="font-display text-2xl text-ice">Cart Recovery Agent</h2>
+        <p className="mt-1 text-xs text-ice/40">
+          Rules, no AI cost: a visitor who opens checkout and leaves without ordering, twice, is offered {OFFER_PERCENT}% off on visit number{" "}
+          {OFFER_VISIT_THRESHOLD}. The offer is single use and expires 72 hours after it is first shown. It is never shown to someone who already ordered.
+        </p>
+        <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <Stat label="Offers shown" value={String(recovery.issued)} sub="visitors who earned it" />
+          <Stat label="Offers used" value={String(recovery.used)} sub="orders placed with it" />
+          <Stat label="Paid with the offer" value={String(recovery.paidOrders)} sub={money(recovery.revenueCents)} />
+          <Stat label="Discount given" value={money(recovery.discountGivenCents)} sub="on paid orders" />
+        </div>
+        <p className="mt-3 text-xs text-ice/50">
+          Order alerts: email to you on every order is {" "}
+          <strong className="text-ice/80">on</strong>. Text messages are{" "}
+          <strong className="text-ice/80">{textAlerts ? "on" : "off (needs a Twilio account, see below)"}</strong>.
+        </p>
+        {!textAlerts && (
+          <p className="mt-1 text-xs text-ice/40">
+            To turn texts on, set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER, and OWNER_ALERT_PHONE in Netlify.
+          </p>
+        )}
       </section>
 
       <section>

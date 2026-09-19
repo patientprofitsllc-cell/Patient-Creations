@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { logEvent } from "@/lib/analytics/events";
 import { trackFunnel } from "@/lib/analytics/funnel";
+import { notifyOwnerOfOrder } from "@/lib/alerts/ownerAlerts";
 import { createProjectForOrder } from "@/lib/agents/orchestrator";
 import { holdForIntake, startProductionIfReady } from "@/lib/projects/production";
 import { recordReferralPurchase } from "@/lib/referrals/commissions";
@@ -31,6 +32,9 @@ export async function completeOrderPayment(orderId: string, provider: PaymentPro
     source: order.campaignSource ?? undefined,
     totalCents: order.totalCents,
   });
+
+  // Tell the owner right away, before anything slower runs. Never throws.
+  await notifyOwnerOfOrder(orderId, "paid");
 
   if (order.customer.referredByCode) {
     await recordReferralPurchase(order.customer.referredByCode, order.customerId, orderId, order.totalCents);

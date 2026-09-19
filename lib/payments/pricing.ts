@@ -1,4 +1,5 @@
 import { addOnAvailable } from "@/lib/site/addOnPitch";
+import { OFFER_PERCENT, RECOVERY_COUPON } from "@/lib/funnel/cartRecovery";
 import { db } from "@/lib/db";
 import { computeRushFeeCents, DeliverySpeedKey, DELIVERY_SPEEDS, getApplicableSpeeds } from "@/lib/payments/deliverySpeed";
 import { getActiveProjectCount } from "@/lib/payments/productionLoad";
@@ -8,9 +9,16 @@ import { NFC_ADDON_SLUG, NFC_BUNDLE_SLUG, priceNfcAddon } from "@/lib/payments/n
 import { AD_SPECIAL_CATEGORY } from "@/lib/payments/quantityProducts";
 import { CARD_DESIGN_SLUGS } from "@/lib/payments/cardMix";
 
+export interface PriceOptions {
+  /** A verified return-visitor offer (see lib/funnel/cartRecovery.ts). Only the server sets this. */
+  recoveryOffer?: boolean;
+}
+
 export interface PricedOrder {
   subtotalCents: number;
   discountCents: number;
+  /** The code that produced the discount, when there is one. */
+  couponApplied?: string;
   rushFeeCents: number;
   shippingCents: number;
   shippingBoxLabel: string | null;
@@ -35,6 +43,7 @@ export async function priceOrder(
   deliverySpeed: string = "standard",
   primaryQuantity: number = 1,
   nfcAddonQuantity: number = 1,
+  opts: PriceOptions = {},
 ): Promise<PricedOrder> {
   if (productIds.length === 0) throw new Error("No products selected");
   if (!Number.isInteger(nfcAddonQuantity) || nfcAddonQuantity < 1 || nfcAddonQuantity > MAX_PRIMARY_QUANTITY) {
@@ -131,10 +140,7 @@ export async function priceOrder(
 
   const subtotalCents = items.reduce((sum, i) => sum + i.priceCents * i.quantity, 0);
 
-  let discountCents = 0;
-  if (couponCode) {
-    discountCents = await resolveCouponDiscount(couponCode, subtotalCents);
-  }
+  const { discountCents, couponApplied } = await resolveDiscount(couponCode, subtotalCents, opts);
 
   const activeProjectCount = await getActiveProjectCount();
   const rushFeeCents = computeRushFeeCents(items[0].priceCents, deliverySpeed as DeliverySpeedKey, activeProjectCount);
@@ -146,7 +152,7 @@ export async function priceOrder(
 
   const totalCents = Math.max(0, subtotalCents - discountCents + rushFeeCents + shippingCents);
 
-  return { subtotalCents, discountCents, rushFeeCents, shippingCents, shippingBoxLabel, deliverySpeed, totalCents, items };
+  return { subtotalCents, discountCents, couponApplied, rushFeeCents, shippingCents, shippingBoxLabel, deliverySpeed, totalCents, items };
 }
 
 /**
@@ -155,7 +161,7 @@ export async function priceOrder(
  * real breakdown). The bulk setup-fee waiver and the shipping box are decided
  * by the TOTAL card count across designs, not per design.
  */
-export async function priceCardMix(mix: Record<string, number>, couponCode?: string): Promise<PricedOrder> {
+export async function priceCardMix(mix: Record<string, number>, couponCode?: string, opts: PriceOptions = {}): Promise<PricedOrder> {
   const entries = Object.entries(mix).filter(([, qty]) => qty > 0);
   if (entries.length === 0) throw new Error("Choose at least one card");
   if (entries.some(([slug, qty]) => !CARD_DESIGN_SLUGS.includes(slug) || !Number.isInteger(qty) || qty < 1)) {
@@ -183,13 +189,14 @@ export async function priceCardMix(mix: Record<string, number>, couponCode?: str
   });
 
   const subtotalCents = items.reduce((sum, i) => sum + i.priceCents * i.quantity, 0);
-  const discountCents = couponCode ? await resolveCouponDiscount(couponCode, subtotalCents) : 0;
+  const { discountCents, couponApplied } = await resolveDiscount(couponCode, subtotalCents, opts);
   const shipping = calculateShippingCents(totalQty);
   const totalCents = Math.max(0, subtotalCents - discountCents + shipping.cents);
 
   return {
     subtotalCents,
     discountCents,
+    couponApplied,
     rushFeeCents: 0,
     shippingCents: shipping.cents,
     shippingBoxLabel: shipping.boxLabel,
@@ -204,6 +211,17 @@ export async function priceCardMix(mix: Record<string, number>, couponCode?: str
 const COUPONS: Record<string, number> = {
   LAUNCH10: 0.1,
 };
+
+/**
+ * One discount per order: the better of the typed coupon and a verified
+ * return-visitor offer (5%). They never stack.
+ */
+export async function resolveDiscount(couponCode: string | undefined, subtotalCents: number, opts: PriceOptions = {}) {
+  const couponCents = couponCode ? await resolveCouponDiscount(couponCode, subtotalCents) : 0;
+  const offerCents = opts.recoveryOffer ? Math.round((subtotalCents * OFFER_PERCENT) / 100) : 0;
+  if (offerCents > couponCents) return { discountCents: offerCents, couponApplied: RECOVERY_COUPON as string | undefined };
+  return { discountCents: couponCents, couponApplied: couponCents > 0 ? couponCode?.toUpperCase() : undefined };
+}
 
 async function resolveCouponDiscount(code: string, subtotalCents: number): Promise<number> {
   const rate = COUPONS[code.toUpperCase()];

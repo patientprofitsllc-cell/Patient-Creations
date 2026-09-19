@@ -14,6 +14,11 @@ import { recordAcceptance } from "@/lib/legal/acceptance";
 import { randomBytes } from "crypto";
 import { NFC_BUNDLE_SLUG } from "@/lib/payments/nfcAddon";
 import { OFFER_SLUG } from "@/lib/site/offer";
+import { isVisitorId, offerIsRedeemable, recordCartConverted, recordOfferUsed, RECOVERY_COUPON } from "@/lib/funnel/cartRecovery";
+import { notifyOwnerOfOrder } from "@/lib/alerts/ownerAlerts";
+import { sendEmail } from "@/lib/email/provider";
+import { intakeUrlFor } from "@/lib/intake/url";
+import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
 
 const checkoutSchema = z.object({
   productIds: z.array(z.string()).min(1),
@@ -29,6 +34,9 @@ const checkoutSchema = z.object({
   // The customer must agree to the legal terms. The literal keeps a request without it from getting any further.
   acceptTerms: z.literal(true, { errorMap: () => ({ message: "You must agree to the Terms of Service, Privacy Policy, and Refund Policy to place an order." }) }),
   campaignSource: z.string().max(80).optional(),
+  // Return-visitor offer: the visitor's random id and the signed offer the server issued them.
+  visitorId: z.string().regex(/^[a-f0-9]{8,32}$/).optional(),
+  recoveryOffer: z.string().max(80).optional(),
   // Business details, required when the order includes a website (see below).
   website: z
     .object({
@@ -56,7 +64,7 @@ export async function POST(req: NextRequest) {
   const body = checkoutSchema.safeParse(await req.json());
   if (!body.success) return NextResponse.json({ error: body.error.flatten() }, { status: 400 });
 
-  const { productIds, primaryVariantId, primaryQuantity, nfcAddonQuantity, cardMix, deliverySpeed, paymentMethod, couponCode, campaignSource, referralCode, account, website } = body.data;
+  const { productIds, primaryVariantId, primaryQuantity, nfcAddonQuantity, cardMix, deliverySpeed, paymentMethod, couponCode, campaignSource, referralCode, account, website, visitorId, recoveryOffer } = body.data;
 
   // Website orders need the business basics up front so production can start from them.
   const includesWebsite =
@@ -95,11 +103,14 @@ export async function POST(req: NextRequest) {
     customerId = customer.id;
   }
 
+  // The 5% return-visitor offer counts only if the server signed it for this visitor, it has not expired, and it has not been used.
+  const offerOk = isVisitorId(visitorId) && (await offerIsRedeemable(recoveryOffer, visitorId));
+
   let priced;
   try {
     priced = cardMix
-      ? await priceCardMix(cardMix, couponCode)
-      : await priceOrder(productIds, couponCode, primaryVariantId, deliverySpeed, primaryQuantity, nfcAddonQuantity);
+      ? await priceCardMix(cardMix, couponCode, { recoveryOffer: offerOk })
+      : await priceOrder(productIds, couponCode, primaryVariantId, deliverySpeed, primaryQuantity, nfcAddonQuantity, { recoveryOffer: offerOk });
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : "Invalid order" }, { status: 400 });
   }
@@ -115,7 +126,7 @@ export async function POST(req: NextRequest) {
       shippingCents: priced.shippingCents,
       shippingBoxLabel: priced.shippingBoxLabel,
       totalCents: priced.totalCents,
-      couponCode: couponCode ?? null,
+      couponCode: priced.couponApplied ?? couponCode ?? null,
       campaignSource: campaignSource ?? null,
       paymentMethod,
       items: {
@@ -144,6 +155,10 @@ export async function POST(req: NextRequest) {
   }
 
   await recordAcceptance({ scope: "ORDER", refId: order.id, customerId, req });
+  if (visitorId) {
+    await recordCartConverted(visitorId, order.id);
+    if (priced.couponApplied === RECOVERY_COUPON) await recordOfferUsed(visitorId, order.id);
+  }
   await logEvent("order.created", "Order", order.id, { totalCents: order.totalCents, paymentMethod });
 
   // Only "stripe" is a live, automatic charge. Every other option is a
@@ -153,6 +168,18 @@ export async function POST(req: NextRequest) {
   // on the admin dashboard so Trenton knows which method to follow up with.
   if (paymentMethod !== "stripe") {
     await logEvent("order.manual_payment_requested", "Order", order.id, { paymentMethod });
+    // Thank the customer now (payment is still to come) and tell the owner there is money to collect.
+    const customerEmail = session?.user?.email ?? account?.email;
+    if (customerEmail) {
+      const names = await db.product.findMany({ where: { id: { in: priced.items.map((i) => i.productId) } }, select: { name: true } });
+      const intake = await db.websiteIntake.findUnique({ where: { orderId: order.id }, select: { token: true } });
+      await sendEmail(customerEmail, "order_received", {
+        summary: names.map((n) => n.name).join(", "),
+        paymentLabel: paymentMethodLabel(paymentMethod),
+        intakeUrl: intake ? intakeUrlFor(intake.token) : undefined,
+      });
+    }
+    await notifyOwnerOfOrder(order.id, "awaiting_payment");
     return NextResponse.json({ redirectUrl: `/checkout/success?order=${order.id}` });
   }
 

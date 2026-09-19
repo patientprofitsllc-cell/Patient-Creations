@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
 import { NfcIntakeForm } from "@/components/checkout/NfcIntakeForm";
 import { CalendlyBooking } from "@/components/checkout/CalendlyBooking";
+import { ThankYouCard, type ThankYouKind } from "@/components/checkout/ThankYouCard";
 import { statusUrlFor } from "@/lib/projects/statusToken";
 import { NFC_ADDON_SLUG, NFC_BUNDLE_SLUG, NFC_BUNDLE_CARD_COUNT } from "@/lib/payments/nfcAddon";
 
@@ -38,6 +39,8 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
   // Website orders start with a short intake instead of a kickoff call.
   const intake = order?.websiteIntake ?? null;
   const intakePending = Boolean(intake && intake.status !== "COMPLETE");
+  const thankYouKind: ThankYouKind = intake ? "website" : showCardSetup && isNfcOrder ? "cards" : "project";
+  const firstName = order?.customer.user.name?.trim().split(/s+/)[0]?.slice(0, 30);
 
   return (
     <>
@@ -74,6 +77,8 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
             </p>
           </div>
         )}
+
+        {order && <ThankYouCard kind={thankYouKind} firstName={firstName} />}
 
         <div className="mt-10 flex justify-center gap-4">
           <Link
