@@ -253,6 +253,8 @@ model WebsiteIntake {
   goalNotes       String?
   startedAt       DateTime? // first time the wizard was opened
   completedAt     DateTime?
+  reminderCount   Int       @default(0) // reminder emails sent while waiting on the customer
+  lastReminderAt  DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }

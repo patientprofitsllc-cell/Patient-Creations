@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { EmailTestButton } from "@/components/admin/EmailTestButton";
 
 export default async function AdminSystemPage() {
   const [recentLogs, notifications] = await Promise.all([
@@ -10,6 +11,10 @@ export default async function AdminSystemPage() {
 
   return (
     <div className="space-y-10">
+      <section>
+        <EmailTestButton />
+      </section>
+
       <section>
         <h2 className="mb-4 text-ice/70">Open Notifications</h2>
         <div className="glass-panel divide-y divide-white/5 rounded-2xl">

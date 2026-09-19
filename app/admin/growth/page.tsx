@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { prospectStats } from "@/lib/prospects/service";
+import { ReminderRow, SendAllReminders } from "@/components/reminders/ReminderButtons";
+import { MAX_REMINDERS, reminderCandidates } from "@/lib/reminders/intake";
 import { FUNNEL_EVENTS, type FunnelEvent } from "@/lib/analytics/funnel";
 import { acquisitionProgress, funnelRows, getAcquisitionConfig } from "@/lib/analytics/growth";
 import { NFC_BUNDLE_SLUG } from "@/lib/payments/nfcAddon";
@@ -58,11 +60,7 @@ export default async function AdminGrowthPage() {
       select: { payloadJson: true },
       take: 20000,
     }),
-    db.websiteIntake.findMany({
-      where: { status: "STARTED", order: { status: "PAID" } },
-      select: { businessName: true, order: { select: { paidAt: true } } },
-      orderBy: { createdAt: "asc" },
-    }),
+    reminderCandidates(now),
     db.careSubscription.findMany({
       where: { status: { in: ["ACTIVE", "PAST_DUE"] } },
       select: { priceCents: true, status: true, cancelAtPeriodEnd: true, project: { select: { name: true } } },
@@ -219,15 +217,21 @@ export default async function AdminGrowthPage() {
             <p className="mt-3 text-sm text-ice/40">Nobody is waiting. Every paid website has its intake.</p>
           ) : (
             <div className="glass-panel mt-4 rounded-2xl">
-              {waiting.map((w, i) => (
-                <div key={i} className="flex items-center justify-between border-t border-white/5 px-5 py-3 text-sm first:border-t-0">
-                  <span className="text-ice/80">{w.businessName}</span>
-                  <span className="text-ice/60">{waitingDays(w.order.paidAt)} days</span>
-                </div>
+              {waiting.map((w) => (
+                <ReminderRow
+                  key={w.id}
+                  id={w.id}
+                  businessName={w.businessName}
+                  meta={`Paid ${waitingDays(w.paidAt)} days ago · ${w.reminderCount} of ${MAX_REMINDERS} reminders sent`}
+                  blockedReason={w.blockedReason}
+                />
               ))}
             </div>
           )}
-          <p className="mt-2 text-xs text-ice/40">These builds haven&apos;t started. Message them from their project page.</p>
+          {waiting.length > 0 && <SendAllReminders dueCount={waiting.filter((w) => !w.blockedReason).length} />}
+          <p className="mt-2 text-xs text-ice/40">
+            These builds haven&apos;t started. Reminders go by email, at most one a day and three in total, and only when you click.
+          </p>
         </div>
       </section>
 

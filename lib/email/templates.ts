@@ -1,3 +1,5 @@
+import { CONTACT_PHONE_DISPLAY } from "@/lib/config/site";
+
 export type EmailTemplateKey =
   | "purchase_confirmation"
   | "production_start"
@@ -9,7 +11,9 @@ export type EmailTemplateKey =
   | "retention"
   | "preview_ready"
   | "website_live"
-  | "care_plan_started";
+  | "care_plan_started"
+  | "intake_reminder"
+  | "test_email";
 
 // Appended to every project-related email so a customer never has to
 // wonder "is it done yet?" — one link, always current, no login required.
@@ -57,6 +61,18 @@ ${p.intakeUrl}${statusLine(p)}`
   website_live: (p) => ({
     subject: "Your website is live.",
     body: `"${p.projectName}" is live${p.liveUrl ? `: ${p.liveUrl}` : "."}${statusLine(p)}`,
+  }),
+  intake_reminder: (p) => ({
+    subject: p.last ? "Last reminder: your website details." : "Your website is waiting on a few details.",
+    body: `We're ready to build "${p.projectName}" as soon as we have your business details. It takes about 3 to 5 minutes, and you can skip anything you don't have:
+
+${p.intakeUrl}
+
+Our 72-hour target starts once we have your info. ${p.last ? "This is our last automatic reminder. If you have questions, reply to this email or call " + CONTACT_PHONE_DISPLAY + "." : "Questions? Reply to this email or call " + CONTACT_PHONE_DISPLAY + "."}${statusLine(p)}`,
+  }),
+  test_email: () => ({
+    subject: "Test email from Patient Creations",
+    body: "This is a test. If you can read this, your site can send email to customers.",
   }),
   care_plan_started: (p) => ({
     subject: "Your website care plan is active.",
