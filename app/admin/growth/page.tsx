@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { db } from "@/lib/db";
+import { prospectStats } from "@/lib/prospects/service";
 import { FUNNEL_EVENTS, type FunnelEvent } from "@/lib/analytics/funnel";
 import { acquisitionProgress, funnelRows, getAcquisitionConfig } from "@/lib/analytics/growth";
 import { NFC_BUNDLE_SLUG } from "@/lib/payments/nfcAddon";
@@ -41,7 +43,7 @@ export default async function AdminGrowthPage() {
   const cfg = getAcquisitionConfig();
   const now = new Date();
 
-  const [paidOrders, eventGroups, landingRows, waiting, carePlans] = await Promise.all([
+  const [paidOrders, eventGroups, landingRows, waiting, carePlans, outreach] = await Promise.all([
     db.order.findMany({
       where: { status: "PAID", paidAt: { gte: cfg.start } },
       select: { customerId: true, totalCents: true, campaignSource: true, items: { select: { product: { select: { slug: true } } } } },
@@ -65,6 +67,7 @@ export default async function AdminGrowthPage() {
       where: { status: { in: ["ACTIVE", "PAST_DUE"] } },
       select: { priceCents: true, status: true, cancelAtPeriodEnd: true, project: { select: { name: true } } },
     }),
+    prospectStats(),
   ]);
   const activeCare = carePlans.filter((c) => c.status === "ACTIVE");
   const pastDueCare = carePlans.filter((c) => c.status === "PAST_DUE");
@@ -229,10 +232,22 @@ export default async function AdminGrowthPage() {
       </section>
 
       <section>
-        <h2 className="font-display text-2xl text-ice">Outreach pipeline</h2>
-        <p className="mt-2 text-sm text-ice/50">
-          Not available yet. Businesses found, audited, contacted, replied, and calls booked need the prospecting tool, which
-          hasn&apos;t been built. Nothing here is estimated in the meantime.
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="font-display text-2xl text-ice">Outreach pipeline</h2>
+          <Link href="/admin/prospects" className="text-xs text-gold hover:brightness-110">
+            Open prospects →
+          </Link>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-6">
+          <Stat label="Found" value={String(outreach.total)} />
+          <Stat label="Website checked" value={String(outreach.audited)} />
+          <Stat label="Contacted" value={String(outreach.contacted)} />
+          <Stat label="Replied or further" value={String(outreach.replied)} />
+          <Stat label="Call booked or won" value={String(outreach.callsBooked)} />
+          <Stat label="Won" value={String(outreach.won)} />
+        </div>
+        <p className="mt-3 text-xs text-ice/40">
+          Counts of businesses you&apos;ve added and worked by hand. Nothing is sent automatically, so these are only as complete as what you record.
         </p>
       </section>
     </div>

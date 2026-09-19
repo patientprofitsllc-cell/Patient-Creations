@@ -637,3 +637,28 @@ model CareSubscription {
 
   @@index([projectId])
 }
+
+// A local business we might sell a website to. Tracked by hand: nothing is ever
+// sent to a prospect automatically.
+model Prospect {
+  id             String    @id @default(cuid())
+  dedupeKey      String    @unique // lowercase website host, else "name|city"
+  businessName   String
+  industry       String?   // an industry slug from lib/site/industries.ts
+  city           String?
+  phone          String?
+  email          String?
+  website        String?
+  source         String?
+  status         String    @default("NEW") // NEW | AUDITED | CONTACTED | REPLIED | CALL_BOOKED | WON | LOST | DO_NOT_CONTACT
+  nextFollowUpAt DateTime?
+  contactedAt    DateTime?
+  auditJson      String?
+  auditedAt      DateTime?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([status])
+  @@index([nextFollowUpAt])
+}
