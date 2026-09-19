@@ -8,7 +8,9 @@ import { ProjectMessages } from "@/components/status/ProjectMessages";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { db } from "@/lib/db";
-import { getProjectProgress } from "@/lib/workflows/progress";
+import { AutoRefresh } from "@/components/tracking/AutoRefresh";
+import { TrackingCard } from "@/components/tracking/TrackingCard";
+import { generalTracker, websiteTracker } from "@/lib/tracking/tracker";
 import { PIPELINE_ORDER } from "@/lib/workflows/stateMachine";
 import { PHASE_WEIGHTS } from "@/lib/workflows/progress";
 
@@ -33,23 +35,51 @@ export default async function PublicStatusPage({ params }: { params: { token: st
       tasks: true,
       updates: { orderBy: { createdAt: "desc" } },
       deliverables: true,
-      order: { select: { websiteIntake: { select: { token: true, status: true } } } },
-      websiteBuilds: { orderBy: { version: "desc" }, take: 1, select: { status: true, version: true, liveUrl: true } },
+      order: {
+        select: {
+          status: true,
+          paidAt: true,
+          websiteIntake: { select: { token: true, status: true, completedAt: true } },
+          items: { take: 1, select: { product: { select: { turnaround: true } } } },
+        },
+      },
+      websiteBuilds: { orderBy: { version: "asc" }, select: { status: true, version: true, liveUrl: true, createdAt: true, approvedAt: true } },
+      revisions: { where: { status: "REQUESTED" }, select: { id: true }, take: 1 },
       careSubscriptions: { orderBy: { createdAt: "desc" }, take: 1, select: { status: true, currentPeriodEnd: true, cancelAtPeriodEnd: true } },
     },
   });
 
   if (!project) notFound();
 
-  const progress = await getProjectProgress(project.id);
   // A paid website that's still waiting on the customer's business info.
-  const build = project.websiteBuilds[0] ?? null;
+  const build = project.websiteBuilds[project.websiteBuilds.length - 1] ?? null;
   // The care plan is offered once the website is live.
   const careProduct = build?.status === "LIVE" ? await getCarePlanProduct() : null;
   const care = project.careSubscriptions[0] ?? null;
   const careState = care && care.status !== "CANCELED" ? (care.status === "PAST_DUE" ? "past_due" : "active") : "offer";
-  const pendingIntake =
-    project.order.websiteIntake && project.order.websiteIntake.status !== "COMPLETE" ? project.order.websiteIntake : null;
+  const intake = project.order.websiteIntake;
+  const pendingIntake = intake && intake.status !== "COMPLETE" ? intake : null;
+  const isWebsite = Boolean(intake);
+  const orderPaid = project.order.status === "PAID";
+  const liveAt = project.updates.find((u) => u.message.startsWith("Your website is live"))?.createdAt ?? null;
+  const tracker = isWebsite
+    ? websiteTracker({
+        orderPaid,
+        paidAt: project.order.paidAt,
+        intakeStatus: intake?.status ?? null,
+        intakeCompletedAt: intake?.completedAt ?? null,
+        productionStartedAt: project.productionStartedAt,
+        projectState: project.state,
+        builds: project.websiteBuilds,
+        openRevision: project.revisions.length > 0,
+        liveAt,
+      })
+    : generalTracker({
+        orderPaid,
+        paidAt: project.order.paidAt,
+        projectState: project.state,
+        turnaround: project.order.items[0]?.product.turnaround ?? null,
+      });
 
   return (
     <>
@@ -61,30 +91,10 @@ export default async function PublicStatusPage({ params }: { params: { token: st
           No login needed. Bookmark this page to check progress any time.
         </p>
 
-        <div className="glass-panel mt-8 rounded-2xl p-6">
-          <div className="flex items-center justify-between">
-            <p className="text-ice">{pendingIntake ? "Waiting for your business info" : progress.currentPhaseLabel}</p>
-            <span className={progress.isException ? "text-red-400" : "text-gold"}>
-              {progress.isException ? "Needs a quick check-in" : `${progress.percent}%`}
-            </span>
-          </div>
-          <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/5">
-            <div
-              className={`h-full rounded-full ${progress.isException ? "bg-red-400" : "bg-gradient-to-r from-gold-deep to-gold"}`}
-              style={{ width: `${progress.isException ? 100 : progress.percent}%` }}
-            />
-          </div>
-          {progress.isException && (
-            <p className="mt-3 text-sm text-red-400">
-              We've flagged this build for a manual check. You'll hear from us shortly. No action needed on your end.
-            </p>
-          )}
-          {project.deliverables.length > 0 && (
-            <p className="mt-3 text-sm text-gold">Delivered. Check your email for access details.</p>
-          )}
-        </div>
+        <TrackingCard tracker={tracker} intakeHref={pendingIntake ? `/intake/${pendingIntake.token}` : null} previewHref={project.previewToken ? `/preview/${project.previewToken}` : null} />
+        <AutoRefresh active={!tracker.complete} />
 
-        {project.previewToken && build && (
+        {project.previewToken && build?.status === "LIVE" && (
           <div className="mt-6 rounded-2xl border border-gold/40 bg-gold/10 p-6 text-center">
             {build.status === "LIVE" ? (
               <>
@@ -128,21 +138,6 @@ export default async function PublicStatusPage({ params }: { params: { token: st
           />
         )}
 
-        {pendingIntake && (
-          <div className="mt-6 rounded-2xl border border-gold/40 bg-gold/10 p-6 text-center">
-            <p className="font-display text-xl text-ice">One step left before we can build</p>
-            <p className="mt-2 text-sm text-ice/60">
-              Tell us about your business. It takes about 3 to 5 minutes, and you can skip anything you don&apos;t have.
-            </p>
-            <Link
-              href={`/intake/${pendingIntake.token}`}
-              className="mt-4 inline-block rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-3 text-sm font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110"
-            >
-              Finish your intake
-            </Link>
-          </div>
-        )}
-
         <ProjectMessages token={params.token} />
 
         {project.updates.length > 0 && (
@@ -161,8 +156,9 @@ export default async function PublicStatusPage({ params }: { params: { token: st
           </section>
         )}
 
+        {!isWebsite && (
         <section className="mt-10">
-          <h2 className="mb-4 text-ice/70">Production Timeline</h2>
+          <h2 className="mb-4 text-ice/70">Detailed steps</h2>
           <ol className="space-y-2">
             {PIPELINE_ORDER.filter((s) => s !== "DRAFT").map((phase, i) => {
               const task = project.tasks.find((t) => t.phase === phase);
@@ -181,6 +177,7 @@ export default async function PublicStatusPage({ params }: { params: { token: st
             })}
           </ol>
         </section>
+        )}
       </main>
       <SiteFooter />
     </>
