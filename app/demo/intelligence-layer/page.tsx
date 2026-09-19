@@ -22,10 +22,18 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// If a seamless loop video is dropped in at this path it plays behind the headline.
-// Until then the same slot is filled by a looping animated backdrop (no download, no cost).
-const LOOP_VIDEO = "/assets/hero/intelligence-layer-loop.mp4";
-const hasLoopVideo = existsSync(join(process.cwd(), "public", LOOP_VIDEO));
+// The seamless loop behind the headline: a wide version for desktop and a tall one for phones,
+// each with a still poster (also shown to visitors who asked for reduced motion or data saving).
+// If a file is missing, the looping animated glow fills the slot instead.
+const HERO = {
+  desktop: { video: "/assets/hero/intelligence-layer-loop.mp4", poster: "/assets/hero/intelligence-layer-loop.jpg" },
+  mobile: { video: "/assets/hero/intelligence-layer-loop-mobile.mp4", poster: "/assets/hero/intelligence-layer-loop-mobile.jpg" },
+};
+const present = (m: { video: string; poster: string }) =>
+  existsSync(join(process.cwd(), "public", m.video)) && existsSync(join(process.cwd(), "public", m.poster));
+const heroDesktop = present(HERO.desktop) ? HERO.desktop : undefined;
+const heroMobile = present(HERO.mobile) ? HERO.mobile : undefined;
+const hasLoopVideo = Boolean(heroDesktop || heroMobile);
 
 const BTN =
   "inline-flex min-h-[48px] items-center justify-center rounded-full px-8 py-3 text-sm font-semibold tracking-wide transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold";
@@ -116,9 +124,9 @@ export default async function IntelligenceLayerDemo() {
       <main id="main">
         {/* Hero: full-bleed, video-first. The loop stays behind the type. */}
         <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-obsidian" aria-labelledby="hero-title">
-          <HeroBackdrop videoSrc={hasLoopVideo ? LOOP_VIDEO : undefined} />
+          <HeroBackdrop desktop={heroDesktop} mobile={heroMobile} />
           {/* Keeps the headline readable over any frame of the loop. */}
-          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-obsidian/70 via-obsidian/55 to-obsidian" />
+          <div aria-hidden className={`absolute inset-0 -z-10 bg-gradient-to-b ${hasLoopVideo ? "from-obsidian/85 via-obsidian/70 to-obsidian" : "from-obsidian/70 via-obsidian/55 to-obsidian"}`} />
 
           <div className="mx-auto w-full max-w-5xl px-6 pb-20 pt-32 text-center sm:pt-36">
             <p className="mx-auto inline-block rounded-full border border-gold/40 bg-black/40 px-4 py-1.5 text-xs uppercase tracking-[0.25em] text-gold">
