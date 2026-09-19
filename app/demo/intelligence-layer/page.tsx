@@ -137,7 +137,7 @@ export default async function IntelligenceLayerDemo() {
               Intelligence Layer keeps the first screen <span className="text-gradient-champagne italic">specific</span>
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-lg text-ice/80">Intelligence Layer belongs to this community offer</p>
-            <p className="mx-auto mt-3 max-w-2xl text-base text-ice/60">
+            <p className="mx-auto mt-3 max-w-2xl text-base text-ice/80">
               {OFFER_NAME}: the first screen your business is judged on, built from your own facts and made for phones. From {price}, with a 72-hour target once we have your info.
             </p>
             <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
