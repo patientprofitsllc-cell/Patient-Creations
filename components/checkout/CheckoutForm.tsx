@@ -413,7 +413,7 @@ export function CheckoutForm({
               <label htmlFor="checkout-business" className="sr-only">Business name</label>
               <input
                 id="checkout-business"
-                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-ice placeholder:text-ice/30"
+                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-ice placeholder:text-ice/30"
                 placeholder="Business name"
                 autoComplete="organization"
                 value={businessName}
@@ -422,7 +422,7 @@ export function CheckoutForm({
               <label htmlFor="checkout-business-type" className="sr-only">Business type</label>
               <select
                 id="checkout-business-type"
-                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-ice"
+                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-ice"
                 value={businessType}
                 onChange={(e) => setBusinessType(e.target.value)}
               >
@@ -436,7 +436,7 @@ export function CheckoutForm({
               <label htmlFor="checkout-phone" className="sr-only">Business phone</label>
               <input
                 id="checkout-phone"
-                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-ice placeholder:text-ice/30"
+                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-ice placeholder:text-ice/30"
                 placeholder="Business phone (shown on your site)"
                 type="tel"
                 autoComplete="tel"
@@ -446,7 +446,7 @@ export function CheckoutForm({
               <label htmlFor="checkout-existing-site" className="sr-only">Existing website or domain (optional)</label>
               <input
                 id="checkout-existing-site"
-                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-ice placeholder:text-ice/30"
+                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-ice placeholder:text-ice/30"
                 placeholder="Existing website or domain (optional)"
                 autoComplete="url"
                 value={existingWebsite}
@@ -463,7 +463,7 @@ export function CheckoutForm({
               <label htmlFor="checkout-name" className="sr-only">Full name</label>
               <input
                 id="checkout-name"
-                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-ice placeholder:text-ice/30"
+                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-ice placeholder:text-ice/30"
                 placeholder="Full name"
                 autoComplete="name"
                 value={name}
@@ -472,7 +472,7 @@ export function CheckoutForm({
               <label htmlFor="checkout-email" className="sr-only">Email</label>
               <input
                 id="checkout-email"
-                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-ice placeholder:text-ice/30"
+                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-ice placeholder:text-ice/30"
                 placeholder="Email"
                 type="email"
                 autoComplete="email"
@@ -482,7 +482,7 @@ export function CheckoutForm({
               <label htmlFor="checkout-password" className="sr-only">Password (min 8 characters)</label>
               <input
                 id="checkout-password"
-                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-ice placeholder:text-ice/30"
+                className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-ice placeholder:text-ice/30"
                 placeholder="Password (min 8 characters)"
                 type="password"
                 autoComplete="new-password"
@@ -559,7 +559,7 @@ export function CheckoutForm({
           <label htmlFor="checkout-coupon" className="sr-only">Coupon code</label>
           <input
             id="checkout-coupon"
-            className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-ice placeholder:text-ice/30"
+            className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-ice placeholder:text-ice/30"
             placeholder="Coupon code (optional)"
             value={coupon}
             onChange={(e) => setCoupon(e.target.value)}

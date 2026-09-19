@@ -32,7 +32,7 @@ export default async function PreviewPage({ params }: { params: { token: string 
             <div className="glass-panel rounded-2xl p-5 text-center">
               <p className="font-display text-xl text-ice">Your website is live.</p>
               {build.liveUrl && (
-                <a href={build.liveUrl} rel="noopener noreferrer" className="mt-2 inline-block break-all text-gold hover:brightness-110">
+                <a href={build.liveUrl} rel="noopener noreferrer" className="mt-1 inline-block break-all py-3 text-gold hover:brightness-110">
                   {build.liveUrl}
                 </a>
               )}
@@ -67,7 +67,7 @@ export default async function PreviewPage({ params }: { params: { token: string 
 
         {statusPath && (
           <p className="mt-6 text-center text-sm">
-            <Link href={statusPath} className="text-gold hover:brightness-110">
+            <Link href={statusPath} className="inline-block py-3 text-gold hover:brightness-110">
               ← Back to my project page
             </Link>
           </p>

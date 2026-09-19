@@ -87,7 +87,7 @@ export function ProjectMessages({ token }: { token: string }) {
                   m.sender === "CUSTOMER" ? "bg-gold/15 text-ice" : "border border-white/10 bg-white/[0.03] text-ice/80"
                 }`}
               >
-                <p className="text-[11px] uppercase tracking-wide text-ice/40">
+                <p className="text-xs uppercase tracking-wide text-ice/40">
                   {m.authorName} · {new Date(m.createdAt).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
                 </p>
                 <p className="mt-1 whitespace-pre-wrap">{m.body}</p>
@@ -114,14 +114,14 @@ export function ProjectMessages({ token }: { token: string }) {
             maxLength={1000}
             rows={3}
             placeholder="Ask a question or share an update…"
-            className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-sm text-ice placeholder:text-ice/30"
+            className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-base text-ice placeholder:text-ice/30 sm:text-sm"
           />
           <div className="flex items-center justify-between">
             <span className="text-xs text-ice/30">{text.length}/1000</span>
             <button
               type="submit"
               disabled={sending || text.trim().length === 0}
-              className="rounded-full bg-gradient-to-b from-gold to-gold-deep px-6 py-2 text-sm font-semibold text-obsidian transition hover:brightness-110 disabled:opacity-40"
+              className="min-h-[44px] rounded-full bg-gradient-to-b from-gold to-gold-deep px-7 py-2 text-sm font-semibold text-obsidian transition hover:brightness-110 disabled:opacity-40"
             >
               {sending ? "Sending…" : "Send"}
             </button>

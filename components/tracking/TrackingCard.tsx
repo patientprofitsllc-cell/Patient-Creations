@@ -57,7 +57,7 @@ export function TrackingCard({ tracker, intakeHref, previewHref }: { tracker: Tr
     : null;
 
   return (
-    <section aria-label="Order tracking" className="glass-panel mt-8 rounded-2xl p-6 sm:p-8">
+    <section aria-label="Order tracking" className="glass-panel mt-8 rounded-2xl p-5 sm:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs uppercase tracking-[0.25em] text-gold/70">
           Step {tracker.stepNumber} of {total}
@@ -65,7 +65,7 @@ export function TrackingCard({ tracker, intakeHref, previewHref }: { tracker: Tr
         <span className={`rounded-full border px-3 py-1 text-xs ${badge.cls}`}>{badge.text}</span>
       </div>
 
-      <h2 className="mt-3 font-display text-3xl text-ice sm:text-4xl">{tracker.headline}</h2>
+      <h2 className="mt-3 font-display text-2xl leading-tight text-ice sm:text-3xl lg:text-4xl">{tracker.headline}</h2>
       <p className="mt-2 text-ice/60">{tracker.detail}</p>
 
       {tracker.action && href && (

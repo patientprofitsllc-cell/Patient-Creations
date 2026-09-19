@@ -18,10 +18,13 @@ export function SiteHeader() {
 
   return (
     <header className="fixed top-0 z-50 w-full border-b border-white/5 bg-obsidian/70 backdrop-blur-lg">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center gap-2 text-sm font-semibold tracking-wide text-ice" onClick={() => setOpen(false)}>
-          <span className="text-gold">Patient Profits LLC</span>
-          <span className="text-ice/40">· Patient Creations</span>
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 sm:px-6 sm:py-4">
+        {/* Stacked on phones so the name never wraps mid-phrase; one line from tablet up. */}
+        <Link href="/" className="py-1 leading-tight tracking-wide text-ice" onClick={() => setOpen(false)}>
+          <span className="block text-sm font-semibold text-gold sm:inline">Patient Profits LLC</span>
+          <span className="block text-xs text-ice/50 sm:ml-2 sm:inline sm:text-sm sm:font-semibold sm:text-ice/40">
+            <span aria-hidden className="hidden sm:inline">· </span>Patient Creations
+          </span>
         </Link>
         <nav className="hidden items-center gap-8 text-sm tracking-wide text-ice/70 md:flex">
           {NAV.map((item) => (
@@ -45,7 +48,7 @@ export function SiteHeader() {
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-ice md:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-ice md:hidden"
           >
             <span className="relative block h-3 w-4">
               <span className={`absolute left-0 top-0 h-px w-4 bg-current transition ${open ? "translate-y-1.5 rotate-45" : ""}`} />
@@ -61,13 +64,13 @@ export function SiteHeader() {
           <ul className="space-y-4">
             {NAV.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="block text-ice/80 hover:text-gold" onClick={() => setOpen(false)}>
+                <Link href={item.href} className="block py-2 text-ice/80 hover:text-gold" onClick={() => setOpen(false)}>
                   {item.label}
                 </Link>
               </li>
             ))}
             <li>
-              <Link href="/portal/dashboard" className="block text-ice/80 hover:text-gold" onClick={() => setOpen(false)}>
+              <Link href="/portal/dashboard" className="block py-2 text-ice/80 hover:text-gold" onClick={() => setOpen(false)}>
                 Portal
               </Link>
             </li>

@@ -15,20 +15,20 @@ export function SiteFooter() {
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           <div>
             <p className="mb-3 text-ice/70">Studio</p>
-            <ul className="space-y-2">
-              <li><Link href="/services" className="hover:text-gold">Services</Link></li>
-              <li><Link href="/services#pricing" className="hover:text-gold">Pricing</Link></li>
-              <li><Link href="/agents" className="hover:text-gold">Agent Network</Link></li>
-              <li><Link href="/gallery" className="hover:text-gold">Fleet</Link></li>
-              <li><Link href="/guided-app-tour" className="hover:text-gold">Guided Tour</Link></li>
+            <ul className="space-y-0">
+              <li><Link href="/services" className="inline-block py-3 hover:text-gold sm:py-1.5">Services</Link></li>
+              <li><Link href="/services#pricing" className="inline-block py-3 hover:text-gold sm:py-1.5">Pricing</Link></li>
+              <li><Link href="/agents" className="inline-block py-3 hover:text-gold sm:py-1.5">Agent Network</Link></li>
+              <li><Link href="/gallery" className="inline-block py-3 hover:text-gold sm:py-1.5">Fleet</Link></li>
+              <li><Link href="/guided-app-tour" className="inline-block py-3 hover:text-gold sm:py-1.5">Guided Tour</Link></li>
             </ul>
           </div>
           <div>
             <p className="mb-3 text-ice/70">Account</p>
-            <ul className="space-y-2">
-              <li><Link href="/portal/dashboard" className="hover:text-gold">Portal</Link></li>
-              <li><Link href="/portal/referrals" className="hover:text-gold">Referrals</Link></li>
-              <li><Link href="/auth/login" className="hover:text-gold">Sign In</Link></li>
+            <ul className="space-y-0">
+              <li><Link href="/portal/dashboard" className="inline-block py-3 hover:text-gold sm:py-1.5">Portal</Link></li>
+              <li><Link href="/portal/referrals" className="inline-block py-3 hover:text-gold sm:py-1.5">Referrals</Link></li>
+              <li><Link href="/auth/login" className="inline-block py-3 hover:text-gold sm:py-1.5">Sign In</Link></li>
             </ul>
           </div>
         </div>
@@ -37,11 +37,11 @@ export function SiteFooter() {
         <p className="text-ice/70">Have an NFC card?</p>
         <p className="mt-1">
           Call or text Patient Profits LLC at{" "}
-          <a href={`tel:${CONTACT_PHONE_DIGITS}`} className="text-gold hover:brightness-110">
+          <a href={`tel:${CONTACT_PHONE_DIGITS}`} className="inline-block py-3 text-gold hover:brightness-110 sm:py-2">
             {CONTACT_PHONE_DISPLAY}
           </a>
           {" · "}
-          <a href={`sms:${CONTACT_PHONE_DIGITS}`} className="text-gold hover:brightness-110">
+          <a href={`sms:${CONTACT_PHONE_DIGITS}`} className="inline-block py-3 text-gold hover:brightness-110 sm:py-2">
             Send a text
           </a>
         </p>

@@ -30,7 +30,7 @@ export interface IntakeValues {
 
 const STEPS = ["Your business", "Details", "Look and feel", "Your goal"] as const;
 
-const INPUT = "w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-ice placeholder:text-ice/30";
+const INPUT = "w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-ice placeholder:text-ice/30";
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
