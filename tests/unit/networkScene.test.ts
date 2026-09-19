@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { existsSync } from "fs";
 import { join } from "path";
 import { readFileSync } from "fs";
-import { createIntelligenceScene, SCENE_PERIOD } from "@/lib/motion/intelligenceScene";
+import { createNetworkScene, SCENE_PERIOD } from "@/lib/motion/networkScene";
 
 // A drawing surface that writes down every call and number, so scenes can be compared exactly.
 function recorder() {
@@ -31,7 +31,7 @@ const sprite = () => ({}) as CanvasImageSource;
 
 function frameAt(t: number, w = 1280, h = 720) {
   const { ctx, log } = recorder();
-  createIntelligenceScene(ctx, w, h, sprite).draw(t);
+  createNetworkScene(ctx, w, h, sprite).draw(t);
   return log;
 }
 
@@ -40,7 +40,7 @@ function sameWithin(a: (string | number)[], b: (string | number)[], eps = 1e-6) 
   return a.every((v, i) => (typeof v === "number" && typeof b[i] === "number" ? Math.abs(v - (b[i] as number)) < eps : v === b[i]));
 }
 
-describe("Intelligence Layer scene", () => {
+describe("hero network scene", () => {
   it("is exactly the same at the end of a period as at the start, so it has no loop point", () => {
     for (const [w, h] of [[1280, 720], [390, 844]] as const) {
       expect(sameWithin(frameAt(0, w, h), frameAt(SCENE_PERIOD, w, h)), `${w}x${h}`).toBe(true);
@@ -70,7 +70,7 @@ describe("Intelligence Layer scene", () => {
 
   it("re-frames itself for a tall phone screen", () => {
     const { ctx, log } = recorder();
-    const scene = createIntelligenceScene(ctx, 1280, 720, sprite);
+    const scene = createNetworkScene(ctx, 1280, 720, sprite);
     scene.draw(1);
     const wide = log.length;
     log.length = 0;
@@ -82,8 +82,8 @@ describe("Intelligence Layer scene", () => {
 });
 
 describe("hero assets", () => {
-  it("the demo page points only at poster stills that exist, and no longer ships a video", () => {
-    const page = readFileSync(join(process.cwd(), "app/demo/intelligence-layer/page.tsx"), "utf8");
+  it("the homepage points only at poster stills that exist, and ships no video", () => {
+    const page = readFileSync(join(process.cwd(), "app/page.tsx"), "utf8");
     const refs = [...page.matchAll(/"(\/assets\/hero\/[^"]+)"/g)].map((m) => m[1]);
     expect(refs.length).toBeGreaterThan(0);
     for (const r of refs) expect(existsSync(join(process.cwd(), "public", r)), r).toBe(true);

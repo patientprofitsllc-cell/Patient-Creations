@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
-import { SeedCanvasLazy } from "@/components/cinematic/SeedCanvasLazy";
+import { HeroBackdrop } from "@/components/cinematic/HeroBackdrop";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { NfcShowcase } from "@/components/home/NfcShowcase";
 import { SeoWordbank } from "@/components/home/SeoWordbank";
@@ -92,19 +92,22 @@ export default async function HomePage() {
       <TrackView event="landing_page_view" />
       <main id="main">
         {/* 1. Hero */}
-        <section className="relative flex min-h-[88vh] items-center overflow-hidden bg-studio-radial pt-24">
-          <SeedCanvasLazy className="pointer-events-none absolute inset-0 h-full w-full" />
+        <section className="relative isolate flex min-h-[88vh] items-center overflow-hidden bg-obsidian pb-10 pt-20 sm:pb-0 sm:pt-24">
+          {/* Glass layers and a glowing network, drawn live (no video), with a still of the same scene from first paint. */}
+          <HeroBackdrop poster="/assets/hero/hero-poster.jpg" posterMobile="/assets/hero/hero-poster-mobile.jpg" deferMs={600} />
+          {/* Keeps the headline easy to read over any frame. */}
+          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-obsidian/70 via-obsidian/50 to-obsidian" />
           <div className="relative mx-auto max-w-4xl px-6 text-center">
-            <p className="mb-6 text-xs uppercase tracking-[0.4em] text-gold/80">Patient Creations</p>
-            <h1 className="font-display text-5xl leading-tight text-ice sm:text-6xl md:text-7xl">
+            <p className="mb-4 text-xs uppercase tracking-[0.4em] text-gold/80 sm:mb-6">Patient Creations</p>
+            <h1 className="font-display text-[2.1rem] leading-tight text-ice min-[400px]:text-5xl sm:text-6xl md:text-7xl">
               Your Business Deserves a{" "}
               <span className="text-gradient-champagne italic">Website That Works.</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-ice/60">
+            <p className="mx-auto mt-4 max-w-2xl text-base text-ice/80 sm:mt-6 sm:text-lg">
               A professional, mobile-ready website for your local business, built around what you do and ready to
               take calls, texts, and bookings. One clear price, one revision included.
             </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4">
               <Link
                 href={OFFER_CHECKOUT_HREF}
                 className="w-full rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-4 text-base font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110 sm:w-auto"

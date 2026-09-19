@@ -25,7 +25,7 @@ interface Pulse {
  * Central Orchestrator connected to specialized nodes, represented as
  * energy/nodes/pathways per the Visual Asset Bible's AI Agent World spec
  * (explicitly: no robot faces, no generic humanoid AI). Pure canvas code,
- * following the same reliable render-loop pattern as SeedCanvas.
+ * following the same render-loop pattern as HeroBackdrop (time-based, pauses off screen).
  */
 export function AgentNetworkCanvas({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

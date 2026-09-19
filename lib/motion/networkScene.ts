@@ -1,4 +1,4 @@
-// The "Intelligence Layer" hero: stacked glass layers, each holding a network of
+// The hero backdrop: stacked glass layers, each holding a network of
 // community members, linked across the layers, in gold on obsidian. It is drawn
 // live, not played from a video, so it never restarts or hitches.
 //
@@ -82,7 +82,7 @@ export interface Scene {
   resize(w: number, h: number): void;
 }
 
-export function createIntelligenceScene(ctx: CanvasRenderingContext2D, width: number, height: number, makeSprite: SpriteFactory = domSprite): Scene {
+export function createNetworkScene(ctx: CanvasRenderingContext2D, width: number, height: number, makeSprite: SpriteFactory = domSprite): Scene {
   let W = width;
   let H = height;
   let portrait = H > W;
@@ -310,7 +310,7 @@ export function createIntelligenceScene(ctx: CanvasRenderingContext2D, width: nu
       });
     });
 
-    // the intelligence layer: links that tie the community together across the glass
+    // links that tie the community together across the glass
     ctx.lineWidth = 1;
     links.forEach((l) => {
       const a = pt(layers[l.k], l.a, th);
