@@ -126,7 +126,7 @@ export default async function IntelligenceLayerDemo() {
         <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-obsidian" aria-labelledby="hero-title">
           <HeroBackdrop desktop={heroDesktop} mobile={heroMobile} />
           {/* Keeps the headline readable over any frame of the loop. */}
-          <div aria-hidden className={`absolute inset-0 -z-10 bg-gradient-to-b ${hasLoopVideo ? "from-obsidian/85 via-obsidian/70 to-obsidian" : "from-obsidian/70 via-obsidian/55 to-obsidian"}`} />
+          <div aria-hidden className={`absolute inset-0 -z-10 bg-gradient-to-b ${hasLoopVideo ? "from-obsidian/80 via-obsidian/60 to-obsidian" : "from-obsidian/70 via-obsidian/55 to-obsidian"}`} />
 
           <div className="mx-auto w-full max-w-5xl px-6 pb-20 pt-32 text-center sm:pt-36">
             <p className="mx-auto inline-block rounded-full border border-gold/40 bg-black/40 px-4 py-1.5 text-xs uppercase tracking-[0.25em] text-gold">
