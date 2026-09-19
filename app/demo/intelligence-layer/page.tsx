@@ -5,6 +5,7 @@ import { join } from "path";
 import type { ReactNode } from "react";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
+import { HeroBackdrop } from "@/components/cinematic/HeroBackdrop";
 import { money } from "@/components/home/specialFrame";
 import { db } from "@/lib/db";
 import { ADD_ON_PITCH, addOnAvailable } from "@/lib/site/addOnPitch";
@@ -115,19 +116,7 @@ export default async function IntelligenceLayerDemo() {
       <main id="main">
         {/* Hero: full-bleed, video-first. The loop stays behind the type. */}
         <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-obsidian" aria-labelledby="hero-title">
-          <div aria-hidden className="absolute inset-0 -z-20">
-            {hasLoopVideo ? (
-              <video className="h-full w-full object-cover" autoPlay muted loop playsInline preload="metadata">
-                <source src={LOOP_VIDEO} type="video/mp4" />
-              </video>
-            ) : (
-              <>
-                <div className="absolute -left-1/4 top-[-10%] h-[70vmax] w-[70vmax] animate-orbitA rounded-full bg-[radial-gradient(circle,rgba(224,196,138,0.30),transparent_62%)] blur-2xl" />
-                <div className="absolute -right-1/3 top-1/4 h-[60vmax] w-[60vmax] animate-orbitB rounded-full bg-[radial-gradient(circle,rgba(242,230,201,0.16),transparent_60%)] blur-2xl" />
-                <div className="absolute bottom-[-25%] left-1/4 h-[55vmax] w-[55vmax] animate-orbitA rounded-full bg-[radial-gradient(circle,rgba(160,120,60,0.28),transparent_60%)] blur-2xl [animation-delay:-9s]" />
-              </>
-            )}
-          </div>
+          <HeroBackdrop videoSrc={hasLoopVideo ? LOOP_VIDEO : undefined} />
           {/* Keeps the headline readable over any frame of the loop. */}
           <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-obsidian/70 via-obsidian/55 to-obsidian" />
 

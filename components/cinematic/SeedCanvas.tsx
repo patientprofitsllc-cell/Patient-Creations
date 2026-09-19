@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { frameStep, motionProfile, relayoutAction } from "@/lib/motion/timing";
 
 interface Particle {
   x: number;
@@ -48,16 +49,25 @@ export function SeedCanvas({ className }: { className?: string }) {
     if (!ctx) return;
 
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const nav = navigator as Navigator & { connection?: { saveData?: boolean } };
+    const profile = motionProfile({
+      reducedMotion: prefersReducedMotion,
+      width: window.innerWidth,
+      cores: navigator.hardwareConcurrency,
+      devicePixelRatio: window.devicePixelRatio,
+      saveData: nav.connection?.saveData,
+    });
     const goldSprite = makeGlowSprite("rgba(224,196,138,0.85)", 6);
     const champagneSprite = makeGlowSprite("rgba(242,230,201,0.85)", 6);
 
     let width = 0;
     let height = 0;
-    // Phones and low-core devices get a lighter version: fewer particles, no
+    // Phones, low-core devices, and data-saver mode get a lighter version: fewer particles, no
     // retina-density canvas, and about 30 frames a second instead of 60.
-    const lowPower = window.innerWidth < 768 || (navigator.hardwareConcurrency ?? 8) <= 4;
-    let dpr = lowPower ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
-    let frame = 0;
+    const lowPower = profile.lowPower;
+    const dpr = profile.dpr;
+    const minFrameMs = 1000 / profile.fps - 2;
+    let lastDraw = 0;
     let particles: Particle[] = [];
     let raf = 0;
     // Only animate while the canvas is actually visible on screen and the
@@ -67,12 +77,16 @@ export function SeedCanvas({ className }: { className?: string }) {
 
     function resize() {
       const rect = canvas!.getBoundingClientRect();
+      const action = relayoutAction({ w: width, h: height }, { w: rect.width, h: rect.height });
+      if (action === "none" && particles.length > 0) return;
       width = rect.width;
       height = rect.height;
       canvas!.width = width * dpr;
       canvas!.height = height * dpr;
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+      // Phone address bars resize the page while scrolling; keep the scene going instead of re-randomizing it.
+      if (action === "resize" && particles.length > 0) return;
       const count = Math.round((width * height) / 9000);
       particles = Array.from({ length: Math.min(count, lowPower ? 70 : 140) }, () => spawnParticle());
     }
@@ -92,9 +106,13 @@ export function SeedCanvas({ className }: { className?: string }) {
       };
     }
 
-    function draw() {
+    function draw(now: number = performance.now()) {
       raf = requestAnimationFrame(draw);
-      if (lowPower && !prefersReducedMotion && frame++ % 2 === 1) return;
+      const elapsed = now - lastDraw;
+      if (!prefersReducedMotion && lastDraw && elapsed < minFrameMs) return;
+      // Movement is scaled by real elapsed time, so speed is the same at 30, 60, or 120 frames a second.
+      const step = prefersReducedMotion || !lastDraw ? 0 : frameStep(elapsed);
+      lastDraw = now;
       try {
         ctx!.clearRect(0, 0, width, height);
 
@@ -109,15 +127,15 @@ export function SeedCanvas({ className }: { className?: string }) {
 
         for (const p of particles) {
           if (!prefersReducedMotion) {
-            p.x += p.vx;
-            p.y += p.vy;
+            p.x += p.vx * step;
+            p.y += p.vy * step;
             const dx = p.x - width / 2;
             const dy = p.y - height / 2;
             const dist = Math.hypot(dx, dy);
             const maxDist = Math.min(width, height) * 0.38;
             if (dist > maxDist) {
-              p.vx -= (dx / dist) * 0.01;
-              p.vy -= (dy / dist) * 0.01;
+              p.vx -= (dx / dist) * 0.01 * step;
+              p.vy -= (dy / dist) * 0.01 * step;
             }
           }
 
@@ -161,6 +179,7 @@ export function SeedCanvas({ className }: { className?: string }) {
 
     function startLoop() {
       if (raf) return;
+      lastDraw = 0; // do not count the time spent paused as movement
       raf = requestAnimationFrame(draw);
     }
 
@@ -171,7 +190,13 @@ export function SeedCanvas({ className }: { className?: string }) {
     }
 
     resize();
-    window.addEventListener("resize", resize);
+    // Wait for resizing to settle (rotating a phone fires several events).
+    let resizeTimer: ReturnType<typeof setTimeout> | undefined;
+    const onResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resize, 150);
+    };
+    window.addEventListener("resize", onResize);
 
     // Pause entirely when the hero scrolls off screen or the tab is
     // backgrounded — an invisible animation shouldn't spend main-thread
@@ -204,8 +229,9 @@ export function SeedCanvas({ className }: { className?: string }) {
 
     return () => {
       stopLoop();
+      clearTimeout(resizeTimer);
       io.disconnect();
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);

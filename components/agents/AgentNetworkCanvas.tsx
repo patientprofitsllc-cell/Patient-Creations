@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { frameStep, motionProfile } from "@/lib/motion/timing";
 
 const NODE_LABELS = [
   "Research",
@@ -35,9 +36,20 @@ export function AgentNetworkCanvas({ className }: { className?: string }) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const nav = navigator as Navigator & { connection?: { saveData?: boolean } };
+    const profile = motionProfile({
+      reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      width: window.innerWidth,
+      cores: navigator.hardwareConcurrency,
+      devicePixelRatio: window.devicePixelRatio,
+      saveData: nav.connection?.saveData,
+    });
+    const { dpr, reduced } = profile;
+    const minFrameMs = 1000 / profile.fps - 2;
+    let lastDraw = 0;
+    let isVisible = true;
     let width = 0;
     let height = 0;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     let raf = 0;
     let nodePositions: { x: number; y: number }[] = [];
     let pulses: Pulse[] = [];
@@ -62,8 +74,13 @@ export function AgentNetworkCanvas({ className }: { className?: string }) {
       pulses = NODE_LABELS.map((_, i) => ({ edgeIndex: i, progress: Math.random(), speed: 0.003 + Math.random() * 0.004 }));
     }
 
-    function draw() {
+    function draw(now: number = performance.now()) {
       raf = requestAnimationFrame(draw);
+      const elapsed = now - lastDraw;
+      if (!reduced && lastDraw && elapsed < minFrameMs) return;
+      // Pulses travel by real elapsed time, so they move at the same speed on any refresh rate.
+      const step = reduced || !lastDraw ? 0 : frameStep(elapsed);
+      lastDraw = now;
       try {
         ctx!.clearRect(0, 0, width, height);
         const cx = width / 2;
@@ -83,7 +100,7 @@ export function AgentNetworkCanvas({ className }: { className?: string }) {
 
         // pulses traveling along edges
         for (const pulse of pulses) {
-          pulse.progress += pulse.speed;
+          pulse.progress += pulse.speed * step;
           if (pulse.progress > 1) pulse.progress = 0;
           const node = nodePositions[pulse.edgeIndex];
           const x = cx + (node.x - cx) * pulse.progress;
@@ -91,9 +108,16 @@ export function AgentNetworkCanvas({ className }: { className?: string }) {
 
           ctx!.save();
           ctx!.beginPath();
+          if (profile.lowPower) {
+            ctx!.fillStyle = "rgba(224,196,138,0.25)";
+            ctx!.arc(x, y, 5, 0, Math.PI * 2);
+            ctx!.fill();
+            ctx!.beginPath();
+          } else {
+            ctx!.shadowColor = "rgba(224,196,138,0.9)";
+            ctx!.shadowBlur = 8;
+          }
           ctx!.fillStyle = "rgba(224,196,138,0.9)";
-          ctx!.shadowColor = "rgba(224,196,138,0.9)";
-          ctx!.shadowBlur = 8;
           ctx!.arc(x, y, 2.2, 0, Math.PI * 2);
           ctx!.fill();
           ctx!.restore();
@@ -117,8 +141,10 @@ export function AgentNetworkCanvas({ className }: { className?: string }) {
         nodePositions.forEach((node, i) => {
           ctx!.beginPath();
           ctx!.fillStyle = "rgba(224,196,138,0.85)";
-          ctx!.shadowColor = "rgba(224,196,138,0.6)";
-          ctx!.shadowBlur = 6;
+          if (!profile.lowPower) {
+            ctx!.shadowColor = "rgba(224,196,138,0.6)";
+            ctx!.shadowBlur = 6;
+          }
           ctx!.arc(node.x, node.y, 5, 0, Math.PI * 2);
           ctx!.fill();
           ctx!.shadowBlur = 0;
@@ -131,13 +157,56 @@ export function AgentNetworkCanvas({ className }: { className?: string }) {
       }
     }
 
+    function startLoop() {
+      if (raf) return;
+      lastDraw = 0; // time spent paused is not movement
+      raf = requestAnimationFrame(draw);
+    }
+    function stopLoop() {
+      if (!raf) return;
+      cancelAnimationFrame(raf);
+      raf = 0;
+    }
+
     layout();
-    window.addEventListener("resize", layout);
-    raf = requestAnimationFrame(draw);
+    // Phone address bars resize the page while scrolling: wait for it to settle instead of relaying out on every event.
+    let resizeTimer: ReturnType<typeof setTimeout> | undefined;
+    const onResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(layout, 150);
+    };
+    window.addEventListener("resize", onResize);
+
+    // Only animate while the canvas is on screen and the tab is in front.
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible && document.visibilityState === "visible") startLoop();
+        else stopLoop();
+      },
+      { threshold: 0 },
+    );
+    io.observe(canvas);
+    const onVisibility = () => {
+      if (document.visibilityState === "visible" && isVisible) startLoop();
+      else stopLoop();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    if (reduced) {
+      // One still frame; nothing moves.
+      draw();
+      stopLoop();
+    } else {
+      startLoop();
+    }
 
     return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", layout);
+      stopLoop();
+      clearTimeout(resizeTimer);
+      io.disconnect();
+      window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
 
