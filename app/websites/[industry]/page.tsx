@@ -42,7 +42,7 @@ export default async function IndustryLandingPage({ params }: { params: { indust
     <>
       <SiteHeader />
       <TrackView event="landing_page_view" data={{ industry: industry.slug }} />
-      <main>
+      <main id="main">
         <section className="mx-auto max-w-4xl px-6 pb-16 pt-36 text-center">
           <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Websites for {industry.name.toLowerCase()}</p>
           <h1 className="mt-4 font-display text-4xl leading-tight text-ice sm:text-5xl">{industry.headline}</h1>

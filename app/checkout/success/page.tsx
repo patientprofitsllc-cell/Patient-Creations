@@ -45,7 +45,7 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-2xl px-6 pb-28 pt-40 text-center">
+      <main id="main" className="mx-auto max-w-2xl px-6 pb-28 pt-40 text-center">
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Order Confirmed</p>
         <h1 className="mt-4 font-display text-4xl text-ice">
           {awaitingManualPayment

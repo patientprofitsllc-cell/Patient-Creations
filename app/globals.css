@@ -68,7 +68,3 @@ body {
   contain-intrinsic-size: auto 700px;
 }
 
-/* Looping backdrops stop moving while off screen or in a background tab (set by HeroBackdrop). */
-[data-paused="true"] * {
-  animation-play-state: paused !important;
-}

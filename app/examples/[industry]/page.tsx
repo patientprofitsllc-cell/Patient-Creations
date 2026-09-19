@@ -30,7 +30,7 @@ export default function ExampleDetailPage({ params }: { params: { industry: stri
     <>
       <SiteHeader />
       <TrackView event="landing_page_view" data={{ industry: industry.slug }} />
-      <main className="mx-auto max-w-5xl px-6 pb-24 pt-32">
+      <main id="main" className="mx-auto max-w-5xl px-6 pb-24 pt-32">
         <Link href="/examples" className="text-xs text-ice/40 hover:text-gold">
           ← All examples
         </Link>

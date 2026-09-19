@@ -86,7 +86,7 @@ export default async function PublicStatusPage({ params }: { params: { token: st
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-5xl px-5 pb-28 pt-28 sm:px-6 sm:pt-32">
+      <main id="main" className="mx-auto max-w-5xl px-5 pb-28 pt-28 sm:px-6 sm:pt-32">
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Live Build Status</p>
         <h1 className="mt-2 break-words font-display text-2xl text-ice sm:text-3xl lg:text-4xl">{project.name}</h1>
         <p className="mt-2 text-sm text-ice/40">

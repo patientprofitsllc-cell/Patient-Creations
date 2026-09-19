@@ -90,7 +90,7 @@ export default async function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <SiteHeader />
       <TrackView event="landing_page_view" />
-      <main>
+      <main id="main">
         {/* 1. Hero */}
         <section className="relative flex min-h-[88vh] items-center overflow-hidden bg-studio-radial pt-24">
           <SeedCanvasLazy className="pointer-events-none absolute inset-0 h-full w-full" />

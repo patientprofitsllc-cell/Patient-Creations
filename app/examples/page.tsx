@@ -18,7 +18,7 @@ export default function ExamplesPage() {
     <>
       <SiteHeader />
       <TrackView event="landing_page_view" />
-      <main className="mx-auto max-w-6xl px-6 pb-24 pt-32">
+      <main id="main" className="mx-auto max-w-6xl px-6 pb-24 pt-32">
         <div className="text-center">
           <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Examples</p>
           <h1 className="mt-4 font-display text-4xl text-ice sm:text-5xl">

@@ -52,7 +52,7 @@ export default function GuidedAppTourPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-4xl px-6 pb-28 pt-32">
+      <main id="main" className="mx-auto max-w-4xl px-6 pb-28 pt-32">
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Guided Tour</p>
         <h1 className="mt-4 font-display text-4xl text-ice sm:text-5xl">
           Exactly what happens, start to finish.

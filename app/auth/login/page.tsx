@@ -29,7 +29,7 @@ export default function LoginPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-md px-6 pb-28 pt-40">
+      <main id="main" className="mx-auto max-w-md px-6 pb-28 pt-40">
         <h1 className="font-display text-3xl text-ice">Sign in</h1>
         <form onSubmit={submit} className="mt-8 space-y-4">
           <label htmlFor="login-email" className="sr-only">Email</label>

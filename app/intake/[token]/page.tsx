@@ -49,7 +49,7 @@ export default async function IntakePage({ params }: { params: { token: string }
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-2xl px-6 pb-28 pt-32">
+      <main id="main" className="mx-auto max-w-2xl px-6 pb-28 pt-32">
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Website intake</p>
         <h1 className="mt-2 font-display text-4xl text-ice">Tell us about your business</h1>
 

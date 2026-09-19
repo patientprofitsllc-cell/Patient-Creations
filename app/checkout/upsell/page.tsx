@@ -15,7 +15,7 @@ export default async function UpsellPage() {
     return (
       <>
         <SiteHeader />
-        <main className="mx-auto max-w-xl px-6 pb-28 pt-40 text-center text-ice/60">
+        <main id="main" className="mx-auto max-w-xl px-6 pb-28 pt-40 text-center text-ice/60">
           Sign in to see personalized next steps.
         </main>
         <SiteFooter />
@@ -32,7 +32,7 @@ export default async function UpsellPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-3xl px-6 pb-28 pt-40 text-center">
+      <main id="main" className="mx-auto max-w-3xl px-6 pb-28 pt-40 text-center">
         <p className="text-xs uppercase tracking-[0.3em] text-champagne/70">Recommended Next</p>
         <h1 className="mt-4 font-display text-3xl text-ice">One relevant next step.</h1>
         <div className="mt-10 space-y-4 text-left">

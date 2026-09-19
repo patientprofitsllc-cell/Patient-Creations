@@ -22,7 +22,7 @@ export default async function CheckoutPage({ searchParams }: { searchParams: { p
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-6 pb-28 pt-32">
+      <main id="main" className="mx-auto max-w-6xl px-6 pb-28 pt-32">
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Reserve This Build</p>
         <h1 className="mt-4 font-display text-4xl text-ice">{primaryProduct.name}</h1>
         <p className="mt-2 max-w-xl text-ice/50">{primaryProduct.description}</p>

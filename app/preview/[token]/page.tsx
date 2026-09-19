@@ -23,7 +23,7 @@ export default async function PreviewPage({ params }: { params: { token: string 
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-5xl px-4 pb-24 pt-28 sm:px-6">
+      <main id="main" className="mx-auto max-w-5xl px-4 pb-24 pt-28 sm:px-6">
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Website preview · version {build.version}</p>
         <h1 className="mt-2 font-display text-3xl text-ice sm:text-4xl">{project.name}</h1>
 

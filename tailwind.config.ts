@@ -44,22 +44,11 @@ const config: Config = {
           "0%": { backgroundPosition: "0% 50%" },
           "100%": { backgroundPosition: "200% 50%" },
         },
-        // Start and end frames are identical, so these loop with no visible seam.
-        orbitA: {
-          "0%, 100%": { transform: "translate3d(0,0,0) scale(1)" },
-          "50%": { transform: "translate3d(6%,-8%,0) scale(1.15)" },
-        },
-        orbitB: {
-          "0%, 100%": { transform: "translate3d(0,0,0) scale(1.1)" },
-          "50%": { transform: "translate3d(-8%,6%,0) scale(0.95)" },
-        },
       },
       animation: {
         drift: "drift 8s ease-in-out infinite",
         pulseGlow: "pulseGlow 3.5s ease-in-out infinite",
         sweep: "sweep 6s linear infinite",
-        orbitA: "orbitA 22s ease-in-out infinite",
-        orbitB: "orbitB 28s ease-in-out infinite",
       },
     },
   },

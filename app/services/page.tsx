@@ -45,7 +45,7 @@ export default async function ServicesPage() {
   return (
     <>
       <SiteHeader />
-      <main className="pt-32">
+      <main id="main" className="pt-32">
         <section className="mx-auto max-w-4xl px-6 pb-16 text-center">
           <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Service Selection</p>
           <h1 className="mt-4 font-display text-4xl text-ice sm:text-5xl">Choose a build. The agents take it from there.</h1>
