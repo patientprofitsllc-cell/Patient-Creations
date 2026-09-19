@@ -112,7 +112,7 @@ export default async function HomePage() {
                 href={OFFER_CHECKOUT_HREF}
                 className="w-full rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-4 text-base font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110 sm:w-auto"
               >
-                BUILD MY WEBSITE, {price}
+                BUILD MY WEBSITE {price}
               </Link>
               <Link
                 href="/examples"
@@ -251,7 +251,7 @@ export default async function HomePage() {
             href={OFFER_CHECKOUT_HREF}
             className="mt-8 inline-block rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-4 text-base font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110"
           >
-            BUILD MY WEBSITE, {price}
+            BUILD MY WEBSITE {price}
           </Link>
         </section>
 
