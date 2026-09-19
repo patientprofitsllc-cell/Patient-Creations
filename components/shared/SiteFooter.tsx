@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CONTACT_PHONE_DIGITS, CONTACT_PHONE_DISPLAY } from "@/lib/config/site";
+import { LEGAL_PAGES } from "@/lib/legal/config";
 
 export function SiteFooter() {
   return (
@@ -12,7 +13,7 @@ export function SiteFooter() {
           <p className="mt-1 text-xs italic text-champagne/60">The Digital Master.</p>
           <p className="mt-3 max-w-xs text-ice/40">Patient Profits LLC, Global. Build once. Own the machine.</p>
         </div>
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-4">
           <div>
             <p className="mb-3 text-ice/70">Studio</p>
             <ul className="space-y-0">
@@ -21,6 +22,14 @@ export function SiteFooter() {
               <li><Link href="/agents" className="inline-block py-3 hover:text-gold sm:py-1.5">Agent Network</Link></li>
               <li><Link href="/gallery" className="inline-block py-3 hover:text-gold sm:py-1.5">Fleet</Link></li>
               <li><Link href="/guided-app-tour" className="inline-block py-3 hover:text-gold sm:py-1.5">Guided Tour</Link></li>
+            </ul>
+          </div>
+          <div>
+            <p className="mb-3 text-ice/70">Legal</p>
+            <ul className="space-y-0">
+              {LEGAL_PAGES.map((p) => (
+                <li key={p.href}><Link href={p.href} className="inline-block py-3 hover:text-gold sm:py-1.5">{p.label}</Link></li>
+              ))}
             </ul>
           </div>
           <div>

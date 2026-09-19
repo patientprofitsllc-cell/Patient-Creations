@@ -21,6 +21,8 @@ import type { PaymentMethod } from "@/lib/types";
 import { BUSINESS_TYPES, OFFER_SLUG } from "@/lib/site/offer";
 import { readAttribution, sourceLabel } from "@/lib/analytics/attribution";
 import { TrackView } from "@/components/analytics/Track";
+import { AddOnCard } from "@/components/checkout/AddOnCard";
+import { ADD_ON_PITCH, addOnAvailable } from "@/lib/site/addOnPitch";
 
 interface ProductLite {
   id: string;
@@ -95,6 +97,7 @@ export function CheckoutForm({
   const [step, setStep] = useState<"details" | "payment">("details");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("stripe");
   const [loading, setLoading] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isMerch = primaryProduct.category === "Merch";
@@ -114,7 +117,7 @@ export function CheckoutForm({
     });
   }
   // The bundle already includes NFC cards, so the card add-on isn't offered on top of it.
-  const shownBumps = isBundle ? orderBumps.filter((b) => b.slug !== NFC_ADDON_SLUG) : orderBumps;
+  const shownBumps = (isBundle ? orderBumps.filter((b) => b.slug !== NFC_ADDON_SLUG) : orderBumps).filter((b) => addOnAvailable(b.slug, primaryProduct.slug));
   const selectedVariant = variants.find((v) => v.id === variantId);
   const bulkDiscountApplies = Boolean(primaryProduct.setupFeeCents) && qty >= BULK_SETUP_WAIVER_MIN_QTY;
   const basePriceCents = selectedVariant?.priceCents ?? primaryProduct.priceCents;
@@ -160,6 +163,10 @@ export function CheckoutForm({
   const subtotal = primaryLineTotal + bumpTotal + rushFeeCents + shippingCents;
 
   async function submit() {
+    if (!agreed) {
+      setError("Please tick the box to agree to the terms before you continue.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -175,6 +182,7 @@ export function CheckoutForm({
           deliverySpeed,
           paymentMethod,
           couponCode: coupon || undefined,
+          acceptTerms: agreed,
           referralCode,
           account: session?.user ? undefined : { name, email, password },
           website: needsWebsite
@@ -495,28 +503,23 @@ export function CheckoutForm({
 
         {shownBumps.length > 0 && !isMerch && (
           <div className="glass-panel rounded-2xl p-6">
-            <h2 className="mb-4 text-ice">Add to your build</h2>
+            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Optional extras</p>
+            <h2 className="mt-1 font-display text-2xl text-ice">Make it even better</h2>
+            <p className="mb-5 mt-1 text-sm text-ice/50">Tap any extra to add it to this order. Nothing is added unless you choose it.</p>
             {applicableSpeeds.length > 1 && !usesQuantity && (
               <p className="mb-4 text-xs text-ice/40">Each add-on can extend a Standard timeline, see delivery speed above.</p>
             )}
             <div className="space-y-3">
               {shownBumps.map((bump) => (
                 <div key={bump.id}>
-                  <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-white/5 p-3 hover:border-gold/30">
-                    <input
-                      type="checkbox"
-                      className="mt-1"
-                      checked={selectedBumps.includes(bump.id)}
-                      onChange={(e) =>
-                        setSelectedBumps((prev) => (e.target.checked ? [...prev, bump.id] : prev.filter((id) => id !== bump.id)))
-                      }
-                    />
-                    <span className="flex-1">
-                      <span className="block text-ice">{bump.name}</span>
-                      <span className="block text-sm text-ice/50">{bump.description}</span>
-                    </span>
-                    <span className="text-champagne">{bumpPriceCents(bump) === 0 ? "Free" : money(bumpPriceCents(bump))}</span>
-                  </label>
+                  <AddOnCard
+                    name={bump.name}
+                    fallbackDescription={bump.description}
+                    pitch={ADD_ON_PITCH[bump.slug]}
+                    priceLabel={bumpPriceCents(bump) === 0 ? "Free" : money(bumpPriceCents(bump))}
+                    checked={selectedBumps.includes(bump.id)}
+                    onChange={(on) => setSelectedBumps((prev) => (on ? [...prev, bump.id] : prev.filter((id) => id !== bump.id)))}
+                  />
                   {bump.slug === NFC_ADDON_SLUG && selectedBumps.includes(bump.id) && (
                     <div className="mx-3 mt-2 rounded-lg border border-gold/20 bg-gold/5 p-3">
                       <div className="flex items-center gap-3 text-sm text-ice/70">
@@ -552,6 +555,12 @@ export function CheckoutForm({
               ))}
             </div>
           </div>
+        )}
+
+        {shownBumps.length > 0 && !isMerch && bumpCount > 0 && (
+          <p className="-mt-2 px-1 text-sm text-champagne" aria-live="polite">
+            {bumpCount} {bumpCount === 1 ? "extra" : "extras"} added: +{money(bumpTotal)}
+          </p>
         )}
 
         <div className="glass-panel rounded-2xl p-6">
@@ -622,10 +631,29 @@ export function CheckoutForm({
           <span>Total</span>
           <span>{money(subtotal)}</span>
         </div>
+        <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-3 text-xs leading-relaxed text-ice/60 has-[:checked]:border-gold/50">
+          <input
+            id="checkout-agree"
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+            className="mt-0.5 h-5 w-5 shrink-0 accent-[#c39b52]"
+          />
+          <span>
+            I have read and agree to the{" "}
+            <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-gold underline">Terms of Service</a>
+            , including binding individual arbitration and a class action waiver, the{" "}
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-gold underline">Privacy Policy</a>
+            , the{" "}
+            <a href="/refunds" target="_blank" rel="noopener noreferrer" className="text-gold underline">Refund and Cancellation Policy</a>
+            {" "}(<strong className="text-ice/80">all sales are final</strong>), and the{" "}
+            <a href="/acceptable-use" target="_blank" rel="noopener noreferrer" className="text-gold underline">Acceptable Use Policy</a>.
+          </span>
+        </label>
         <button
           onClick={step === "details" ? goToPayment : submit}
-          disabled={loading || !detailsValid || (isCardPack && mixTotal === 0)}
-          className="mt-6 w-full rounded-full bg-gradient-to-b from-gold to-gold-deep px-6 py-3 text-sm font-semibold tracking-wide text-obsidian transition hover:brightness-110 disabled:opacity-40"
+          disabled={loading || !detailsValid || !agreed || (isCardPack && mixTotal === 0)}
+          className="mt-4 w-full rounded-full bg-gradient-to-b from-gold to-gold-deep px-6 py-3 text-sm font-semibold tracking-wide text-obsidian transition hover:brightness-110 disabled:opacity-40"
         >
           {loading ? "Processing…" : step === "details" ? "Continue to payment" : `Reserve this build, pay via ${selectedMethod.label}`}
         </button>

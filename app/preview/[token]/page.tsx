@@ -48,7 +48,7 @@ export default async function PreviewPage({ params }: { params: { token: string 
               <p className="mt-1 text-sm text-ice/50">We&apos;ll post your updated preview on your project page and email you the moment it&apos;s ready.</p>
             </div>
           ) : (
-            <PreviewActions token={params.token} canRevise={revisionsUsed < revisionLimit} />
+            <PreviewActions token={params.token} canRevise={revisionsUsed < revisionLimit} remaining={Math.max(0, revisionLimit - revisionsUsed)} />
           )}
         </div>
 

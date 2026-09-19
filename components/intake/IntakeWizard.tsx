@@ -59,6 +59,7 @@ export function IntakeWizard({
   const [save, setSave] = useState<SaveState>("idle");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
   const [result, setResult] = useState<null | "started" | "waiting_for_payment">(null);
 
   const dirty = useRef<Set<keyof IntakeValues>>(new Set());
@@ -144,6 +145,10 @@ export function IntakeWizard({
       setError("Pick what you'd like visitors to do on your site.");
       return;
     }
+    if (!confirmed) {
+      setError("Please tick the box to confirm your information.");
+      return;
+    }
     setSubmitting(true);
     if (!(await flush())) {
       setSubmitting(false);
@@ -151,7 +156,7 @@ export function IntakeWizard({
       return;
     }
     try {
-      const res = await fetch(`/api/intake/${token}/complete`, { method: "POST" });
+      const res = await fetch(`/api/intake/${token}/complete`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ confirm: confirmed }) });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error ?? "Something went wrong. Please try again.");
@@ -316,6 +321,13 @@ export function IntakeWizard({
             <Field label="Anything else we should know?" hint="Optional.">
               <textarea className={INPUT} rows={3} value={values.goalNotes} maxLength={800} onChange={(e) => set("goalNotes", e.target.value)} />
             </Field>
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-3 text-xs leading-relaxed text-ice/60 has-[:checked]:border-gold/50">
+              <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-[#c39b52]" />
+              <span>
+                I confirm that the information and materials I've given are accurate, that I own them or have permission to use them, and that my website will be built from what I've provided. I'll review the preview before it goes live. See the{" "}
+                <a href="/terms#your-content" target="_blank" rel="noopener noreferrer" className="text-gold underline">Terms of Service</a>.
+              </span>
+            </label>
           </>
         )}
       </div>

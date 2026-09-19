@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { NO_STORE, guardCare } from "@/lib/care/access";
 import { getStripe, isStripeConfigured } from "@/lib/payments/stripe";
+import { recordAcceptance } from "@/lib/legal/acceptance";
 import { LIVE_CARE_STATUSES, getCarePlanProduct } from "@/lib/site/carePlan";
 
 // Starts the monthly care plan for a customer whose website is live. Stripe
@@ -9,7 +10,7 @@ import { LIVE_CARE_STATUSES, getCarePlanProduct } from "@/lib/site/carePlan";
 export async function POST(req: NextRequest) {
   const guarded = await guardCare(req, "checkout", 5);
   if ("response" in guarded) return guarded.response;
-  const { project, token, build } = guarded;
+  const { project, token, build, acceptedTerms } = guarded;
 
   if (!build || build.status !== "LIVE") {
     return NextResponse.json({ error: "The care plan is available once your website is live." }, { status: 409, headers: NO_STORE });
@@ -17,6 +18,12 @@ export async function POST(req: NextRequest) {
   if (project.careSubscriptions.some((s) => (LIVE_CARE_STATUSES as readonly string[]).includes(s.status))) {
     return NextResponse.json({ error: "You already have a care plan." }, { status: 409, headers: NO_STORE });
   }
+
+  // A subscription needs its own recorded agreement: the price, monthly renewal, and how to cancel.
+  if (!acceptedTerms) {
+    return NextResponse.json({ error: "Please tick the box to agree to the terms before you continue." }, { status: 400, headers: NO_STORE });
+  }
+  await recordAcceptance({ scope: "CARE_PLAN", refId: project.id, customerId: project.customerId, req });
 
   const product = await getCarePlanProduct();
   if (!isStripeConfigured() || !product) {

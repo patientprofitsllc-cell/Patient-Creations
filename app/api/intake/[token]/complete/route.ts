@@ -14,6 +14,12 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
 
   if (intake.status === "COMPLETE") return NextResponse.json({ ok: true, alreadySubmitted: true }, { headers: NO_STORE });
 
+  // The customer confirms the information and materials are accurate and theirs to use.
+  const body = (await req.json().catch(() => null)) as { confirm?: unknown } | null;
+  if (body?.confirm !== true) {
+    return NextResponse.json({ error: "Please confirm that your information is accurate and yours to use." }, { status: 400, headers: NO_STORE });
+  }
+
   const missing = missingRequired(intake);
   if (missing.length > 0) {
     return NextResponse.json({ error: `Please fill in: ${missing.join(", ")}.`, missing }, { status: 400, headers: NO_STORE });
@@ -21,7 +27,7 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
 
   const claim = await db.websiteIntake.updateMany({
     where: { token: params.token, status: "STARTED" },
-    data: { status: "COMPLETE", completedAt: new Date(), startedAt: intake.startedAt ?? new Date() },
+    data: { status: "COMPLETE", completedAt: new Date(), contentConfirmedAt: new Date(), startedAt: intake.startedAt ?? new Date() },
   });
   if (claim.count === 0) return NextResponse.json({ ok: true, alreadySubmitted: true }, { headers: NO_STORE });
 

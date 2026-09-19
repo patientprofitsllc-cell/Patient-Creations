@@ -10,6 +10,7 @@ import { completeOrderPayment } from "@/lib/payments/completeOrder";
 import { ensureReferralForCustomer } from "@/lib/referrals/codes";
 import { logEvent } from "@/lib/analytics/events";
 import { rateLimit } from "@/lib/security/rateLimit";
+import { recordAcceptance } from "@/lib/legal/acceptance";
 import { randomBytes } from "crypto";
 import { NFC_BUNDLE_SLUG } from "@/lib/payments/nfcAddon";
 import { OFFER_SLUG } from "@/lib/site/offer";
@@ -25,6 +26,8 @@ const checkoutSchema = z.object({
   deliverySpeed: z.enum(["standard", "priority", "express", "immediate"]).default("standard"),
   paymentMethod: z.enum(["stripe", "zelle", "apple_pay"]).default("stripe"),
   couponCode: z.string().optional(),
+  // The customer must agree to the legal terms. The literal keeps a request without it from getting any further.
+  acceptTerms: z.literal(true, { errorMap: () => ({ message: "You must agree to the Terms of Service, Privacy Policy, and Refund Policy to place an order." }) }),
   campaignSource: z.string().max(80).optional(),
   // Business details, required when the order includes a website (see below).
   website: z
@@ -140,6 +143,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  await recordAcceptance({ scope: "ORDER", refId: order.id, customerId, req });
   await logEvent("order.created", "Order", order.id, { totalCents: order.totalCents, paymentMethod });
 
   // Only "stripe" is a live, automatic charge. Every other option is a

@@ -1,3 +1,4 @@
+import { addOnAvailable } from "@/lib/site/addOnPitch";
 import { db } from "@/lib/db";
 import { computeRushFeeCents, DeliverySpeedKey, DELIVERY_SPEEDS, getApplicableSpeeds } from "@/lib/payments/deliverySpeed";
 import { getActiveProjectCount } from "@/lib/payments/productionLoad";
@@ -52,6 +53,13 @@ export async function priceOrder(
   }
 
   const primaryProduct = products.find((p) => p.id === productIds[0])!;
+
+  // Extras that don't fit the main product are refused here too, not just hidden in the UI.
+  for (const p of products) {
+    if (p.type === "ORDER_BUMP" && !addOnAvailable(p.slug, primaryProduct.slug)) {
+      throw new Error(`${p.name} isn't available with this product`);
+    }
+  }
 
   // A subscription is started from the customer's project page once their site
   // is live, through its own checkout. It can never be bought as a one-time order.

@@ -1,3 +1,4 @@
+import { EXTRA_REVISION_ROUNDS, EXTRA_REVISION_SLUG } from "@/lib/site/addOnPitch";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { NFC_BUNDLE_SLUG } from "@/lib/payments/nfcAddon";
@@ -27,7 +28,9 @@ export async function loadPreview(token: string) {
     project,
     build,
     revisionsUsed: revisions.length,
-    revisionLimit: websiteProduct?.revisionLimit ?? 1,
+    // The included rounds, plus more if the customer bought the Extra Revision Package.
+    revisionLimit:
+      (websiteProduct?.revisionLimit ?? 1) + (project.order.items.some((i) => i.product.slug === EXTRA_REVISION_SLUG) ? EXTRA_REVISION_ROUNDS : 0),
     openRevision: revisions.find((r) => r.status === "REQUESTED") ?? null,
   };
 }

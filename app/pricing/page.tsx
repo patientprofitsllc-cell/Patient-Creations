@@ -8,6 +8,7 @@ import { GrowthLadder } from "@/components/marketing/GrowthLadder";
 import { OfferCard } from "@/components/marketing/OfferCard";
 import { money } from "@/components/home/specialFrame";
 import { db } from "@/lib/db";
+import { ADD_ON_PITCH } from "@/lib/site/addOnPitch";
 import { CARE_PLAN_INCLUDES, CARE_PLAN_TIMING_NOTE, getCarePlanProduct } from "@/lib/site/carePlan";
 import { getFaqs } from "@/lib/site/offer";
 import { FALLBACK_OFFER_PRICE_CENTS, getOfferProduct } from "@/lib/site/offerData";
@@ -85,7 +86,15 @@ export default async function PricingPage() {
                     <p className="font-display text-lg text-ice">{a.name}</p>
                     <p className="text-champagne">{money(a.priceCents)}</p>
                   </div>
-                  <p className="mt-2 text-sm text-ice/60">{a.description}</p>
+                  {ADD_ON_PITCH[a.slug] ? (
+                    <>
+                      <p className="mt-2 font-display text-base text-ice">{ADD_ON_PITCH[a.slug].headline}</p>
+                      <p className="mt-1 text-sm text-ice/60">{ADD_ON_PITCH[a.slug].why}</p>
+                      <p className="mt-2 text-xs text-gold/80">{ADD_ON_PITCH[a.slug].bestFor}</p>
+                    </>
+                  ) : (
+                    <p className="mt-2 text-sm text-ice/60">{a.description}</p>
+                  )}
                 </div>
               ))}
             </div>

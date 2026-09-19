@@ -13,7 +13,7 @@ const TOKEN_SHAPE = /^[A-Za-z0-9_-]{16,40}$/;
  */
 export async function guardCare(req: NextRequest, scope: string, perTokenPerMinute: number) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
-  const body = (await req.json().catch(() => null)) as { token?: unknown } | null;
+  const body = (await req.json().catch(() => null)) as { token?: unknown; acceptTerms?: unknown } | null;
   const token = typeof body?.token === "string" ? body.token : "";
 
   if (!rateLimit(`care-ip:${ip}`, 30, 60_000).allowed || !rateLimit(`care:${scope}:${token.slice(0, 40)}`, perTokenPerMinute, 60_000).allowed) {
@@ -27,5 +27,5 @@ export async function guardCare(req: NextRequest, scope: string, perTokenPerMinu
   });
   if (!project) return { response: NextResponse.json({ error: "Not found" }, { status: 404, headers: NO_STORE }) };
 
-  return { project, token, build: await latestBuild(project.id) };
+  return { project, token, build: await latestBuild(project.id), acceptedTerms: body?.acceptTerms === true };
 }

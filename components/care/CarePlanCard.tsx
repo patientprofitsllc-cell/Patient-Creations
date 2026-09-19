@@ -27,6 +27,7 @@ export function CarePlanCard({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [justStarted, setJustStarted] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   useEffect(() => {
     try {
@@ -43,7 +44,7 @@ export function CarePlanCard({
       const res = await fetch(`/api/care/${path}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ token, acceptTerms: path === "checkout" ? agreed : undefined }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.url) {
@@ -107,7 +108,15 @@ export function CarePlanCard({
       </ul>
       <p className="mt-4 text-xs text-ice/40">{timingNote}</p>
       <p className="mt-1 text-xs text-ice/40">Not included: {notIncluded.join("; ").toLowerCase()}.</p>
-      <button type="button" onClick={() => void go("checkout")} disabled={busy} className={`${BUTTON} mt-5`}>
+      <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-3 text-xs leading-relaxed text-ice/60 has-[:checked]:border-gold/50">
+        <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-[#c39b52]" />
+        <span>
+          I understand this plan <strong className="text-ice/80">renews automatically every month at {priceLabel}</strong> until I cancel, that I can cancel any time (effective at the end of the paid month, with no refund for the current month), and I agree to the{" "}
+          <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-gold underline">Terms of Service</a>, including binding arbitration, and the{" "}
+          <a href="/refunds" target="_blank" rel="noopener noreferrer" className="text-gold underline">Refund and Cancellation Policy</a>.
+        </span>
+      </label>
+      <button type="button" onClick={() => void go("checkout")} disabled={busy || !agreed} className={`${BUTTON} mt-4`}>
         {busy ? "Opening checkout…" : `Start the care plan, ${priceLabel}/month`}
       </button>
       {error && (

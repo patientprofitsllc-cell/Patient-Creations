@@ -328,7 +328,7 @@ const ADD_ONS: {
     name: "3-Month Maintenance",
     category: "Add-on",
     type: "ORDER_BUMP",
-    description: "Three months of site maintenance covered up front: updates, monitoring, and small fixes.",
+    description: "Three months of updates and small fixes handled for you, paid up front. It does not renew on its own.",
     priceCents: 25000,
     revisionLimit: 0,
     sortOrder: 4,

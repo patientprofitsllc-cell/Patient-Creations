@@ -6,7 +6,7 @@ import { useState } from "react";
 const BUTTON =
   "rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-3 text-sm font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110 disabled:opacity-50";
 
-export function PreviewActions({ token, canRevise }: { token: string; canRevise: boolean }) {
+export function PreviewActions({ token, canRevise, remaining }: { token: string; canRevise: boolean; remaining: number }) {
   const router = useRouter();
   const [mode, setMode] = useState<"idle" | "revise">("idle");
   const [note, setNote] = useState("");
@@ -42,7 +42,7 @@ export function PreviewActions({ token, canRevise }: { token: string; canRevise:
           What would you like changed?
         </label>
         <p className="mt-1 text-xs text-ice/40">
-          Things like wording, hours, phone number, address, services, or a color. You have one included revision, so put everything in one message.
+          Things like wording, hours, phone number, address, services, or a color. {remaining === 1 ? "You have one included revision left, so put everything in one message." : `You have ${remaining} included revisions left. Put everything you want changed in one message.`}
         </p>
         <textarea
           id="revision-note"
@@ -86,6 +86,9 @@ export function PreviewActions({ token, canRevise }: { token: string; canRevise:
           </button>
         )}
       </div>
+      <p className="mx-auto mt-3 max-w-md text-center text-xs text-ice/40">
+        By approving, you confirm the website is accurate and ready to go live. Changes after approval may be quoted separately.
+      </p>
       {error && (
         <p role="alert" className="mt-3 text-center text-sm text-red-400">
           {error}

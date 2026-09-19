@@ -253,6 +253,7 @@ model WebsiteIntake {
   goalNotes       String?
   startedAt       DateTime? // first time the wizard was opened
   completedAt     DateTime?
+  contentConfirmedAt DateTime? // when the customer confirmed the information and materials are accurate and theirs to use
   reminderCount   Int       @default(0) // reminder emails sent while waiting on the customer
   lastReminderAt  DateTime?
   createdAt       DateTime  @default(now())
@@ -663,4 +664,21 @@ model Prospect {
 
   @@index([status])
   @@index([nextFollowUpAt])
+}
+
+// A recorded "I agree": which version of the legal terms someone accepted, when,
+// and from where. This is the evidence that makes the terms (including
+// arbitration) enforceable, and it is what gets shown if a payment is disputed.
+model TermsAcceptance {
+  id         String   @id @default(cuid())
+  scope      String   // ORDER | CARE_PLAN
+  refId      String   // the order id, or the project id for a care plan
+  customerId String?
+  version    String
+  ip         String?
+  userAgent  String?
+  acceptedAt DateTime @default(now())
+
+  @@index([scope, refId])
+  @@index([customerId])
 }
