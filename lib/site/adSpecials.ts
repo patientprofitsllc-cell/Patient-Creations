@@ -21,5 +21,3 @@ export const BUNDLE_ITEMS = ["A Quick Business Website", "2 Cinematic Ads", "2 U
 export const BUNDLE_DESCRIPTION =
   "Everything to launch: a Starter Website, 2 Cinematic Ads, 2 UGC Ads (each with 3 opening-hook variations), and 3 NFC cards of your choice, for one fixed price.";
 
-// Worded as what is set up, not as a result: nobody can promise customers.
-export const LEAD_ENGINE_DESCRIPTION = "A system to capture new leads and send them straight to you.";

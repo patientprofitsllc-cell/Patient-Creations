@@ -4,6 +4,8 @@ import { SiteFooter } from "@/components/shared/SiteFooter";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
 import { db } from "@/lib/db";
 import { getActiveProjectCount } from "@/lib/payments/productionLoad";
+import { ScopePanel } from "@/components/catalog/ScopePanel";
+import { scopeFor } from "@/lib/site/productScopes";
 
 export default async function CheckoutPage({ searchParams }: { searchParams: { product?: string } }) {
   if (!searchParams.product) redirect("/services");
@@ -26,6 +28,11 @@ export default async function CheckoutPage({ searchParams }: { searchParams: { p
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Reserve This Build</p>
         <h1 className="mt-4 font-display text-4xl text-ice">{primaryProduct.name}</h1>
         <p className="mt-2 max-w-xl text-ice/50">{primaryProduct.description}</p>
+        {scopeFor(primaryProduct.slug) && (
+          <div className="glass-panel mt-6 max-w-2xl rounded-2xl p-5">
+            <ScopePanel slug={primaryProduct.slug} open />
+          </div>
+        )}
         <div className="mt-10">
           <CheckoutForm
             primaryProduct={{

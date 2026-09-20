@@ -38,6 +38,21 @@ Market: human UGC $60 to $450 per video, agencies $300 to $1,000 per video or $2
 4. **Basic Package** wording (drone-style versus real drone) and whether the UGC and Monthly Ads presenters are AI (they are described as AI; confirm).
 5. **Undefined scopes** for the Cinematic AI Website, AI Software or App, Multi-Agent System, Payments Setup, Lead Engine and Automation Add-On. Every one of these reads as a single sentence, so a customer cannot see what they receive and you cannot be held to a scope. Write a bulleted "includes" for each, as done for Monthly Ads.
 
+## Decisions applied (owner answers, 2026-09-20)
+
+| # | Decision | What changed |
+|---|---|---|
+| 3 | Raise AI Software / App to $10,000 | Base $10,000; the tier rule (1.6x and 2.5x, rounded to $50) makes Signature **$16,000** and Flagship **$25,000**. Now 33% below the low end of the $15,000 to $100,000 MVP range instead of 73% below. |
+| 4 | Set per-ad prices by value | **UGC Ad Special $250 to $99**: an AI presenter, 30 seconds, and 3 hook variations, so about $33 per variation (about 3 plan ads at $30). **Cinematic Ad Special $400 to $249**: about 8 plan short ads of effort, a directed 30 second piece in two shapes, and under half the $500 Cinematic Ad. Because the specials dropped, the **All-in-One Launch Bundle went $1,299 to $899**: bought separately its parts are $1,086, so it had become more expensive than its own contents. It is now 17% under. |
+| 5 | Define the undefined scopes, like the Monthly Ads plans | Written includes, not-included, and tier adds for the Cinematic AI Website, AI Software / App, Multi-Agent System, Payments Setup, Lead Engine, Automation Add-On, Rental Listing Film, and Basic Package (`lib/site/productScopes.ts`). Shown on each service card and on checkout. **These counts are my proposal**: confirm you can deliver them. |
+| 6 | Confirm AI-made | The drone-style tour and the UGC presenters are AI-generated, so the copy now says so ("made with AI from your photos, not filmed by a real drone"). |
+| 2 | Price NFC cards at $30 | Every NFC card product and the add-on are a flat **$30**, no setup fee, no volume special, no separate website price. The first card stays free with a $1,000+ cinematic video tier. |
+| 1 | Remove the invented "was" prices | The "was $500" and "was $5,000" strikethroughs and the word "now" are gone. The only crossed-out price left is the bundle's own total of its parts at current prices ($1,086), which is true by arithmetic. |
+
+Also fixed while doing this: the public "Your price, next to the market" table on /services used hard-coded agency ranges and claimed every build was below the market floor, "$198,000 mid-market", "$36k+ saved", and "40 to 60% faster to ship". None of that was sourced or true against the ranges above. The table now uses the sourced ranges, works out for each row whether the price is below, at the low end of, or within the range, adds up its totals from the rows, links its sources, and drops the unsourced claims. Lead Engine is not in the table because its market figure is a monthly retainer and its price is one time.
+
+**Still open:** Basic Package ($1,000) and Rental Listing Film ($500) are now both described as AI videos from photos, so the $1,000 tier needs a reason or a price change. Monthly Ads plan prices are unchanged.
+
 ## Sources
 
 - Human and AI UGC, agencies and retainers: [Sepia, How Much Does UGC Cost in 2026](https://sepia-lab.com/en/blog/how-much-does-ugc-cost), [agent-media, AI UGC pricing comparison 2026](https://agent-media.ai/blog/ai-ugc-pricing-comparison-2026), [Arcads pricing 2026 (eesel)](https://www.eesel.ai/blog/arcads-ai-pricing), [Sparkiz, UGC ads cost 2026](https://sparkiz.ai/blog/ugc-ads-cost/)

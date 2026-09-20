@@ -11,7 +11,6 @@ interface AdOption {
   label: string;
   blurb: string;
   priceCents: number;
-  wasCents?: number;
 }
 
 export function AdSpecial({
@@ -66,9 +65,6 @@ export function AdSpecial({
                 {money(o.priceCents)}
                 <span className="text-xs text-ice/40"> / ad</span>
               </span>
-              {o.wasCents !== undefined && (
-                <span className="block text-xs text-ice/40 line-through decoration-red-400/70">{money(o.wasCents)}</span>
-              )}
             </button>
           );
         })}

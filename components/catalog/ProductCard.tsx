@@ -16,6 +16,7 @@ export function ProductCard({
   hasTiers,
   topTierCents,
   turnaround,
+  detail,
   action,
 }: {
   category: string;
@@ -25,6 +26,8 @@ export function ProductCard({
   hasTiers?: boolean;
   topTierCents?: number;
   turnaround?: string | null;
+  /** Optional extra content above the button, such as what the build includes. */
+  detail?: ReactNode;
   action: ReactNode;
 }) {
   const delivery = deliveryLine(turnaround);
@@ -41,6 +44,7 @@ export function ProductCard({
       {hasTiers && topTierCents !== undefined && (
         <p className="mt-1 text-xs text-ice/40">Signature and Flagship tiers up to {money(topTierCents)}</p>
       )}
+      {detail && <div className="mt-4 w-full">{detail}</div>}
       <div className="mt-auto pt-6">{action}</div>
     </div>
   );

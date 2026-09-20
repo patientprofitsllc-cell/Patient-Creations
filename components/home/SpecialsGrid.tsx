@@ -6,11 +6,6 @@ import { SpecialPriceCard } from "./SpecialPriceCard";
 import { money } from "./specialFrame";
 import { BUNDLE_ITEMS } from "@/lib/site/adSpecials";
 
-// Display-only "was" prices for the two website specials. What checkout
-// actually charges is always the live database price, shown as the "now" price.
-const STARTER_WAS_CENTS = 50000;
-const SITE_WAS_CENTS = 500000;
-
 const SLUGS = [
   "site",
   "ad",
@@ -42,7 +37,6 @@ export async function SpecialsGrid({
 
   const starter = bySlug.get("starter-website");
   const siteProduct = bySlug.get("site");
-  const regularAd = bySlug.get("ad");
   const cinAd = bySlug.get("cinematic-ad-special");
   const ugcAd = bySlug.get("ugc-ad-special");
   const consult = bySlug.get("strategy-session");
@@ -59,11 +53,7 @@ export async function SpecialsGrid({
       sortCents: Math.min(cinAd.priceCents, ugcAd.priceCents),
       node: (
         <AdSpecial
-          cinematic={{
-            slug: cinAd.slug,
-            priceCents: cinAd.priceCents,
-            wasCents: regularAd && regularAd.priceCents > cinAd.priceCents ? regularAd.priceCents : undefined,
-          }}
+          cinematic={{ slug: cinAd.slug, priceCents: cinAd.priceCents }}
           ugc={{ slug: ugcAd.slug, priceCents: ugcAd.priceCents }}
           consultation={{ slug: consult.slug, priceCents: consult.priceCents }}
           delivery={deliveryLine(cinAd.turnaround)}
@@ -72,21 +62,20 @@ export async function SpecialsGrid({
     });
   }
 
-  if (!exclude.includes("starter") && starter && starter.priceCents < STARTER_WAS_CENTS) {
+  if (!exclude.includes("starter") && starter) {
     specials.push({
       key: "starter",
       sortCents: starter.priceCents,
       node: (
         <SpecialPriceCard
-          lead={`${starter.name},`}
-          accent={`now ${money(starter.priceCents)}`}
+          lead={starter.name}
+          accent={money(starter.priceCents)}
           description={starter.description}
           delivery={deliveryLine(starter.turnaround)}
-          wasCents={STARTER_WAS_CENTS}
           nowCents={starter.priceCents}
           href={`/checkout?product=${starter.slug}`}
-          cta="Claim this special"
-          footnote="Add a matching NFC card for just $45 at checkout."
+          cta="Reserve this build"
+          footnote={`Add NFC cards for ${nfc ? money(nfc.priceCents) : "$30"} each at checkout.`}
         />
       ),
     });
@@ -118,20 +107,19 @@ export async function SpecialsGrid({
     });
   }
 
-  if (!exclude.includes("site") && siteProduct && siteProduct.priceCents < SITE_WAS_CENTS) {
+  if (!exclude.includes("site") && siteProduct) {
     specials.push({
       key: "site",
       sortCents: siteProduct.priceCents,
       node: (
         <SpecialPriceCard
-          lead={`${siteProduct.name},`}
-          accent={`now ${money(siteProduct.priceCents)}`}
+          lead={siteProduct.name}
+          accent={money(siteProduct.priceCents)}
           description={siteProduct.description}
           delivery={deliveryLine(siteProduct.turnaround)}
-          wasCents={SITE_WAS_CENTS}
           nowCents={siteProduct.priceCents}
           href={`/checkout?product=${siteProduct.slug}`}
-          cta="Claim this special"
+          cta="Reserve this build"
           footnote={`Includes ${siteProduct.revisionLimit} rounds of revisions.`}
         />
       ),

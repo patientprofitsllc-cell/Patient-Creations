@@ -294,8 +294,9 @@ export function CheckoutForm({
           <div className="glass-panel rounded-2xl p-6">
             <h2 className="mb-1 text-ice">How many of each?</h2>
             <p className="mb-4 text-xs text-ice/40">
-              Pick as many of each design as you like. Order {BULK_SETUP_WAIVER_MIN_QTY} or more cards in total and the
-              setup fee is waived, so every card is {money(primaryProduct.priceCents - (primaryProduct.setupFeeCents ?? 0))}.
+              Pick as many of each design as you like.
+              {Boolean(primaryProduct.setupFeeCents) &&
+                ` Order ${BULK_SETUP_WAIVER_MIN_QTY} or more cards in total and the setup fee is waived, so every card is ${money(primaryProduct.priceCents - (primaryProduct.setupFeeCents ?? 0))}.`}
             </p>
             <div className="space-y-2">
               {CARD_DESIGNS.map((d) => (
@@ -330,7 +331,7 @@ export function CheckoutForm({
                 ? "Choose at least one card to continue."
                 : `${mixTotal} card${mixTotal === 1 ? "" : "s"} total · ${money(primaryPriceCents)} each`}
             </p>
-            {mixTotal > 0 && (
+            {mixTotal > 0 && Boolean(primaryProduct.setupFeeCents) && (
               <p className="mt-1 text-xs text-champagne">
                 {bulkDiscountApplies
                   ? `Bulk pricing applied: the $${((primaryProduct.setupFeeCents ?? 0) / 100).toFixed(0)} setup fee is waived at ${BULK_SETUP_WAIVER_MIN_QTY}+.`
@@ -579,11 +580,13 @@ export function CheckoutForm({
                           +
                         </button>
                       </div>
-                      <p className="mt-2 text-xs text-champagne">
-                        {nfcAddonQty >= NFC_ADDON_BULK_MIN_QTY
-                          ? `Special applied: every card is ${money(NFC_ADDON_BULK_UNIT_CENTS)}.`
-                          : `Special: add ${NFC_ADDON_BULK_MIN_QTY} or more and every card is ${money(NFC_ADDON_BULK_UNIT_CENTS)} each.`}
-                      </p>
+                      {NFC_ADDON_BULK_UNIT_CENTS < bump.priceCents && (
+                        <p className="mt-2 text-xs text-champagne">
+                          {nfcAddonQty >= NFC_ADDON_BULK_MIN_QTY
+                            ? `Special applied: every card is ${money(NFC_ADDON_BULK_UNIT_CENTS)}.`
+                            : `Special: add ${NFC_ADDON_BULK_MIN_QTY} or more and every card is ${money(NFC_ADDON_BULK_UNIT_CENTS)} each.`}
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>

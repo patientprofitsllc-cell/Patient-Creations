@@ -24,7 +24,7 @@ const checkoutSchema = z.object({
   productIds: z.array(z.string()).min(1),
   primaryVariantId: z.string().optional(),
   primaryQuantity: z.number().int().min(1).max(100).default(1),
-  // How many cards on the "NFC Card — Your Choice" add-on (10+ drops every card to $50).
+  // How many cards on the "NFC Card — Your Choice" add-on (a flat price per card).
   nfcAddonQuantity: z.number().int().min(1).max(100).default(1),
   // Mix-and-match card pack: { designSlug: quantity }. When present it replaces productIds pricing.
   cardMix: z.record(z.string(), z.number().int().min(1).max(100)).optional(),
