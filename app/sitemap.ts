@@ -26,6 +26,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/gallery`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/agents`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/guided-app-tour`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    ...["terms", "privacy", "refunds", "acceptable-use"].map((slug) => ({ url: `${SITE_URL}/${slug}`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.3 })),
+    ...["terms", "privacy", "refunds", "acceptable-use", "copyright"].map((slug) => ({ url: `${SITE_URL}/${slug}`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.3 })),
   ];
 }

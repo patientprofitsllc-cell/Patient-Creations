@@ -4,9 +4,10 @@ import { termsDoc } from "@/lib/legal/terms";
 import { privacyDoc } from "@/lib/legal/privacy";
 import { refundsDoc } from "@/lib/legal/refunds";
 import { acceptableUseDoc } from "@/lib/legal/acceptableUse";
+import { copyrightDoc } from "@/lib/legal/copyright";
 import { ADD_ON_PITCH, addOnAvailable, revisionPitchWhy } from "@/lib/site/addOnPitch";
 
-const docs: LegalDoc[] = [termsDoc, privacyDoc, refundsDoc, acceptableUseDoc];
+const docs: LegalDoc[] = [termsDoc, privacyDoc, refundsDoc, acceptableUseDoc, copyrightDoc];
 
 const textOf = (d: LegalDoc) =>
   [d.title, d.description, ...(d.summary ?? []), ...d.sections.flatMap((s) => [s.title, s.callout ?? "", ...s.body.flatMap((b) => (typeof b === "string" ? [b] : b.list))])].join("\n");

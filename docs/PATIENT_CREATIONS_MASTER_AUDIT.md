@@ -194,3 +194,33 @@ Three subscription plans, **$300, $500 and $1,000 a month**, sold at `/monthly-a
 How it works: customer starts a plan (`/monthly-ads/start`, agreement with automatic-renewal wording recorded as `AD_PLAN`), pays through Stripe Checkout (subscription mode, price from the product row), and a Stripe webhook activates it (`lib/ads/events.ts`, idempotent, handles out-of-order events, cannot be revived after cancel). They get a private plan page (`/monthly-ads/manage/[token]`, noindex) with the monthly brief form, what has been delivered, and a billing button. Admin: `/admin/ads` lists plans, briefs, and quota used, and logs deliveries (link plus note); Growth shows ad-plan recurring revenue. Owner is alerted by email (and text once Twilio is set up) when a plan starts. In production a plan can only ever be activated by a paid checkout (no free path). Legal: Terms section 9, Refund policy section 4 and the privacy data list were extended (version 2026-09-20).
 
 Not built: plan switching (done by hand on request), automatic monthly reminders to send a brief, file storage for finished ads (delivered by link, by decision), a prorated upgrade, usage counters beyond the admin log. The public copy names no tool vendors; the AI tools behind the work are the owner's to choose and each one's commercial-use terms should be checked on the plan actually used, including presenter/likeness rules and any music (music rights are excluded from the plans on purpose). Services such as an AI receptionist, text follow-up, CRM, custom AI assistants and workflow automation are shown only as "quoted separately after a call", never as included.
+
+## Copyright and anti-copying protection (2026-09-20)
+
+Owner request: "create copyrights for this site that block the pull of its code or mimic of the site".
+
+What exists now:
+
+| Layer | What it does | Where |
+|---|---|---|
+| Copyright and Site Use Notice | A legal page (/copyright, linked in the footer and sitemap, made part of the Terms) that reserves the code, design, text, media, motion scenes, catalog, and marks; forbids copying, mirroring, cloning the look, scraping, reverse engineering, framing, and AI training; explains reporting and enforcement; keeps court open for IP claims | `lib/legal/copyright.ts` |
+| Ownership notice | Footer line "© 2026 Patient Profits LLC. All rights reserved." (the year range updates itself) plus a trademark statement; copyright meta tags | `lib/legal/config.ts`, `components/shared/SiteFooter.tsx`, `app/layout.tsx` |
+| Repository license | Proprietary "all rights reserved" LICENSE, `"license": "UNLICENSED"` in package.json. The GitHub repository is private (unauthenticated API returns 404) | `LICENSE`, `package.json` |
+| Blocking | Known site copiers (HTTrack, SiteSucker, WebCopy, Scrapy, and others) and AI training crawlers (GPTBot, ClaudeBot, CCBot, Bytespider, and others) get a 403; search engines, Stripe, Resend, Twilio, and normal browsers are never affected | `lib/security/scrapers.ts`, `middleware.ts` |
+| robots.txt | Disallows the same AI crawlers on every path | `app/robots.ts` |
+| Headers | `X-Robots-Tag: noai, noimageai`; `tdm-reservation: 1` and `/.well-known/tdmrep.json` (machine-readable opt-out of text and data mining); refuses framing by other sites; no MIME sniffing; no source maps in production; no X-Powered-By | `next.config.mjs`, `public/.well-known/tdmrep.json` |
+| Tests | 15 tests keep the notice, the block list, the headers, the license, and the robots rules from drifting | `tests/unit/copyright.test.ts` |
+
+What this cannot do, and is not claimed to do:
+
+- Anything a browser can display can be saved. The HTML, CSS, and JavaScript a visitor receives can always be read and copied by someone determined; that is how the web works. Blocking is a deterrent against automatic and careless copying, and the notice, license, and headers are what make deliberate copying provable and actionable.
+- Copyright protects our specific code, text, images, layout expression, and animations, not general ideas, a color scheme, or a style. Someone can build a different site with a similar feel. Copying our text, code, images, or the close overall arrangement is what the notice targets.
+- A "browsewrap" notice like this is weaker than a signed contract. Customers accept the Terms, which include it, by clickwrap.
+- Right-click blocking, disabled text selection, and devtools tricks were deliberately not added: they do not stop copying, and they hurt accessibility and legitimate users.
+
+Owner actions that add real strength (not done by the assistant):
+
+1. Register the copyright with the U.S. Copyright Office (eCO, "computer program" for the code; the site text and design can be registered as well). Registration is required before suing over U.S. works and, if done before an infringement starts or within three months of publication, allows statutory damages and attorney fees. The deposit is a portion of the source code.
+2. Consider a USPTO trademark application for the name and logo "Patient Creations".
+3. Have an attorney review the notice and Terms.
+4. Keep the GitHub repository private and limit who has access.

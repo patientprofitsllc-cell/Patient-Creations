@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import { COMPANY, COPYRIGHT_NOTICE } from "@/lib/legal/config";
 import { SHARE_IMAGE_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/config/site";
 import "./globals.css";
 
@@ -11,6 +12,11 @@ export const metadata: Metadata = {
   title: { default: SITE_TITLE, template: `%s | ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
+  authors: [{ name: COMPANY.legalName, url: SITE_URL }],
+  creator: COMPANY.legalName,
+  publisher: COMPANY.legalName,
+  // Ownership and the AI text-and-data-mining opt-out, stated in the page itself as well as in headers.
+  other: { copyright: COPYRIGHT_NOTICE, "tdm-reservation": "1", "tdm-policy": `${SITE_URL}/copyright` },
   keywords: [
     "Patient Creations",
     "Patient Profits",

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CONTACT_PHONE_DIGITS, CONTACT_PHONE_DISPLAY } from "@/lib/config/site";
-import { LEGAL_PAGES } from "@/lib/legal/config";
+import { LEGAL_PAGES, copyrightYears } from "@/lib/legal/config";
 
 export function SiteFooter() {
   return (
@@ -57,7 +57,7 @@ export function SiteFooter() {
         </p>
       </div>
       <p className="mx-auto mt-8 max-w-7xl text-xs text-ice/30">
-        © {new Date().getFullYear()} Patient Profits LLC · Patient Creations.
+        © {copyrightYears()} Patient Profits LLC. All rights reserved. Patient Creations™ is a trademark of Patient Profits LLC. The code, design, text, and media of this site may not be copied, scraped, or imitated.
       </p>
     </footer>
   );

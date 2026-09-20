@@ -31,11 +31,23 @@ export const POLICY = {
   careUpdatesPerMonth: 3,
 } as const;
 
+/** The year the Site was first published. The notice reads "2026" that year and "2026-2027" after. */
+export const COPYRIGHT_START_YEAR = 2026;
+
+/** "© 2026" or "© 2026-2027", so the notice is always correct without anyone editing it. */
+export function copyrightYears(now: Date = new Date()): string {
+  const year = now.getFullYear();
+  return year > COPYRIGHT_START_YEAR ? `${COPYRIGHT_START_YEAR}-${year}` : String(COPYRIGHT_START_YEAR);
+}
+
+export const COPYRIGHT_NOTICE = `© ${COPYRIGHT_START_YEAR} ${COMPANY.legalName}. All rights reserved.`;
+
 export const LEGAL_PAGES = [
   { href: "/terms", label: "Terms of Service" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/refunds", label: "Refund and Cancellation Policy" },
   { href: "/acceptable-use", label: "Acceptable Use Policy" },
+  { href: "/copyright", label: "Copyright and Site Use Notice" },
 ] as const;
 
 export type LegalBlock = string | { list: string[] };

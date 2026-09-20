@@ -43,7 +43,7 @@ export const acceptableUseDoc: LegalDoc = {
         {
           list: [
             "attacking, probing, overloading, or bypassing the security of the Site or of anyone else's systems;",
-            "scraping, copying, or reselling our templates, code, designs, or process, or using the Site to build a competing service;",
+            "scraping, copying, mirroring, imitating, or reselling our templates, code, designs, text, images, or process, using them to train or feed an artificial intelligence model, or using the Site to build a competing service (see our Copyright and Site Use Notice);",
             "using someone else's private link or account without permission, or trying to guess links;",
             "sending spam, abusive messages, or automated requests through our forms and messages;",
             "giving false information to place an order, using stolen payment methods, or opening payment disputes in bad faith;",

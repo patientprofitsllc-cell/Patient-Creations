@@ -84,6 +84,7 @@ export const termsDoc: LegalDoc = {
       body: [
         `As between you and us, you keep ownership of Your Materials. We own all right, title, and interest in the Site, our templates, layouts, components, code, designs, tools, processes, prompts, know-how, and anything we created before or apart from your order ("Our Materials"), and in all improvements to them.`,
         `Once you have paid for an order in full and the payment has not been reversed, we give you a non-exclusive, worldwide, perpetual license to use, copy, and display the finished deliverable (for example, the website files) for your own business. You may not resell, sublicense, or distribute the deliverable or Our Materials as a template, product, or service of your own, or remove our notices where we have included them.`,
+        `The Site itself, and all of Our Materials, are also protected by the Copyright and Site Use Notice, which forbids copying, scraping, imitating, and using them to train artificial intelligence. It is part of these Terms.`,
         `Some deliverables include third-party materials, such as fonts, stock media, or open-source software, that are covered by their own licenses. You agree to follow those licenses.`,
         `The license in this Section ends automatically if a payment for the order is refunded, reversed, or disputed. We may keep the finished work, and unless you ask us not to in writing, show it and its public address as an example of our work.`,
         `If you send us feedback or ideas, we may use them without any obligation to you.`,
@@ -164,7 +165,7 @@ export const termsDoc: LegalDoc = {
       id: "acceptable-use",
       title: "16. Acceptable use",
       body: [
-        `You must follow the Acceptable Use Policy. We may refuse, remove, or stop work on anything that we believe breaks it, breaks the law, could harm us or others, or exposes us to risk, and we may suspend or end your access. If we do that because of your breach, you are not entitled to a refund.`,
+        `You must follow the Acceptable Use Policy and the Copyright and Site Use Notice. We may refuse, remove, or stop work on anything that we believe breaks it, breaks the law, could harm us or others, or exposes us to risk, and we may suspend or end your access. If we do that because of your breach, you are not entitled to a refund.`,
       ],
     },
     {
