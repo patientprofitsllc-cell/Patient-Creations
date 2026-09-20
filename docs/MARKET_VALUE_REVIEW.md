@@ -99,4 +99,4 @@ Delivery times now shown to customers (all are targets counted from when we have
 | Website Care Plan update | about 2 business days |
 | Strategy Session | 60 minutes; Custom Build Consultation scoped on the call |
 
-**These are my estimates from what each product includes; only the owner knows real capacity.** Change one in `prisma/seed.ts` (products) or `lib/ads/plans.ts` (Monthly Ads), reseed, and everything that shows it updates.
+**Confirmed correct by the owner (2026-09-20).** They began as estimates from what each product includes; only the owner knows real capacity. Change one in `prisma/seed.ts` (products) or `lib/ads/plans.ts` (Monthly Ads), reseed, and everything that shows it updates.
