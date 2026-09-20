@@ -5,7 +5,7 @@ import { trackFunnel } from "@/lib/analytics/funnel";
 import { sendEmail } from "@/lib/email/provider";
 import { notifyOwnerOfAdPlan } from "@/lib/alerts/ownerAlerts";
 import { invoiceSubscriptionId, mapStripeStatus, periodEndOf, type CareStatus } from "@/lib/care/events";
-import { getAdPlan } from "@/lib/ads/plans";
+import { getAdPlan, planDeliveryTarget } from "@/lib/ads/plans";
 
 const idOf = (v: string | { id: string } | null | undefined): string | null => (typeof v === "string" ? v : (v?.id ?? null));
 const manageUrl = (token: string) => `${(process.env.APP_BASE_URL ?? "").replace(/\/$/, "")}/monthly-ads/manage/${token}`;
@@ -56,6 +56,7 @@ export async function activateAdPlan(input: { adSubscriptionId: string; stripeSu
       planName: plan?.name ?? "your Monthly Ads plan",
       businessName: row.businessName,
       manageUrl: manageUrl(row.manageToken),
+      deliveryTarget: plan ? planDeliveryTarget(plan) : undefined,
     });
     await notifyOwnerOfAdPlan(row.id);
   }

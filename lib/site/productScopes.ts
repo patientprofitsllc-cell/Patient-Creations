@@ -150,10 +150,10 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
     summary: "Three drone-style videos of your building and storefront, made with AI from your photos, plus 5 NFC cards.",
     includes: [
       "3 drone-style videos, up to 45 seconds each, delivered wide and vertical",
-      "5 NFC cards of your choice, printed and mailed to you",
+      "5 NFC cards of your choice, printed and mailed to you. They ship separately, usually 5 to 7 business days after you pick your designs",
       "Made with AI from photos of your building and storefront and the details you send. It is not filmed by a real drone",
       "A caption and headline options written for you",
-      "1 revision round",
+      "2 revision rounds",
     ],
     notIncluded: ["Filming on location or real drone footage", "More than 3 videos or 5 cards (extra cards are $30 each)", "Music rights or licensed music", "Any promise of visits or sales"],
   },

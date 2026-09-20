@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const STEPS = [
   { title: "Pick a plan", body: "Choose the number of ads that fits. You can start today and cancel any time." },
   { title: "Send your monthly brief", body: "A few minutes on your private plan page: what to promote, who it is for, and any style you like." },
-  { title: "We make your ads", body: "Your ads are made from your brief. Our target is about 7 business days, and you can ask for revisions." },
+  { title: "We make your ads", body: "Your ads are made from your brief. Our target is about 7 to 14 business days, depending on your plan, and you can ask for revisions." },
   { title: "Download and post", body: "Finished ads appear on your plan page with a download link. You post them on your own ad accounts." },
 ];
 

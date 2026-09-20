@@ -26,7 +26,10 @@ export function getDeliverySpeed(key: string): DeliverySpeedOption {
 
 // The max days each rush tier actually promises, used to guard against
 // ever offering a paid "rush" tier that isn't genuinely faster than a
-// product's own normal turnaround.
+// product's own normal turnaround, or so much faster that it could not be kept.
+// A rush must be done by the earliest the normal delivery could arrive, and may cut the
+// worst-case time by at most half.
+const MAX_RUSH_SPEEDUP = 0.5;
 const RUSH_MAX_DAYS: Record<Exclude<DeliverySpeedKey, "standard">, number> = {
   priority: 7,
   express: 5,
@@ -34,30 +37,41 @@ const RUSH_MAX_DAYS: Record<Exclude<DeliverySpeedKey, "standard">, number> = {
 };
 
 /**
- * Parses a free-text turnaround estimate ("3-5 days", "2-3 weeks", "60
+ * Parses a free-text turnaround estimate ("3-5 days", "2-3 weeks", "72 hours", "60
  * minutes", "scoped on the call") into a worst-case day count. Returns null
  * when the estimate isn't a day/week duration at all (a call, or scoped
  * work) — rush pricing doesn't apply to those.
  */
 export function parseTurnaroundMaxDays(turnaround?: string | null): number | null {
+  return parseTurnaroundRangeDays(turnaround)?.max ?? null;
+}
+
+/** The fastest and slowest a turnaround estimate can be, in days ("1-2 weeks" is 7 to 14). */
+export function parseTurnaroundRangeDays(turnaround?: string | null): { min: number; max: number } | null {
   if (!turnaround) return null;
   if (/minute|call/i.test(turnaround)) return null;
-  const numbers = turnaround.match(/\d+/g);
+  const numbers = turnaround.match(/\d+/g)?.map(Number);
   if (!numbers || numbers.length === 0) return null;
-  const max = Math.max(...numbers.map(Number));
-  return /week/i.test(turnaround) ? max * 7 : max;
+  const toDays = (n: number) => (/hour/i.test(turnaround) ? Math.ceil(n / 24) : /week/i.test(turnaround) ? n * 7 : n);
+  return { min: toDays(Math.min(...numbers)), max: toDays(Math.max(...numbers)) };
 }
 
 /**
- * Standard, plus only the rush tiers that are actually faster than this
- * product's own normal turnaround. A product already delivered in 3-5 days
- * has no business being offered a paid "Priority (6-7 days)" upgrade.
+ * Standard, plus only the rush tiers that are genuinely faster than this product's
+ * own normal turnaround: done by the earliest it could arrive, but not by more than
+ * half. A product already delivered in 3-5 days has no business being offered a paid
+ * "Priority (6-7 days)" upgrade, a 3-6 day one no "Express (4-5 days)", and a 4 to 8
+ * week app no "3-4 day" one.
  */
 export function getApplicableSpeeds(turnaround?: string | null): DeliverySpeedOption[] {
-  const baseDays = parseTurnaroundMaxDays(turnaround);
-  if (baseDays === null) return [DELIVERY_SPEEDS[0]];
+  const range = parseTurnaroundRangeDays(turnaround);
+  if (range === null) return [DELIVERY_SPEEDS[0]];
   const rush = DELIVERY_SPEEDS.filter(
-    (s) => s.key !== "standard" && RUSH_MAX_DAYS[s.key as Exclude<DeliverySpeedKey, "standard">] < baseDays,
+    (s) => {
+      const promised = RUSH_MAX_DAYS[s.key as Exclude<DeliverySpeedKey, "standard">];
+      // Done by the earliest the normal delivery could arrive, but never more than twice as fast.
+      return s.key !== "standard" && promised <= range.min && promised >= range.max * MAX_RUSH_SPEEDUP;
+    },
   );
   return [DELIVERY_SPEEDS[0], ...rush];
 }

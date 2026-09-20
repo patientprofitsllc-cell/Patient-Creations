@@ -60,7 +60,7 @@ Your ${p.planName ?? "Monthly Ads plan"} for ${p.businessName ?? "your business"
 
 What happens next:
 1. Open your private plan page and fill in this month's brief. It takes a few minutes: what to promote, who it is for, and any style you like. You can send photos and logos by email or on a call.
-2. We make your ads from your brief. Our target is about 7 business days from when we have it.
+2. We make your ads from your brief. Our target is ${p.deliveryTarget ?? "about 7 to 14 business days"} from when we have it.
 3. Your finished ads appear on the same page, with a download link, ready to post.
 
 One thing that makes a real difference: a specific offer. A clear product, a clear price, and a clear next step give the ads something real to say.

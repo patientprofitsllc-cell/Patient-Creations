@@ -4,6 +4,7 @@ import {
   loadMultiplier,
   DELIVERY_SPEEDS,
   parseTurnaroundMaxDays,
+  parseTurnaroundRangeDays,
   getApplicableSpeeds,
 } from "@/lib/payments/deliverySpeed";
 
@@ -78,19 +79,35 @@ describe("parseTurnaroundMaxDays", () => {
 
 describe("getApplicableSpeeds", () => {
   it("never offers a rush tier that is the same speed or slower than a product's own turnaround", () => {
-    // Basic Package: 3-5 days. Priority (7d) and Express (5d) are not
-    // actually faster, so only Immediate (4d) should be offered alongside Standard.
-    const speeds = getApplicableSpeeds("3-5 days").map((s) => s.key);
-    expect(speeds).toEqual(["standard", "immediate"]);
+    // 3-5 days: Priority (7d) and Express (5d) are not faster, and Immediate (4d) lands inside the
+    // normal window rather than ahead of it, so nothing is offered beyond Standard.
+    expect(getApplicableSpeeds("3-5 days").map((s) => s.key)).toEqual(["standard"]);
+    expect(getApplicableSpeeds("3-6 days").map((s) => s.key)).toEqual(["standard"]);
   });
 
-  it("offers every rush tier for a long, week-scale build", () => {
-    const speeds = getApplicableSpeeds("2-3 weeks").map((s) => s.key);
-    expect(speeds).toEqual(["standard", "priority", "express", "immediate"]);
+  it("offers no rush on a multi-week build, since a 3 to 7 day promise on a 2-3 week build could not be kept", () => {
+    for (const t of ["2-3 weeks", "4-8 weeks", "5-10 weeks"]) expect(getApplicableSpeeds(t).map((s) => s.key), t).toEqual(["standard"]);
+  });
+
+  it("offers a rush only when it cuts the worst-case time by at most half", () => {
+    expect(getApplicableSpeeds("1-2 weeks").map((s) => s.key)).toEqual(["standard", "priority"]); // 14 days: 7 is half
+    expect(getApplicableSpeeds("72 hours").map((s) => s.key)).toEqual(["standard"]);
+  });
+
+  it("gives the fastest and slowest a range can be", () => {
+    expect(parseTurnaroundRangeDays("1-2 weeks")).toEqual({ min: 7, max: 14 });
+    expect(parseTurnaroundRangeDays("5-7 business days")).toEqual({ min: 5, max: 7 });
+    expect(parseTurnaroundRangeDays("72 hours")).toEqual({ min: 3, max: 3 });
+    expect(parseTurnaroundRangeDays("60 minutes")).toBeNull();
+  });
+
+  it("reads hours as days, rounded up", () => {
+    expect(parseTurnaroundMaxDays("72 hours")).toBe(3);
+    expect(parseTurnaroundMaxDays("36 hours")).toBe(2);
   });
 
   it("offers only the tiers strictly faster than a mid-range turnaround", () => {
-    // Rental Listing Film: 5-7 days. Priority is 7d (equal, excluded).
+    // Rental Listing Film: 5-7 days. Priority is 7d (no faster, excluded); Express (5d) and Immediate (4d) are done by day 5.
     const speeds = getApplicableSpeeds("5-7 days").map((s) => s.key);
     expect(speeds).toEqual(["standard", "express", "immediate"]);
   });

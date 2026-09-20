@@ -30,7 +30,8 @@ export function ProductCard({
   detail?: ReactNode;
   action: ReactNode;
 }) {
-  const delivery = deliveryLine(turnaround);
+  // A tiered product's stated time is for the Core tier; Signature and Flagship do more.
+  const delivery = deliveryLine(turnaround) && (hasTiers ? `${deliveryLine(turnaround)} for the Core tier` : deliveryLine(turnaround));
   return (
     <div className={`${SPECIAL_FRAME} flex flex-col items-center p-8 text-center transition hover:border-gold`}>
       <p className="text-xs uppercase tracking-[0.25em] text-gold/70">{category}</p>

@@ -23,7 +23,7 @@ import { BUSINESS_TYPES, OFFER_SLUG } from "@/lib/site/offer";
 import { captureAttribution, readAttribution, sourceLabel } from "@/lib/analytics/attribution";
 import { TrackView } from "@/components/analytics/Track";
 import { AddOnCard } from "@/components/checkout/AddOnCard";
-import { ADD_ON_PITCH, addOnAvailable } from "@/lib/site/addOnPitch";
+import { ADD_ON_PITCH, EXTRA_REVISION_SLUG, addOnAvailable, revisionPitchWhy } from "@/lib/site/addOnPitch";
 
 interface ProductLite {
   id: string;
@@ -35,6 +35,7 @@ interface ProductLite {
   type: string;
   category?: string;
   turnaround?: string | null;
+  revisionLimit?: number;
 }
 
 interface VariantLite {
@@ -142,6 +143,12 @@ export function CheckoutForm({
   // The bundle and the Basic Package already include NFC cards, so the card add-on isn't offered on top of them.
   const shownBumps = (includedCardCount(primaryProduct.slug) > 0 ? orderBumps.filter((b) => b.slug !== NFC_ADDON_SLUG) : orderBumps).filter((b) => addOnAvailable(b.slug, primaryProduct.slug));
   const selectedVariant = variants.find((v) => v.id === variantId);
+  // The Extra Revision pitch says how many rounds this product already includes.
+  const pitchFor = (slug: string) => {
+    const pitch = ADD_ON_PITCH[slug];
+    if (pitch && slug === EXTRA_REVISION_SLUG && primaryProduct.revisionLimit) return { ...pitch, why: revisionPitchWhy(primaryProduct.revisionLimit) };
+    return pitch;
+  };
   const bulkDiscountApplies = Boolean(primaryProduct.setupFeeCents) && qty >= BULK_SETUP_WAIVER_MIN_QTY;
   const basePriceCents = selectedVariant?.priceCents ?? primaryProduct.priceCents;
   const primaryPriceCents = bulkDiscountApplies ? basePriceCents - (primaryProduct.setupFeeCents ?? 0) : basePriceCents;
@@ -543,16 +550,14 @@ export function CheckoutForm({
             <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Optional extras</p>
             <h2 className="mt-1 font-display text-2xl text-ice">Make it even better</h2>
             <p className="mb-5 mt-1 text-sm text-ice/50">Tap any extra to add it to this order. Nothing is added unless you choose it.</p>
-            {applicableSpeeds.length > 1 && !usesQuantity && (
-              <p className="mb-4 text-xs text-ice/40">Each add-on can extend a Standard timeline, see delivery speed above.</p>
-            )}
+            <p className="mb-4 text-xs text-ice/40">Each extra says how much time it adds to your delivery.</p>
             <div className="space-y-3">
               {shownBumps.map((bump) => (
                 <div key={bump.id}>
                   <AddOnCard
                     name={bump.name}
                     fallbackDescription={bump.description}
-                    pitch={ADD_ON_PITCH[bump.slug]}
+                    pitch={pitchFor(bump.slug)}
                     priceLabel={bumpPriceCents(bump) === 0 ? "Free" : money(bumpPriceCents(bump))}
                     checked={selectedBumps.includes(bump.id)}
                     onChange={(on) => setSelectedBumps((prev) => (on ? [...prev, bump.id] : prev.filter((id) => id !== bump.id)))}
@@ -671,7 +676,10 @@ export function CheckoutForm({
             </div>
           )}
         </div>
-        <p className="mt-3 text-xs text-ice/40">Estimated delivery: {displayDays(deliverySpeed)}</p>
+        <p className="mt-3 text-xs text-ice/40">
+          Estimated delivery: {displayDays(deliverySpeed)}
+          {selectedVariant && deliverySpeed === "standard" ? `, for the Core tier. The ${selectedVariant.name} tier does more, so we confirm your date after you order.` : ""}
+        </p>
         <div className="mt-4 flex justify-between border-t border-white/10 pt-4 font-display text-xl text-champagne">
           <span>Total</span>
           <span>{money(subtotal)}</span>

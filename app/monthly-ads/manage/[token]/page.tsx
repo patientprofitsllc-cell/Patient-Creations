@@ -7,7 +7,7 @@ import { BillingButton, BriefForm } from "@/components/ads/ManagePanels";
 import { money } from "@/components/home/specialFrame";
 import { db } from "@/lib/db";
 import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY } from "@/lib/config/site";
-import { AD_TIMING_NOTE, BRIEF_FIELDS, getAdPlan, planIncludes, type BriefKey } from "@/lib/ads/plans";
+import { AD_TIMING_NOTE, adTimingNoteFor, BRIEF_FIELDS, getAdPlan, planIncludes, type BriefKey } from "@/lib/ads/plans";
 import { TOKEN_SHAPE } from "@/lib/ads/access";
 import { deliveryProgress } from "@/lib/ads/data";
 
@@ -93,7 +93,7 @@ export default async function ManageAdPlanPage({ params, searchParams }: { param
                   ))}
                 </ul>
               )}
-              <p className="mt-4 text-xs text-ice/40">{AD_TIMING_NOTE} Unused ads and revisions do not carry over to the next month.</p>
+              <p className="mt-4 text-xs text-ice/40">{plan ? adTimingNoteFor(plan) : AD_TIMING_NOTE} Unused ads and revisions do not carry over to the next month.</p>
             </section>
 
             <section className="mt-8" aria-labelledby="brief-title">

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { money } from "@/components/home/specialFrame";
-import { perAdDollars, planIncludes, planNotIncluded, type AdPlan } from "@/lib/ads/plans";
+import { perAdDollars, planDeliveryTarget, planIncludes, planNotIncluded, type AdPlan } from "@/lib/ads/plans";
 
 /** One Monthly Ads plan: price, exactly what is included, and what is not. Everything comes from lib/ads/plans.ts. */
 export function PlanCard({ plan, priceCents, featured = false, purchasable = true }: { plan: AdPlan; priceCents: number; featured?: boolean; purchasable?: boolean }) {
@@ -36,6 +36,8 @@ export function PlanCard({ plan, priceCents, featured = false, purchasable = tru
           </li>
         ))}
       </ul>
+
+      <p className="mt-4 text-xs text-ice/50">Each batch is our target for {planDeliveryTarget(plan)} after we have your monthly brief.</p>
 
       <details className="mt-5 text-sm text-ice/60">
         <summary className="flex min-h-[44px] cursor-pointer items-center text-ice/70 hover:text-gold">What is not included</summary>

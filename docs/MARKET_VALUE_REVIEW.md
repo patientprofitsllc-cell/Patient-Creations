@@ -66,3 +66,37 @@ Final state:
 Kept from the first pass: the seven single-design NFC cards are hidden from the /services grid (the "NFC Cards, Mix & Match" card is the front door) but stay buyable by link; the invented crossed-out $500 on the homepage stays gone; a checkout link to any inactive product redirects to /services. The seed now sets `active: true` for every product it lists, so a product is on sale if it is listed and off the shelf if it is in `LEGACY_SLUGS`.
 
 **Basic Package resolved (owner):** stays at $1,000 but now includes **3 drone-style videos and 5 NFC cards** (Rental Listing Film stays $500 for one video). The 5 cards use the same after-checkout card questionnaire as the bundle's 3, the card add-on is not offered on top, and extra cards are $30 each. Turnaround changed from 3-5 days to 1-2 weeks to fit three videos. Value check at flat prices: 3 videos at $500 plus 5 cards at $30 is $1,650 of parts for $1,000. The count of revision rounds is still 1 for the whole package; raise it in the seed and the scope together if you want more.
+
+### Delivery times audit (owner: "fix the delivery time for all products to be accurate")
+
+Basic Package also went to **2 revision rounds** (seed and scope agree; the Extra Revision extra now says how many rounds the chosen product already includes, instead of always "one").
+
+What was wrong, and what changed:
+
+| Problem | Fix |
+|---|---|
+| Rush tiers were fixed windows (Priority 6-7 days, Express 4-5, Immediate 3-4) offered on anything longer, so a 4-8 week app or a 2-3 week website could be sold a "3-4 day" rush that could not be kept | A rush is now offered only if it is done by the earliest the normal delivery could arrive and cuts the worst case by at most half (`lib/payments/deliverySpeed.ts`). Rush now exists only on Cinematic Ad (Priority), Rental Listing Film (Express, Immediate) and Basic Package (Priority). |
+| Quick Business Website said "3 business days" on cards but "72 hours" everywhere else (Terms, emails, tracking) | Stored as "72 hours"; cards and checkout say 72 hours. |
+| Monthly Ads promised the same "about 7 business days" for 10 ads and for 40 ads plus 3 cinematic, a 3D visual, and a landing page | Targets grow with the plan: Starter 7, Growth 10, Scale 14 business days from the monthly brief (`deliveryBusinessDays` in `lib/ads/plans.ts`, used by the plan card, plan page, FAQ, and email). |
+| Basic Package (3 videos, 2 rounds, 5 cards) was 3-5 days | 1-2 weeks; the cards ship separately, usually 5 to 7 business days after the customer picks designs. |
+| Cards for tiered builds showed the Core-tier time with no mention that Signature and Flagship do more | Cards say "for the Core tier"; checkout says the date for larger tiers is confirmed after ordering. |
+| "Each add-on can extend a Standard timeline" gave no numbers | Every extra states its own time: Brand Kit about 3 business days, Extra Revision about 2 per round, Social Asset Pack about 1, NFC cards ship separately in 5 to 7 business days. |
+
+Delivery times now shown to customers (all are targets counted from when we have the customer's information, not guarantees):
+
+| Product | Time |
+|---|---|
+| Quick Business Website | 72 hours |
+| Rental Listing Film, Cinematic Ad Special, UGC Ad Special | 5-7 business days |
+| Payments Setup | 3-6 business days |
+| Basic Package | 1-2 weeks (cards ship separately) |
+| Cinematic Ad | 1-2 weeks |
+| Cinematic AI Website, Lead Engine, All-in-One Bundle | 2-3 weeks |
+| AI Software / App | 4-8 weeks |
+| Multi-Agent System | 5-10 weeks |
+| NFC cards | 5-7 business days |
+| Monthly Ads Starter / Growth / Scale | about 7 / 10 / 14 business days per batch |
+| Website Care Plan update | about 2 business days |
+| Strategy Session | 60 minutes; Custom Build Consultation scoped on the call |
+
+**These are my estimates from what each product includes; only the owner knows real capacity.** Change one in `prisma/seed.ts` (products) or `lib/ads/plans.ts` (Monthly Ads), reseed, and everything that shows it updates.

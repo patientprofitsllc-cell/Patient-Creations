@@ -134,7 +134,7 @@ const SERVICES: ServiceDef[] = [
     description: PRODUCT_SCOPES["basic-package"].summary,
     baseCents: 100000,
     tierable: false,
-    revisionLimit: 1,
+    revisionLimit: 2,
     turnaround: "1-2 weeks",
     sortOrder: 10,
   },
@@ -146,7 +146,7 @@ const SERVICES: ServiceDef[] = [
     baseCents: 30000,
     tierable: false,
     revisionLimit: 1,
-    turnaround: "3 days",
+    turnaround: "72 hours",
     sortOrder: 11,
   },
   {

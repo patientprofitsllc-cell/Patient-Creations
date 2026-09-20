@@ -46,6 +46,7 @@ export default async function CheckoutPage({ searchParams }: { searchParams: { p
               type: primaryProduct.type,
               category: primaryProduct.category,
               turnaround: primaryProduct.turnaround,
+              revisionLimit: primaryProduct.revisionLimit,
             }}
             variants={primaryProduct.variants.map((v) => ({ id: v.id, name: v.name, priceCents: v.priceCents }))}
             orderBumps={orderBumps.map((b) => ({

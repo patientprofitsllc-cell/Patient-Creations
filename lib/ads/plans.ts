@@ -35,6 +35,8 @@ export interface AdPlan {
   tagline: string;
   bestFor: string;
   counts: AdPlanCounts;
+  /** Target for each month's batch, in business days from getting the monthly brief. Grows with what the plan includes. */
+  deliveryBusinessDays: number;
   sortOrder: number;
 }
 
@@ -46,6 +48,7 @@ export const AD_PLANS: readonly AdPlan[] = [
     tagline: "A steady stream of fresh ads to test for one product or service.",
     bestFor: "Best if you want new ads every month without a big commitment.",
     counts: { shortAds: 10, creatorStyleUpTo: 4, cinematic: 0, visual3d: 0, landingPages: 0, revisionRounds: 1, planningCalls: 0, writtenPlan: false },
+    deliveryBusinessDays: 7,
     sortOrder: 40,
   },
   {
@@ -55,6 +58,7 @@ export const AD_PLANS: readonly AdPlan[] = [
     tagline: "Twice the ads to test, plus a cinematic showcase video.",
     bestFor: "Best if you are testing different angles, or promote more than one offer.",
     counts: { shortAds: 20, creatorStyleUpTo: 8, cinematic: 1, visual3d: 0, landingPages: 0, revisionRounds: 2, planningCalls: 0, writtenPlan: true },
+    deliveryBusinessDays: 10,
     sortOrder: 41,
   },
   {
@@ -64,6 +68,7 @@ export const AD_PLANS: readonly AdPlan[] = [
     tagline: "A full creative team's monthly output: ads, cinematic videos, a 3D visual, and a landing page.",
     bestFor: "Best if ads are a main way you find customers and you want everything made for you each month.",
     counts: { shortAds: 40, creatorStyleUpTo: 16, cinematic: 3, visual3d: 1, landingPages: 1, revisionRounds: 2, planningCalls: 1, writtenPlan: true },
+    deliveryBusinessDays: 14,
     sortOrder: 42,
   },
 ];
@@ -122,8 +127,17 @@ export const QUOTED_SEPARATELY = [
   "An AI helper for your team in Slack or Microsoft Teams",
 ] as const;
 
-export const AD_TIMING_NOTE =
-  "Our target is to deliver each month's batch within about 7 business days of getting your monthly brief. That is a target, not a guarantee: it can take longer if we are waiting on you.";
+/** "about 7 business days", for one plan. */
+export const planDeliveryTarget = (plan: Pick<AdPlan, "deliveryBusinessDays">) => `about ${plan.deliveryBusinessDays} business days`;
+
+const TARGET_TAIL = "That is a target, not a guarantee: it can take longer if we are waiting on you.";
+
+/** For one plan, on its own page. */
+export const adTimingNoteFor = (plan: Pick<AdPlan, "deliveryBusinessDays">) =>
+  `Our target is to deliver each month's batch within ${planDeliveryTarget(plan)} of getting your monthly brief. ${TARGET_TAIL}`;
+
+/** For every plan at once, where no single plan is chosen. Built from the plans, so it can never disagree with them. */
+export const AD_TIMING_NOTE = `Our target is to deliver each month's batch within about ${AD_PLANS.map((p) => p.deliveryBusinessDays).join(", ")} business days of getting your monthly brief, for Starter, Growth and Scale in that order, because bigger plans make more. ${TARGET_TAIL}`;
 
 export const AD_AI_NOTE =
   "Ads are made with AI tools. Some ad platforms ask that ads with AI-generated people or voices be labeled; we tell you which files include them, and labeling on your ad account is up to you.";

@@ -4,7 +4,7 @@ import { termsDoc } from "@/lib/legal/terms";
 import { privacyDoc } from "@/lib/legal/privacy";
 import { refundsDoc } from "@/lib/legal/refunds";
 import { acceptableUseDoc } from "@/lib/legal/acceptableUse";
-import { ADD_ON_PITCH, addOnAvailable } from "@/lib/site/addOnPitch";
+import { ADD_ON_PITCH, addOnAvailable, revisionPitchWhy } from "@/lib/site/addOnPitch";
 
 const docs: LegalDoc[] = [termsDoc, privacyDoc, refundsDoc, acceptableUseDoc];
 
@@ -166,10 +166,17 @@ describe("optional extras", () => {
       expect(p.headline.length, slug).toBeGreaterThan(10);
       expect(p.why.length, slug).toBeGreaterThan(40);
       expect(p.bestFor, slug).toMatch(/^Best if/);
-      const all = `${p.headline} ${p.why} ${p.bestFor} ${p.detail ?? ""}`;
+      const all = `${p.headline} ${p.why} ${p.bestFor} ${p.detail ?? ""} ${p.timing}`;
       expect(all, slug).not.toMatch(/most popular|best.?selling|#1|\d+%|thousands|everyone (buys|adds)|customers (love|choose)|guarantee/i);
       expect(all, slug).not.toMatch(/[—–]/);
     }
+  });
+
+  it("says how much time each extra adds, and counts the rounds the product already includes", () => {
+    for (const [slug, p] of Object.entries(ADD_ON_PITCH)) expect(p.timing, slug).toMatch(/(about|usually) [0-9]+/);
+    expect(revisionPitchWhy(1)).toContain("includes one round of changes");
+    expect(revisionPitchWhy(2)).toContain("includes 2 rounds of changes");
+    expect(revisionPitchWhy(3)).toContain("This adds 2 more");
   });
 
   it("covers the four extras the checkout offers", () => {

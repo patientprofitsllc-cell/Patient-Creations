@@ -3,6 +3,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { PRODUCT_SCOPES, SCOPED_SLUGS, scopeFor } from "@/lib/site/productScopes";
 import { includedCardCount } from "@/lib/payments/nfcAddon";
+import { parseTurnaroundMaxDays } from "@/lib/payments/deliverySpeed";
 import { MARKET_ROWS, compareRows, standing, standingText, totalsOf } from "@/lib/site/marketComparison";
 
 const seed = readFileSync(join(process.cwd(), "prisma/seed.ts"), "utf8");
@@ -89,6 +90,31 @@ describe("catalog prices", () => {
     expect(bundle).toBe(89900);
     expect(bundle).toBeLessThan(separately);
     expect((separately - bundle) / separately).toBeGreaterThanOrEqual(0.15);
+  });
+});
+
+describe("delivery times", () => {
+  const turnaround = (slug: string) => /turnaround: "([^"]*)"/.exec(productBlock(slug))?.[1];
+
+  it("says the Quick Business Website is 72 hours everywhere, as hours and not as business days", () => {
+    expect(turnaround("starter-website")).toBe("72 hours");
+    const offer = readFileSync(join(process.cwd(), "lib/site/offer.ts"), "utf8");
+    expect(offer).toMatch(/72-hour target/);
+  });
+
+  it("gives the Basic Package 2 revision rounds and a delivery time that fits three videos", () => {
+    expect(productBlock("basic-package")).toContain("revisionLimit: 2");
+    expect(turnaround("basic-package")).toBe("1-2 weeks");
+    expect(PRODUCT_SCOPES["basic-package"].includes.join(" ")).toMatch(/ship separately, usually 5 to 7 business days/);
+  });
+
+  it("keeps a bigger build from being quoted a shorter time than a smaller one that is part of it", () => {
+    const days = (slug: string) => parseTurnaroundMaxDays(turnaround(slug))!;
+    expect(days("site")).toBeGreaterThan(days("starter-website"));
+    expect(days("all-in-one-bundle")).toBeGreaterThan(days("cinematic-ad-special"));
+    expect(days("saas")).toBeGreaterThan(days("site"));
+    expect(days("agents")).toBeGreaterThanOrEqual(days("saas"));
+    expect(days("basic-package")).toBeGreaterThan(days("rental-listing-film"));
   });
 });
 

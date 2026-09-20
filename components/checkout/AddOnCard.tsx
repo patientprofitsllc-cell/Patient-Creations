@@ -49,6 +49,7 @@ export function AddOnCard({
               <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
                 <span className="rounded-full border border-gold/30 px-3 py-1 text-gold/90">{pitch.bestFor}</span>
                 {pitch.detail && <span className="text-ice/40">{pitch.detail}</span>}
+                <span className="text-ice/50">{pitch.timing}</span>
               </div>
             )}
             <p className={`mt-3 text-xs font-semibold uppercase tracking-wide ${checked ? "text-gold" : "text-ice/30"}`}>{checked ? "Added to your order" : "Tap to add"}</p>

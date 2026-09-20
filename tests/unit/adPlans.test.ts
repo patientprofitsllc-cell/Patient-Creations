@@ -4,6 +4,8 @@ import {
   AD_PLANS,
   AD_PLAN_SLUGS,
   AD_TIMING_NOTE,
+  adTimingNoteFor,
+  planDeliveryTarget,
   BRIEF_FIELDS,
   QUOTED_SEPARATELY,
   cleanBrief,
@@ -153,11 +155,20 @@ describe("new plan alert and thank-you email", () => {
   });
 
   it("email thanks the customer and points to the private plan page", () => {
-    const m = renderTemplate("ads_plan_started", { planName: "Monthly Ads Scale", businessName: "Joe's Cuts", manageUrl: "https://x.test/monthly-ads/manage/abc" });
+    const m = renderTemplate("ads_plan_started", { planName: "Monthly Ads Starter", businessName: "Joe's Cuts", manageUrl: "https://x.test/monthly-ads/manage/abc", deliveryTarget: planDeliveryTarget(starter) });
     expect(m.subject).toMatch(/^Thank you/);
-    expect(m.body).toContain("Monthly Ads Scale");
+    expect(m.body).toContain("Monthly Ads Starter");
     expect(m.body).toContain("https://x.test/monthly-ads/manage/abc");
     expect(m.body).toMatch(/brief/);
     expect(m.body).toMatch(/7 business days/);
+  });
+
+  it("takes longer as a plan includes more, and every place says the same number", () => {
+    expect(AD_PLANS.map((p) => p.deliveryBusinessDays)).toEqual([7, 10, 14]);
+    expect(planDeliveryTarget(scale)).toBe("about 14 business days");
+    expect(adTimingNoteFor(growth)).toContain("about 10 business days");
+    expect(AD_TIMING_NOTE).toContain("about 7, 10, 14 business days");
+    const scaleEmail = renderTemplate("ads_plan_started", { planName: scale.name, businessName: "X", manageUrl: "https://x.test/m/a", deliveryTarget: planDeliveryTarget(scale) });
+    expect(scaleEmail.body).toContain("about 14 business days");
   });
 });
