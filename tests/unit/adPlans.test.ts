@@ -13,6 +13,7 @@ import {
   planDescription,
   planIncludes,
   planNotIncluded,
+  perAdDollars,
   planQuota,
 } from "@/lib/ads/plans";
 import { buildAdPlanAlert } from "@/lib/alerts/ownerAlerts";
@@ -51,17 +52,28 @@ describe("Monthly Ads plans", () => {
   });
 
   it("state exactly what is delivered, with the right counts and correct singular and plural", () => {
-    expect(planIncludes(starter)[0]).toMatch(/^4 short video ads/);
-    expect(planIncludes(growth)[0]).toMatch(/^8 short video ads/);
-    expect(planIncludes(scale)[0]).toMatch(/^16 short video ads/);
+    expect(planIncludes(starter)[0]).toMatch(/^10 short video ads/);
+    expect(planIncludes(growth)[0]).toMatch(/^20 short video ads/);
+    expect(planIncludes(scale)[0]).toMatch(/^40 short video ads/);
     expect(planIncludes(growth).join("\n")).toMatch(/1 cinematic showcase video \(up to 30 seconds/);
-    expect(planIncludes(scale).join("\n")).toMatch(/2 cinematic showcase videos \(up to 30 seconds/);
+    expect(planIncludes(scale).join("\n")).toMatch(/3 cinematic showcase videos \(up to 30 seconds/);
     expect(planIncludes(scale).join("\n")).toMatch(/1 quick 3D product visual/);
     expect(planIncludes(scale).join("\n")).toMatch(/1 one-page landing page/);
     expect(planIncludes(scale).join("\n")).toMatch(/One 30-minute planning call/);
     expect(planIncludes(starter).join("\n")).not.toMatch(/cinematic|3D|landing|planning call/);
     expect(planIncludes(starter).join("\n")).toMatch(/1 revision round on/);
     expect(planIncludes(growth).join("\n")).toMatch(/2 revision rounds on/);
+  });
+
+  it("get cheaper per short ad as the plan grows, and the arithmetic is exact", () => {
+    expect(AD_PLANS.map((p) => perAdDollars(p.fallbackPriceCents, p))).toEqual([30, 25, 25]);
+    expect(perAdDollars(starter.fallbackPriceCents, starter)).toBeGreaterThan(perAdDollars(growth.fallbackPriceCents, growth));
+    expect(perAdDollars(growth.fallbackPriceCents, growth)).toBeGreaterThanOrEqual(perAdDollars(scale.fallbackPriceCents, scale));
+    expect(AD_PLANS.map((p) => planQuota(p).items)).toEqual([10, 21, 45]);
+  });
+
+  it("cap creator-style ads at part of the short ads, never more than all of them", () => {
+    for (const p of AD_PLANS) expect(p.counts.creatorStyleUpTo).toBeLessThanOrEqual(p.counts.shortAds);
   });
 
   it("always say what is not included, including ad spend and any promise of results", () => {
@@ -80,7 +92,7 @@ describe("Monthly Ads plans", () => {
 
   it("build the product description from the same counts", () => {
     const d = planDescription(growth);
-    expect(d).toMatch(/Each month: 8 short video ads \(up to 15 seconds each\)/);
+    expect(d).toMatch(/Each month: 20 short video ads \(up to 15 seconds each\)/);
     expect(d).not.toMatch(/a month/);
     expect(d).toMatch(/Renews monthly until canceled\.$/);
   });

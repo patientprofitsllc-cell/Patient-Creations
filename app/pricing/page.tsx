@@ -9,6 +9,7 @@ import { OfferCard } from "@/components/marketing/OfferCard";
 import { money } from "@/components/home/specialFrame";
 import { db } from "@/lib/db";
 import { ADD_ON_PITCH } from "@/lib/site/addOnPitch";
+import { AD_PLANS } from "@/lib/ads/plans";
 import { CARE_PLAN_INCLUDES, CARE_PLAN_TIMING_NOTE, getCarePlanProduct } from "@/lib/site/carePlan";
 import { getFaqs } from "@/lib/site/offer";
 import { FALLBACK_OFFER_PRICE_CENTS, getOfferProduct } from "@/lib/site/offerData";
@@ -124,7 +125,7 @@ export default async function PricingPage() {
         <section className="mx-auto max-w-4xl px-6 py-12">
           <h2 className="font-display text-2xl text-ice sm:text-3xl">Want new ads every month?</h2>
           <p className="mt-2 text-sm text-ice/50">
-            Monthly Ads plans start at {money(30000)} a month: short video ads, cinematic videos, 3D visuals and landing pages, made for you. Cancel any time.
+            Monthly Ads plans start at {money(30000)} a month for {AD_PLANS[0].counts.shortAds} short video ads, and go up to cinematic videos, a 3D visual and a landing page, all made for you. Cancel any time.
           </p>
           <Link href="/monthly-ads" className="mt-4 inline-block text-sm text-gold underline">
             See the Monthly Ads plans

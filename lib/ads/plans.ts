@@ -43,27 +43,27 @@ export const AD_PLANS: readonly AdPlan[] = [
     slug: "ads-monthly-300",
     name: "Monthly Ads Starter",
     fallbackPriceCents: 30000,
-    tagline: "A steady stream of fresh ads for one product or service.",
+    tagline: "A steady stream of fresh ads to test for one product or service.",
     bestFor: "Best if you want new ads every month without a big commitment.",
-    counts: { shortAds: 4, creatorStyleUpTo: 0, cinematic: 0, visual3d: 0, landingPages: 0, revisionRounds: 1, planningCalls: 0, writtenPlan: false },
+    counts: { shortAds: 10, creatorStyleUpTo: 4, cinematic: 0, visual3d: 0, landingPages: 0, revisionRounds: 1, planningCalls: 0, writtenPlan: false },
     sortOrder: 40,
   },
   {
     slug: "ads-monthly-500",
     name: "Monthly Ads Growth",
     fallbackPriceCents: 50000,
-    tagline: "More ads to test, plus a cinematic showcase video.",
+    tagline: "Twice the ads to test, plus a cinematic showcase video.",
     bestFor: "Best if you are testing different angles, or promote more than one offer.",
-    counts: { shortAds: 8, creatorStyleUpTo: 3, cinematic: 1, visual3d: 0, landingPages: 0, revisionRounds: 2, planningCalls: 0, writtenPlan: true },
+    counts: { shortAds: 20, creatorStyleUpTo: 8, cinematic: 1, visual3d: 0, landingPages: 0, revisionRounds: 2, planningCalls: 0, writtenPlan: true },
     sortOrder: 41,
   },
   {
     slug: "ads-monthly-1000",
     name: "Monthly Ads Scale",
     fallbackPriceCents: 100000,
-    tagline: "The full set: ads, cinematic video, a 3D visual, and a landing page.",
+    tagline: "A full creative team's monthly output: ads, cinematic videos, a 3D visual, and a landing page.",
     bestFor: "Best if ads are a main way you find customers and you want everything made for you each month.",
-    counts: { shortAds: 16, creatorStyleUpTo: 6, cinematic: 2, visual3d: 1, landingPages: 1, revisionRounds: 2, planningCalls: 1, writtenPlan: true },
+    counts: { shortAds: 40, creatorStyleUpTo: 16, cinematic: 3, visual3d: 1, landingPages: 1, revisionRounds: 2, planningCalls: 1, writtenPlan: true },
     sortOrder: 42,
   },
 ];
@@ -131,6 +131,15 @@ export const AD_AI_NOTE =
 /** The product row's description: a one-line summary plus the deliverables, in plain text. */
 export function planDescription(plan: AdPlan): string {
   return `${plan.tagline} Each month: ${planIncludes(plan).slice(0, -1).join("; ")}. Renews monthly until canceled.`;
+}
+
+/**
+ * What each short ad works out to, in whole dollars, from the plan's own price and count. Plain
+ * arithmetic on the plan, so it is always true: the other items (cinematic videos, 3D visual,
+ * landing page) are on top and are not counted here.
+ */
+export function perAdDollars(priceCents: number, plan: AdPlan): number {
+  return Math.round(priceCents / 100 / plan.counts.shortAds);
 }
 
 /** What one month of the plan is worth, for the admin quota view. */

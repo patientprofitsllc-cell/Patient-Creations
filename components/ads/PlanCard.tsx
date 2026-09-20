@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { money } from "@/components/home/specialFrame";
-import { planIncludes, planNotIncluded, type AdPlan } from "@/lib/ads/plans";
+import { perAdDollars, planIncludes, planNotIncluded, type AdPlan } from "@/lib/ads/plans";
 
 /** One Monthly Ads plan: price, exactly what is included, and what is not. Everything comes from lib/ads/plans.ts. */
 export function PlanCard({ plan, priceCents, featured = false, purchasable = true }: { plan: AdPlan; priceCents: number; featured?: boolean; purchasable?: boolean }) {
@@ -17,6 +17,10 @@ export function PlanCard({ plan, priceCents, featured = false, purchasable = tru
       <p className="mt-3 font-display text-5xl text-ice">
         {money(priceCents)}
         <span className="text-lg text-ice/50"> / month</span>
+      </p>
+      <p className="mt-1 text-sm text-champagne">
+        About ${perAdDollars(priceCents, plan)} per short ad
+        {(plan.counts.cinematic > 0 || plan.counts.visual3d > 0 || plan.counts.landingPages > 0) && ", with the extras below on top"}
       </p>
       <p className="mt-2 text-sm text-ice/70">{plan.tagline}</p>
       <p className="mt-1 text-xs text-gold/80">{plan.bestFor}</p>
