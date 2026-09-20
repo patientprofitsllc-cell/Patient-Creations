@@ -229,11 +229,11 @@ Owner actions that add real strength (not done by the assistant):
 
 Owner request: add a voice to the chat, write a prompt list describing the site and every product, and make the timing perfect across page and product switches.
 
-Status: **built and tested; hidden on the live site until all 25 lines are recorded (3 are).** The rest were blocked by the voice account's daily generation limit ("grace period"). When it resets, record the missing lines and run one command (see `docs/VOICE_SCRIPT.md`).
+Status: **built and tested; hidden on the live site until all 44 lines are recorded (3 are).** The rest were blocked by the voice account's daily generation limit ("grace period"). When it resets, record the missing lines and run one command (see `docs/VOICE_SCRIPT.md`).
 
 | Piece | What it does | Where |
 |---|---|---|
-| The prompt list | 25 fixed lines: 7 pages, 16 products, 2 chat lines. No digits, prices, or promised results, so a recording cannot go stale | `lib/voice/script.ts`, printed in `docs/VOICE_SCRIPT.md` |
+| The prompt list | 44 fixed lines: 9 pages, 16 products, 17 spoken thank yous for purchasing (one per product, plus the Monthly Ads plan and the Website Care Plan), 2 chat lines. No digits, prices, or promised results, so a recording cannot go stale | `lib/voice/script.ts`, printed in `docs/VOICE_SCRIPT.md` |
 | Which line where | Page and product switches (`?product=` on checkout, all seven card designs share one line) map to a line; staff, private, sign-in, and legal pages stay silent | `lib/voice/cues.ts` |
 | Timing engine | Pure scheduler with an injected clock and speaker: waits 0.7 s after a page or product change, restarts on a rapid switch, cuts the old line off within 0.18 s, never overlaps, speaks once per visit, drops a line that has not loaded in time, forces a stop at the known length plus 0.4 s | `lib/voice/cueScheduler.ts` |
 | Recordings | WAV to small mono MP3, trimmed to the speech; each file's length is measured by reading its frames and stored with a fingerprint of its words | `scripts/voice/build-clips.ts`, `lib/voice/mp3.ts`, `public/assets/voice/manifest.json` |
@@ -253,3 +253,7 @@ Honest limits:
 - Timing is exact in the code. Whether a browser plays sound on time also depends on the visitor's network (the line is loaded ahead, and a line that is late is dropped rather than played late) and on the browser's rule that sound needs a tap first, which is why the guide is opt-in.
 - The lines are fixed recordings. The chat's own reply text is not read aloud: that needs a live text-to-speech service and key, which the site does not have.
 - Prices, counts, and times are never spoken; the screen shows the real ones.
+
+Thank you for purchasing (added 2026-09-20): the order confirmation page reads out a thank you for the product that was bought (`<VoiceCue>` registers it; `thanksCueFor` picks it), each naming that product's real next step on the page (kickoff call, intake, card details, or picking a time). A paid Monthly Ads plan (`?started=1`) and a paid Website Care Plan (`?care=started`) get theirs too. Tests fail if a product has no thank you of its own.
+
+Recording status: 3 of 44 lines. Remaining 41 need about 35 credits; the voice account was still at its daily generation limit when last tried.

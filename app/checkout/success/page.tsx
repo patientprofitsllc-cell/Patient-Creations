@@ -8,6 +8,8 @@ import { CalendlyBooking } from "@/components/checkout/CalendlyBooking";
 import { ThankYouCard, type ThankYouKind } from "@/components/checkout/ThankYouCard";
 import { statusUrlFor } from "@/lib/projects/statusToken";
 import { NFC_ADDON_SLUG, includedCardCount } from "@/lib/payments/nfcAddon";
+import { VoiceCue } from "@/components/voice/VoiceCue";
+import { thanksCueFor } from "@/lib/voice/cues";
 
 export default async function CheckoutSuccessPage({ searchParams }: { searchParams: { order?: string } }) {
   const order = searchParams.order
@@ -46,6 +48,7 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
     <>
       <SiteHeader />
       <main id="main" className="mx-auto max-w-2xl px-6 pb-28 pt-40 text-center">
+        {order && !awaitingManualPayment && <VoiceCue id={thanksCueFor(order.items[0]?.product.slug)} />}
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Order Confirmed</p>
         <h1 className="mt-4 font-display text-4xl text-ice">
           {awaitingManualPayment

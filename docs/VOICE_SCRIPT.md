@@ -2,7 +2,7 @@
 
 Every line the voice guide can speak, one per page or product, plus two chat lines. The words below are what is recorded. Lines are recorded once (never generated live), so the timing of each one is known before a visitor arrives.
 
-Voice: **Xavier** (preset voice `43173c95-3ec8-446a-a162-6504332c578b`). Recorded: **3 of 25** lines. The guide button stays hidden on the site until every line is recorded.
+Voice: **Xavier** (preset voice `43173c95-3ec8-446a-a162-6504332c578b`). Recorded: **3 of 44** lines. The guide button stays hidden on the site until every line is recorded.
 
 Rules for the words: no digits, dollar signs, or percent signs (prices, counts, and times change and a recording cannot; the screen always shows the real numbers), no promised results, no tool names, no dashes used as punctuation. Editing a line here without recording it again is caught by the tests.
 
@@ -14,6 +14,8 @@ Rules for the words: no digits, dollar signs, or percent signs (prices, counts, 
 | monthly-ads | Monthly Ads page | Monthly Ads gives you a fresh batch of ads every month. Pick the plan that fits, and you can cancel any time. | 7.6 s |
 | showcase | Gallery, Examples, and Websites pages | Here are examples of our work. Browse them for ideas, and picture how they could look for your business. | not recorded yet |
 | checkout | Checkout, for a product without its own line | You are almost done. Check your order, add any extras you like, and pay securely. | not recorded yet |
+| guided-tour | Guided Tour page | This is how it works. You pick a build and pay, our AI team gets to work, and everything is checked before you see it. | not recorded yet |
+| upsell | The one recommended next step after checkout | Here is one next step that fits your order. It is optional, and you can skip it. | not recorded yet |
 | success | Order confirmation page | Thank you. Your order is in. Follow the next step on screen, and we will take it from there. | 5.8 s |
 | site | Cinematic AI Website | The Cinematic AI Website is a multi page site with a motion hero, built around your business. Pick the tier that fits. | not recorded yet |
 | saas | AI Software and App | AI Software turns your idea into a working app. What is included, and what each tier adds, is listed on screen. | not recorded yet |
@@ -31,6 +33,23 @@ Rules for the words: no digits, dollar signs, or percent signs (prices, counts, 
 | all-in-one-bundle | All in One Launch Bundle | The All in One Launch Bundle packs a website, ads, and NFC cards into one fixed price, so you can launch everything at once. | not recorded yet |
 | nfc-cards | NFC cards, every design | NFC cards let a customer tap their phone to open your review page, menu, or link. You pick your designs after checkout. | not recorded yet |
 | ads-plan | Monthly Ads plan, on the start page | You are starting a Monthly Ads plan. After you pay, you fill in a short brief, and we make your ads from it. | not recorded yet |
+| thanks-site | Thank you for purchasing: Cinematic AI Website | Thank you for choosing the Cinematic AI Website. Your order is in. Book your kickoff call on this page, and follow progress on your private project link. | not recorded yet |
+| thanks-saas | Thank you for purchasing: AI Software and App | Thank you for choosing AI Software and App. Your order is in. Book your kickoff call on this page, and follow progress on your private project link. | not recorded yet |
+| thanks-agents | Thank you for purchasing: Multi Agent System | Thank you for choosing the Multi Agent System. Your order is in. Book your kickoff call on this page, and follow progress on your private project link. | not recorded yet |
+| thanks-ad | Thank you for purchasing: Cinematic Ad | Thank you for choosing the Cinematic Ad. Your order is in. Book your kickoff call on this page, and follow progress on your private project link. | not recorded yet |
+| thanks-rental-listing-film | Thank you for purchasing: Rental Listing Film | Thank you for choosing the Rental Listing Film. Your order is in. Book your kickoff call on this page, and send us your listing photos. | not recorded yet |
+| thanks-lead-engine | Thank you for purchasing: Lead Engine | Thank you for choosing the Lead Engine. Your order is in. Book your kickoff call on this page, and follow progress on your private project link. | not recorded yet |
+| thanks-payments-setup | Thank you for purchasing: Payments Setup | Thank you for choosing Payments Setup. Your order is in. Book your kickoff call on this page, and we will get you ready to take payments. | not recorded yet |
+| thanks-basic-package | Thank you for purchasing: Basic Package | Thank you for choosing the Basic Package. Fill in your card details, and book your kickoff call on this page. | not recorded yet |
+| thanks-starter-website | Thank you for purchasing: Quick Business Website | Thank you for ordering your Quick Business Website. Finish the short intake on this page, and we will build it from your own words. | not recorded yet |
+| thanks-strategy-session | Thank you for purchasing: Strategy Session | Thank you for booking a Strategy Session. Pick a time on this page, and we will map out what to build first. | not recorded yet |
+| thanks-custom-build | Thank you for purchasing: Custom Build Consultation | Thank you for booking a Custom Build Consultation. Pick a time on this page, and tell us what you have in mind. | not recorded yet |
+| thanks-cinematic-ad-special | Thank you for purchasing: Cinematic Ad Special | Thank you for choosing the Cinematic Ad Special. Your order is in. Book your kickoff call on this page, and follow progress on your private project link. | not recorded yet |
+| thanks-ugc-ad-special | Thank you for purchasing: UGC Ad Special | Thank you for choosing the UGC Ad Special. Your order is in. Book your kickoff call on this page, and follow progress on your private project link. | not recorded yet |
+| thanks-all-in-one-bundle | Thank you for purchasing: All in One Launch Bundle | Thank you for choosing the All in One Launch Bundle. Finish the intake, then fill in your card details, and we will take it from there. | not recorded yet |
+| thanks-nfc-cards | Thank you for purchasing: NFC cards, every design | Thank you for your NFC cards. Fill in your card details on this page so we can make each one right. | not recorded yet |
+| thanks-ads-plan | Thank you for purchasing: Monthly Ads plan, after paying | Thank you. Your Monthly Ads plan is active. Fill in this month's brief on this page, and we will make your ads from it. | not recorded yet |
+| thanks-care-plan | Thank you for purchasing: Website Care Plan, after paying | Thank you. Your Website Care Plan is active. Send your update requests on this page any time, and we will handle them. | not recorded yet |
 | chat-welcome | Private project page, when it opens | This is your project page. Ask me about progress or timing, and I will pass anything else to our team. | not recorded yet |
 | chat-reply | Private project page, when a new reply arrives | You have a new reply on your project page. | not recorded yet |
 

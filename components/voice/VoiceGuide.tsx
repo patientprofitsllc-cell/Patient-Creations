@@ -1,10 +1,11 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { BrowserSpeaker, browserClock } from "@/lib/voice/browserSpeaker";
 import { CueScheduler, type SchedulerState } from "@/lib/voice/cueScheduler";
 import { cueForRoute } from "@/lib/voice/cues";
+import { getCueOverride, subscribeCueOverride } from "@/lib/voice/cueOverride";
 import { buildClips, voiceIsComplete, voiceName } from "@/lib/voice/manifest";
 
 // A small opt-in voice guide. Nothing plays until the visitor taps it (browsers require a tap before any sound, and
@@ -32,7 +33,10 @@ function writePref(on: boolean) {
 function Guide() {
   const pathname = usePathname();
   const params = useSearchParams();
-  const cueId = cueForRoute(pathname, params.get("product"));
+  const override = useSyncExternalStore(subscribeCueOverride, getCueOverride, () => null);
+  const cueId =
+    override ??
+    cueForRoute(pathname, params.get("product"), { adsStarted: params.get("started") === "1", careStarted: params.get("care") === "started" });
 
   const [state, setState] = useState<SchedulerState>("off");
   const [caption, setCaption] = useState<string | null>(null);

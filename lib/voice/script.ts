@@ -1,4 +1,5 @@
-// The voice guide's script: every line the guide can speak, one per page or product, plus two chat lines.
+// The voice guide's script: every line the guide can speak: one per page, one per product, a thank you for
+// purchasing for every product, and two chat lines.
 // This is the "prompt list". The audio is recorded once from these exact words (never generated live), so the
 // timing of every line is known before a visitor arrives.
 //
@@ -9,7 +10,7 @@
 //   - every product that can be sold, and every public page, has a line
 //   - a recording is only used while the words it was made from are unchanged (see manifest textSha)
 
-export type CueKind = "page" | "product" | "chat";
+export type CueKind = "page" | "product" | "thanks" | "chat";
 
 export interface CueDef {
   id: string;
@@ -57,6 +58,18 @@ export const VOICE_SCRIPT: readonly CueDef[] = [
     kind: "page",
     when: "Checkout, for a product without its own line",
     text: "You are almost done. Check your order, add any extras you like, and pay securely.",
+  },
+  {
+    id: "guided-tour",
+    kind: "page",
+    when: "Guided Tour page",
+    text: "This is how it works. You pick a build and pay, our AI team gets to work, and everything is checked before you see it.",
+  },
+  {
+    id: "upsell",
+    kind: "page",
+    when: "The one recommended next step after checkout",
+    text: "Here is one next step that fits your order. It is optional, and you can skip it.",
   },
   {
     id: "success",
@@ -161,6 +174,111 @@ export const VOICE_SCRIPT: readonly CueDef[] = [
     kind: "product",
     when: "Monthly Ads plan, on the start page",
     text: "You are starting a Monthly Ads plan. After you pay, you fill in a short brief, and we make your ads from it.",
+  },
+
+  // Thank you for purchasing: read aloud on the confirmation page for the product that was bought. Each one names
+  // the customer's real next step on that page (intake, card details, or kickoff call), never a number or a time.
+  {
+    id: "thanks-site",
+    kind: "thanks",
+    when: "Thank you for purchasing: Cinematic AI Website",
+    text: "Thank you for choosing the Cinematic AI Website. Your order is in. Book your kickoff call on this page, and follow progress on your private project link.",
+  },
+  {
+    id: "thanks-saas",
+    kind: "thanks",
+    when: "Thank you for purchasing: AI Software and App",
+    text: "Thank you for choosing AI Software and App. Your order is in. Book your kickoff call on this page, and follow progress on your private project link.",
+  },
+  {
+    id: "thanks-agents",
+    kind: "thanks",
+    when: "Thank you for purchasing: Multi Agent System",
+    text: "Thank you for choosing the Multi Agent System. Your order is in. Book your kickoff call on this page, and follow progress on your private project link.",
+  },
+  {
+    id: "thanks-ad",
+    kind: "thanks",
+    when: "Thank you for purchasing: Cinematic Ad",
+    text: "Thank you for choosing the Cinematic Ad. Your order is in. Book your kickoff call on this page, and follow progress on your private project link.",
+  },
+  {
+    id: "thanks-rental-listing-film",
+    kind: "thanks",
+    when: "Thank you for purchasing: Rental Listing Film",
+    text: "Thank you for choosing the Rental Listing Film. Your order is in. Book your kickoff call on this page, and send us your listing photos.",
+  },
+  {
+    id: "thanks-lead-engine",
+    kind: "thanks",
+    when: "Thank you for purchasing: Lead Engine",
+    text: "Thank you for choosing the Lead Engine. Your order is in. Book your kickoff call on this page, and follow progress on your private project link.",
+  },
+  {
+    id: "thanks-payments-setup",
+    kind: "thanks",
+    when: "Thank you for purchasing: Payments Setup",
+    text: "Thank you for choosing Payments Setup. Your order is in. Book your kickoff call on this page, and we will get you ready to take payments.",
+  },
+  {
+    id: "thanks-basic-package",
+    kind: "thanks",
+    when: "Thank you for purchasing: Basic Package",
+    text: "Thank you for choosing the Basic Package. Fill in your card details, and book your kickoff call on this page.",
+  },
+  {
+    id: "thanks-starter-website",
+    kind: "thanks",
+    when: "Thank you for purchasing: Quick Business Website",
+    text: "Thank you for ordering your Quick Business Website. Finish the short intake on this page, and we will build it from your own words.",
+  },
+  {
+    id: "thanks-strategy-session",
+    kind: "thanks",
+    when: "Thank you for purchasing: Strategy Session",
+    text: "Thank you for booking a Strategy Session. Pick a time on this page, and we will map out what to build first.",
+  },
+  {
+    id: "thanks-custom-build",
+    kind: "thanks",
+    when: "Thank you for purchasing: Custom Build Consultation",
+    text: "Thank you for booking a Custom Build Consultation. Pick a time on this page, and tell us what you have in mind.",
+  },
+  {
+    id: "thanks-cinematic-ad-special",
+    kind: "thanks",
+    when: "Thank you for purchasing: Cinematic Ad Special",
+    text: "Thank you for choosing the Cinematic Ad Special. Your order is in. Book your kickoff call on this page, and follow progress on your private project link.",
+  },
+  {
+    id: "thanks-ugc-ad-special",
+    kind: "thanks",
+    when: "Thank you for purchasing: UGC Ad Special",
+    text: "Thank you for choosing the UGC Ad Special. Your order is in. Book your kickoff call on this page, and follow progress on your private project link.",
+  },
+  {
+    id: "thanks-all-in-one-bundle",
+    kind: "thanks",
+    when: "Thank you for purchasing: All in One Launch Bundle",
+    text: "Thank you for choosing the All in One Launch Bundle. Finish the intake, then fill in your card details, and we will take it from there.",
+  },
+  {
+    id: "thanks-nfc-cards",
+    kind: "thanks",
+    when: "Thank you for purchasing: NFC cards, every design",
+    text: "Thank you for your NFC cards. Fill in your card details on this page so we can make each one right.",
+  },
+  {
+    id: "thanks-ads-plan",
+    kind: "thanks",
+    when: "Thank you for purchasing: Monthly Ads plan, after paying",
+    text: "Thank you. Your Monthly Ads plan is active. Fill in this month's brief on this page, and we will make your ads from it.",
+  },
+  {
+    id: "thanks-care-plan",
+    kind: "thanks",
+    when: "Thank you for purchasing: Website Care Plan, after paying",
+    text: "Thank you. Your Website Care Plan is active. Send your update requests on this page any time, and we will handle them.",
   },
 
   // Chat, on a customer's private project page

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { existsSync, readdirSync, readFileSync, statSync } from "fs";
 import { join } from "path";
 import { CUE_IDS, VOICE_SCRIPT, cueById } from "@/lib/voice/script";
-import { cueForRoute } from "@/lib/voice/cues";
+import { cueForRoute, thanksCueFor } from "@/lib/voice/cues";
 import { mp3DurationMs } from "@/lib/voice/mp3";
 import { buildClips, manifest, voiceIsComplete, type VoiceManifest } from "@/lib/voice/manifest";
 import { textSha } from "@/lib/voice/textSha";
@@ -16,7 +16,7 @@ describe("voice script (the prompt list)", () => {
   it("has a unique id per line, and every line is a page, a product, or a chat line", () => {
     expect(new Set(CUE_IDS).size).toBe(CUE_IDS.length);
     for (const c of VOICE_SCRIPT) {
-      expect(["page", "product", "chat"]).toContain(c.kind);
+      expect(["page", "product", "thanks", "chat"]).toContain(c.kind);
       expect(c.when.length, c.id).toBeGreaterThan(3);
     }
     expect(cueById("home")?.kind).toBe("page");
@@ -53,6 +53,51 @@ describe("voice script (the prompt list)", () => {
   });
 });
 
+describe("thank you for purchasing", () => {
+  const seedSlugs = () => {
+    const seed = read("prisma/seed.ts");
+    const services = /const SERVICES: ServiceDef\[\] = \[([\s\S]*?)\n\];/.exec(seed)?.[1] ?? "";
+    return [...services.matchAll(/^\s{4}slug: "([^"]+)"/gm)].map((m) => m[1]);
+  };
+
+  it("has its own spoken thank you for every product that can be bought, so none falls back to the general one", () => {
+    const slugs = seedSlugs();
+    expect(slugs.length).toBeGreaterThan(15);
+    for (const slug of slugs) {
+      const cue = thanksCueFor(slug);
+      expect(cue, `${slug} needs its own thank you`).not.toBe("success");
+      expect(cue).toMatch(/^thanks-/);
+      expect(cueById(cue), cue).toBeTruthy();
+    }
+    for (const slug of ["nfc-cards", "nfc-wifi", "nfc-google-review", "nfc-tiktok"]) expect(thanksCueFor(slug)).toBe("thanks-nfc-cards");
+    expect(thanksCueFor("something-new")).toBe("success");
+    expect(thanksCueFor(undefined)).toBe("success");
+  });
+
+  it("covers the two subscriptions: a paid Monthly Ads plan and a paid Website Care Plan", () => {
+    expect(cueForRoute("/monthly-ads/manage/abc", null, { adsStarted: true })).toBe("thanks-ads-plan");
+    expect(cueForRoute("/monthly-ads/manage/abc")).toBeNull();
+    expect(cueForRoute("/status/abc", null, { careStarted: true })).toBe("thanks-care-plan");
+    expect(cueForRoute("/status/abc")).toBe("chat-welcome");
+  });
+
+  it("says thank you, and then names the customer's real next step on that page", () => {
+    const thanks = VOICE_SCRIPT.filter((c) => c.kind === "thanks");
+    expect(thanks.length).toBeGreaterThanOrEqual(17);
+    for (const c of thanks) {
+      expect(c.text, c.id).toMatch(/^Thank you/);
+      expect(c.text, c.id).toMatch(/kickoff call|intake|card details|Pick a time|brief|update requests/);
+      expect(c.text, c.id).not.toMatch(/within|hours|days|weeks|refund|free|discount/i);
+    }
+  });
+
+  it("is read out by the confirmation page for the product that was bought, and by no other page", () => {
+    const page = read("app/checkout/success/page.tsx");
+    expect(page).toMatch(/<VoiceCue id=\{thanksCueFor\(order\.items\[0\]\?\.product\.slug\)\} \/>/);
+    expect(read("components/voice/VoiceGuide.tsx")).toContain("override ??");
+  });
+});
+
 describe("which line plays where", () => {
   it("maps each public page to its line, and a product switch to that product's line", () => {
     expect(cueForRoute("/")).toBe("home");
@@ -71,6 +116,8 @@ describe("which line plays where", () => {
     expect(cueForRoute("/checkout")).toBe("checkout");
     expect(cueForRoute("/checkout", "something-new")).toBe("checkout");
     expect(cueForRoute("/checkout/success")).toBe("success");
+    expect(cueForRoute("/checkout/upsell")).toBe("upsell");
+    expect(cueForRoute("/guided-app-tour")).toBe("guided-tour");
     expect(cueForRoute("/status/abc123")).toBe("chat-welcome");
     expect(cueForRoute("/services/")).toBe("services");
   });
@@ -82,7 +129,7 @@ describe("which line plays where", () => {
   });
 
   it("forces a decision for any new page: it gets a line, or it is on the short list of pages that stay quiet on purpose", () => {
-    const quiet = new Set(["/guided-app-tour", "/checkout/upsell"]);
+    const quiet = new Set<string>();
     const routes: string[] = [];
     const walk = (dir: string, prefix: string) => {
       for (const name of readdirSync(join(root, dir))) {
