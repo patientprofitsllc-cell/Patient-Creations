@@ -62,17 +62,6 @@ const SERVICES: ServiceDef[] = [
     sortOrder: 3,
   },
   {
-    slug: "ad",
-    name: "Cinematic Ad",
-    category: "Video",
-    description: "A short, scroll-stopping video ad made for social media.",
-    baseCents: 50000,
-    tierable: true,
-    revisionLimit: 2,
-    turnaround: "1-2 weeks",
-    sortOrder: 4,
-  },
-  {
     slug: "rental-listing-film",
     name: "Rental Listing Film",
     category: "Video",
@@ -115,28 +104,6 @@ const SERVICES: ServiceDef[] = [
     revisionLimit: 0,
     turnaround: "60 minutes",
     sortOrder: 8,
-  },
-  {
-    slug: "custom-build",
-    name: "Custom Build Consultation",
-    category: "Bespoke",
-    description: "A consultation only, not a build. Tell us what you need beyond the menu, and the fee is fully credited toward the build.",
-    baseCents: 10000,
-    tierable: false,
-    revisionLimit: 0,
-    turnaround: "scoped on the call",
-    sortOrder: 9,
-  },
-  {
-    slug: "basic-package",
-    name: "Basic Package",
-    category: "Local Business",
-    description: PRODUCT_SCOPES["basic-package"].summary,
-    baseCents: 100000,
-    tierable: false,
-    revisionLimit: 1,
-    turnaround: "3-5 days",
-    sortOrder: 10,
   },
   {
     slug: "starter-website",
@@ -327,16 +294,6 @@ const ADD_ONS: {
     sortOrder: 3,
   },
   {
-    slug: "maintenance-3mo",
-    name: "3-Month Maintenance",
-    category: "Add-on",
-    type: "ORDER_BUMP",
-    description: "Three months of updates and small fixes handled for you, paid up front. It does not renew on its own.",
-    priceCents: 25000,
-    revisionLimit: 0,
-    sortOrder: 4,
-  },
-  {
     // Price is the flat per-card price ($30). lib/payments/nfcAddon.ts makes the
     // first card free on a $1,000+ cinematic video tier.
     slug: "nfc-card-addon",
@@ -357,17 +314,6 @@ const ADD_ONS: {
     priceCents: 60000,
     revisionLimit: 1,
     sortOrder: 1,
-  },
-  {
-    slug: "monthly-optimization",
-    name: "Monthly Optimization",
-    category: "Retainer",
-    type: "SUBSCRIPTION",
-    description: "We keep watch on how the site's performing and ship small improvements every month.",
-    priceCents: 40000,
-    billingPeriod: "monthly",
-    revisionLimit: 0,
-    sortOrder: 2,
   },
   {
     // Started from the customer's project page once their website is live (see
@@ -414,7 +360,17 @@ const INVENTORY: { sku: string; label: string; productSlug: string | null; quant
 // Slugs from the earlier generic "AI Creation Studio" catalog. Deactivated
 // rather than deleted so historical orders/order items that reference them
 // keep working; they're excluded from /services by the `active` filter.
-const LEGACY_SLUGS = ["ai-website", "cinematic-ai-ad", "ai-character", "ai-agent-system", "monthly-optimization"];
+const LEGACY_SLUGS = [
+  "ai-website",
+  "cinematic-ai-ad",
+  "ai-character",
+  "ai-agent-system",
+  "monthly-optimization", // promised monitoring that is not built
+  "custom-build", // a second, overlapping consultation next to the Strategy Session
+  "basic-package", // the same kind of AI video tour as the Rental Listing Film, at twice the price
+  "ad", // the per-ad specials and the Monthly Ads plans cover ads; three ad products was one too many
+  "maintenance-3mo", // overlaps the monthly Website Care Plan
+];
 
 async function main() {
   await db.product.updateMany({ where: { slug: { in: LEGACY_SLUGS } }, data: { active: false } });

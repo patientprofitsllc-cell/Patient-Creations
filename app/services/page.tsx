@@ -8,6 +8,7 @@ import { SpecialsGrid } from "@/components/home/SpecialsGrid";
 import { CARD_CTA_CLASS, money } from "@/components/home/specialFrame";
 import { ScopePanel } from "@/components/catalog/ScopePanel";
 import { MARKET_ROWS, compareRows, standingText, totalsOf } from "@/lib/site/marketComparison";
+import { CARD_DESIGN_SLUGS } from "@/lib/payments/cardMix";
 import { db } from "@/lib/db";
 
 // Pulls the live product catalog from the DB. Revalidated every 60s
@@ -26,7 +27,8 @@ export default async function ServicesPage() {
 
   // Lowest price to highest, so the comparison table reads as a price ladder. Whether each price is
   // below, at the low end of, or inside its range is worked out from the numbers, never typed in.
-  const priceRows = compareRows(products.map((p) => ({ slug: p.slug, name: p.name, priceCents: p.priceCents })));
+  const comparable = await db.product.findMany({ where: { slug: { in: MARKET_ROWS.map((r) => r.slug) }, active: true } });
+  const priceRows = compareRows(comparable.map((p) => ({ slug: p.slug, name: p.name, priceCents: p.priceCents })));
   const totals = totalsOf(priceRows);
 
   return (
@@ -110,7 +112,7 @@ export default async function ServicesPage() {
                 </a>
               </span>
             ))}
-            . They are representative ranges, not quotes, and real scope varies by project. What each build includes is listed on its card below.
+            . They are representative ranges for the same kind of deliverable from freelancers and agencies, not quotes. Our builds are made with AI tools, and what each one includes is listed on its card below.
           </p>
         </section>
 
@@ -126,7 +128,7 @@ export default async function ServicesPage() {
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {products.map((product) => (
+            {products.filter((p) => !CARD_DESIGN_SLUGS.includes(p.slug)).map((product) => (
               <ProductCard
                 key={product.id}
                 category={product.category}

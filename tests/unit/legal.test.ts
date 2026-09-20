@@ -172,8 +172,8 @@ describe("optional extras", () => {
     }
   });
 
-  it("covers the five extras the checkout offers", () => {
-    expect(Object.keys(ADD_ON_PITCH).sort()).toEqual(["brand-kit", "extra-revision-package", "maintenance-3mo", "nfc-card-addon", "social-asset-pack"]);
+  it("covers the four extras the checkout offers", () => {
+    expect(Object.keys(ADD_ON_PITCH).sort()).toEqual(["brand-kit", "extra-revision-package", "nfc-card-addon", "social-asset-pack"]);
   });
 
   it("does not promise monitoring, which does not exist", () => {

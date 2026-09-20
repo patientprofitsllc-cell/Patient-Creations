@@ -51,7 +51,25 @@ Market: human UGC $60 to $450 per video, agencies $300 to $1,000 per video or $2
 
 Also fixed while doing this: the public "Your price, next to the market" table on /services used hard-coded agency ranges and claimed every build was below the market floor, "$198,000 mid-market", "$36k+ saved", and "40 to 60% faster to ship". None of that was sourced or true against the ranges above. The table now uses the sourced ranges, works out for each row whether the price is below, at the low end of, or within the range, adds up its totals from the rows, links its sources, and drops the unsourced claims. Lead Engine is not in the table because its market figure is a monthly retainer and its price is one time.
 
-**Still open:** Basic Package ($1,000) and Rental Listing Film ($500) are now both described as AI videos from photos, so the $1,000 tier needs a reason or a price change. Monthly Ads plan prices are unchanged.
+### Catalog prune (owner: "remove which would bring more confusion and long term plans")
+
+Taken off the shelf (`active: false`, rows kept so old orders and receipts still work; see `LEGACY_SLUGS` in `prisma/seed.ts`):
+
+| Removed | Why |
+|---|---|
+| Basic Package ($1,000) | Same thing as Rental Listing Film ($500), and it was the open question above. One video tour left. |
+| Custom Build Consultation ($100) | Overlaps Strategy Session. One consultation left. |
+| Cinematic Ad ($500) | Overlaps the Cinematic Ad Special ($249) and the Monthly Ads plans. Also removed from the homepage and the market table (the table now compares the Cinematic Ad Special per-ad price). |
+| 3-Month Maintenance ($250) | Overlaps the Website Care Plan, which is the one way to buy site upkeep. Its checkout extra and pitch are gone too. |
+| Monthly Optimization ($400) | A long-term plan that was never built. |
+
+Also: the seven single-design NFC cards are hidden from the /services grid (the "NFC Cards, Mix & Match" card is the front door), but each is still buyable by direct link. The last invented crossed-out price on the homepage ($500) is gone. A checkout link to a removed product now redirects to /services instead of opening a checkout.
+
+**To restore one:** set `active: true`, add its entry back to the seed, and remove its slug from `LEGACY_SLUGS`.
+
+**Loose ends:** the Terms and Refund pages still mention 3-Month Maintenance in conditional wording, on purpose, for anyone who bought it earlier. The video-tour audience is now covered only by Rental Listing Film ($500).
+
+**Still open:** Monthly Ads plan prices are unchanged; confirm you can deliver the proposed scopes and the 10/20/40 ad counts.
 
 ## Sources
 

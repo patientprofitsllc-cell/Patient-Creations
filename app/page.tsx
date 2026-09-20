@@ -28,13 +28,9 @@ export const revalidate = 60;
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
-// Display-only "regular" price for the main offer. Checkout always charges the
-// live product price.
-const OFFER_WAS_CENTS = 50000;
-
-// The six flagship builds, the same lineup /services compares against the
+// The flagship builds, the same lineup /services compares against the
 // market. Displayed lowest price to highest, not DB sortOrder.
-const FEATURED_SLUGS = ["site", "saas", "agents", "ad", "rental-listing-film", "lead-engine"];
+const FEATURED_SLUGS = ["site", "saas", "agents", "rental-listing-film", "lead-engine"];
 
 export default async function HomePage() {
   const [offer, rows] = await Promise.all([
@@ -146,7 +142,7 @@ export default async function HomePage() {
         {/* 4. The offer */}
         <section id="offer" className="mx-auto max-w-5xl scroll-mt-24 px-6 py-12">
           <TrackOnScreen event="offer_view">
-            <OfferCard priceCents={offerCents} wasCents={OFFER_WAS_CENTS} />
+            <OfferCard priceCents={offerCents} />
           </TrackOnScreen>
         </section>
 

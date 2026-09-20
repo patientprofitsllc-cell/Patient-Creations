@@ -14,7 +14,8 @@ export default async function CheckoutPage({ searchParams }: { searchParams: { p
     where: { slug: searchParams.product },
     include: { variants: { where: { active: true } } },
   });
-  if (!primaryProduct || primaryProduct.type === "SUBSCRIPTION") redirect("/services");
+  // A product taken off the shelf must not open a checkout from an old link.
+  if (!primaryProduct || !primaryProduct.active || primaryProduct.type === "SUBSCRIPTION") redirect("/services");
 
   const [orderBumps, activeProjectCount] = await Promise.all([
     db.product.findMany({ where: { type: "ORDER_BUMP", active: true }, orderBy: { sortOrder: "asc" } }),

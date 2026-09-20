@@ -38,12 +38,6 @@ export const ADD_ON_PITCH: Record<string, AddOnPitch> = {
     bestFor: "Best if you post on social media",
     detail: "For video and creative builds.",
   },
-  "maintenance-3mo": {
-    headline: "Launch, then keep it current",
-    why: "Prices, hours, and offers change. Three months of updates and small fixes are covered up front, so changes get handled without a new order each time.",
-    bestFor: "Best if your details change often",
-    detail: "One payment. It does not renew on its own.",
-  },
   "nfc-card-addon": {
     headline: "Turn happy customers into reviews and followers",
     why: "One tap on the card opens your Google review page, Instagram, menu, or booking link, so a customer can act in seconds while they're happy with you.",

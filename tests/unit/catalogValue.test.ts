@@ -15,7 +15,7 @@ describe("product scopes", () => {
   const all = () => SCOPED_SLUGS.flatMap((s) => [PRODUCT_SCOPES[s].summary, ...PRODUCT_SCOPES[s].includes, ...PRODUCT_SCOPES[s].notIncluded, ...(PRODUCT_SCOPES[s].tierAdds ? [...PRODUCT_SCOPES[s].tierAdds!.Signature, ...PRODUCT_SCOPES[s].tierAdds!.Flagship] : [])]).join("\n");
 
   it("are written for every build the market review called undefined", () => {
-    for (const slug of ["site", "saas", "agents", "payments-setup", "lead-engine", "automation-add-on", "rental-listing-film", "basic-package"]) expect(scopeFor(slug), slug).toBeTruthy();
+    for (const slug of ["site", "saas", "agents", "payments-setup", "lead-engine", "automation-add-on", "rental-listing-film"]) expect(scopeFor(slug), slug).toBeTruthy();
   });
 
   it("say what is included, and what is not, for every one", () => {
@@ -39,11 +39,9 @@ describe("product scopes", () => {
     for (const slug of SCOPED_SLUGS) expect(productBlock(slug), slug).toContain(`PRODUCT_SCOPES${/^[a-z]+$/.test(slug) ? "." + slug : `["${slug}"]`}.summary`);
   });
 
-  it("are honest that the tours are AI-made and not filmed", () => {
-    expect(PRODUCT_SCOPES["basic-package"].includes.join(" ")).toMatch(/Made with AI/);
-    expect(PRODUCT_SCOPES["basic-package"].includes.join(" ")).toMatch(/not filmed by a real drone/);
+  it("are honest that the listing film is AI-made and not filmed", () => {
     expect(PRODUCT_SCOPES["rental-listing-film"].includes.join(" ")).toMatch(/Made with AI/);
-    expect(PRODUCT_SCOPES["basic-package"].notIncluded.join(" ")).toMatch(/real drone footage/);
+    expect(PRODUCT_SCOPES["rental-listing-film"].notIncluded.join(" ")).toMatch(/real drone footage/);
   });
 
   it("promise no results, name no tool vendors, and use no dashes as punctuation", () => {
@@ -110,7 +108,7 @@ describe("market comparison", () => {
       { slug: "saas", name: "AI Software / App", priceCents: 1000000 },
       { slug: "site", name: "Cinematic AI Website", priceCents: 200000 },
     ]);
-    expect(rows[0].slug).toBe("ad"); // fell back to its stored price
+    expect(rows[0].slug).toBe("cinematic-ad-special"); // no live row, so it fell back to its stored price
     const saas = rows.find((r) => r.slug === "saas")!;
     expect(saas.youCents).toBe(1000000);
     expect(saas.standing.position).toBe("below");
@@ -136,5 +134,48 @@ describe("market comparison", () => {
     expect(page).not.toMatch(/at or below the low end/);
     const home = readFileSync(join(process.cwd(), "components/home/SpecialsGrid.tsx"), "utf8");
     expect(home).not.toMatch(/STARTER_WAS_CENTS|SITE_WAS_CENTS/);
+  });
+});
+
+describe("catalog stays simple", () => {
+  const REMOVED = ["custom-build", "basic-package", "ad", "maintenance-3mo", "monthly-optimization"];
+
+  it("takes overlapping and unbuilt offers off the shelf, keeping their rows so old orders stay intact", () => {
+    const legacy = /const LEGACY_SLUGS = \[([\s\S]*?)\];/.exec(seed)?.[1] ?? "";
+    for (const slug of REMOVED) {
+      expect(legacy, slug).toContain(`"${slug}"`);
+      expect(seed, slug).not.toContain(`slug: "${slug}"`);
+    }
+  });
+
+  it("keeps one consultation, one video tour, and one way to buy site upkeep", () => {
+    for (const slug of ["strategy-session", "rental-listing-film", "care-plan"]) expect(seed, slug).toContain(`slug: "${slug}"`);
+  });
+
+  it("does not point the homepage or the specials at a product that is no longer sold", () => {
+    const home = readFileSync(join(process.cwd(), "app/page.tsx"), "utf8");
+    expect(/const FEATURED_SLUGS = \[([^\]]*)\]/.exec(home)?.[1]).not.toMatch(/"ad"/);
+    const specials = readFileSync(join(process.cwd(), "components/home/SpecialsGrid.tsx"), "utf8");
+    expect(/const SLUGS = \[([\s\S]*?)\];/.exec(specials)?.[1]).not.toMatch(/"ad"/);
+  });
+
+  it("has no crossed-out invented price anywhere on the homepage", () => {
+    const home = readFileSync(join(process.cwd(), "app/page.tsx"), "utf8");
+    expect(home).not.toMatch(/OFFER_WAS_CENTS|wasCents=/);
+  });
+
+  it("shows one card front door on /services, with the single-design cards still buyable by link", () => {
+    const page = readFileSync(join(process.cwd(), "app/services/page.tsx"), "utf8");
+    expect(page).toMatch(/CARD_DESIGN_SLUGS\.includes\(p\.slug\)/);
+    for (const slug of ["nfc-cards", "nfc-tiktok", "nfc-google-review"]) expect(seed, slug).toContain(`slug: "${slug}"`);
+  });
+
+  it("does not open a checkout for a product that has been taken off the shelf", () => {
+    const page = readFileSync(join(process.cwd(), "app/checkout/page.tsx"), "utf8");
+    expect(page).toMatch(/!primaryProduct.active/);
+  });
+
+  it("compares only products that are still sold", () => {
+    for (const r of MARKET_ROWS) expect(REMOVED, r.slug).not.toContain(r.slug);
   });
 });
