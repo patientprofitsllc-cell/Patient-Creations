@@ -26,7 +26,7 @@ export const privacyDoc: LegalDoc = {
         {
           list: [
             "account details: your name, email address, and password (we store only a one-way scrambled version of the password, never the password itself);",
-            "business information for your website or project: business name and type, phone number, address, hours, services, prices, descriptions, social media and booking links, colors and style preferences, logos, photos and other materials or links you send us;",
+            "business information for your website, project, or Monthly Ads plan, including the monthly brief you write about what to promote: business name and type, phone number, address, hours, services, prices, descriptions, social media and booking links, colors and style preferences, logos, photos and other materials or links you send us;",
             "order details, coupon and referral codes, and shipping details for physical products;",
             "messages, change requests, reviews, and notes you write on your project page, by email, or on calls;",
             "your acceptance of our legal terms, including the version, time, date, internet address, and browser details, which we keep as a record.",

@@ -43,6 +43,7 @@ model Customer {
   referredClicks    ReferralClick[] @relation("ReferredClicks")
   commissionsEarned Commission[]    @relation("CommissionEarner")
   notes             CustomerNote[]
+  adSubscriptions   AdSubscription[]
 }
 
 // A CRM note an admin leaves on a customer record — not visible to the customer.
@@ -671,8 +672,8 @@ model Prospect {
 // arbitration) enforceable, and it is what gets shown if a payment is disputed.
 model TermsAcceptance {
   id         String   @id @default(cuid())
-  scope      String   // ORDER | CARE_PLAN
-  refId      String   // the order id, or the project id for a care plan
+  scope      String   // ORDER | CARE_PLAN | AD_PLAN
+  refId      String   // the order id, the project id for a care plan, or the ad subscription id
   customerId String?
   version    String
   ip         String?
@@ -681,4 +682,47 @@ model TermsAcceptance {
 
   @@index([scope, refId])
   @@index([customerId])
+}
+
+// A customer's Monthly Ads plan (see lib/ads/plans.ts). Reached through a private
+// link (manageToken), the same capability model as the project status page.
+model AdSubscription {
+  id                   String    @id @default(cuid())
+  customerId           String
+  customer             Customer  @relation(fields: [customerId], references: [id])
+  planSlug             String
+  priceCents           Int
+  status               String    @default("PENDING") // PENDING | ACTIVE | PAST_DUE | CANCELED
+  manageToken          String    @unique
+  businessName         String
+  phone                String?
+  stripeCustomerId     String?
+  stripeSubscriptionId String?   @unique
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean   @default(false)
+  briefJson            String    @default("{}")
+  briefUpdatedAt       DateTime?
+  activatedAt          DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  deliveries           AdDelivery[]
+
+  @@index([customerId])
+  @@index([status])
+}
+
+// One batch of finished work handed to the customer, logged by an admin. Files are
+// delivered by link or email (nothing is stored here), so this holds a note and a link.
+model AdDelivery {
+  id             String         @id @default(cuid())
+  subscriptionId String
+  subscription   AdSubscription @relation(fields: [subscriptionId], references: [id])
+  period         String         // "YYYY-MM", Eastern time
+  itemsCount     Int            @default(0)
+  note           String
+  url            String?
+  createdAt      DateTime       @default(now())
+
+  @@index([subscriptionId, period])
 }

@@ -37,7 +37,12 @@ export type StudioEvent =
   | "website.launched"
   | "care.started"
   | "care.payment_failed"
-  | "care.canceled";
+  | "care.canceled"
+  | "ads.started"
+  | "ads.payment_failed"
+  | "ads.canceled"
+  | "ads.delivery_logged"
+  | "alert.owner_ads";
 
 export async function logEvent(
   event: StudioEvent,

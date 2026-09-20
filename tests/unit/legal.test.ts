@@ -71,6 +71,11 @@ describe("Terms of Service", () => {
       ["deemed acceptance", /may treat it as accepted/i],
       ["license ends on chargeback", /ends automatically if a payment/i],
       ["no returns on physical goods", /do not accept returns or exchanges of physical products/i],
+      ["monthly ads plans defined", /MONTHLY ADS PLANS: A Monthly Ads plan is an optional monthly subscription/],
+      ["ad plan items do not roll over or get refunded", /do not carry over, and are not refunded or credited if unused/],
+      ["ad spend and results excluded", /does not include ad spend[\s\S]*any promise of sales, leads, followers, rankings, or any other result/],
+      ["AI-generated ad content and platform labeling", /AI-generated people or voices to be labeled or disclosed/],
+      ["ad plans renew automatically", /Monthly Ads plans renew automatically/],
     ];
     for (const [name, re] of required) expect(t, name).toMatch(re);
   });
@@ -115,6 +120,8 @@ describe("Refund and Cancellation Policy", () => {
     expect(t).toMatch(/do not accept returns or exchanges/);
     expect(t).toContain(`within ${POLICY.defectClaimDays} days of delivery`);
     expect(t).toMatch(/cancel at any time/i);
+    expect(t).toMatch(/Monthly Ads plan/);
+    expect(t).toMatch(/not carried over, credited, or refunded/);
     expect(t).toMatch(/do not refund or prorate/i);
     expect(t).toMatch(/chargeback/i);
     expect(t).toMatch(/does not take away any right you have under a law that cannot be waived/);

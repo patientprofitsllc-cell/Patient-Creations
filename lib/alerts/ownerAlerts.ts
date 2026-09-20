@@ -144,3 +144,43 @@ export async function notifyOwnerOfOrder(orderId: string, kind: OrderAlertKind) 
     console.error("owner order alert failed", err);
   }
 }
+
+/** The words of the alert when someone starts a Monthly Ads plan. Pure, so it is tested directly. */
+export function buildAdPlanAlert(f: { planName: string; priceCents: number; businessName: string; adminUrl: string }) {
+  const what = ascii(f.planName, 40) || "Monthly Ads plan";
+  const who = ascii(f.businessName, 30);
+  const sms = `Patient Creations: NEW MONTHLY ADS PLAN ${what} ${money(f.priceCents)}/mo${who ? ` (${who})` : ""}. ${f.adminUrl}`;
+  const subject = `NEW MONTHLY ADS PLAN: ${what} ${money(f.priceCents)}/mo`;
+  const body = `NEW MONTHLY ADS PLAN\n\nPlan: ${f.planName}\nPrice: ${money(f.priceCents)} a month\nBusiness: ${f.businessName}\n\nThey will fill in their first brief on their plan page. Open the dashboard: ${f.adminUrl}`;
+  return { sms, subject, body };
+}
+
+/** Tells the owner a Monthly Ads plan just started. Same channels and safety rules as order alerts. */
+export async function notifyOwnerOfAdPlan(adSubscriptionId: string) {
+  try {
+    const sub = await db.adSubscription.findUnique({ where: { id: adSubscriptionId }, include: { customer: { include: { user: true } } } });
+    if (!sub || isTestAddress(sub.customer.user.email)) return;
+    const { getAdPlan } = await import("@/lib/ads/plans");
+    const base = (process.env.APP_BASE_URL || "").replace(/\/$/, "");
+    const alert = buildAdPlanAlert({ planName: getAdPlan(sub.planSlug)?.name ?? sub.planSlug, priceCents: sub.priceCents, businessName: sub.businessName, adminUrl: `${base}/admin/ads` });
+
+    const result: Record<string, string> = {};
+    const cfg = smsConfig();
+    if (!cfg) {
+      result.sms = "not_configured";
+    } else {
+      const recent = await db.auditLog.count({ where: { event: { in: ["alert.owner_order", "alert.owner_ads"] }, createdAt: { gt: new Date(Date.now() - 3_600_000) } } });
+      if (recent >= SMS_PER_HOUR_CAP) result.sms = "skipped_hourly_cap";
+      else {
+        const sent = await sendSms(cfg, alert.sms);
+        result.sms = sent.ok ? "sent" : `failed: ${sent.error}`;
+      }
+    }
+    const to = process.env.OWNER_ALERT_EMAIL?.trim() || CONTACT_EMAIL;
+    const mail = await sendEmail(to, "owner_new_order", { subject: alert.subject, body: alert.body });
+    result.email = mail.ok ? "sent" : `failed: ${mail.error}`;
+    await logEvent("alert.owner_ads", "AdSubscription", adSubscriptionId, result);
+  } catch (err) {
+    console.error("owner ad plan alert failed", err);
+  }
+}

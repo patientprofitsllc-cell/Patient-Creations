@@ -8,6 +8,7 @@ import { OFFER_CHECKOUT_HREF } from "@/lib/site/offer";
 const NAV = [
   { href: "/examples", label: "Examples" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/monthly-ads", label: "Monthly Ads" },
   { href: "/services", label: "Services" },
   { href: "/agents", label: "Agent Network" },
   { href: "/guided-app-tour", label: "Guided Tour" },
@@ -26,7 +27,7 @@ export function SiteHeader() {
             <span aria-hidden className="hidden sm:inline">· </span>Patient Creations
           </span>
         </Link>
-        <nav className="hidden items-center gap-8 text-sm tracking-wide text-ice/70 md:flex">
+        <nav className="hidden items-center gap-8 whitespace-nowrap text-sm tracking-wide text-ice/70 xl:flex">
           {NAV.map((item) => (
             <Link key={item.href} href={item.href} className="transition hover:text-gold">
               {item.label}
@@ -48,7 +49,7 @@ export function SiteHeader() {
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-ice md:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-ice xl:hidden"
           >
             <span className="relative block h-3 w-4">
               <span className={`absolute left-0 top-0 h-px w-4 bg-current transition ${open ? "translate-y-1.5 rotate-45" : ""}`} />
@@ -60,7 +61,7 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <nav className="border-t border-white/5 bg-obsidian px-6 py-4 text-sm md:hidden">
+        <nav className="border-t border-white/5 bg-obsidian px-6 py-4 text-sm xl:hidden">
           <ul className="space-y-4">
             {NAV.map((item) => (
               <li key={item.href}>

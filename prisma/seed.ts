@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { AD_PLANS, planDescription } from "../lib/ads/plans";
 
 const db = new PrismaClient();
 
@@ -380,6 +381,19 @@ const ADD_ONS: {
     revisionLimit: 0,
     sortOrder: 3,
   },
+  // Monthly Ads plans. Started from /monthly-ads (see app/api/ads/checkout), never through
+  // the one-time checkout. Wording and counts come from lib/ads/plans.ts so nothing can drift.
+  ...AD_PLANS.map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    category: "Monthly Ads",
+    type: "SUBSCRIPTION" as const,
+    description: planDescription(p),
+    priceCents: p.fallbackPriceCents,
+    billingPeriod: "monthly",
+    revisionLimit: p.counts.revisionRounds,
+    sortOrder: p.sortOrder,
+  })),
 ];
 
 // Current physical stock on hand, as counted by Trenton. `update` never

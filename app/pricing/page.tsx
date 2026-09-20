@@ -121,6 +121,16 @@ export default async function PricingPage() {
           </section>
         )}
 
+        <section className="mx-auto max-w-4xl px-6 py-12">
+          <h2 className="font-display text-2xl text-ice sm:text-3xl">Want new ads every month?</h2>
+          <p className="mt-2 text-sm text-ice/50">
+            Monthly Ads plans start at {money(30000)} a month: short video ads, cinematic videos, 3D visuals and landing pages, made for you. Cancel any time.
+          </p>
+          <Link href="/monthly-ads" className="mt-4 inline-block text-sm text-gold underline">
+            See the Monthly Ads plans
+          </Link>
+        </section>
+
         <GrowthLadder />
         <FaqSection faqs={getFaqs(price)} />
 

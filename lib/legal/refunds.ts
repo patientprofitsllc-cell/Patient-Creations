@@ -8,7 +8,7 @@ export const refundsDoc: LegalDoc = {
   description: `${C.legalName}'s policy on refunds, returns, cancellations, and payment disputes: all sales are final.`,
   summary: [
     `All sales are final. We do not offer refunds, returns, exchanges, or credits once you have paid, except where the law requires it or we agree in writing.`,
-    `You can cancel the monthly Website Care Plan at any time. It stops future charges and takes effect at the end of the period you have paid for.`,
+    `You can cancel the monthly Website Care Plan or a Monthly Ads plan at any time. It stops future charges and takes effect at the end of the period you have paid for.`,
   ],
   sections: [
     {
@@ -45,9 +45,10 @@ export const refundsDoc: LegalDoc = {
     },
     {
       id: "care-plan",
-      title: "4. Website Care Plan and other subscriptions",
+      title: "4. Website Care Plan, Monthly Ads plans, and other subscriptions",
       body: [
         `You may cancel at any time using "Manage billing" on your project page, or by emailing ${C.email}. Cancelling stops future charges and takes effect at the end of the billing period you have already paid for; you keep the plan until then. We do not refund or prorate any period that has been billed, including a partial month. If a payment fails we may retry it and may pause the plan until it is paid.`,
+        `For a Monthly Ads plan, each month's ads and revisions are for that month only. Items you did not use, or did not send a brief for, are not carried over, credited, or refunded.`,
         `The 3-Month Maintenance extra is a one-time payment, does not renew, and is not refundable.`,
       ],
     },

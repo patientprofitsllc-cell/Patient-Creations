@@ -23,14 +23,14 @@ export function FaqSection({ faqs, heading = "Questions, answered." }: { faqs: F
       </div>
       <div className="mt-10 space-y-3">
         {faqs.map((f) => (
-          <details key={f.q} className="glass-panel group rounded-xl px-5 py-4">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-ice marker:hidden">
+          <details key={f.q} className="glass-panel group rounded-xl">
+            <summary className="flex min-h-[48px] cursor-pointer list-none items-center justify-between gap-4 px-5 py-3 text-ice marker:hidden">
               <span>{f.q}</span>
               <span aria-hidden className="text-gold transition group-open:rotate-45">
                 +
               </span>
             </summary>
-            <p className="mt-3 text-sm leading-relaxed text-ice/60">{f.a}</p>
+            <p className="px-5 pb-4 text-sm leading-relaxed text-ice/60">{f.a}</p>
           </details>
         ))}
       </div>

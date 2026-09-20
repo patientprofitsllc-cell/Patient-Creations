@@ -19,6 +19,7 @@ export function SiteFooter() {
             <ul className="space-y-0">
               <li><Link href="/services" className="inline-block py-3 hover:text-gold sm:py-1.5">Services</Link></li>
               <li><Link href="/services#pricing" className="inline-block py-3 hover:text-gold sm:py-1.5">Pricing</Link></li>
+              <li><Link href="/monthly-ads" className="inline-block py-3 hover:text-gold sm:py-1.5">Monthly Ads</Link></li>
               <li><Link href="/agents" className="inline-block py-3 hover:text-gold sm:py-1.5">Agent Network</Link></li>
               <li><Link href="/gallery" className="inline-block py-3 hover:text-gold sm:py-1.5">Fleet</Link></li>
               <li><Link href="/guided-app-tour" className="inline-block py-3 hover:text-gold sm:py-1.5">Guided Tour</Link></li>

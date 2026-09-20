@@ -9,6 +9,7 @@ import { NFC_BUNDLE_SLUG } from "@/lib/payments/nfcAddon";
 import { OFFER_SLUG } from "@/lib/site/offer";
 import { cartRecoveryStats, OFFER_PERCENT, OFFER_VISIT_THRESHOLD } from "@/lib/funnel/cartRecovery";
 import { smsConfig } from "@/lib/alerts/ownerAlerts";
+import { adPlanMrrCents } from "@/lib/ads/data";
 
 function money(cents: number) {
   return (cents / 100).toLocaleString(undefined, { style: "currency", currency: "USD" });
@@ -47,7 +48,7 @@ export default async function AdminGrowthPage() {
   const cfg = getAcquisitionConfig();
   const now = new Date();
 
-  const [paidOrders, eventGroups, landingRows, waiting, carePlans, outreach, recovery] = await Promise.all([
+  const [paidOrders, eventGroups, landingRows, waiting, carePlans, outreach, recovery, adMrr] = await Promise.all([
     db.order.findMany({
       where: { status: "PAID", paidAt: { gte: cfg.start } },
       select: { customerId: true, totalCents: true, campaignSource: true, items: { select: { product: { select: { slug: true } } } } },
@@ -69,6 +70,7 @@ export default async function AdminGrowthPage() {
     }),
     prospectStats(),
     cartRecoveryStats(cfg.start),
+    adPlanMrrCents(),
   ]);
   const textAlerts = smsConfig() !== null;
   const activeCare = carePlans.filter((c) => c.status === "ACTIVE");
@@ -173,6 +175,7 @@ export default async function AdminGrowthPage() {
           <Stat label="Monthly recurring" value={money(monthlyRecurring)} sub="from active plans" />
           <Stat label="Payment failed" value={String(pastDueCare.length)} sub="Stripe is retrying" />
           <Stat label="Ending soon" value={String(carePlans.filter((c) => c.cancelAtPeriodEnd).length)} sub="won't renew" />
+          <Stat label="Monthly Ads plans" value={String(adMrr.active)} sub={`${money(adMrr.cents)} a month recurring`} />
         </div>
         {pastDueCare.length > 0 && (
           <p className="mt-3 text-xs text-ice/50">Payment failed: {pastDueCare.map((c) => c.project.name).join("; ")}</p>

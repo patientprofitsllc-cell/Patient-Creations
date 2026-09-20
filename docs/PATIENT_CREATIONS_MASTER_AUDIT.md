@@ -178,3 +178,19 @@ All site animation was checked on an emulated phone, a desktop, and with reduced
 ### Homepage hero, new style (IMPLEMENTED)
 
 The homepage hero now uses the glass-layers-and-community-network backdrop (`components/cinematic/HeroBackdrop.tsx`, scene in `lib/motion/networkScene.ts`). It is drawn live on a canvas, not played from a video, so it never restarts or hitches; motion is periodic by construction (unit tested). A still of the same scene is server-rendered from first paint; the animation starts 600 ms later so the page becomes usable first. Replaces the old particle cluster, which sat directly behind the headline. Phone spacing was tightened so the main button and trust row are on the first screen on every portrait phone tested. The earlier throwaway design page and its placeholder testimonial were removed, and the old canvas component deleted. Tested with device profiles for iPhone SE, iPhone 13, iPhone 14 Pro Max, Pixel 7, Galaxy S8, Galaxy S9+ and two landscape phones (Chromium engine with phone viewports and touch; **real Safari on iOS and real hardware are not tested**). A strict width check was added after the first one proved too weak (it passed while a layout bug widened the page).
+
+### Monthly Ads plans (IMPLEMENTED; delivery is by hand)
+
+Three subscription plans, **$300, $500 and $1,000 a month**, sold at `/monthly-ads`. What each plan includes is defined once in `lib/ads/plans.ts` (counts, wording, what is not included); the public page, checkout, product rows, the customer's plan page, the admin quota view and the tests all read from it, so they cannot disagree. Prices shown are read from the product rows (`ads-monthly-300`, `-500`, `-1000`), seeded by `prisma/seed.ts`.
+
+| Plan | Short video ads | Creator style (of those) | Cinematic videos | 3D visual | Landing page | Revisions | Extras |
+|---|---|---|---|---|---|---|---|
+| Starter $300 | 4 | 0 | 0 | 0 | 0 | 1 | none |
+| Growth $500 | 8 | up to 3 | 1 | 0 | 0 | 2 | written plan for approval |
+| Scale $1,000 | 16 | up to 6 | 2 | 1 | 1 | 2 | written plan, one 30 minute call |
+
+**These quantities are my proposal, not a fact about capacity.** Change them in one file; confirm the owner can deliver them with the ad tools before selling at volume.
+
+How it works: customer starts a plan (`/monthly-ads/start`, agreement with automatic-renewal wording recorded as `AD_PLAN`), pays through Stripe Checkout (subscription mode, price from the product row), and a Stripe webhook activates it (`lib/ads/events.ts`, idempotent, handles out-of-order events, cannot be revived after cancel). They get a private plan page (`/monthly-ads/manage/[token]`, noindex) with the monthly brief form, what has been delivered, and a billing button. Admin: `/admin/ads` lists plans, briefs, and quota used, and logs deliveries (link plus note); Growth shows ad-plan recurring revenue. Owner is alerted by email (and text once Twilio is set up) when a plan starts. In production a plan can only ever be activated by a paid checkout (no free path). Legal: Terms section 9, Refund policy section 4 and the privacy data list were extended (version 2026-09-20).
+
+Not built: plan switching (done by hand on request), automatic monthly reminders to send a brief, file storage for finished ads (delivered by link, by decision), a prorated upgrade, usage counters beyond the admin log. The public copy names no tool vendors; the AI tools behind the work are the owner's to choose and each one's commercial-use terms should be checked on the plan actually used, including presenter/likeness rules and any music (music rights are excluded from the plans on purpose). Services such as an AI receptionist, text follow-up, CRM, custom AI assistants and workflow automation are shown only as "quoted separately after a call", never as included.

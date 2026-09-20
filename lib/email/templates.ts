@@ -14,6 +14,7 @@ export type EmailTemplateKey =
   | "care_plan_started"
   | "intake_reminder"
   | "order_received"
+  | "ads_plan_started"
   | "owner_new_order"
   | "test_email";
 
@@ -50,6 +51,21 @@ Next: your payment. We will send you ${p.paymentLabel ?? "payment"} instructions
 You can save time by telling us about your business now. It takes about 3 to 5 minutes, and you can skip anything you don't have: ${p.intakeUrl}`
         : ""
     }`,
+  }),
+  ads_plan_started: (p) => ({
+    subject: "Thank you. Your Monthly Ads plan is active.",
+    body: `Thank you for choosing Patient Creations. It means a lot that you trusted a small team with your advertising.
+
+Your ${p.planName ?? "Monthly Ads plan"} for ${p.businessName ?? "your business"} is active.
+
+What happens next:
+1. Open your private plan page and fill in this month's brief. It takes a few minutes: what to promote, who it is for, and any style you like. You can send photos and logos by email or on a call.
+2. We make your ads from your brief. Our target is about 7 business days from when we have it.
+3. Your finished ads appear on the same page, with a download link, ready to post.
+
+One thing that makes a real difference: a specific offer. A clear product, a clear price, and a clear next step give the ads something real to say.
+
+Your private plan page (keep this link, it is how you reach your plan): ${p.manageUrl}`,
   }),
   owner_new_order: (p) => ({ subject: String(p.subject ?? "New order"), body: String(p.body ?? "") }),
   production_start: (p) => ({
