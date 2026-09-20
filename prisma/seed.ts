@@ -62,6 +62,17 @@ const SERVICES: ServiceDef[] = [
     sortOrder: 3,
   },
   {
+    slug: "ad",
+    name: "Cinematic Ad",
+    category: "Video",
+    description: "A short, scroll-stopping video ad made for social media.",
+    baseCents: 50000,
+    tierable: true,
+    revisionLimit: 2,
+    turnaround: "1-2 weeks",
+    sortOrder: 4,
+  },
+  {
     slug: "rental-listing-film",
     name: "Rental Listing Film",
     category: "Video",
@@ -104,6 +115,28 @@ const SERVICES: ServiceDef[] = [
     revisionLimit: 0,
     turnaround: "60 minutes",
     sortOrder: 8,
+  },
+  {
+    slug: "custom-build",
+    name: "Custom Build Consultation",
+    category: "Bespoke",
+    description: "A consultation only, not a build. Tell us what you need beyond the menu, and the fee is fully credited toward the build.",
+    baseCents: 10000,
+    tierable: false,
+    revisionLimit: 0,
+    turnaround: "scoped on the call",
+    sortOrder: 9,
+  },
+  {
+    slug: "basic-package",
+    name: "Basic Package",
+    category: "Local Business",
+    description: PRODUCT_SCOPES["basic-package"].summary,
+    baseCents: 100000,
+    tierable: false,
+    revisionLimit: 1,
+    turnaround: "3-5 days",
+    sortOrder: 10,
   },
   {
     slug: "starter-website",
@@ -366,10 +399,6 @@ const LEGACY_SLUGS = [
   "ai-character",
   "ai-agent-system",
   "monthly-optimization", // promised monitoring that is not built
-  "custom-build", // a second, overlapping consultation next to the Strategy Session
-  "basic-package", // the same kind of AI video tour as the Rental Listing Film, at twice the price
-  "ad", // the per-ad specials and the Monthly Ads plans cover ads; three ad products was one too many
-  "maintenance-3mo", // overlaps the monthly Website Care Plan
 ];
 
 async function main() {
@@ -379,6 +408,7 @@ async function main() {
     const product = await db.product.upsert({
       where: { slug: s.slug },
       update: {
+        active: true, // a product listed here is on sale; take one off the shelf by moving it to LEGACY_SLUGS
         name: s.name,
         category: s.category,
         type: s.type ?? "PRIMARY",

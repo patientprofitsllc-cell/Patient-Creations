@@ -8,6 +8,7 @@ import { BUNDLE_ITEMS } from "@/lib/site/adSpecials";
 
 const SLUGS = [
   "site",
+  "ad",
   "starter-website",
   "cinematic-ad-special",
   "ugc-ad-special",

@@ -146,6 +146,16 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
     ],
     notIncluded: ["Filming on location or real drone footage", "Music rights or licensed music", "Any promise of bookings"],
   },
+  "basic-package": {
+    summary: "A drone-style video tour of your building and storefront, made with AI from your photos.",
+    includes: [
+      "1 drone-style video tour, up to 45 seconds, delivered wide and vertical",
+      "Made with AI from photos of your building and storefront and the details you send. It is not filmed by a real drone",
+      "A caption and headline options written for you",
+      "1 revision round",
+    ],
+    notIncluded: ["Filming on location or real drone footage", "Music rights or licensed music", "Any promise of visits or sales"],
+  },
 };
 
 export const SCOPED_SLUGS = Object.keys(PRODUCT_SCOPES);

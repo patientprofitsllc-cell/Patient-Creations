@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { renderTemplate, EmailTemplateKey } from "@/lib/email/templates";
+import { CONTACT_EMAIL } from "@/lib/config/site";
 
 export interface SendResult {
   ok: boolean;
@@ -54,6 +55,8 @@ async function resendProvider(): Promise<EmailProvider> {
         body: JSON.stringify({
           from: process.env.EMAIL_FROM ?? "book@patientprofits.com",
           to,
+          // Replies go to the owner's inbox even though the sending address is on the verified domain.
+          reply_to: process.env.EMAIL_REPLY_TO?.trim() || CONTACT_EMAIL,
           subject,
           text: body,
           html: emailBodyToHtml(body),

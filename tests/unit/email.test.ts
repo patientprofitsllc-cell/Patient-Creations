@@ -61,6 +61,7 @@ describe("sendEmail", () => {
     expect(r.ok).toBe(true);
     const sent = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(sent.from).toBe("hello@patientcreations.com");
+    expect(sent.reply_to).toBe("patientprofitsllc@gmail.com"); // replies reach the owner's inbox
     expect(sent.text).toContain("https://patientcreations.com/intake/x");
     expect(sent.html).toContain('<a href="https://patientcreations.com/intake/x">');
   });

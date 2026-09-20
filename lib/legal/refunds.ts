@@ -49,7 +49,6 @@ export const refundsDoc: LegalDoc = {
       body: [
         `You may cancel at any time using "Manage billing" on your project page, or by emailing ${C.email}. Cancelling stops future charges and takes effect at the end of the billing period you have already paid for; you keep the plan until then. We do not refund or prorate any period that has been billed, including a partial month. If a payment fails we may retry it and may pause the plan until it is paid.`,
         `For a Monthly Ads plan, each month's ads and revisions are for that month only. Items you did not use, or did not send a brief for, are not carried over, credited, or refunded.`,
-        `The 3-Month Maintenance extra is a one-time payment, does not renew, and is not refundable.`,
       ],
     },
     {

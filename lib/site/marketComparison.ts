@@ -46,9 +46,9 @@ export const MARKET_ROWS: readonly MarketRow[] = [
     source: { name: "Taskip, AI automation agency cost", url: "https://taskip.net/ai-automation-agency-cost/" },
   },
   {
-    slug: "cinematic-ad-special",
-    fallbackName: "Cinematic Ad, per ad",
-    fallbackYouCents: 24900,
+    slug: "ad",
+    fallbackName: "Cinematic Ad",
+    fallbackYouCents: 50000,
     loCents: 100000,
     hiCents: 500000,
     label: "human-made freelance social video ad, 15 to 30 seconds",

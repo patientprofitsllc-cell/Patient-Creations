@@ -28,9 +28,9 @@ export const revalidate = 60;
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
-// The flagship builds, the same lineup /services compares against the
+// The six flagship builds, the same lineup /services compares against the
 // market. Displayed lowest price to highest, not DB sortOrder.
-const FEATURED_SLUGS = ["site", "saas", "agents", "rental-listing-film", "lead-engine"];
+const FEATURED_SLUGS = ["site", "saas", "agents", "ad", "rental-listing-film", "lead-engine"];
 
 export default async function HomePage() {
   const [offer, rows] = await Promise.all([

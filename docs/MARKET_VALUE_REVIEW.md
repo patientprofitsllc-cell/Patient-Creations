@@ -51,40 +51,18 @@ Market: human UGC $60 to $450 per video, agencies $300 to $1,000 per video or $2
 
 Also fixed while doing this: the public "Your price, next to the market" table on /services used hard-coded agency ranges and claimed every build was below the market floor, "$198,000 mid-market", "$36k+ saved", and "40 to 60% faster to ship". None of that was sourced or true against the ranges above. The table now uses the sourced ranges, works out for each row whether the price is below, at the low end of, or within the range, adds up its totals from the rows, links its sources, and drops the unsourced claims. Lead Engine is not in the table because its market figure is a monthly retainer and its price is one time.
 
-### Catalog prune (owner: "remove which would bring more confusion and long term plans")
+### Catalog prune, then owner corrections (2026-09-20)
 
-Taken off the shelf (`active: false`, rows kept so old orders and receipts still work; see `LEGACY_SLUGS` in `prisma/seed.ts`):
+First pass: Basic Package, Custom Build Consultation, Cinematic Ad, 3-Month Maintenance and Monthly Optimization were taken off the shelf as overlapping or unbuilt. The owner then answered: nobody ever bought 3-Month Maintenance, so **delete it**; **turn the rest back on** (Basic Package, Custom Build Consultation, Cinematic Ad); he can deliver the Monthly Ads counts of 10, 20 and 40; Stripe is live.
 
-| Removed | Why |
+Final state:
+
+| Product | State |
 |---|---|
-| Basic Package ($1,000) | Same thing as Rental Listing Film ($500), and it was the open question above. One video tour left. |
-| Custom Build Consultation ($100) | Overlaps Strategy Session. One consultation left. |
-| Cinematic Ad ($500) | Overlaps the Cinematic Ad Special ($249) and the Monthly Ads plans. Also removed from the homepage and the market table (the table now compares the Cinematic Ad Special per-ad price). |
-| 3-Month Maintenance ($250) | Overlaps the Website Care Plan, which is the one way to buy site upkeep. Its checkout extra and pitch are gone too. |
-| Monthly Optimization ($400) | A long-term plan that was never built. |
+| 3-Month Maintenance | **Deleted** (no orders referenced it). Its extra, pitch, and the sentences about it in the Terms and Refund Policy are gone. |
+| Basic Package ($1,000), Custom Build Consultation ($100), Cinematic Ad ($500) | **On sale again**, back on the homepage and in the market table. |
+| Monthly Optimization ($400) | Stays off. Monthly Ads plans replaced it, and it promised monitoring that was never built. Nothing to restore unless you want it. |
 
-Also: the seven single-design NFC cards are hidden from the /services grid (the "NFC Cards, Mix & Match" card is the front door), but each is still buyable by direct link. The last invented crossed-out price on the homepage ($500) is gone. A checkout link to a removed product now redirects to /services instead of opening a checkout.
+Kept from the first pass: the seven single-design NFC cards are hidden from the /services grid (the "NFC Cards, Mix & Match" card is the front door) but stay buyable by link; the invented crossed-out $500 on the homepage stays gone; a checkout link to any inactive product redirects to /services. The seed now sets `active: true` for every product it lists, so a product is on sale if it is listed and off the shelf if it is in `LEGACY_SLUGS`.
 
-**To restore one:** set `active: true`, add its entry back to the seed, and remove its slug from `LEGACY_SLUGS`.
-
-**Loose ends:** the Terms and Refund pages still mention 3-Month Maintenance in conditional wording, on purpose, for anyone who bought it earlier. The video-tour audience is now covered only by Rental Listing Film ($500).
-
-**Still open:** Monthly Ads plan prices are unchanged; confirm you can deliver the proposed scopes and the 10/20/40 ad counts.
-
-## Sources
-
-- Human and AI UGC, agencies and retainers: [Sepia, How Much Does UGC Cost in 2026](https://sepia-lab.com/en/blog/how-much-does-ugc-cost), [agent-media, AI UGC pricing comparison 2026](https://agent-media.ai/blog/ai-ugc-pricing-comparison-2026), [Arcads pricing 2026 (eesel)](https://www.eesel.ai/blog/arcads-ai-pricing), [Sparkiz, UGC ads cost 2026](https://sparkiz.ai/blog/ugc-ads-cost/)
-- Video editing subscriptions: [ProductizeHub, Unlimited Video Editing Subscriptions 2026](https://productizehub.com/blog/unlimited-video-editing-subscriptions)
-- Video ad production: [Vidico, Promo Video Cost 2026](https://vidico.com/news/promo-video-pricing/), [Sovran, Video Ad Production Cost 2026](https://sovran.ai/benchmarks/video-ad-production-cost), [D-MAK, Social Media Video Pricing 2026](https://dmakproductions.com/blog/social-media-video-pricing/)
-- Websites: [Jim, Small Business Website Cost](https://www.jim.com/blog/small-business-website-cost), [eSEOspace, Custom Landing Page Cost](https://eseospace.com/blog/how-much-does-a-custom-landing-page-cost-pricing-for-freelance-agency-and-diy/)
-- Apps and SaaS: [Purrweb, SaaS Development Costs 2026](https://www.purrweb.com/blog/saas-development-cost/), [URLaunched, MVP Development Cost 2026](https://www.urlaunched.com/blog/development-cost-for-startups)
-- AI automation: [Taskip, AI Automation Agency Cost](https://taskip.net/ai-automation-agency-cost/), [Parix, How Much Does AI Automation Cost](https://parix.ai/blog/how-much-does-ai-automation-cost/)
-- Rental and real estate video: [RoomLift, Real Estate Videography Pricing 2026](https://www.roomlift.ai/blog/real-estate-videography-pricing), [TourKit, Real Estate Videographer Cost](https://tourkitapp.com/blog/real-estate-videographer-cost)
-- NFC review cards: [Etsy, Google review cards](https://www.etsy.com/market/google_review_cards), [TAPiTAG Google Review Card](https://tapitag.co/products/google-review-nfc-card-increase-your-reviews)
-- Stripe integration: [Techconcepts, Stripe Integration Cost](https://techconcepts.org/blog/stripe-payment-integration-cost), [Cadence, Cost to integrate Stripe](https://cadence.withremote.ai/blog/cost-to-integrate-stripe)
-- Website maintenance: [Ueni, Website Maintenance Cost 2026](https://ueni.com/blog/website-maintenance-cost/), [WebFX, Website Maintenance Pricing](https://www.webfx.com/web-development/pricing/website-maintenance/)
-- Logo and brand identity: [ManyPixels, Logo Design Cost 2026](https://www.manypixels.co/blog/brand-design/logo-design-cost-guide), [Brand Identity Design Cost 2026](https://www.joaoqueiros.com/blog-how-much-does-brand-identity-cost.html)
-- Lead generation: [NewMedia, Lead Generation Cost 2026](https://newmedia.com/blog/lead-generation-cost)
-- Consulting rates: [Strategic Pete, Marketing Consultant Rates 2026](https://strategicpete.com/blog/marketing-consultant-rates/), [Outer Box Design, Marketing Consultant Cost](https://www.outerboxdesign.com/articles/digital-marketing/marketing-consultant-cost/)
-
-Price guides are published by companies that sell related services, so treat the ranges as directional. Re-check them before a price change.
+**Still open:** Basic Package ($1,000) and Rental Listing Film ($500) are both AI videos from photos, so the $1,000 tier needs a reason or a price change.
