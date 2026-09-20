@@ -17,7 +17,7 @@ const LADDER = [
   },
   {
     title: "Lead generation",
-    body: "A system that finds new customers and sends them straight to you.",
+    body: "A system to capture new leads and send them straight to you.",
     href: "/checkout?product=lead-engine",
     cta: "See Lead Engine",
   },

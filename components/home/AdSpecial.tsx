@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SPECIAL_FRAME, money } from "./specialFrame";
+import { AD_SPECIAL_BLURB, AD_SPECIAL_INCLUDES } from "@/lib/site/adSpecials";
 
 interface AdOption {
   slug: string;
@@ -26,8 +27,8 @@ export function AdSpecial({
 }) {
   const router = useRouter();
   const options: Record<"cinematic" | "ugc", AdOption> = {
-    cinematic: { ...cinematic, label: "Cinematic Ad", blurb: "Polished, film-style spot" },
-    ugc: { ...ugc, label: "UGC Ad", blurb: "Real-feeling creator style" },
+    cinematic: { ...cinematic, label: "Cinematic Ad", blurb: AD_SPECIAL_BLURB.cinematic },
+    ugc: { ...ugc, label: "UGC Ad", blurb: AD_SPECIAL_BLURB.ugc },
   };
   const [kind, setKind] = useState<"cinematic" | "ugc">("cinematic");
   const [qty, setQty] = useState(1);
@@ -72,6 +73,10 @@ export function AdSpecial({
           );
         })}
       </div>
+
+      <p className="mt-4 max-w-sm text-xs text-ice/60" aria-live="polite">
+        {AD_SPECIAL_INCLUDES[kind]}
+      </p>
 
       <div className="mt-6 flex items-center gap-4">
         <span className="text-sm text-ice/60">How many?</span>

@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { AD_PLANS, planDescription } from "../lib/ads/plans";
+import { BUNDLE_DESCRIPTION, CINEMATIC_SPECIAL_DESCRIPTION, LEAD_ENGINE_DESCRIPTION, UGC_SPECIAL_DESCRIPTION } from "../lib/site/adSpecials";
 
 const db = new PrismaClient();
 
@@ -96,7 +97,7 @@ const SERVICES: ServiceDef[] = [
     slug: "lead-engine",
     name: "Lead Engine",
     category: "Growth",
-    description: "Finds new customers and sends them straight to you.",
+    description: LEAD_ENGINE_DESCRIPTION,
     baseCents: 170000,
     tierable: true,
     revisionLimit: 2,
@@ -250,7 +251,7 @@ const SERVICES: ServiceDef[] = [
     name: "Cinematic Ad Special",
     category: "Ad Special",
     type: "SPECIAL",
-    description: "A cinematic, scroll-stopping ad, priced per ad. Choose how many you want.",
+    description: CINEMATIC_SPECIAL_DESCRIPTION,
     baseCents: 40000,
     tierable: false,
     revisionLimit: 1,
@@ -262,7 +263,7 @@ const SERVICES: ServiceDef[] = [
     name: "UGC Ad Special",
     category: "Ad Special",
     type: "SPECIAL",
-    description: "A real-feeling, creator-style ad that looks like a customer made it, priced per ad. Choose how many you want.",
+    description: UGC_SPECIAL_DESCRIPTION,
     baseCents: 25000,
     tierable: false,
     revisionLimit: 1,
@@ -274,7 +275,7 @@ const SERVICES: ServiceDef[] = [
     name: "All-in-One Launch Bundle",
     category: "Bundle",
     type: "SPECIAL",
-    description: "Everything to launch: a Starter Website, 2 Cinematic Ads, 2 UGC Ads, and 3 NFC cards of your choice, for one fixed price.",
+    description: BUNDLE_DESCRIPTION,
     baseCents: 129900,
     tierable: false,
     revisionLimit: 2,
@@ -413,7 +414,7 @@ const INVENTORY: { sku: string; label: string; productSlug: string | null; quant
 // Slugs from the earlier generic "AI Creation Studio" catalog. Deactivated
 // rather than deleted so historical orders/order items that reference them
 // keep working; they're excluded from /services by the `active` filter.
-const LEGACY_SLUGS = ["ai-website", "cinematic-ai-ad", "ai-character", "ai-agent-system"];
+const LEGACY_SLUGS = ["ai-website", "cinematic-ai-ad", "ai-character", "ai-agent-system", "monthly-optimization"];
 
 async function main() {
   await db.product.updateMany({ where: { slug: { in: LEGACY_SLUGS } }, data: { active: false } });

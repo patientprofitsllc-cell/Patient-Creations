@@ -4,6 +4,7 @@ import { deliveryLine } from "@/lib/payments/deliveryWindow";
 import { AdSpecial } from "./AdSpecial";
 import { SpecialPriceCard } from "./SpecialPriceCard";
 import { money } from "./specialFrame";
+import { BUNDLE_ITEMS } from "@/lib/site/adSpecials";
 
 // Display-only "was" prices for the two website specials. What checkout
 // actually charges is always the live database price, shown as the "now" price.
@@ -106,7 +107,7 @@ export async function SpecialsGrid({
           accent={rest.join(" ")}
           description={bundle.description}
           delivery={deliveryLine(bundle.turnaround)}
-          items={["A Quick Business Website", "2 Cinematic Ads", "2 UGC Ads", "3 NFC cards of your choice"]}
+          items={BUNDLE_ITEMS}
           wasCents={separately && separately > bundle.priceCents ? separately : undefined}
           nowCents={bundle.priceCents}
           href={`/checkout?product=${bundle.slug}`}
