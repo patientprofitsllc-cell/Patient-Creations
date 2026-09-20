@@ -13,11 +13,11 @@ export function NfcOrderPicker() {
   const [slug, setSlug] = useState(NFC_DESIGNS[0].slug);
 
   return (
-    <div className="flex flex-col items-stretch gap-3 sm:items-end">
+    <div className="flex w-full min-w-0 flex-col items-stretch gap-3 sm:w-auto sm:items-end">
       <select
         value={slug}
         onChange={(e) => setSlug(e.target.value)}
-        className="rounded-full border border-gold/20 bg-obsidian px-5 py-2 text-sm text-ice/80 outline-none transition hover:border-gold/40"
+        className="w-full min-w-0 rounded-full border border-gold/20 bg-obsidian px-5 py-2 text-sm text-ice/80 outline-none transition hover:border-gold/40 sm:w-auto"
       >
         {NFC_DESIGNS.map((d) => (
           <option key={d.slug} value={d.slug}>

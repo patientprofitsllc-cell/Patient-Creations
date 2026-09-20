@@ -12,6 +12,9 @@ interface Message {
 
 const POLL_MS = 20_000;
 
+// Tells the voice guide (components/voice/VoiceGuide.tsx) that a new reply has arrived. Does nothing if the guide is off.
+const VOICE_NOTIFY_EVENT = "pc-voice-notify";
+
 export function ProjectMessages({ token }: { token: string }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -19,6 +22,7 @@ export function ProjectMessages({ token }: { token: string }) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const knownIds = useRef<Set<string> | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -40,6 +44,19 @@ export function ProjectMessages({ token }: { token: string }) {
   useEffect(() => {
     if (messages.length > 0) endRef.current?.scrollIntoView({ block: "nearest" });
   }, [messages.length]);
+
+  // The first load is history. After that, any new reply from the concierge or our team gets one spoken line.
+  useEffect(() => {
+    if (!loaded) return;
+    if (knownIds.current === null) {
+      knownIds.current = new Set(messages.map((m) => m.id));
+      return;
+    }
+    const known = knownIds.current;
+    const fresh = messages.filter((m) => !known.has(m.id));
+    fresh.forEach((m) => known.add(m.id));
+    if (fresh.some((m) => m.sender !== "CUSTOMER")) window.dispatchEvent(new CustomEvent(VOICE_NOTIFY_EVENT, { detail: "chat-reply" }));
+  }, [messages, loaded]);
 
   async function send() {
     const message = text.trim();

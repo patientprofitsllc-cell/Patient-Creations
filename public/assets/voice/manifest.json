@@ -1,0 +1,25 @@
+{
+  "voice": {
+    "name": "Xavier",
+    "id": "43173c95-3ec8-446a-a162-6504332c578b",
+    "type": "preset",
+    "model": "seed_audio"
+  },
+  "clips": {
+    "pricing": {
+      "src": "/assets/voice/pricing.mp3",
+      "durationMs": 7728,
+      "textSha": "686aceaafb5e"
+    },
+    "monthly-ads": {
+      "src": "/assets/voice/monthly-ads.mp3",
+      "durationMs": 7632,
+      "textSha": "9c4e3b32def2"
+    },
+    "success": {
+      "src": "/assets/voice/success.mp3",
+      "durationMs": 5808,
+      "textSha": "63ae03b4814f"
+    }
+  }
+}

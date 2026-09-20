@@ -224,3 +224,32 @@ Owner actions that add real strength (not done by the assistant):
 2. Consider a USPTO trademark application for the name and logo "Patient Creations".
 3. Have an attorney review the notice and Terms.
 4. Keep the GitHub repository private and limit who has access.
+
+## Voice guide (2026-09-20)
+
+Owner request: add a voice to the chat, write a prompt list describing the site and every product, and make the timing perfect across page and product switches.
+
+Status: **built and tested; hidden on the live site until all 25 lines are recorded (3 are).** The rest were blocked by the voice account's daily generation limit ("grace period"). When it resets, record the missing lines and run one command (see `docs/VOICE_SCRIPT.md`).
+
+| Piece | What it does | Where |
+|---|---|---|
+| The prompt list | 25 fixed lines: 7 pages, 16 products, 2 chat lines. No digits, prices, or promised results, so a recording cannot go stale | `lib/voice/script.ts`, printed in `docs/VOICE_SCRIPT.md` |
+| Which line where | Page and product switches (`?product=` on checkout, all seven card designs share one line) map to a line; staff, private, sign-in, and legal pages stay silent | `lib/voice/cues.ts` |
+| Timing engine | Pure scheduler with an injected clock and speaker: waits 0.7 s after a page or product change, restarts on a rapid switch, cuts the old line off within 0.18 s, never overlaps, speaks once per visit, drops a line that has not loaded in time, forces a stop at the known length plus 0.4 s | `lib/voice/cueScheduler.ts` |
+| Recordings | WAV to small mono MP3, trimmed to the speech; each file's length is measured by reading its frames and stored with a fingerprint of its words | `scripts/voice/build-clips.ts`, `lib/voice/mp3.ts`, `public/assets/voice/manifest.json` |
+| The button | Opt-in "Voice guide" pill bottom left (a tap is required for sound), captions, Replay, remembers the choice, loads the line when the visitor hovers or focuses the button so a tap starts on cue | `components/voice/VoiceGuide.tsx`, `lib/voice/browserSpeaker.ts` |
+| The chat | The project page speaks a welcome line when it opens and a "you have a new reply" line when the concierge or team replies | `components/status/ProjectMessages.tsx` |
+
+Voice: **Xavier**, a preset voice (`43173c95-3ec8-446a-a162-6504332c578b`), chosen by the owner after hearing it next to a clone made from their own Serena file. Cloning that file into a saved voice needed more credits than the account had, and the per-line clone worked but the owner picked Xavier.
+
+Proof (all measured, not claimed):
+
+- 24 scheduler tests, including 12 seeded random walks of 500 page switches, product switches, replays, chat replies, and turn-offs. Every single start was for the page the visitor was on at that instant, came at least 0.7 s after the last change (or on Replay), happened only while the guide was on, and never overlapped another line.
+- A real browser test with the real player: a tap produced sound 709 ms later (design 700 ms), a page switch produced the new line 682 to 700 ms later, the old line was stopped first, no script errors, and the button is a full-size tap target on a phone.
+- Tests fail if a line is edited without re-recording it, if a recorded file's length differs from the manifest, if a product or page has no line, or if the guide would show while any line is missing.
+
+Honest limits:
+
+- Timing is exact in the code. Whether a browser plays sound on time also depends on the visitor's network (the line is loaded ahead, and a line that is late is dropped rather than played late) and on the browser's rule that sound needs a tap first, which is why the guide is opt-in.
+- The lines are fixed recordings. The chat's own reply text is not read aloud: that needs a live text-to-speech service and key, which the site does not have.
+- Prices, counts, and times are never spoken; the screen shows the real ones.

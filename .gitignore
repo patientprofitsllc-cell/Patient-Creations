@@ -11,3 +11,4 @@ dist/
 /playwright-report/
 .DS_Store
 *.tsbuildinfo
+voice-src/
