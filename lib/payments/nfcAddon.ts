@@ -12,6 +12,20 @@ export const NFC_ADDON_BULK_UNIT_CENTS = 3000;
 // add-on isn't offered on top of it.
 export const NFC_BUNDLE_SLUG = "all-in-one-bundle";
 export const NFC_BUNDLE_CARD_COUNT = 3;
+export const BASIC_PACKAGE_SLUG = "basic-package";
+export const BASIC_PACKAGE_CARD_COUNT = 5;
+
+// Products that ship with NFC cards in the price. The card add-on is not offered on top of these,
+// and the order asks for a design for every included card after checkout.
+const INCLUDED_CARDS: Record<string, number> = {
+  [NFC_BUNDLE_SLUG]: NFC_BUNDLE_CARD_COUNT,
+  [BASIC_PACKAGE_SLUG]: BASIC_PACKAGE_CARD_COUNT,
+};
+
+/** How many NFC cards come with this product, or 0 if it does not include any. */
+export function includedCardCount(slug: string | null | undefined): number {
+  return (slug && INCLUDED_CARDS[slug]) || 0;
+}
 
 const VIDEO_FREE_THRESHOLD_CENTS = 100000; // $1,000+ cinematic video tier ships with a free card
 

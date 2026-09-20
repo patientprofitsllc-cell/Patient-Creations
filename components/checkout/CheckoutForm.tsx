@@ -11,6 +11,7 @@ import {
   NFC_ADDON_BULK_MIN_QTY,
   NFC_ADDON_BULK_UNIT_CENTS,
   NFC_BUNDLE_SLUG,
+  includedCardCount,
   priceNfcAddon,
 } from "@/lib/payments/nfcAddon";
 import { CARD_DESIGNS, CARD_MIX_PACK_SLUG } from "@/lib/payments/cardMix";
@@ -138,8 +139,8 @@ export function CheckoutForm({
       return { ...m, [slug]: next };
     });
   }
-  // The bundle already includes NFC cards, so the card add-on isn't offered on top of it.
-  const shownBumps = (isBundle ? orderBumps.filter((b) => b.slug !== NFC_ADDON_SLUG) : orderBumps).filter((b) => addOnAvailable(b.slug, primaryProduct.slug));
+  // The bundle and the Basic Package already include NFC cards, so the card add-on isn't offered on top of them.
+  const shownBumps = (includedCardCount(primaryProduct.slug) > 0 ? orderBumps.filter((b) => b.slug !== NFC_ADDON_SLUG) : orderBumps).filter((b) => addOnAvailable(b.slug, primaryProduct.slug));
   const selectedVariant = variants.find((v) => v.id === variantId);
   const bulkDiscountApplies = Boolean(primaryProduct.setupFeeCents) && qty >= BULK_SETUP_WAIVER_MIN_QTY;
   const basePriceCents = selectedVariant?.priceCents ?? primaryProduct.priceCents;

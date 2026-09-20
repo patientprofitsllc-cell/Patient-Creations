@@ -147,14 +147,15 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
     notIncluded: ["Filming on location or real drone footage", "Music rights or licensed music", "Any promise of bookings"],
   },
   "basic-package": {
-    summary: "A drone-style video tour of your building and storefront, made with AI from your photos.",
+    summary: "Three drone-style videos of your building and storefront, made with AI from your photos, plus 5 NFC cards.",
     includes: [
-      "1 drone-style video tour, up to 45 seconds, delivered wide and vertical",
+      "3 drone-style videos, up to 45 seconds each, delivered wide and vertical",
+      "5 NFC cards of your choice, printed and mailed to you",
       "Made with AI from photos of your building and storefront and the details you send. It is not filmed by a real drone",
       "A caption and headline options written for you",
       "1 revision round",
     ],
-    notIncluded: ["Filming on location or real drone footage", "Music rights or licensed music", "Any promise of visits or sales"],
+    notIncluded: ["Filming on location or real drone footage", "More than 3 videos or 5 cards (extra cards are $30 each)", "Music rights or licensed music", "Any promise of visits or sales"],
   },
 };
 

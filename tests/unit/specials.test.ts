@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { resolveNfcAddonPriceCents, priceNfcAddon } from "@/lib/payments/nfcAddon";
+import { resolveNfcAddonPriceCents, priceNfcAddon, includedCardCount } from "@/lib/payments/nfcAddon";
 
 describe("priceNfcAddon (card add-on quantity)", () => {
   // Cards are a flat $30 each: no volume special and no website special.
@@ -95,5 +95,13 @@ describe("supportsQuantity", () => {
     expect(supportsQuantity("Websites")).toBe(false);
     expect(supportsQuantity("Video")).toBe(false);
     expect(supportsQuantity("Bundle")).toBe(false);
+  });
+});
+
+describe("includedCardCount", () => {
+  it("says how many NFC cards ship in the price: 3 with the bundle, 5 with the Basic Package, none elsewhere", () => {
+    expect(includedCardCount("all-in-one-bundle")).toBe(3);
+    expect(includedCardCount("basic-package")).toBe(5);
+    for (const slug of ["site", "starter-website", "ad", "rental-listing-film", "nfc-cards", "", null, undefined]) expect(includedCardCount(slug)).toBe(0);
   });
 });

@@ -135,7 +135,7 @@ const SERVICES: ServiceDef[] = [
     baseCents: 100000,
     tierable: false,
     revisionLimit: 1,
-    turnaround: "3-5 days",
+    turnaround: "1-2 weeks",
     sortOrder: 10,
   },
   {

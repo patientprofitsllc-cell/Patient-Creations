@@ -5,7 +5,7 @@ import { computeRushFeeCents, DeliverySpeedKey, DELIVERY_SPEEDS, getApplicableSp
 import { getActiveProjectCount } from "@/lib/payments/productionLoad";
 import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
 import { calculateShippingCents } from "@/lib/payments/shipping";
-import { NFC_ADDON_SLUG, NFC_BUNDLE_SLUG, priceNfcAddon } from "@/lib/payments/nfcAddon";
+import { NFC_ADDON_SLUG, includedCardCount, priceNfcAddon } from "@/lib/payments/nfcAddon";
 import { AD_SPECIAL_CATEGORY } from "@/lib/payments/quantityProducts";
 import { CARD_DESIGN_SLUGS } from "@/lib/payments/cardMix";
 
@@ -90,8 +90,8 @@ export async function priceOrder(
     throw new Error("Delivery speed options aren't available for this special");
   }
 
-  if (primaryProduct.slug === NFC_BUNDLE_SLUG && products.some((p) => p.slug === NFC_ADDON_SLUG)) {
-    throw new Error("This bundle already includes your NFC cards");
+  if (includedCardCount(primaryProduct.slug) > 0 && products.some((p) => p.slug === NFC_ADDON_SLUG)) {
+    throw new Error("This package already includes your NFC cards");
   }
 
   const applicableSpeeds = getApplicableSpeeds(primaryProduct.turnaround);

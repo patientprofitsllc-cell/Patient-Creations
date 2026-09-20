@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { PRODUCT_SCOPES, SCOPED_SLUGS, scopeFor } from "@/lib/site/productScopes";
+import { includedCardCount } from "@/lib/payments/nfcAddon";
 import { MARKET_ROWS, compareRows, standing, standingText, totalsOf } from "@/lib/site/marketComparison";
 
 const seed = readFileSync(join(process.cwd(), "prisma/seed.ts"), "utf8");
@@ -88,6 +89,26 @@ describe("catalog prices", () => {
     expect(bundle).toBe(89900);
     expect(bundle).toBeLessThan(separately);
     expect((separately - bundle) / separately).toBeGreaterThanOrEqual(0.15);
+  });
+});
+
+describe("Basic Package", () => {
+  it("stays at $1,000 and promises 3 videos and 5 NFC cards, matching what checkout and the card questionnaire use", () => {
+    const b = productBlock("basic-package");
+    expect(b).toContain("baseCents: 100000");
+    const scope = PRODUCT_SCOPES["basic-package"];
+    expect(scope.summary).toMatch(/Three drone-style videos/);
+    expect(scope.summary).toMatch(/5 NFC cards/);
+    expect(scope.includes.join(" ")).toMatch(/^3 drone-style videos/);
+    expect(scope.includes.join(" ")).toMatch(/5 NFC cards of your choice/);
+    expect(includedCardCount("basic-package")).toBe(5);
+  });
+
+  it("does not sell the card add-on on top of the cards it already includes", () => {
+    const pricing = readFileSync(join(process.cwd(), "lib/payments/pricing.ts"), "utf8");
+    expect(pricing).toContain("includedCardCount(primaryProduct.slug) > 0 && products.some");
+    const intake = readFileSync(join(process.cwd(), "app/api/checkout/nfc-intake/route.ts"), "utf8");
+    expect(intake).toContain("includedCardCount(primaryItem?.product.slug) > 0");
   });
 });
 

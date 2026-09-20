@@ -7,7 +7,7 @@ import { NfcIntakeForm } from "@/components/checkout/NfcIntakeForm";
 import { CalendlyBooking } from "@/components/checkout/CalendlyBooking";
 import { ThankYouCard, type ThankYouKind } from "@/components/checkout/ThankYouCard";
 import { statusUrlFor } from "@/lib/projects/statusToken";
-import { NFC_ADDON_SLUG, NFC_BUNDLE_SLUG, NFC_BUNDLE_CARD_COUNT } from "@/lib/payments/nfcAddon";
+import { NFC_ADDON_SLUG, includedCardCount } from "@/lib/payments/nfcAddon";
 
 export default async function CheckoutSuccessPage({ searchParams }: { searchParams: { order?: string } }) {
   const order = searchParams.order
@@ -19,13 +19,13 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
   const awaitingManualPayment = order && order.paymentMethod !== "stripe" && order.status !== "PAID";
   const isNfcOrder = order?.items[0]?.product.category === "Merch";
   const hasNfcAddon = order?.items.some((i) => i.product.slug === NFC_ADDON_SLUG) ?? false;
-  const isBundle = order?.items[0]?.product.slug === NFC_BUNDLE_SLUG;
-  const showCardSetup = isNfcOrder || hasNfcAddon || isBundle;
+  const includedCards = includedCardCount(order?.items[0]?.product.slug);
+  const showCardSetup = isNfcOrder || hasNfcAddon || includedCards > 0;
   // How many cards this order covers, so the questionnaire can ask for each one.
   const sumQty = (pred: (i: NonNullable<typeof order>["items"][number]) => boolean) =>
     order?.items.filter(pred).reduce((s, i) => s + i.quantity, 0) ?? 0;
-  const cardCount = isBundle
-    ? NFC_BUNDLE_CARD_COUNT
+  const cardCount = includedCards > 0
+    ? includedCards
     : hasNfcAddon
       ? sumQty((i) => i.product.slug === NFC_ADDON_SLUG)
       : (order?.items.filter((i) => i.product.category === "Merch").length ?? 0) > 1
