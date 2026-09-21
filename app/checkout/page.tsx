@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
+import { bnplEnabled } from "@/lib/payments/bnpl";
 import { db } from "@/lib/db";
 import { getActiveProjectCount } from "@/lib/payments/productionLoad";
 import { ScopePanel } from "@/components/catalog/ScopePanel";
@@ -58,6 +59,7 @@ export default async function CheckoutPage({ searchParams }: { searchParams: { p
               type: b.type,
             }))}
             activeProjectCount={activeProjectCount}
+            bnplEnabled={bnplEnabled()}
           />
         </div>
       </main>

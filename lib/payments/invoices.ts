@@ -8,6 +8,7 @@ import { CONTACT_EMAIL } from "@/lib/config/site";
 import { finalizeDelivery } from "@/lib/agents/orchestrator";
 import { baseUrl, invoiceNumber, invoiceUrl, issueBalanceInvoice } from "@/lib/payments/invoiceCore";
 import { statusUrlFor } from "@/lib/projects/statusToken";
+import { createWithBnplFallback } from "@/lib/payments/bnpl";
 
 // Paying an invoice: a private link, Stripe Checkout, and a payment that is recorded exactly once no matter how many
 // times Stripe or the customer's browser reports it. Nothing is trusted from the browser: Stripe is asked directly.
@@ -31,8 +32,9 @@ export async function startInvoiceCheckout(token: string): Promise<InvoiceChecko
   try {
     const meta = { kind: "invoice", invoiceId: invoice.id };
     const order = await db.order.findUnique({ where: { id: invoice.orderId }, include: { customer: { include: { user: true } } } });
-    const session = await getStripe().checkout.sessions.create({
+    const session = await createWithBnplFallback(invoice.amountCents, (types) => getStripe().checkout.sessions.create({
       mode: "payment",
+      ...(types ? { payment_method_types: types as never } : {}),
       customer_email: order?.customer.user.email,
       line_items: [
         {
@@ -45,7 +47,7 @@ export async function startInvoiceCheckout(token: string): Promise<InvoiceChecko
       payment_intent_data: { metadata: meta },
       success_url: `${page}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: page,
-    });
+    }));
     if (!session.url) return { ok: false, status: 502, error: "We could not start checkout. Please try again." };
     return { ok: true, url: session.url };
   } catch (err) {

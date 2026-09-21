@@ -21,6 +21,7 @@ import { intakeUrlFor } from "@/lib/intake/url";
 import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
 import { depositLineItems, quoteDeposit } from "@/lib/payments/deposit";
 import { usd } from "@/lib/pricing/catalog";
+import { createWithBnplFallback } from "@/lib/payments/bnpl";
 
 const checkoutSchema = z.object({
   productIds: z.array(z.string()).min(1),
@@ -251,8 +252,11 @@ export async function POST(req: NextRequest) {
           ]
         : [];
     const isDeposit = balanceDueCents > 0;
-    const checkoutSession = await stripe.checkout.sessions.create({
+    // Pay-later methods are offered only when turned on, and only for what is charged right now (the deposit, if there is one).
+    const chargedNowCents = isDeposit ? depositCents : priced.totalCents;
+    const checkoutSession = await createWithBnplFallback(chargedNowCents, (types) => stripe.checkout.sessions.create({
       mode: "payment",
+      ...(types ? { payment_method_types: types as never } : {}),
       // A deposit is one line, so the card is charged exactly the deposit; the rest is invoiced when the build is ready.
       line_items: isDeposit
         ? depositLineItems({ productNames: products.map((p) => p.name), depositCents, balanceCents: balanceDueCents })
@@ -274,7 +278,7 @@ export async function POST(req: NextRequest) {
       success_url: `${process.env.APP_BASE_URL}/checkout/success?order=${order.id}`,
       cancel_url: `${process.env.APP_BASE_URL}/checkout?cancelled=1`,
       metadata: { orderId: order.id },
-    });
+    }));
 
     await db.order.update({ where: { id: order.id }, data: { stripeSessionId: checkoutSession.id } });
 

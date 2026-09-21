@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { db } from "@/lib/db";
 import { AUDIT_CREDIT_DAYS, AUDIT_FEE_CENTS, usd } from "@/lib/pricing/catalog";
 import { getStripe, isStripeConfigured } from "@/lib/payments/stripe";
+import { createWithBnplFallback } from "@/lib/payments/bnpl";
 import { sendEmail } from "@/lib/email/provider";
 import { trackFunnel } from "@/lib/analytics/funnel";
 import { CONTACT_EMAIL } from "@/lib/config/site";
@@ -101,8 +102,9 @@ export async function startAuditCheckout(auditId: string): Promise<CheckoutStart
   }
   try {
     const meta = { kind: "growth_audit", auditId: audit.id };
-    const session = await getStripe().checkout.sessions.create({
+    const session = await createWithBnplFallback(audit.amountCents, (types) => getStripe().checkout.sessions.create({
       mode: "payment",
+      ...(types ? { payment_method_types: types as never } : {}),
       customer_email: audit.email,
       line_items: [
         {
@@ -118,7 +120,7 @@ export async function startAuditCheckout(auditId: string): Promise<CheckoutStart
       payment_intent_data: { metadata: meta },
       success_url: `${reportUrl}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: reportUrl,
-    });
+    }));
     if (!session.url) return { ok: false, status: 502, error: "We could not start checkout. Please try again." };
     return { ok: true, url: session.url };
   } catch (err) {

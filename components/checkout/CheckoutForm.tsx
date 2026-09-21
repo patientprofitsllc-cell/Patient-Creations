@@ -19,6 +19,7 @@ import { supportsQuantity } from "@/lib/payments/quantityProducts";
 import { businessDays } from "@/lib/payments/deliveryWindow";
 import { PAYMENT_METHODS } from "@/lib/payments/paymentMethods";
 import { quoteDeposit } from "@/lib/payments/deposit";
+import { bnplNotice } from "@/lib/payments/bnpl";
 import type { PaymentMethod } from "@/lib/types";
 import { BUSINESS_TYPES, OFFER_SLUG } from "@/lib/site/offer";
 import { captureAttribution, readAttribution, sourceLabel } from "@/lib/analytics/attribution";
@@ -54,7 +55,9 @@ export function CheckoutForm({
   variants,
   orderBumps,
   activeProjectCount,
+  bnplEnabled = false,
 }: {
+  bnplEnabled?: boolean;
   primaryProduct: ProductLite;
   variants: VariantLite[];
   orderBumps: ProductLite[];
@@ -198,6 +201,8 @@ export function CheckoutForm({
   // The server works out the real amounts (including any coupon); this is what to show before that.
   const depositQuote = quoteDeposit(subtotal, { shippingCents });
   const usingDeposit = plan === "deposit" && depositQuote.eligible;
+  // Klarna and Afterpay only apply to a card payment made now, so the notice follows what is charged now.
+  const payLaterNotice = paymentMethod === "stripe" ? bnplNotice(usingDeposit ? depositQuote.depositCents : subtotal, bnplEnabled) : null;
 
   async function submit() {
     if (!agreed) {
@@ -323,6 +328,7 @@ export function CheckoutForm({
                 <p className="mt-2 text-xs text-ice/40">Amounts are before any coupon. A coupon comes off the total first, and the exact amounts are shown when you pay.</p>
               </div>
             )}
+            {payLaterNotice && <p className="mt-4 text-xs text-champagne/80">{payLaterNotice}</p>}
             {isMerch && shippingQuote && (
               <p className="mt-4 text-xs text-ice/40">
                 Ships via {shippingQuote.boxLabel}, US only — {money(shippingCents)} shipping already included in

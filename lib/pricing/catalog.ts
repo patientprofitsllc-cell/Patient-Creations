@@ -70,6 +70,13 @@ export const AUDIT_CREDIT_DAYS = 30;
  */
 export const DEPOSIT = { percent: 50, overCents: 150_000 } as const;
 
+/**
+ * Buy now, pay later at card checkout (see lib/payments/bnpl.ts). Klarna and Afterpay set their own limits, and they
+ * change; these follow Stripe's documentation for United States merchants: Afterpay up to $4,000, Klarna up to $10,000
+ * (its longer financing plans). Below the floor, the provider's fee (roughly 6% plus 30 cents) is too much of the sale.
+ */
+export const BNPL = { minCents: 30_000, afterpayMaxCents: 400_000, klarnaMaxCents: 1_000_000 } as const;
+
 export type PricedSlug = keyof typeof PRICE_CENTS;
 
 export const priceOf = (slug: PricedSlug): number => PRICE_CENTS[slug];

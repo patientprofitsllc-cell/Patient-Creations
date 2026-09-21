@@ -5,8 +5,8 @@ import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY } from "@/lib/config/site";
 // way that matters: the version is recorded with each acceptance, so what a
 // customer agreed to can always be shown.
 
-export const LEGAL_VERSION = "2026-09-22";
-export const LEGAL_EFFECTIVE_DATE = "September 22, 2026";
+export const LEGAL_VERSION = "2026-09-23";
+export const LEGAL_EFFECTIVE_DATE = "September 23, 2026";
 
 export const COMPANY = {
   legalName: "Patient Profits LLC",

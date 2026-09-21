@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---- a small in-memory stand-in for the database, email, Stripe, and the delivery step ----
 type Row = Record<string, any>;
@@ -413,5 +413,36 @@ describe("cancelling an invoice", () => {
     await markInvoicePaid(paidExtra.invoice.id, "MANUAL");
     expect((await voidInvoice(paidExtra.invoice.id)).ok).toBe(false);
     expect((await voidInvoice("missing")).ok).toBe(false);
+  });
+});
+
+describe("pay later on an invoice", () => {
+  const env = process.env as Record<string, string | undefined>;
+  afterEach(() => {
+    delete env.BNPL_ENABLED;
+  });
+
+  it("changes nothing while it is off", async () => {
+    depositOrder();
+    const inv = (await issueBalanceInvoice("o1"))!;
+    await startInvoiceCheckout(inv.token);
+    expect(store.stripe.created[0]).not.toHaveProperty("payment_method_types");
+  });
+
+  it("offers Klarna on a balance that fits, judged by the invoice amount", async () => {
+    env.BNPL_ENABLED = "true";
+    depositOrder();
+    const inv = (await issueBalanceInvoice("o1"))!;
+    await startInvoiceCheckout(inv.token);
+    expect(store.stripe.created[0].payment_method_types).toEqual(["card", "klarna"]);
+  });
+
+  it("offers card only on a small extra-work invoice", async () => {
+    env.BNPL_ENABLED = "true";
+    depositOrder();
+    const extra = await issueExtraInvoice({ orderId: "o1", amountCents: 20_000, description: "Small change" });
+    if (!extra.ok) throw new Error("expected ok");
+    await startInvoiceCheckout(extra.invoice.token);
+    expect(store.stripe.created[0].payment_method_types).toEqual(["card"]);
   });
 });

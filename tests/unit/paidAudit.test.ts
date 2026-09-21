@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---- a small in-memory stand-in for the database and for Stripe ----
 type Row = Record<string, any>;
@@ -247,5 +247,22 @@ describe("paying for the audit", () => {
     expect(store.audits[0].status).toBe("PAID");
     await handleAuditEvent(ev({}));
     expect(store.emails.filter((e) => e.template === "growth_audit_ready")).toHaveLength(1);
+  });
+});
+
+describe("pay later never applies to the audit fee", () => {
+  const env = process.env as Record<string, string | undefined>;
+  afterEach(() => {
+    delete env.BNPL_ENABLED;
+  });
+
+  it("sends nothing extra while it is off, and card only when it is on, so Klarna cannot appear on a small fee", async () => {
+    const a = await newAudit();
+    await startAuditCheckout(a.id);
+    expect(store.stripe.created[0]).not.toHaveProperty("payment_method_types");
+    env.BNPL_ENABLED = "true";
+    store.stripe.created.length = 0;
+    await startAuditCheckout(a.id);
+    expect(store.stripe.created[0].payment_method_types).toEqual(["card"]);
   });
 });
