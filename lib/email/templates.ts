@@ -19,6 +19,10 @@ export type EmailTemplateKey =
   | "owner_new_order"
   | "owner_audit_lead"
   | "deposit_received"
+  | "partner_application_received"
+  | "partner_approved"
+  | "partner_declined"
+  | "partner_payout_sent"
   | "invoice_issued"
   | "invoice_paid"
   | "balance_due_ready"
@@ -85,6 +89,43 @@ One thing that makes a real difference: a specific offer. A clear product, a cle
 Your private plan page (keep this link, it is how you reach your plan): ${p.manageUrl}`,
   }),
   owner_new_order: (p) => ({ subject: String(p.subject ?? "New order"), body: String(p.body ?? "") }),
+  partner_application_received: (p) => ({
+    subject: "We received your partner application",
+    body: `Hi ${String(p.name ?? "")},
+
+Thank you for applying to the Patient Creations partner program. We read every application, and we will email you once we have decided. If you have questions in the meantime, reply to this email or call ${CONTACT_PHONE_DISPLAY}.`,
+  }),
+  partner_approved: (p) => ({
+    subject: "You are in: your Patient Creations partner link",
+    body: `Hi ${String(p.name ?? "")},
+
+Welcome to the Patient Creations partner program.
+
+Your private dashboard (bookmark it, and do not share it): ${p.dashboardUrl}
+Your partner link: ${p.link}
+
+You earn ${p.percent}% of what a customer you refer pays on their one-time orders, for a year after their first paid order. Each commission is held for ${p.days} days in case of a refund, and it is approved once the customer's whole order is paid. Your dashboard shows every step. We pay approved commissions by hand and email you when we do.
+
+Always say you may earn a commission when you share your link, and please do not promise results. The dashboard has ready-made words and the full rules.
+
+Questions? Reply to this email.`,
+  }),
+  partner_declined: (p) => ({
+    subject: "About your partner application",
+    body: `Hi ${String(p.name ?? "")},
+
+Thank you for your interest in the Patient Creations partner program. We are not able to bring you on right now. You are welcome to apply again in the future, and if you would like to talk about it, reply to this email.`,
+  }),
+  partner_payout_sent: (p) => ({
+    subject: `Your partner payout of ${p.amount} was sent`,
+    body: `Hi ${String(p.name ?? "")},
+
+We paid ${p.amount} for ${p.count} approved commission${Number(p.count) === 1 ? "" : "s"}. How: ${p.ref}
+
+You can see it on your dashboard: ${p.dashboardUrl}
+
+Thank you for sending people our way.`,
+  }),
   deposit_received: (p) => ({
     subject: "Deposit received. Your build has started.",
     body: `Thank you. We received your ${p.deposit} deposit, and "${p.projectName}" is now in production.

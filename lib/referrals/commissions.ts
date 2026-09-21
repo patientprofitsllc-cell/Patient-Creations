@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { logEvent } from "@/lib/analytics/events";
 import { isSelfReferral, computeCommissionCents, PENDING_PERIOD_DAYS } from "@/lib/referrals/fraud";
+import { approvalDecision } from "@/lib/partners/rules";
 
 /**
  * Called after a referred order is paid. Walks CLICKED/LEAD -> CUSTOMER ->
@@ -34,16 +35,27 @@ export async function recordReferralPurchase(referralCode: string, purchasingCus
   return commission;
 }
 
-/** Moves any commission whose pending period has elapsed to APPROVED. Intended to run on a schedule. */
-export async function approveMaturedCommissions() {
+/**
+ * Moves a commission whose pending period has elapsed to APPROVED, but only once the customer's whole order is paid (a deposit
+ * order waits for its final payment), and voids it if the order was refunded or cancelled. Safe to run as often as you like.
+ */
+export async function approveMaturedCommissions(now = new Date()) {
   const matured = await db.commission.findMany({
-    where: { state: "PENDING", pendingUntil: { lte: new Date() } },
+    where: { state: "PENDING", pendingUntil: { lte: now } },
   });
 
+  let approved = 0;
   for (const c of matured) {
-    await db.commission.update({ where: { id: c.id }, data: { state: "APPROVED" } });
-    await logEvent("commission.approved", "Commission", c.id, {});
+    const order = c.orderId ? await db.order.findUnique({ where: { id: c.orderId }, select: { status: true, balanceDueCents: true } }) : null;
+    if (!order) continue;
+    const decision = approvalDecision({ pendingUntil: c.pendingUntil, orderStatus: order.status, balanceDueCents: order.balanceDueCents, now });
+    if (decision === "wait") continue;
+    const r = await db.commission.updateMany({ where: { id: c.id, state: "PENDING" }, data: { state: decision === "approve" ? "APPROVED" : "REFUNDED" } });
+    if (r.count === 1 && decision === "approve") {
+      approved++;
+      await logEvent("commission.approved", "Commission", c.id, {});
+    }
   }
 
-  return matured.length;
+  return approved;
 }

@@ -9,6 +9,7 @@ import { decrementInventoryForOrder } from "@/lib/inventory/decrement";
 import { consumeAuditCredit } from "@/lib/audit/paid";
 import { announceDeposit } from "@/lib/payments/invoices";
 import { markProspectWon } from "@/lib/prospects/service";
+import { recordPartnerPurchase } from "@/lib/partners/service";
 import type { PaymentProvider } from "@/lib/types";
 
 /**
@@ -53,6 +54,8 @@ export async function completeOrderPayment(orderId: string, provider: PaymentPro
   // A prospect with this customer's email has just become a customer.
   const buyer = await db.user.findUnique({ where: { id: order.customer.userId }, select: { email: true } });
   await markProspectWon(buyer?.email);
+  // If a partner introduced this customer, their commission is recorded (held until it is safe to approve). Never throws.
+  await recordPartnerPurchase(orderId);
 
   const project = await createProjectForOrder(orderId);
 

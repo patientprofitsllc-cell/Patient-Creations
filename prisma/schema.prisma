@@ -671,11 +671,14 @@ model Prospect {
   productInterest String?  // a product slug from the price list
   nextAction     String?
   lastContactAt  DateTime?
+  // The partner who introduced this business, if one did (see the Partner model).
+  partnerId      String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   @@index([status])
   @@index([nextFollowUpAt])
+  @@index([partnerId])
 }
 
 // A recorded "I agree": which version of the legal terms someone accepted, when,
@@ -789,4 +792,61 @@ model Invoice {
   createdAt       DateTime  @default(now())
   @@index([orderId])
   @@index([status])
+}
+
+// The partner program. A partner applies, the owner approves them, and they get a code (for links) and a private dashboard
+// link (`token`). Commissions are their own table because a partner is not a customer.
+model Partner {
+  id                String   @id @default(cuid())
+  code              String?  @unique // set when approved, like PCK7M2QX
+  token             String   @unique // the private dashboard link
+  name              String
+  email             String   @unique
+  company           String?
+  type              String   // a key from lib/partners/rules.ts
+  website           String?
+  about             String?  // how they would send us customers
+  status            String   @default("APPLIED") // APPLIED | ACTIVE | PAUSED | DECLINED
+  commissionPercent Int      @default(10)
+  payoutNote        String?  // how to pay them, like a Zelle email
+  termsVersion      String?
+  createdAt         DateTime @default(now())
+  approvedAt        DateTime?
+
+  clicks            PartnerClick[]
+  commissions       PartnerCommission[]
+  @@index([status])
+}
+
+model PartnerClick {
+  id        String   @id @default(cuid())
+  partnerId String
+  partner   Partner  @relation(fields: [partnerId], references: [id])
+  ipHash    String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  @@index([partnerId])
+}
+
+// One commission per order. PENDING until the hold has passed and the whole order is paid, then APPROVED, then PAID once the
+// owner has sent the money. REFUNDED if the order was refunded or cancelled first. REJECTED for a self-referral or a partner
+// who was not active.
+model PartnerCommission {
+  id              String    @id @default(cuid())
+  partnerId       String
+  partner         Partner   @relation(fields: [partnerId], references: [id])
+  orderId         String    @unique
+  customerId      String
+  state           String    @default("PENDING") // PENDING | APPROVED | PAID | REFUNDED | REJECTED
+  grossCents      Int
+  commissionCents Int
+  percent         Int
+  pendingUntil    DateTime?
+  approvedAt      DateTime?
+  paidAt          DateTime?
+  payoutRef       String?
+  note            String?
+  createdAt       DateTime  @default(now())
+  @@index([partnerId])
+  @@index([state])
 }

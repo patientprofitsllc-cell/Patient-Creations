@@ -8,7 +8,7 @@ import { dealProductName } from "@/lib/crm/labels";
 const money = (cents: number) => (cents / 100).toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 const day = (d: Date | null) => (d ? d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) : null);
 
-const SOURCE_LABEL: Record<string, string> = { "growth-audit": "Growth audit", "audit-inquiry": "Audit question", import: "Imported", manual: "Added by hand", referral: "Referral" };
+const SOURCE_LABEL: Record<string, string> = { "growth-audit": "Growth audit", "audit-inquiry": "Audit question", import: "Imported", manual: "Added by hand", referral: "Referral", partner: "Partner" };
 const sourceLabel = (s: string | null) => (s ? (SOURCE_LABEL[s] ?? s) : null);
 
 function Card({ c }: { c: CrmCard }) {

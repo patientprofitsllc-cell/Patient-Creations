@@ -12,6 +12,7 @@ const TABS = [
   { href: "/admin/followups", label: "Follow-ups" },
   { href: "/admin/ads", label: "Monthly Ads" },
   { href: "/admin/crm", label: "CRM" },
+  { href: "/admin/partners", label: "Partners" },
   { href: "/admin/inventory", label: "Inventory" },
   { href: "/admin/projects", label: "Production" },
   { href: "/admin/logs", label: "Sessions & Logs" },

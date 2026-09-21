@@ -8,7 +8,7 @@ import { LEGAL_VERSION } from "@/lib/legal/config";
  * failure to write it must not be silent, and it never blocks the customer's
  * order: it is logged loudly instead.
  */
-export async function recordAcceptance(input: { scope: "ORDER" | "CARE_PLAN" | "AD_PLAN"; refId: string; customerId?: string | null; req: NextRequest }) {
+export async function recordAcceptance(input: { scope: "ORDER" | "CARE_PLAN" | "AD_PLAN" | "PARTNER"; refId: string; customerId?: string | null; req: NextRequest }) {
   try {
     await db.termsAcceptance.create({
       data: {

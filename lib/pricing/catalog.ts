@@ -77,6 +77,14 @@ export const DEPOSIT = { percent: 50, overCents: 150_000 } as const;
  */
 export const BNPL = { minCents: 30_000, afterpayMaxCents: 400_000, klarnaMaxCents: 1_000_000 } as const;
 
+/**
+ * The partner program (agencies, designers, consultants, and others who send us customers). A partner earns a percent of
+ * what a customer they referred pays, on one-time orders, for a year after that customer's first paid order. A commission is
+ * held for `pendingDays` after payment (time for a refund or dispute to show up) and is approved only once the whole order
+ * is paid. Payouts are made by hand, and no smaller than `minPayoutCents`.
+ */
+export const PARTNER = { defaultPercent: 10, pendingDays: 14, windowDays: 365, minPayoutCents: 5_000 } as const;
+
 export type PricedSlug = keyof typeof PRICE_CENTS;
 
 export const priceOf = (slug: PricedSlug): number => PRICE_CENTS[slug];

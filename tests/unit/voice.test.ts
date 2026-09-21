@@ -145,7 +145,7 @@ describe("which line plays where", () => {
     for (const r of routes) {
       if (quiet.has(r)) continue;
       const silent = cueForRoute(r) === null;
-      const known = ["/admin", "/portal", "/auth", "/preview", "/intake", "/terms", "/privacy", "/refunds", "/acceptable-use", "/copyright", "/unsubscribe", "/monthly-ads/manage"].some((p) => r === p || r.startsWith(p + "/"));
+      const known = ["/admin", "/portal", "/auth", "/preview", "/intake", "/terms", "/privacy", "/refunds", "/acceptable-use", "/copyright", "/partner-terms", "/partners", "/unsubscribe", "/monthly-ads/manage"].some((p) => r === p || r.startsWith(p + "/"));
       expect(!silent || known, `${r} has no voice line and is not marked quiet`).toBe(true);
     }
   });

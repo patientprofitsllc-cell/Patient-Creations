@@ -48,6 +48,7 @@ export const LEGAL_PAGES = [
   { href: "/refunds", label: "Refund and Cancellation Policy" },
   { href: "/acceptable-use", label: "Acceptable Use Policy" },
   { href: "/copyright", label: "Copyright and Site Use Notice" },
+  { href: "/partner-terms", label: "Partner Program Terms" },
 ] as const;
 
 export type LegalBlock = string | { list: string[] };
