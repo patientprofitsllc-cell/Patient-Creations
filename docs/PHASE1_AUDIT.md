@@ -30,7 +30,7 @@ The $100K/month figure is a business target, not a forecast. The founder framewo
 | The NFC section still said "the $25 setup fee is folded into the price" although cards are a flat $30 with no setup fee | **Fixed.** |
 | AI Software tiers were $10,000 / $16,000 / $25,000 and Lead Engine $1,700 / $2,700 / $4,250, against the founder's targets of $10,000 / $15,000 / $25,000 and $1,700 / $2,500 / $4,250 | **Fixed** with two explicit tier overrides in the catalog. Live database now matches. |
 | Database rows and code could drift apart | **Fixed.** `scripts/pricing/verify-db.ts` compares every live row and tier to the catalog; it passes for all 31 products. |
-| The post-purchase "next step" page only ever offers the $600 Automation Add-On, and only to signed-in users | **Open.** No ladder logic. Phase 3 and 4. |
+| The post-purchase "next step" page only ever offered the $600 Automation Add-On, and only to signed-in users | **Fixed.** It now uses the ladder and also works for signed-out visitors. |
 | Prospect pipeline stages differ from the spec's 11-stage pipeline, and there is no lead value, probability, or source field | **Open.** Phase 5. |
 | The portal dashboard shows only projects and orders | **Open.** Phase 3. |
 | The concierge lives on the private status page, not inside the portal, and only knows one project | **Open.** Phase 7. |
@@ -50,16 +50,16 @@ Status: **Done** (works, tested), **Partial** (something real exists), **Missing
 | 8 | Website Care $79 with a "keep your site running" offer after a website purchase | Partial | Care Plan exists on the project page; the post-purchase prompt is Missing. |
 | 9 | Lead Engine tiers | **Done** | Tiers now $1,700 / $2,500 / $4,250. Tier names are still Core / Signature / Flagship. |
 | 10 | Separate high-ticket AI path with qualification | Partial | Prices and scopes exist; no qualification form or deposit flow. |
-| 11 | Customer ascension system | Missing | No behavior-triggered ladder. |
+| 11 | Customer ascension system | **Done (v1)** | `lib/journey/ladder.ts`: what someone just bought and owns decides the next one to three offers. Shown on the confirmation page and the next-step page. Lifecycle emails that use it are Phase 4. |
 | 12 | Customer dashboard with full ledger and a progress bar | Partial | Projects and orders only. |
 | 13 | "Patient AI" concierge in the dashboard | Partial | Concierge exists per project. |
-| 14 | Free Growth Audit lead machine | Partial | The audit engine exists (admin only). No public form. |
+| 14 | Free Growth Audit lead machine | **Done (v1)** | Public `/audit` form and API on the existing safe audit engine. Every line labeled Observed, Recommended, or Estimated. Feeds the prospect list, emails the visitor and the owner. Not yet: automated follow-up sequence (Phase 4/5). |
 | 15 | Partner program and dashboard | Partial | Referral codes and commissions exist; no partner signup, assets, or partner dashboard. |
 | 16 | CRM with 11-stage pipeline and founder dashboard | Partial | Prospect pipeline and customer notes exist. |
 | 17 to 18 | Revenue dashboard and planning calculator | Partial | Growth dashboard exists; no full revenue/retention views or planning scenario. |
-| 19 to 21 | Homepage rebuild, journey visual, three-choice discovery | Missing | |
-| 22 | Checkout with personalized thank-you steps | Partial | Thank-you card exists; the six-step "what happens next" is Missing. Deposits and invoices Missing. |
-| 23 | Contextual upsells | Missing | See section 2. |
+| 19 to 21 | Homepage rebuild, journey visual, three-choice discovery | **Done** | New hero copy and CTAs, the three-choice finder, and the five-step path, on the approved live hero. Checked at 375, 390, 430, 768, 1024, 1280, and 1440 px. |
+| 22 | Checkout with personalized thank-you steps | Partial | The six-step "You just took the first step" stepper is **done** (website, project, and card variants). Deposits and invoices are still Missing. |
+| 23 | Contextual upsells | **Done (v1)** | See item 11. Never offers what is owned; consultations get none; clicks and views are counted. |
 | 24 to 25 | Production pipeline with human approval and rollback | Partial | Agents, QA, and approval exist; rollback to a superseded version is not exposed. |
 | 26 to 27 | Design system and mobile | Done | Tested on phone sizes; one 320px overflow fixed this week. |
 | 28 | SEO and industry pages | Partial | 12 industry pages exist under `/websites/` and `/examples/`; the spec's `/industries/*` paths are Missing. |
@@ -83,3 +83,16 @@ Status: **Done** (works, tested), **Partial** (something real exists), **Missing
 1. Phase 3, customer journey: the ladder-based next-step offers, the six-step "what happens next" page, homepage hierarchy and three-choice discovery, the business journey visual.
 2. Phase 6, growth audit: a public form that reuses the existing safe audit engine, labels every finding observed, recommended, or estimated, and feeds the pipeline.
 3. Phases 4, 5, 7 to 10 follow, each behind its own baseline and tests, and driven by the current biggest constraint rather than by feature count.
+
+## 6. Progress log
+
+| Date | Phase | Result |
+|---|---|---|
+| 2026-09-20 | 1. Audit | This document and the route baseline. |
+| 2026-09-20 | 2. Pricing consolidation | One price list, tiers at the founder's targets, a live-database checker, and a test that fails if a price is typed anywhere else. |
+| 2026-09-20 | 3. Customer journey (first slice) | Homepage hierarchy, three-choice finder, business path, six-step post-purchase stepper, the ladder on the confirmation and next-step pages. |
+| 2026-09-20 | 6. Growth audit (v1) | Public audit, lead capture into the prospect list, owner and visitor emails, rate limits, honeypot, consent, safe website fetching. |
+
+**Not started, in this order of value:** Phase 4 revenue engine (Website Care prompt after a website goes live, deposits and invoices, lifecycle emails using the ladder), Phase 5 CRM (the 11-stage pipeline with value, probability, and source; merge with the prospect list), Phase 7 customer AI in the portal, Phase 9 partner program, Phase 10 revenue and retention dashboard with the planning scenario, then the founder dashboard, idea parking lot, bottleneck rule, and product profitability. The production-agent pipeline (Phase 8) already exists and needs rollback and the QA checklist from the spec.
+
+**Test and check counts:** 409 unit tests; homepage, finder, audit, and confirmation page also checked in a real browser at phone and desktop widths.

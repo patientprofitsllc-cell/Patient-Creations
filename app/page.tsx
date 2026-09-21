@@ -15,6 +15,8 @@ import { GrowthLadder } from "@/components/marketing/GrowthLadder";
 import { HowItWorksSimple } from "@/components/marketing/HowItWorksSimple";
 import { IndustryGrid } from "@/components/marketing/IndustryGrid";
 import { OfferCard } from "@/components/marketing/OfferCard";
+import { ProductFinder } from "@/components/home/ProductFinder";
+import { BusinessJourney } from "@/components/home/BusinessJourney";
 import { ProblemSection } from "@/components/marketing/ProblemSection";
 import { db } from "@/lib/db";
 import { LOGO_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/config/site";
@@ -96,27 +98,30 @@ export default async function HomePage() {
           <div className="relative mx-auto max-w-4xl px-6 text-center">
             <p className="mb-4 text-xs uppercase tracking-[0.4em] text-gold/80 sm:mb-6">Patient Creations</p>
             <h1 className="font-display text-[2.1rem] leading-tight text-ice min-[400px]:text-5xl sm:text-6xl md:text-7xl">
-              Your Business Deserves a{" "}
-              <span className="text-gradient-champagne italic">Website That Works.</span>
+              Build Your Business. Get More Customers.{" "}
+              <span className="text-gradient-champagne italic">Automate the Work.</span>
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base text-ice/80 sm:mt-6 sm:text-lg">
-              A professional, mobile-ready website for your local business, built around what you do and ready to
-              take calls, texts, and bookings. One clear price, one revision included.
+              Patient Creations helps businesses launch, market, generate leads, and automate operations with websites,
+              content, growth systems, and AI.
             </p>
             <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4">
               <Link
-                href={OFFER_CHECKOUT_HREF}
+                href="/audit"
                 className="w-full rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-4 text-base font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110 sm:w-auto"
               >
-                BUILD MY WEBSITE {price}
+                GET MY FREE GROWTH AUDIT
               </Link>
               <Link
-                href="/examples"
+                href="/services"
                 className="champagne-border w-full rounded-full px-8 py-4 text-sm tracking-wide text-champagne transition hover:bg-champagne/10 sm:w-auto"
               >
-                VIEW EXAMPLES
+                EXPLORE SERVICES
               </Link>
             </div>
+            <p className="mt-4 text-sm text-ice/60">
+              Just need a website? <Link href={OFFER_CHECKOUT_HREF} className="text-gold underline">Build it now for {price}.</Link>
+            </p>
           </div>
         </section>
 
@@ -133,6 +138,14 @@ export default async function HomePage() {
             ))}
           </ul>
         </section>
+
+        {/* 2b. Start here: three questions instead of fifteen services */}
+        <ProductFinder />
+
+        {/* 2c. The path from getting online to running on its own */}
+        <div className="defer-offscreen">
+          <BusinessJourney />
+        </div>
 
         {/* 3. Problem */}
         <div className="defer-offscreen">

@@ -32,6 +32,10 @@ const EVENT_LABELS: Record<FunnelEvent, string> = {
   subscription_started: "Started a care plan",
   referral_clicked: "Referral click",
   referral_purchase: "Referral purchase",
+  upsell_click: "Clicked a next step",
+  audit_started: "Started a growth audit",
+  audit_completed: "Received a growth audit",
+  lead_submitted: "Lead submitted",
 };
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {

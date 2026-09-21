@@ -3,31 +3,40 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/security/authOptions";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
+import { NextStepCards } from "@/components/journey/NextStepCards";
 import { db } from "@/lib/db";
+import { firstOffers, nextOffers, type Offer } from "@/lib/journey/ladder";
 
-// Reads the signed-in user's own purchase history — never eligible for
-// build-time static generation.
+// Reads the signed-in user's own purchase history, so it is never built ahead of time.
 export const dynamic = "force-dynamic";
+
+async function offersFor(userId: string | undefined): Promise<{ offers: Offer[]; signedIn: boolean }> {
+  if (!userId) return { offers: firstOffers(), signedIn: false };
+  const customer = await db.customer.findUnique({
+    where: { userId },
+    include: {
+      orders: { where: { status: "PAID" }, orderBy: { createdAt: "desc" }, include: { items: { include: { product: { select: { slug: true } } } }, project: { select: { statusToken: true } } } },
+    },
+  });
+  if (!customer || customer.orders.length === 0) return { offers: firstOffers(), signedIn: true };
+  const [carePlans, adsPlans] = await Promise.all([
+    db.careSubscription.count({ where: { customerId: customer.id, status: { not: "CANCELED" } } }),
+    db.adSubscription.count({ where: { customerId: customer.id, status: { in: ["ACTIVE", "PAST_DUE"] } } }),
+  ]);
+  const latest = customer.orders[0];
+  const offers = nextOffers({
+    justBought: latest.items.map((i) => i.product.slug),
+    owned: customer.orders.flatMap((o) => o.items.map((i) => i.product.slug)),
+    hasCarePlan: carePlans > 0,
+    hasAdsPlan: adsPlans > 0,
+    statusPath: latest.project?.statusToken ? `/status/${latest.project.statusToken}` : null,
+  });
+  return { offers, signedIn: true };
+}
 
 export default async function UpsellPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return (
-      <>
-        <SiteHeader />
-        <main id="main" className="mx-auto max-w-xl px-6 pb-28 pt-40 text-center text-ice/60">
-          Sign in to see personalized next steps.
-        </main>
-        <SiteFooter />
-      </>
-    );
-  }
-
-  const customer = await db.customer.findUnique({ where: { userId: session.user.id }, include: { orders: { include: { items: true } } } });
-  const ownedProductIds = new Set(customer?.orders.flatMap((o) => o.items.map((i) => i.productId)) ?? []);
-
-  const upsells = await db.product.findMany({ where: { type: "UPSELL", active: true }, orderBy: { sortOrder: "asc" } });
-  const relevant = upsells.filter((u) => !ownedProductIds.has(u.id));
+  const { offers, signedIn } = await offersFor(session?.user?.id);
 
   return (
     <>
@@ -35,25 +44,13 @@ export default async function UpsellPage() {
       <main id="main" className="mx-auto max-w-3xl px-6 pb-28 pt-40 text-center">
         <p className="text-xs uppercase tracking-[0.3em] text-champagne/70">Recommended Next</p>
         <h1 className="mt-4 font-display text-3xl text-ice">One relevant next step.</h1>
-        <div className="mt-10 space-y-4 text-left">
-          {relevant.length === 0 && <p className="text-center text-ice/40">You already own everything we'd recommend right now.</p>}
-          {relevant.map((u) => (
-            <div key={u.id} className="glass-panel flex items-center justify-between rounded-2xl p-6">
-              <div>
-                <p className="text-ice">{u.name}</p>
-                <p className="text-sm text-ice/50">{u.description}</p>
-              </div>
-              <Link
-                href={`/checkout?product=${u.slug}`}
-                className="rounded-full bg-gold px-5 py-2 text-sm text-obsidian transition hover:brightness-110"
-              >
-                Add: {(u.priceCents / 100).toLocaleString(undefined, { style: "currency", currency: "USD" })}
-              </Link>
-            </div>
-          ))}
-        </div>
-        <Link href="/portal/dashboard" className="mt-10 inline-block text-sm text-ice/50 hover:text-gold">
-          Skip for now →
+        {offers.length > 0 ? (
+          <NextStepCards offers={offers} heading={signedIn ? "What fits your order" : "Where most people start"} source="upsell-page" />
+        ) : (
+          <p className="mt-10 text-ice/50">You already have everything we would recommend right now. If you want to talk about what is next, message us on your project page.</p>
+        )}
+        <Link href={signedIn ? "/portal/dashboard" : "/services"} className="mt-10 inline-block py-3 text-sm text-ice/50 hover:text-gold">
+          {signedIn ? "Skip for now →" : "See everything we build →"}
         </Link>
       </main>
       <SiteFooter />

@@ -2,7 +2,7 @@
 
 Every line the voice guide can speak, one per page or product, plus two chat lines. The words below are what is recorded. Lines are recorded once (never generated live), so the timing of each one is known before a visitor arrives.
 
-Voice: **Xavier** (preset voice `43173c95-3ec8-446a-a162-6504332c578b`). Recorded: **3 of 44** lines. The guide button stays hidden on the site until every line is recorded.
+Voice: **Xavier** (preset voice `43173c95-3ec8-446a-a162-6504332c578b`). Recorded: **3 of 45** lines. The guide button stays hidden on the site until every line is recorded.
 
 Rules for the words: no digits, dollar signs, or percent signs (prices, counts, and times change and a recording cannot; the screen always shows the real numbers), no promised results, no tool names, no dashes used as punctuation. Editing a line here without recording it again is caught by the tests.
 
@@ -11,6 +11,7 @@ Rules for the words: no digits, dollar signs, or percent signs (prices, counts, 
 | home | Home page | Welcome to Patient Creations. We build cinematic websites, ads, and AI tools for small businesses. Look around, and tap any card to see what it includes. | not recorded yet |
 | services | Services page | This is everything we build, from a simple website to full AI systems. Each card lists what is included and what is not, so there are no surprises. | not recorded yet |
 | pricing | Pricing page | Here is how our pricing works. Every price is shown up front, and each optional extra says exactly what it adds. | 7.7 s |
+| audit | Free Growth Audit page | This is your free growth audit. Tell us about your business, and we will show you what we saw, what we suggest, and what it costs. | not recorded yet |
 | monthly-ads | Monthly Ads page | Monthly Ads gives you a fresh batch of ads every month. Pick the plan that fits, and you can cancel any time. | 7.6 s |
 | showcase | Gallery, Examples, and Websites pages | Here are examples of our work. Browse them for ideas, and picture how they could look for your business. | not recorded yet |
 | checkout | Checkout, for a product without its own line | You are almost done. Check your order, add any extras you like, and pay securely. | not recorded yet |

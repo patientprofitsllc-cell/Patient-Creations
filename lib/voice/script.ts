@@ -42,6 +42,12 @@ export const VOICE_SCRIPT: readonly CueDef[] = [
     text: "Here is how our pricing works. Every price is shown up front, and each optional extra says exactly what it adds.",
   },
   {
+    id: "audit",
+    kind: "page",
+    when: "Free Growth Audit page",
+    text: "This is your free growth audit. Tell us about your business, and we will show you what we saw, what we suggest, and what it costs.",
+  },
+  {
     id: "monthly-ads",
     kind: "page",
     when: "Monthly Ads page",

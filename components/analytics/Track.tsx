@@ -5,6 +5,11 @@ import type { ReactNode } from "react";
 import { captureAttribution } from "@/lib/analytics/attribution";
 import type { FunnelEvent } from "@/lib/analytics/funnel";
 
+/** Counts one event from a click or other action. Never affects the page. */
+export function sendFunnelEvent(event: FunnelEvent, data?: Record<string, string>) {
+  send(event, data);
+}
+
 function send(event: FunnelEvent, data?: Record<string, string>) {
   const a = captureAttribution();
   fetch("/api/track", {

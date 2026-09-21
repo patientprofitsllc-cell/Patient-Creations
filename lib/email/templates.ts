@@ -16,6 +16,8 @@ export type EmailTemplateKey =
   | "order_received"
   | "ads_plan_started"
   | "owner_new_order"
+  | "owner_audit_lead"
+  | "growth_audit_ready"
   | "test_email";
 
 // Appended to every project-related email so a customer never has to
@@ -68,6 +70,21 @@ One thing that makes a real difference: a specific offer. A clear product, a cle
 Your private plan page (keep this link, it is how you reach your plan): ${p.manageUrl}`,
   }),
   owner_new_order: (p) => ({ subject: String(p.subject ?? "New order"), body: String(p.body ?? "") }),
+  owner_audit_lead: (p) => ({ subject: String(p.subject ?? "New growth audit"), body: String(p.body ?? "") }),
+  growth_audit_ready: (p) => ({
+    subject: "Your Growth Audit Is Ready",
+    body: `Hi${p.name ? ` ${String(p.name)}` : ""},
+
+Thanks for asking for a Patient Creations Growth Audit. Here it is.
+
+${String(p.report ?? "")}
+
+When you are ready, see what we build and what it costs: ${String(p.plansUrl ?? "")}
+
+Questions? Reply to this email or call ${CONTACT_PHONE_DISPLAY}.
+
+You asked for this audit, so we sent it. If you would rather not hear from us again, reply "no thanks" and we will stop.`,
+  }),
   production_start: (p) => ({
     subject: "Your project is now being created.",
     body: `Production has started on "${p.projectName}".${statusLine(p)}`,

@@ -8,6 +8,7 @@ const PAGE_CUES: Record<string, string> = {
   "/": "home",
   "/services": "services",
   "/pricing": "pricing",
+  "/audit": "audit",
   "/monthly-ads": "monthly-ads",
   "/monthly-ads/start": "ads-plan",
   "/gallery": "showcase",

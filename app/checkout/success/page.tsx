@@ -9,6 +9,9 @@ import { ThankYouCard, type ThankYouKind } from "@/components/checkout/ThankYouC
 import { statusUrlFor } from "@/lib/projects/statusToken";
 import { NFC_ADDON_SLUG, includedCardCount } from "@/lib/payments/nfcAddon";
 import { VoiceCue } from "@/components/voice/VoiceCue";
+import { PurchaseJourney } from "@/components/journey/PurchaseJourney";
+import { NextStepCards } from "@/components/journey/NextStepCards";
+import { nextOffers } from "@/lib/journey/ladder";
 import { thanksCueFor } from "@/lib/voice/cues";
 
 export default async function CheckoutSuccessPage({ searchParams }: { searchParams: { order?: string } }) {
@@ -18,6 +21,25 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
         include: { project: true, items: { include: { product: true } }, nfcIntake: true, websiteIntake: true, customer: { include: { user: true } } },
       })
     : null;
+  // What this customer owns, so the next steps offered are only ones that fit and are not already theirs.
+  const owned = order
+    ? await db.orderItem.findMany({ where: { order: { customerId: order.customerId, status: "PAID" } }, select: { product: { select: { slug: true } } } })
+    : [];
+  const [carePlans, adsPlans] = order
+    ? await Promise.all([
+        db.careSubscription.count({ where: { customerId: order.customerId, status: { not: "CANCELED" } } }),
+        db.adSubscription.count({ where: { customerId: order.customerId, status: { in: ["ACTIVE", "PAST_DUE"] } } }),
+      ])
+    : [0, 0];
+  const offers = order
+    ? nextOffers({
+        justBought: order.items.map((i) => i.product.slug),
+        owned: owned.map((o) => o.product.slug),
+        hasCarePlan: carePlans > 0,
+        hasAdsPlan: adsPlans > 0,
+        statusPath: order.project?.statusToken ? `/status/${order.project.statusToken}` : null,
+      })
+    : [];
   const awaitingManualPayment = order && order.paymentMethod !== "stripe" && order.status !== "PAID";
   const isNfcOrder = order?.items[0]?.product.category === "Merch";
   const hasNfcAddon = order?.items.some((i) => i.product.slug === NFC_ADDON_SLUG) ?? false;
@@ -81,7 +103,9 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
           </div>
         )}
 
+        {order && <PurchaseJourney kind={thankYouKind} intakePending={intakePending} />}
         {order && <ThankYouCard kind={thankYouKind} firstName={firstName} />}
+        {order && !awaitingManualPayment && <NextStepCards offers={offers} source="success" />}
 
         <div className="mt-10 flex justify-center gap-4">
           <Link

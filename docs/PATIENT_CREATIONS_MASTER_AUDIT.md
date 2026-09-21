@@ -229,7 +229,7 @@ Owner actions that add real strength (not done by the assistant):
 
 Owner request: add a voice to the chat, write a prompt list describing the site and every product, and make the timing perfect across page and product switches.
 
-Status: **built and tested; hidden on the live site until all 44 lines are recorded (3 are).** The rest were blocked by the voice account's daily generation limit ("grace period"). When it resets, record the missing lines and run one command (see `docs/VOICE_SCRIPT.md`).
+Status: **built and tested; hidden on the live site until all 45 lines are recorded (3 are).** The rest were blocked by the voice account's daily generation limit ("grace period"). When it resets, record the missing lines and run one command (see `docs/VOICE_SCRIPT.md`).
 
 | Piece | What it does | Where |
 |---|---|---|
@@ -256,4 +256,4 @@ Honest limits:
 
 Thank you for purchasing (added 2026-09-20): the order confirmation page reads out a thank you for the product that was bought (`<VoiceCue>` registers it; `thanksCueFor` picks it), each naming that product's real next step on the page (kickoff call, intake, card details, or picking a time). A paid Monthly Ads plan (`?started=1`) and a paid Website Care Plan (`?care=started`) get theirs too. Tests fail if a product has no thank you of its own.
 
-Recording status: 3 of 44 lines. Remaining 41 need about 35 credits; the voice account was still at its daily generation limit when last tried.
+Recording status: 3 of 45 lines. Remaining 42 need about 35 credits; the voice account was still at its daily generation limit when last tried.

@@ -103,6 +103,7 @@ describe("which line plays where", () => {
     expect(cueForRoute("/")).toBe("home");
     expect(cueForRoute("/services")).toBe("services");
     expect(cueForRoute("/pricing")).toBe("pricing");
+    expect(cueForRoute("/audit")).toBe("audit");
     expect(cueForRoute("/monthly-ads")).toBe("monthly-ads");
     expect(cueForRoute("/monthly-ads/start")).toBe("ads-plan");
     expect(cueForRoute("/gallery")).toBe("showcase");
