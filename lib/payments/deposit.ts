@@ -17,7 +17,7 @@ export interface DepositQuote {
 export function quoteDeposit(totalCents: number, opts: { shippingCents?: number } = {}): DepositQuote {
   const full = { eligible: false, percent: DEPOSIT.percent, depositCents: totalCents, balanceCents: 0 };
   if ((opts.shippingCents ?? 0) > 0) return { ...full, reason: "Orders that ship physical goods are paid in full." };
-  if (totalCents < DEPOSIT.minOrderCents) return { ...full, reason: "A deposit is available on larger builds." };
+  if (totalCents <= DEPOSIT.overCents) return { ...full, reason: `A deposit is available on orders over ${usd(DEPOSIT.overCents)}.` };
   const depositCents = Math.round((totalCents * DEPOSIT.percent) / 100);
   return { eligible: true, percent: DEPOSIT.percent, depositCents, balanceCents: totalCents - depositCents };
 }

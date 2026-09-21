@@ -121,12 +121,27 @@ describe("the deposit rules", () => {
     expect(q.depositCents + q.balanceCents).toBe(TOTAL);
   });
 
-  it("start at the minimum order and not a cent below it", () => {
-    expect(quoteDeposit(DEPOSIT.minOrderCents).eligible).toBe(true);
-    const below = quoteDeposit(DEPOSIT.minOrderCents - 1);
-    expect(below.eligible).toBe(false);
-    expect(below.depositCents).toBe(DEPOSIT.minOrderCents - 1);
-    expect(below.balanceCents).toBe(0);
+  it("apply to orders OVER the threshold: a cent above it qualifies, exactly at it or below does not", () => {
+    expect(quoteDeposit(DEPOSIT.overCents + 1).eligible).toBe(true);
+    for (const total of [DEPOSIT.overCents, DEPOSIT.overCents - 1]) {
+      const q = quoteDeposit(total);
+      expect(q.eligible).toBe(false);
+      expect(q.depositCents).toBe(total);
+      expect(q.balanceCents).toBe(0);
+      expect(q.reason).toContain(usd(DEPOSIT.overCents));
+    }
+  });
+
+  it("is $1,500: the lead engine, sites, and AI builds qualify, and the basic package and small products do not", () => {
+    expect(DEPOSIT.overCents).toBe(150_000);
+    for (const slug of ["lead-engine", "site", "payments-setup", "agents", "saas"] as const) {
+      const eligible = quoteDeposit(PRICE_CENTS[slug]).eligible;
+      expect({ slug, eligible }).toEqual({ slug, eligible: PRICE_CENTS[slug] > DEPOSIT.overCents });
+    }
+    expect(quoteDeposit(PRICE_CENTS["lead-engine"]).eligible).toBe(true);
+    expect(quoteDeposit(PRICE_CENTS.site).eligible).toBe(true);
+    expect(quoteDeposit(PRICE_CENTS["basic-package"]).eligible).toBe(false);
+    expect(quoteDeposit(PRICE_CENTS["starter-website"]).eligible).toBe(false);
   });
 
   it("never apply to an order that ships physical goods", () => {
@@ -137,7 +152,7 @@ describe("the deposit rules", () => {
   });
 
   it("split odd totals without losing a cent", () => {
-    for (const total of [DEPOSIT.minOrderCents + 1, 333_333, 1_234_567, 9_999_999]) {
+    for (const total of [DEPOSIT.overCents + 1, 333_333, 1_234_567, 9_999_999]) {
       const q = quoteDeposit(total);
       expect(q.depositCents + q.balanceCents).toBe(total);
     }

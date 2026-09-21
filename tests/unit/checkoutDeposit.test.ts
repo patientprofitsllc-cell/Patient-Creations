@@ -112,10 +112,10 @@ describe("checkout with a deposit", () => {
   });
 
   it("refuses a deposit on a small order, and creates no order", async () => {
-    h.priced = { totalCents: DEPOSIT.minOrderCents - 1, shippingCents: 0 };
+    h.priced = { totalCents: DEPOSIT.overCents, shippingCents: 0 };
     const res = await post({ paymentPlan: "deposit" });
     expect(res.status).toBe(400);
-    expect((await res.json()).error).toMatch(/larger builds/i);
+    expect((await res.json()).error).toContain(usd(DEPOSIT.overCents));
     expect(h.orders).toHaveLength(0);
     expect(h.stripeCalls).toHaveLength(0);
   });
