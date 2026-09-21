@@ -7,6 +7,7 @@ import { statusUrlFor } from "@/lib/projects/statusToken";
 import { ProjectUpdateForm } from "@/components/admin/ProjectUpdateForm";
 import { AdminMessageReply } from "@/components/admin/AdminMessageReply";
 import { AdminWebsitePanel } from "@/components/admin/AdminWebsitePanel";
+import { loadLaunchChecklist } from "@/lib/site/build/actions";
 import { previewUrlFor } from "@/lib/site/build/store";
 import type { QaResult } from "@/lib/site/build/qa";
 
@@ -21,13 +22,14 @@ export default async function SessionDetailPage({ params }: { params: { id: stri
       perceptionReports: { orderBy: { createdAt: "asc" } },
       updates: { orderBy: { createdAt: "desc" } },
       messages: { orderBy: { createdAt: "asc" } },
-      websiteBuilds: { orderBy: { version: "desc" }, take: 1, select: { status: true, version: true, liveUrl: true, qaJson: true, copyMode: true } },
+      websiteBuilds: { orderBy: { version: "desc" }, select: { status: true, version: true, liveUrl: true, qaJson: true, copyMode: true, note: true, createdAt: true } },
       revisions: { where: { status: "REQUESTED" }, orderBy: { createdAt: "desc" }, take: 1 },
     },
   });
 
   if (!project) notFound();
   const build = project.websiteBuilds[0] ?? null;
+  const checklist = build ? await loadLaunchChecklist(project.id) : null;
 
   const progress = await getProjectProgress(project.id);
   const statusToken = await ensureStatusToken(project.id, project.statusToken);
@@ -62,6 +64,8 @@ export default async function SessionDetailPage({ params }: { params: { id: stri
             openRevisionNote={project.revisions[0]?.notes ?? null}
             warnings={(JSON.parse(build.qaJson) as QaResult).warnings}
             copyMode={build.copyMode}
+            versions={project.websiteBuilds.map((b) => ({ version: b.version, status: b.status, note: b.note, created: b.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric" }) }))}
+            checklist={checklist ? { ready: checklist.ready, lines: checklist.lines } : null}
           />
         </section>
       )}

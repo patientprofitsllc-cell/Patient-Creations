@@ -13,11 +13,14 @@ interface NfcIntakeExisting {
 
 export function NfcIntakeForm({
   orderId,
+  accessKey,
   existing,
   showColorChoice,
   cardCount = 1,
 }: {
   orderId: string;
+  /** The private key from the confirmation link. The server refuses the form without the matching one. */
+  accessKey: string;
   existing: NfcIntakeExisting | null;
   showColorChoice: boolean;
   cardCount?: number;
@@ -42,6 +45,7 @@ export function NfcIntakeForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           orderId,
+          k: accessKey,
           socialMediaPage: socialMediaPage || undefined,
           nfcContent,
           targetLink,

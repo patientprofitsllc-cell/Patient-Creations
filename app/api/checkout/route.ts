@@ -22,6 +22,7 @@ import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
 import { depositLineItems, quoteDeposit } from "@/lib/payments/deposit";
 import { usd } from "@/lib/pricing/catalog";
 import { createWithBnplFallback } from "@/lib/payments/bnpl";
+import { newOrderAccessKey, successPath } from "@/lib/orders/accessKey";
 
 const checkoutSchema = z.object({
   productIds: z.array(z.string()).min(1),
@@ -130,9 +131,11 @@ export async function POST(req: NextRequest) {
     balanceDueCents = quote.balanceCents;
   }
 
+  const accessKey = newOrderAccessKey();
   const order = await db.order.create({
     data: {
       customerId,
+      accessToken: accessKey,
       depositCents,
       balanceDueCents,
       status: "PENDING",
@@ -197,7 +200,7 @@ export async function POST(req: NextRequest) {
       });
     }
     await notifyOwnerOfOrder(order.id, "awaiting_payment");
-    return NextResponse.json({ redirectUrl: `/checkout/success?order=${order.id}` });
+    return NextResponse.json({ redirectUrl: successPath(order.id, accessKey) });
   }
 
   if (isStripeConfigured()) {
@@ -275,7 +278,7 @@ export async function POST(req: NextRequest) {
         ...rushLineItem,
         ...shippingLineItem,
       ],
-      success_url: `${process.env.APP_BASE_URL}/checkout/success?order=${order.id}`,
+      success_url: `${process.env.APP_BASE_URL}${successPath(order.id, accessKey)}`,
       cancel_url: `${process.env.APP_BASE_URL}/checkout?cancelled=1`,
       metadata: { orderId: order.id },
     }));
@@ -289,5 +292,5 @@ export async function POST(req: NextRequest) {
   // a verified webhook would use, so the pipeline is genuinely exercised.
   await completeOrderPayment(order.id, "MOCK");
 
-  return NextResponse.json({ redirectUrl: `/checkout/success?order=${order.id}` });
+  return NextResponse.json({ redirectUrl: successPath(order.id, accessKey) });
 }

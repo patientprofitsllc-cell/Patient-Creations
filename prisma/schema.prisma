@@ -106,6 +106,8 @@ model Order {
   paymentMethod  String      @default("stripe") // PaymentMethod — chosen on the payment-method step of checkout
   stripeSessionId String?    @unique
   campaignSource String?
+  // A private key carried by the confirmation link, so an order id alone cannot open the confirmation page or the card form.
+  accessToken    String?
   // A deposit order: depositCents is what was due at checkout, balanceDueCents is what is still owed (0 once settled).
   depositCents   Int         @default(0)
   balanceDueCents Int        @default(0)
@@ -622,9 +624,23 @@ model WebsiteBuild {
   copyMode   String    // "model" (AI-written from the customer's facts) | "template" (the customer's own wording)
   liveUrl    String?
   approvedAt DateTime?
+  // Why this version exists when it was not generated: "Restored from version 2: the change made it worse".
+  note       String?
   createdAt  DateTime  @default(now())
 
   @@unique([projectId, version])
+}
+
+// A launch-checklist item the owner ticked for one exact version of a customer's website (see lib/site/build/checklist.ts).
+model ProjectChecklistItem {
+  id       String   @id @default(cuid())
+  projectId String
+  version  Int
+  itemId   String
+  checkedAt DateTime @default(now())
+
+  @@unique([projectId, version, itemId])
+  @@index([projectId])
 }
 
 // The monthly website care plan. One row per Stripe subscription; Stripe events

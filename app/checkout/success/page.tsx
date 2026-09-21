@@ -14,14 +14,18 @@ import { NextStepCards } from "@/components/journey/NextStepCards";
 import { nextOffers } from "@/lib/journey/ladder";
 import { thanksCueFor } from "@/lib/voice/cues";
 import { usd } from "@/lib/pricing/catalog";
+import { orderAccessOk } from "@/lib/orders/accessKey";
 
-export default async function CheckoutSuccessPage({ searchParams }: { searchParams: { order?: string } }) {
-  const order = searchParams.order
+export default async function CheckoutSuccessPage({ searchParams }: { searchParams: { order?: string; k?: string } }) {
+  const found = searchParams.order
     ? await db.order.findUnique({
         where: { id: searchParams.order },
         include: { project: true, items: { include: { product: true } }, nfcIntake: true, websiteIntake: true, customer: { include: { user: true } } },
       })
     : null;
+  // The link carries a private key. Without the matching one (or for an order made before keys existed), nothing about the
+  // order is shown: not its products, not the buyer's name, not the intake link, not the card details already entered.
+  const order = found && orderAccessOk(found.accessToken, searchParams.k) ? found : null;
   // What this customer owns, so the next steps offered are only ones that fit and are not already theirs.
   const owned = order
     ? await db.orderItem.findMany({ where: { order: { customerId: order.customerId, status: "PAID" } }, select: { product: { select: { slug: true } } } })
@@ -157,6 +161,7 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
         {showCardSetup && order && (
           <NfcIntakeForm
             orderId={order.id}
+            accessKey={searchParams.k ?? ""}
             showColorChoice={hasGoogleReviewCards}
             cardCount={cardCount}
             existing={
