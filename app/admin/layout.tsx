@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/security/authOptions";
 
 const TABS = [
+  { href: "/admin/founder", label: "Founder" },
   { href: "/admin/dashboard", label: "Business" },
   { href: "/admin/revenue", label: "Revenue" },
   { href: "/admin/growth", label: "Growth" },

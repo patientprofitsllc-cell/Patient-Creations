@@ -862,3 +862,37 @@ model MarketingSpend {
   createdAt   DateTime @default(now())
   @@index([month])
 }
+
+// The founder dashboard. Ideas are parked and questioned, never built automatically (see lib/founder/ideas.ts).
+model FounderIdea {
+  id           String    @id @default(cuid())
+  title        String
+  notes        String?
+  status       String    @default("PARKED") // PARKED | DOING | DONE | DROPPED
+  answersJson  String    @default("{}")
+  score        Int       @default(0)
+  verdict      String    @default("unanswered")
+  decisionNote String?
+  createdAt    DateTime  @default(now())
+  decidedAt    DateTime?
+  @@index([status])
+}
+
+// What one unit of a product costs to deliver, entered by the owner. Nothing is guessed: a product with no entry is left out
+// of the margin rankings (see lib/founder/profit.ts).
+model ProductCost {
+  slug             String   @id
+  fulfillmentCents Int      @default(0)
+  aiApiCents       Int      @default(0)
+  laborMinutes     Int      @default(0)
+  softwareCents    Int      @default(0)
+  note             String?
+  updatedAt        DateTime @updatedAt
+}
+
+// A few owner-set numbers: the labor rate, the payment fee, and the long-term goals shown on the founder dashboard.
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
