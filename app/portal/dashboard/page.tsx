@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/security/authOptions";
 import { db } from "@/lib/db";
 import { getProjectProgress } from "@/lib/workflows/progress";
 import { summarizeItems } from "@/lib/orders/summary";
+import { PatientAI } from "@/components/portal/PatientAI";
 
 export default async function PortalDashboardPage() {
   const session = await getServerSession(authOptions);
@@ -28,6 +29,8 @@ export default async function PortalDashboardPage() {
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Welcome back</p>
         <h1 className="mt-2 font-display text-3xl text-ice">{customer.user.name ?? customer.user.email}</h1>
       </section>
+
+      <PatientAI firstName={(customer.user.name ?? "").split(" ")[0] ?? ""} />
 
       <section>
         <h2 className="mb-4 text-ice">Active Projects</h2>
