@@ -47,7 +47,7 @@ Status: **Done** (works, tested), **Partial** (something real exists), **Missing
 | 4 | One canonical price list | **Done** | Phase 2. |
 | 5 to 6 | Entry products and the bundle | Done | Bundle shows a computed value comparison. A side-by-side "buy individually vs bundle" table is Missing. |
 | 7 | Monthly Ads with deliverables, turnaround, revisions, cancel anytime | Done | Cancel anytime is supported by the Stripe billing portal and is stated. |
-| 8 | Website Care $79 with a "keep your site running" offer after a website purchase | Partial | Care Plan exists on the project page; the post-purchase prompt is Missing. |
+| 8 | Website Care $79 with a "keep your site running" offer after a website purchase | **Done** | The "your website is live" email now offers Website Care (price from the list, cancel any time, no monitoring claim); the confirmation page ladder offers it too; it starts from the project page once the site is live. |
 | 9 | Lead Engine tiers | **Done** | Tiers now $1,700 / $2,500 / $4,250. Tier names are still Core / Signature / Flagship. |
 | 10 | Separate high-ticket AI path with qualification | Partial | Prices and scopes exist; no qualification form or deposit flow. |
 | 11 | Customer ascension system | **Done (v1)** | `lib/journey/ladder.ts`: what someone just bought and owns decides the next one to three offers. Shown on the confirmation page and the next-step page. Lifecycle emails that use it are Phase 4. |
@@ -64,7 +64,7 @@ Status: **Done** (works, tested), **Partial** (something real exists), **Missing
 | 26 to 27 | Design system and mobile | Done | Tested on phone sizes; one 320px overflow fixed this week. |
 | 28 | SEO and industry pages | Partial | 12 industry pages exist under `/websites/` and `/examples/`; the spec's `/industries/*` paths are Missing. |
 | 29 | Analytics events | Partial | Core events tracked; the full list is not. |
-| 30 | Lifecycle email and SMS | Partial | Order, abandoned-cart, reminder, and status emails exist; audit follow-ups, 7-day and 30-day sequences Missing. |
+| 30 | Lifecycle email and SMS | **Done (email)** | Audit follow-ups at 2 and 6 days, unfinished-checkout reminder, 7-day check-in, and 30-day "what fits next" (from the ladder). Owner-controlled queue at /admin/followups, optional secured daily trigger, one-click signed unsubscribe, mailing-address gate. SMS follow-ups are not built. |
 | 31 | NFC review compliance | Partial | Copy avoids guarantees; an explicit "authentic feedback only" notice is Missing. |
 | 32 | Security | Partial | Roles, signature checks, rate limits, private tokens exist; per-customer isolation tests for every route are not complete. |
 | 35 to 36 | Bottleneck rule and product profitability | Missing | |
@@ -93,6 +93,8 @@ Status: **Done** (works, tested), **Partial** (something real exists), **Missing
 | 2026-09-20 | 3. Customer journey (first slice) | Homepage hierarchy, three-choice finder, business path, six-step post-purchase stepper, the ladder on the confirmation and next-step pages. |
 | 2026-09-20 | 6. Growth audit (v1) | Public audit, lead capture into the prospect list, owner and visitor emails, rate limits, honeypot, consent, safe website fetching. |
 
-**Not started, in this order of value:** Phase 4 revenue engine (Website Care prompt after a website goes live, deposits and invoices, lifecycle emails using the ladder), Phase 5 CRM (the 11-stage pipeline with value, probability, and source; merge with the prospect list), Phase 7 customer AI in the portal, Phase 9 partner program, Phase 10 revenue and retention dashboard with the planning scenario, then the founder dashboard, idea parking lot, bottleneck rule, and product profitability. The production-agent pipeline (Phase 8) already exists and needs rollback and the QA checklist from the spec.
+**Not started, in this order of value:** Phase 4 revenue engine (deposits and invoices), Phase 5 CRM (the 11-stage pipeline with value, probability, and source; merge with the prospect list), Phase 7 customer AI in the portal, Phase 9 partner program, Phase 10 revenue and retention dashboard with the planning scenario, then the founder dashboard, idea parking lot, bottleneck rule, and product profitability. The production-agent pipeline (Phase 8) already exists and needs rollback and the QA checklist from the spec.
 
-**Test and check counts:** 409 unit tests; homepage, finder, audit, and confirmation page also checked in a real browser at phone and desktop widths.
+| 2026-09-21 | 4. Revenue engine (lifecycle slice) | Follow-up queue and five follow-up emails, opt-out list and signed unsubscribe, secured optional daily trigger, Website Care offer in the website-live email. |
+
+**Test and check counts:** 438 unit tests; homepage, finder, audit, and confirmation page also checked in a real browser at phone and desktop widths.

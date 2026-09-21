@@ -1,4 +1,5 @@
 import { CONTACT_PHONE_DISPLAY } from "@/lib/config/site";
+import { PRICE_CENTS, usd } from "@/lib/pricing/catalog";
 
 export type EmailTemplateKey =
   | "purchase_confirmation"
@@ -18,12 +19,22 @@ export type EmailTemplateKey =
   | "owner_new_order"
   | "owner_audit_lead"
   | "growth_audit_ready"
+  | "audit_followup_1"
+  | "audit_followup_2"
+  | "abandoned_checkout"
+  | "checkin_7d"
+  | "recommend_30d"
   | "test_email";
 
 // Appended to every project-related email so a customer never has to
 // wonder "is it done yet?" — one link, always current, no login required.
 function statusLine(p: Record<string, unknown>) {
   return p.statusUrl ? `\n\nTrack real-time progress any time: ${p.statusUrl}` : "";
+}
+
+/** The legal footer every follow-up carries: who we are, where we are, and how to stop these emails. */
+function footerOf(p: Record<string, unknown>): string {
+  return p.footer ? `\n\n${String(p.footer)}` : "";
 }
 
 const TEMPLATES: Record<EmailTemplateKey, (p: Record<string, unknown>) => { subject: string; body: string }> = {
@@ -71,6 +82,52 @@ Your private plan page (keep this link, it is how you reach your plan): ${p.mana
   }),
   owner_new_order: (p) => ({ subject: String(p.subject ?? "New order"), body: String(p.body ?? "") }),
   owner_audit_lead: (p) => ({ subject: String(p.subject ?? "New growth audit"), body: String(p.body ?? "") }),
+  audit_followup_1: (p) => ({
+    subject: "Any questions about your growth audit?",
+    body: `Hi${p.name ? ` ${String(p.name)}` : ""},
+
+A couple of days ago we sent your Growth Audit for ${String(p.business ?? "your business")}.${p.top ? ` The first thing we suggested was ${String(p.top)}.` : ""}
+
+If anything in it was unclear, or you would like to talk it through, reply to this email or call ${CONTACT_PHONE_DISPLAY}. A Strategy Session (${usd(PRICE_CENTS["strategy-session"])}) is a live call where we map out what to build first.
+
+No pressure either way.${footerOf(p)}`,
+  }),
+  audit_followup_2: (p) => ({
+    subject: "One last note about your audit",
+    body: `Hi${p.name ? ` ${String(p.name)}` : ""},
+
+This is the last note from us about your Growth Audit, so we do not clutter your inbox. If growing ${String(p.business ?? "your business")} is on your list, we are here: reply to this email or call ${CONTACT_PHONE_DISPLAY}.
+
+Thank you for taking a look.${footerOf(p)}`,
+  }),
+  abandoned_checkout: (p) => ({
+    subject: "Your order is still waiting",
+    body: `Hi${p.name ? ` ${String(p.name)}` : ""},
+
+You started an order for ${String(p.product ?? "a Patient Creations product")} and did not finish. It is still there if you want it:
+
+${String(p.link ?? "")}
+
+If something stopped you, such as a question, the price, or the timing, reply to this email and we will help. No pressure.${footerOf(p)}`,
+  }),
+  checkin_7d: (p) => ({
+    subject: "How is everything going?",
+    body: `Hi${p.name ? ` ${String(p.name)}` : ""},
+
+It has been about a week since "${String(p.project ?? "your project")}" was delivered. How is it going? If there is anything you would change, or a question we can answer, just reply to this email.${p.statusUrl ? `\n\nYour project page: ${String(p.statusUrl)}` : ""}
+
+Thank you for trusting us with it.${footerOf(p)}`,
+  }),
+  recommend_30d: (p) => ({
+    subject: "Here is what we recommend next",
+    body: `Hi${p.name ? ` ${String(p.name)}` : ""},
+
+Thanks again for your order. Based on what you bought, these fit next. They are all optional:
+
+${String(p.offers ?? "")}
+
+Questions, or want to talk one through? Reply to this email or call ${CONTACT_PHONE_DISPLAY}.${footerOf(p)}`,
+  }),
   growth_audit_ready: (p) => ({
     subject: "Your Growth Audit Is Ready",
     body: `Hi${p.name ? ` ${String(p.name)}` : ""},
@@ -115,7 +172,7 @@ You asked for this audit, so we sent it. If you would rather not hear from us ag
   }),
   website_live: (p) => ({
     subject: "Your website is live.",
-    body: `"${p.projectName}" is live${p.liveUrl ? `: ${p.liveUrl}` : "."}${statusLine(p)}`,
+    body: `"${p.projectName}" is live${p.liveUrl ? `: ${p.liveUrl}` : "."}${p.statusUrl ? `\n\nKeep your site running: Website Care is ${usd(PRICE_CENTS["care-plan"])} a month. Small updates are handled for you every month, so you never have to manage the site yourself. You can start it from your project page, and cancel any time.` : ""}${statusLine(p)}`,
   }),
   intake_reminder: (p) => ({
     subject: p.last ? "Last reminder: your website details." : "Your website is waiting on a few details.",

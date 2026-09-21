@@ -726,3 +726,11 @@ model AdDelivery {
 
   @@index([subscriptionId, period])
 }
+
+// Someone who asked not to get follow-up emails. Checked before every follow-up is sent. One row per address.
+model EmailOptOut {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  reason    String?
+  createdAt DateTime @default(now())
+}

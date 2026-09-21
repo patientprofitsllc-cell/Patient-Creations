@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       // AI training crawlers and their opt-out tokens are refused everywhere (see /copyright).
       { userAgent: [...AI_TRAINING_BOTS], disallow: "/" },
-      { userAgent: "*", allow: "/", disallow: ["/admin", "/portal", "/api", "/checkout", "/auth", "/status", "/intake", "/preview", "/monthly-ads/manage", "/monthly-ads/start"] },
+      { userAgent: "*", allow: "/", disallow: ["/admin", "/portal", "/api", "/checkout", "/auth", "/status", "/intake", "/preview", "/monthly-ads/manage", "/monthly-ads/start", "/unsubscribe"] },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
     host: SITE_URL,
