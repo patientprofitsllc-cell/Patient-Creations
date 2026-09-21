@@ -40,11 +40,13 @@ export interface AdPlan {
   sortOrder: number;
 }
 
+import { PRICE_CENTS } from "@/lib/pricing/catalog";
+
 export const AD_PLANS: readonly AdPlan[] = [
   {
     slug: "ads-monthly-300",
     name: "Monthly Ads Starter",
-    fallbackPriceCents: 30000,
+    fallbackPriceCents: PRICE_CENTS["ads-monthly-300"],
     tagline: "A steady stream of fresh ads to test for one product or service.",
     bestFor: "Best if you want new ads every month without a big commitment.",
     counts: { shortAds: 10, creatorStyleUpTo: 4, cinematic: 0, visual3d: 0, landingPages: 0, revisionRounds: 1, planningCalls: 0, writtenPlan: false },
@@ -54,7 +56,7 @@ export const AD_PLANS: readonly AdPlan[] = [
   {
     slug: "ads-monthly-500",
     name: "Monthly Ads Growth",
-    fallbackPriceCents: 50000,
+    fallbackPriceCents: PRICE_CENTS["ads-monthly-500"],
     tagline: "Twice the ads to test, plus a cinematic showcase video.",
     bestFor: "Best if you are testing different angles, or promote more than one offer.",
     counts: { shortAds: 20, creatorStyleUpTo: 8, cinematic: 1, visual3d: 0, landingPages: 0, revisionRounds: 2, planningCalls: 0, writtenPlan: true },
@@ -64,7 +66,7 @@ export const AD_PLANS: readonly AdPlan[] = [
   {
     slug: "ads-monthly-1000",
     name: "Monthly Ads Scale",
-    fallbackPriceCents: 100000,
+    fallbackPriceCents: PRICE_CENTS["ads-monthly-1000"],
     tagline: "A full creative team's monthly output: ads, cinematic videos, a 3D visual, and a landing page.",
     bestFor: "Best if ads are a main way you find customers and you want everything made for you each month.",
     counts: { shortAds: 40, creatorStyleUpTo: 16, cinematic: 3, visual3d: 1, landingPages: 1, revisionRounds: 2, planningCalls: 1, writtenPlan: true },

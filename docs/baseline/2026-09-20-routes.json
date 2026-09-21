@@ -1,0 +1,33 @@
+{
+  "recordedAt": "2026-09-21T03:22:34Z",
+  "site": "https://master--candid-gumption-6ccc17.netlify.app",
+  "routes": {
+    "/": 200,
+    "/services": 200,
+    "/pricing": 200,
+    "/monthly-ads": 200,
+    "/monthly-ads/start": 307,
+    "/gallery": 200,
+    "/examples": 200,
+    "/websites": 200,
+    "/agents": 200,
+    "/guided-app-tour": 200,
+    "/checkout": 307,
+    "/checkout?product=site": 200,
+    "/checkout?product=starter-website": 200,
+    "/checkout?product=all-in-one-bundle": 200,
+    "/checkout?product=nfc-cards": 200,
+    "/checkout/success": 200,
+    "/checkout/upsell": 200,
+    "/auth/login": 200,
+    "/portal/dashboard": 307,
+    "/admin/dashboard": 307,
+    "/terms": 200,
+    "/privacy": 200,
+    "/refunds": 200,
+    "/acceptable-use": 200,
+    "/copyright": 200,
+    "/sitemap.xml": 200,
+    "/robots.txt": 200
+  }
+}

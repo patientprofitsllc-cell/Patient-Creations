@@ -52,8 +52,8 @@ export function NfcShowcase({ priceCents }: { priceCents: number }) {
             <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Merch</p>
             <h3 className="mt-2 font-display text-2xl text-ice">NFC Cards, {money(priceCents)} each — setup included</h3>
             <p className="mt-2 max-w-sm text-sm text-ice/50">
-              Tap-to-share smart cards. A phone tap opens your contact info, socials, or booking link. The $25 setup
-              fee is already folded into the price.
+              Tap-to-share smart cards. A phone tap opens your review page, contact info, socials, or booking link. Setup is
+              included in the price.
             </p>
           </div>
           <NfcOrderPicker />

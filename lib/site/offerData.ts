@@ -1,3 +1,4 @@
+import { PRICE_CENTS } from "@/lib/pricing/catalog";
 import { db } from "@/lib/db";
 import { OFFER_SLUG } from "@/lib/site/offer";
 
@@ -9,4 +10,4 @@ export async function getOfferProduct() {
 
 // Only used if the row is missing (e.g. an unseeded dev database), so pages
 // still render instead of crashing.
-export const FALLBACK_OFFER_PRICE_CENTS = 30000;
+export const FALLBACK_OFFER_PRICE_CENTS = PRICE_CENTS["starter-website"];

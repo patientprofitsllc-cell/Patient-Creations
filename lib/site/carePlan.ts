@@ -1,10 +1,11 @@
+import { PRICE_CENTS } from "@/lib/pricing/catalog";
 import { db } from "@/lib/db";
 
 // What the monthly care plan is, in one place. The price is NOT here: it comes
 // from the product row (slug below), so it can change without a deploy. Only
 // list things that are actually delivered.
 export const CARE_PLAN_SLUG = "care-plan";
-export const FALLBACK_CARE_PRICE_CENTS = 7900;
+export const FALLBACK_CARE_PRICE_CENTS = PRICE_CENTS["care-plan"];
 
 export const CARE_PLAN_INCLUDES = [
   "Up to 3 small updates a month: text, hours, prices, phone number, or links",

@@ -1,3 +1,4 @@
+import { PRICE_CENTS } from "@/lib/pricing/catalog";
 // The public "your price next to the market" table, built only from published 2026 price
 // ranges for the same kind of work, and only claiming what the numbers show. Whether a price
 // is below, at the low end of, or inside the range is worked out here, never typed in.
@@ -21,7 +22,7 @@ export const MARKET_ROWS: readonly MarketRow[] = [
   {
     slug: "site",
     fallbackName: "Cinematic AI Website",
-    fallbackYouCents: 200000,
+    fallbackYouCents: PRICE_CENTS.site,
     loCents: 200000,
     hiCents: 800000,
     label: "typical small business website",
@@ -30,7 +31,7 @@ export const MARKET_ROWS: readonly MarketRow[] = [
   {
     slug: "saas",
     fallbackName: "AI Software / App",
-    fallbackYouCents: 1000000,
+    fallbackYouCents: PRICE_CENTS.saas,
     loCents: 1500000,
     hiCents: 10000000,
     label: "SaaS or app MVP, most between $30k and $100k",
@@ -39,7 +40,7 @@ export const MARKET_ROWS: readonly MarketRow[] = [
   {
     slug: "agents",
     fallbackName: "Multi-Agent System",
-    fallbackYouCents: 600000,
+    fallbackYouCents: PRICE_CENTS.agents,
     loCents: 200000,
     hiCents: 1200000,
     label: "AI automation setup fee",
@@ -48,7 +49,7 @@ export const MARKET_ROWS: readonly MarketRow[] = [
   {
     slug: "ad",
     fallbackName: "Cinematic Ad",
-    fallbackYouCents: 50000,
+    fallbackYouCents: PRICE_CENTS.ad,
     loCents: 100000,
     hiCents: 500000,
     label: "human-made freelance social video ad, 15 to 30 seconds",
@@ -57,7 +58,7 @@ export const MARKET_ROWS: readonly MarketRow[] = [
   {
     slug: "rental-listing-film",
     fallbackName: "Rental Listing Film",
-    fallbackYouCents: 50000,
+    fallbackYouCents: PRICE_CENTS["rental-listing-film"],
     loCents: 50000,
     hiCents: 150000,
     label: "premium or cinematic listing video",

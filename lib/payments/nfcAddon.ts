@@ -1,3 +1,4 @@
+import { FREE_FIRST_CARD_VIDEO_MIN_CENTS, PRICE_CENTS } from "@/lib/pricing/catalog";
 import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
 
 export const NFC_ADDON_SLUG = "nfc-card-addon";
@@ -6,7 +7,7 @@ export const NFC_ADDON_SLUG = "nfc-card-addon";
 // pricing code has one place to add a bulk price later: at or above this quantity every card
 // is at most this price. It equals the list price, so nothing changes today.
 export const NFC_ADDON_BULK_MIN_QTY = BULK_SETUP_WAIVER_MIN_QTY;
-export const NFC_ADDON_BULK_UNIT_CENTS = 3000;
+export const NFC_ADDON_BULK_UNIT_CENTS = PRICE_CENTS["nfc-card-addon"];
 
 // The all-in-one bundle already includes this many NFC cards, so the card
 // add-on isn't offered on top of it.
@@ -27,7 +28,7 @@ export function includedCardCount(slug: string | null | undefined): number {
   return (slug && INCLUDED_CARDS[slug]) || 0;
 }
 
-const VIDEO_FREE_THRESHOLD_CENTS = 100000; // $1,000+ cinematic video tier ships with a free card
+const VIDEO_FREE_THRESHOLD_CENTS = FREE_FIRST_CARD_VIDEO_MIN_CENTS; // a cinematic video tier at this price or more ships with a free card
 
 /**
  * The NFC card add-on's price depends on what it's bundled with: free on a

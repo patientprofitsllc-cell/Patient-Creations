@@ -1,3 +1,4 @@
+import { PRICE_CENTS, usd } from "@/lib/pricing/catalog";
 // What each build includes and does not include, stated once. The service cards, the checkout
 // page, and the product rows in the database all read from here, so a customer is told the
 // same thing everywhere, and so we can be held to exactly what is written.
@@ -155,7 +156,7 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
       "A caption and headline options written for you",
       "2 revision rounds",
     ],
-    notIncluded: ["Filming on location or real drone footage", "More than 3 videos or 5 cards (extra cards are $30 each)", "Music rights or licensed music", "Any promise of visits or sales"],
+    notIncluded: ["Filming on location or real drone footage", `More than 3 videos or 5 cards (extra cards are ${usd(PRICE_CENTS["nfc-card-addon"])} each)`, "Music rights or licensed music", "Any promise of visits or sales"],
   },
 };
 

@@ -1,0 +1,85 @@
+# Phase 1 audit: Patient Creations against the $100K/month master build
+
+Recorded 2026-09-20 against commit `f801a7a` (plus the Phase 2 work in the same push). The baseline of working routes is `docs/baseline/2026-09-20-routes.json`; 355 unit tests were passing before any change.
+
+The $100K/month figure is a business target, not a forecast. The founder framework (Life Path 11/2, Birthday 28/1, Foundation 4, Talent 6) is used only as a symbolic way to organize priorities, never to predict revenue.
+
+## 1. What exists today
+
+**48 pages, 34 API routes, 45 database models, 28 test files (368 tests).**
+
+| Area | What is built | Where |
+|---|---|---|
+| Storefront | Home with live canvas hero, Services, Pricing, Monthly Ads, Gallery, Examples, Websites (12 industry pages), Agents, Guided Tour, legal pages (Terms, Privacy, Refunds, Acceptable Use, Copyright) | `app/*` |
+| Catalog | 22 services and 9 add-ons seeded from one price list; scope panels; sourced market comparison | `prisma/seed.ts`, `lib/pricing/catalog.ts`, `lib/site/productScopes.ts`, `lib/site/marketComparison.ts` |
+| Checkout | Stripe Checkout (cards; Apple Pay and Google Pay appear where Stripe enables them), coupons, order bumps, delivery speeds, NFC card mixes, manual payment methods, clickwrap terms acceptance, cart recovery offer, owner alerts | `app/api/checkout`, `lib/payments/*`, `lib/funnel/cartRecovery.ts` |
+| Subscriptions | Website Care Plan and three Monthly Ads plans on Stripe subscriptions, private manage pages, billing portal | `app/api/care`, `app/api/ads`, `lib/ads/*`, `lib/care/*` |
+| Customers | Portal (projects, orders, referrals), private project status pages with a concierge chat and messages, intake forms, website preview with approve/revise | `app/portal`, `app/status`, `app/intake`, `app/preview` |
+| Production | Orchestrator, agent definitions, QA and perception reports, master editor, creative bible, website build with versions (PREVIEW, APPROVED, LIVE, SUPERSEDED) | `lib/agents/*`, `lib/site/build/*` |
+| Sales side | Prospect pipeline (NEW, AUDITED, CONTACTED, REPLIED, CALL_BOOKED, WON, LOST), a real website audit engine that only reports what it observed, outreach drafts, customer notes | `lib/prospects/*`, `app/admin/prospects`, `app/admin/crm` |
+| Referrals | Codes, click tracking, commissions with states, payouts, fraud guard, portal page | `lib/referrals/*`, `app/portal/referrals` |
+| Analytics | Event tracking, funnel, attribution, growth dashboard (cart recovery, ad-plan MRR, text alert status) | `lib/analytics/*`, `app/admin/growth` |
+| Security | NextAuth roles, Stripe webhook signature checks, rate limiting, private tokens, audit log, anti-scraping middleware and headers | `lib/security/*`, `middleware.ts` |
+| Voice guide | Built and tested, hidden until all lines are recorded | `lib/voice/*` |
+
+## 2. Contradictions found, and what was done
+
+| Problem | Status |
+|---|---|
+| Prices typed in 12 places (seed, ad plans, care plan, offer fallback, card add-on, market table, scope text, a card carousel) | **Fixed.** One list, `lib/pricing/catalog.ts`. A test fails if any dollar amount is typed anywhere else. |
+| The NFC section still said "the $25 setup fee is folded into the price" although cards are a flat $30 with no setup fee | **Fixed.** |
+| AI Software tiers were $10,000 / $16,000 / $25,000 and Lead Engine $1,700 / $2,700 / $4,250, against the founder's targets of $10,000 / $15,000 / $25,000 and $1,700 / $2,500 / $4,250 | **Fixed** with two explicit tier overrides in the catalog. Live database now matches. |
+| Database rows and code could drift apart | **Fixed.** `scripts/pricing/verify-db.ts` compares every live row and tier to the catalog; it passes for all 31 products. |
+| The post-purchase "next step" page only ever offers the $600 Automation Add-On, and only to signed-in users | **Open.** No ladder logic. Phase 3 and 4. |
+| Prospect pipeline stages differ from the spec's 11-stage pipeline, and there is no lead value, probability, or source field | **Open.** Phase 5. |
+| The portal dashboard shows only projects and orders | **Open.** Phase 3. |
+| The concierge lives on the private status page, not inside the portal, and only knows one project | **Open.** Phase 7. |
+
+## 3. The spec against reality
+
+Status: **Done** (works, tested), **Partial** (something real exists), **Missing**.
+
+| # | Spec item | Status | Notes |
+|---|---|---|---|
+| 1 | Founder framework as symbolic operating principles | Partial | Documented here; the founder dashboard and Idea Parking Lot (33, 34) are Missing. |
+| 2 | Positioning as a business growth and automation studio | Partial | Catalog and copy sell separate services; the four-layer ladder is not on the site yet. |
+| 3 | Preserve existing products | Done | Nothing was removed. |
+| 4 | One canonical price list | **Done** | Phase 2. |
+| 5 to 6 | Entry products and the bundle | Done | Bundle shows a computed value comparison. A side-by-side "buy individually vs bundle" table is Missing. |
+| 7 | Monthly Ads with deliverables, turnaround, revisions, cancel anytime | Done | Cancel anytime is supported by the Stripe billing portal and is stated. |
+| 8 | Website Care $79 with a "keep your site running" offer after a website purchase | Partial | Care Plan exists on the project page; the post-purchase prompt is Missing. |
+| 9 | Lead Engine tiers | **Done** | Tiers now $1,700 / $2,500 / $4,250. Tier names are still Core / Signature / Flagship. |
+| 10 | Separate high-ticket AI path with qualification | Partial | Prices and scopes exist; no qualification form or deposit flow. |
+| 11 | Customer ascension system | Missing | No behavior-triggered ladder. |
+| 12 | Customer dashboard with full ledger and a progress bar | Partial | Projects and orders only. |
+| 13 | "Patient AI" concierge in the dashboard | Partial | Concierge exists per project. |
+| 14 | Free Growth Audit lead machine | Partial | The audit engine exists (admin only). No public form. |
+| 15 | Partner program and dashboard | Partial | Referral codes and commissions exist; no partner signup, assets, or partner dashboard. |
+| 16 | CRM with 11-stage pipeline and founder dashboard | Partial | Prospect pipeline and customer notes exist. |
+| 17 to 18 | Revenue dashboard and planning calculator | Partial | Growth dashboard exists; no full revenue/retention views or planning scenario. |
+| 19 to 21 | Homepage rebuild, journey visual, three-choice discovery | Missing | |
+| 22 | Checkout with personalized thank-you steps | Partial | Thank-you card exists; the six-step "what happens next" is Missing. Deposits and invoices Missing. |
+| 23 | Contextual upsells | Missing | See section 2. |
+| 24 to 25 | Production pipeline with human approval and rollback | Partial | Agents, QA, and approval exist; rollback to a superseded version is not exposed. |
+| 26 to 27 | Design system and mobile | Done | Tested on phone sizes; one 320px overflow fixed this week. |
+| 28 | SEO and industry pages | Partial | 12 industry pages exist under `/websites/` and `/examples/`; the spec's `/industries/*` paths are Missing. |
+| 29 | Analytics events | Partial | Core events tracked; the full list is not. |
+| 30 | Lifecycle email and SMS | Partial | Order, abandoned-cart, reminder, and status emails exist; audit follow-ups, 7-day and 30-day sequences Missing. |
+| 31 | NFC review compliance | Partial | Copy avoids guarantees; an explicit "authentic feedback only" notice is Missing. |
+| 32 | Security | Partial | Roles, signature checks, rate limits, private tokens exist; per-customer isolation tests for every route are not complete. |
+| 35 to 36 | Bottleneck rule and product profitability | Missing | |
+| 38 to 39 | Baseline and tests | **Done for this phase** | Baseline recorded; 13 new tests. |
+
+## 4. Technical debt and risks noticed
+
+- The default admin password is still `change-me-now`. It should be rotated.
+- The upsell page is signed-in only and reads a single product type, so most customers never see an upsell.
+- The prospect pipeline and the customer CRM are two separate systems.
+- Tier names (Core, Signature, Flagship) are generic; the founder's spec uses product-specific names (Starter, Growth, Scale) for Lead Engine.
+- The voice guide is complete in code but 41 of its 44 lines are not recorded.
+
+## 5. Order of work from here
+
+1. Phase 3, customer journey: the ladder-based next-step offers, the six-step "what happens next" page, homepage hierarchy and three-choice discovery, the business journey visual.
+2. Phase 6, growth audit: a public form that reuses the existing safe audit engine, labels every finding observed, recommended, or estimated, and feeds the pipeline.
+3. Phases 4, 5, 7 to 10 follow, each behind its own baseline and tests, and driven by the current biggest constraint rather than by feature count.

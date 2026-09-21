@@ -1,3 +1,4 @@
+import { PRICE_CENTS, usd } from "@/lib/pricing/catalog";
 import type { ReactNode } from "react";
 import { db } from "@/lib/db";
 import { deliveryLine } from "@/lib/payments/deliveryWindow";
@@ -75,7 +76,7 @@ export async function SpecialsGrid({
           nowCents={starter.priceCents}
           href={`/checkout?product=${starter.slug}`}
           cta="Reserve this build"
-          footnote={`Add NFC cards for ${nfc ? money(nfc.priceCents) : "$30"} each at checkout.`}
+          footnote={`Add NFC cards for ${nfc ? money(nfc.priceCents) : usd(PRICE_CENTS["nfc-card-addon"])} each at checkout.`}
         />
       ),
     });

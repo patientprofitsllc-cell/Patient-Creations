@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { PRODUCT_SCOPES, SCOPED_SLUGS, scopeFor } from "@/lib/site/productScopes";
+import { PRICE_CENTS, tierPriceCents } from "@/lib/pricing/catalog";
 import { includedCardCount } from "@/lib/payments/nfcAddon";
 import { parseTurnaroundMaxDays } from "@/lib/payments/deliverySpeed";
 import { MARKET_ROWS, compareRows, standing, standingText, totalsOf } from "@/lib/site/marketComparison";
@@ -65,23 +66,26 @@ describe("product scopes", () => {
 });
 
 describe("catalog prices", () => {
-  it("AI Software / App starts at $10,000, so its tiers follow the 1.6x and 2.5x rule to $16,000 and $25,000", () => {
-    expect(productBlock("saas")).toContain("baseCents: 1000000");
-    const round50 = (c: number) => Math.round(c / 5000) * 5000;
-    expect([round50(1000000 * 1.6), round50(1000000 * 2.5)]).toEqual([1600000, 2500000]);
+  it("AI Software / App starts at $10,000, with $15,000 and $25,000 tiers, all from the price list", () => {
+    expect(productBlock("saas")).toContain('PRICE_CENTS["saas"]');
+    expect(PRICE_CENTS.saas).toBe(1000000);
+    expect(tierPriceCents("saas", "Signature", PRICE_CENTS.saas)).toBe(1500000);
+    expect(tierPriceCents("saas", "Flagship", PRICE_CENTS.saas)).toBe(2500000);
   });
 
   it("NFC cards are a flat $30 with no setup fee, on every card product and the add-on", () => {
     for (const slug of ["nfc-cards", "nfc-wifi", "nfc-custom-menu", "nfc-youtube", "nfc-whatsapp", "nfc-instagram", "nfc-tiktok", "nfc-google-review"]) {
       const b = productBlock(slug);
-      expect(b, slug).toContain("baseCents: 3000");
+      expect(b, slug).toContain('PRICE_CENTS["' + slug + '"]');
+      expect(PRICE_CENTS[slug as keyof typeof PRICE_CENTS], slug).toBe(3000);
       expect(b, slug).toContain("setupFeeCents: 0");
     }
-    expect(productBlock("nfc-card-addon")).toContain("priceCents: 3000");
+    expect(productBlock("nfc-card-addon")).toContain('PRICE_CENTS["nfc-card-addon"]');
+    expect(PRICE_CENTS["nfc-card-addon"]).toBe(3000);
   });
 
   it("per-ad specials are priced by value and the bundle is cheaper than buying its parts", () => {
-    const cents = (slug: string, field = "baseCents") => Number(new RegExp(`${field}: (\\d+)`).exec(productBlock(slug))![1]);
+    const cents = (slug: string) => PRICE_CENTS[slug as keyof typeof PRICE_CENTS];
     const cin = cents("cinematic-ad-special");
     const ugc = cents("ugc-ad-special");
     expect([cin, ugc]).toEqual([24900, 9900]);
@@ -121,7 +125,8 @@ describe("delivery times", () => {
 describe("Basic Package", () => {
   it("stays at $1,000 and promises 3 videos and 5 NFC cards, matching what checkout and the card questionnaire use", () => {
     const b = productBlock("basic-package");
-    expect(b).toContain("baseCents: 100000");
+    expect(productBlock("basic-package")).toContain('PRICE_CENTS["basic-package"]');
+    expect(PRICE_CENTS["basic-package"]).toBe(100000);
     const scope = PRODUCT_SCOPES["basic-package"];
     expect(scope.summary).toMatch(/Three drone-style videos/);
     expect(scope.summary).toMatch(/5 NFC cards/);
