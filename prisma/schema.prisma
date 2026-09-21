@@ -850,3 +850,15 @@ model PartnerCommission {
   @@index([partnerId])
   @@index([state])
 }
+
+// What the owner spent on getting customers, by month and channel, entered by hand on the revenue dashboard. It exists only so
+// cost per lead and cost per customer can be worked out from real numbers. Nothing else reads it.
+model MarketingSpend {
+  id          String   @id @default(cuid())
+  month       String   // 2026-09
+  channel     String
+  amountCents Int
+  note        String?
+  createdAt   DateTime @default(now())
+  @@index([month])
+}

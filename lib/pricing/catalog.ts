@@ -85,6 +85,12 @@ export const BNPL = { minCents: 30_000, afterpayMaxCents: 400_000, klarnaMaxCent
  */
 export const PARTNER = { defaultPercent: 10, pendingDays: 14, windowDays: 365, minPayoutCents: 5_000 } as const;
 
+/**
+ * The monthly revenue the founder is aiming for. A target to plan and measure against, never a promise or a forecast. The
+ * revenue dashboard shows real progress toward it and a Planning Scenario for what it would take.
+ */
+export const TARGET = { monthlyRevenueCents: 10_000_000 } as const;
+
 export type PricedSlug = keyof typeof PRICE_CENTS;
 
 export const priceOf = (slug: PricedSlug): number => PRICE_CENTS[slug];
