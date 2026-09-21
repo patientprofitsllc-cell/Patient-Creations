@@ -6,6 +6,9 @@ import { db } from "@/lib/db";
 import type { AuditResult } from "@/lib/prospects/audit";
 import { draftOutreach } from "@/lib/prospects/outreach";
 import { getOfferProduct } from "@/lib/site/offerData";
+import { DealFields } from "@/components/crm/DealFields";
+import { BEFORE_SALE_KEYS, STAGES, prospectStage, stageInfo } from "@/lib/crm/pipeline";
+import { DEAL_PRODUCTS } from "@/lib/crm/labels";
 import { FALLBACK_OFFER_PRICE_CENTS } from "@/lib/site/offerData";
 
 export default async function ProspectDetailPage({ params }: { params: { id: string } }) {
@@ -20,6 +23,7 @@ export default async function ProspectDetailPage({ params }: { params: { id: str
     audit = null;
   }
   const blocked = prospect.status === "DO_NOT_CONTACT";
+  const autoStage = prospectStage({ status: prospect.status, stage: null, contactedAt: prospect.contactedAt, paidAudit: null });
   const drafts = blocked
     ? null
     : draftOutreach(
@@ -47,6 +51,21 @@ export default async function ProspectDetailPage({ params }: { params: { id: str
         phone={prospect.phone ?? ""}
         email={prospect.email ?? ""}
         website={prospect.website ?? ""}
+      />
+
+      <DealFields
+        id={prospect.id}
+        initial={{
+          stage: prospect.stage ?? "",
+          valueDollars: prospect.valueCents == null ? "" : String(prospect.valueCents / 100),
+          chance: prospect.probability == null ? "" : String(prospect.probability),
+          productInterest: prospect.productInterest ?? "",
+          nextAction: prospect.nextAction ?? "",
+        }}
+        stages={STAGES.filter((st) => BEFORE_SALE_KEYS.includes(st.key)).map((st) => ({ key: st.key, label: st.label }))}
+        products={DEAL_PRODUCTS}
+        autoStageLabel={stageInfo(autoStage).label}
+        disabled={blocked}
       />
 
       <section>

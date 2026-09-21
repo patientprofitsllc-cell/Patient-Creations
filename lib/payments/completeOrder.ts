@@ -8,6 +8,7 @@ import { recordReferralPurchase } from "@/lib/referrals/commissions";
 import { decrementInventoryForOrder } from "@/lib/inventory/decrement";
 import { consumeAuditCredit } from "@/lib/audit/paid";
 import { announceDeposit } from "@/lib/payments/invoices";
+import { markProspectWon } from "@/lib/prospects/service";
 import type { PaymentProvider } from "@/lib/types";
 
 /**
@@ -48,6 +49,10 @@ export async function completeOrderPayment(orderId: string, provider: PaymentPro
   }
 
   await decrementInventoryForOrder(orderId);
+
+  // A prospect with this customer's email has just become a customer.
+  const buyer = await db.user.findUnique({ where: { id: order.customer.userId }, select: { email: true } });
+  await markProspectWon(buyer?.email);
 
   const project = await createProjectForOrder(orderId);
 

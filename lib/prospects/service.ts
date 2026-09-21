@@ -2,6 +2,8 @@ import { db } from "@/lib/db";
 import { INDUSTRIES } from "@/lib/site/industries";
 import { auditWebsite } from "@/lib/prospects/audit";
 import { normalizeWebUrl } from "@/lib/prospects/net";
+import { isBeforeSaleKey } from "@/lib/crm/pipeline";
+import { PRICE_CENTS } from "@/lib/pricing/catalog";
 
 export const PROSPECT_STATUSES = ["NEW", "AUDITED", "CONTACTED", "REPLIED", "CALL_BOOKED", "WON", "LOST", "DO_NOT_CONTACT"] as const;
 export type ProspectStatus = (typeof PROSPECT_STATUSES)[number];
@@ -127,6 +129,14 @@ export interface ProspectPatch {
   phone?: string | null;
   email?: string | null;
   website?: string | null;
+  /** The sales pipeline. null clears a field. */
+  stage?: string | null;
+  valueCents?: number | null;
+  probability?: number | null;
+  productInterest?: string | null;
+  nextAction?: string | null;
+  /** True records that you just talked to them. */
+  logContact?: boolean;
 }
 
 /** Applies a person's edit. "Do not contact" is final: it clears any follow-up. */
@@ -146,6 +156,25 @@ export async function updateProspect(id: string, patch: ProspectPatch) {
     if (row.status === "DO_NOT_CONTACT") throw new Error("This business asked not to be contacted");
     data.nextFollowUpAt = patch.nextFollowUpAt;
   }
+  if (patch.stage !== undefined) {
+    if (patch.stage !== null && !isBeforeSaleKey(patch.stage)) throw new Error("Unknown sales stage");
+    if (row.status === "DO_NOT_CONTACT") throw new Error("This business asked not to be contacted, so its stage can't be changed");
+    data.stage = patch.stage;
+  }
+  if (patch.valueCents !== undefined) {
+    if (patch.valueCents !== null && (!Number.isInteger(patch.valueCents) || patch.valueCents < 0 || patch.valueCents > 100_000_000)) throw new Error("Unknown value");
+    data.valueCents = patch.valueCents;
+  }
+  if (patch.probability !== undefined) {
+    if (patch.probability !== null && (!Number.isInteger(patch.probability) || patch.probability < 0 || patch.probability > 100)) throw new Error("Unknown chance");
+    data.probability = patch.probability;
+  }
+  if (patch.productInterest !== undefined) {
+    if (patch.productInterest !== null && !(patch.productInterest in PRICE_CENTS)) throw new Error("Unknown product");
+    data.productInterest = patch.productInterest;
+  }
+  if (patch.nextAction !== undefined) data.nextAction = clean(patch.nextAction)?.slice(0, 200) ?? null;
+  if (patch.logContact && row.status !== "DO_NOT_CONTACT") data.lastContactAt = new Date();
   if (patch.phone !== undefined) data.phone = clean(patch.phone)?.slice(0, 40) ?? null;
   if (patch.email !== undefined) data.email = clean(patch.email)?.toLowerCase().slice(0, 120) ?? null;
   if (patch.website !== undefined) data.website = normalizeWebUrl(patch.website)?.toString() ?? null;
@@ -168,6 +197,7 @@ export async function markContacted(id: string, followUpDays = 3) {
     data: {
       status: row.status === "NEW" || row.status === "AUDITED" || row.status === "CONTACTED" ? "CONTACTED" : row.status,
       contactedAt: row.contactedAt ?? new Date(),
+      lastContactAt: new Date(),
       nextFollowUpAt: new Date(Date.now() + days * 86_400_000),
     },
   });
@@ -212,4 +242,20 @@ export async function prospectStats() {
     doNotContact: count("DO_NOT_CONTACT"),
     byStatus: Object.fromEntries(PROSPECT_STATUSES.map((s) => [s, count(s)])) as Record<ProspectStatus, number>,
   };
+}
+
+/**
+ * A customer just paid: any prospect with the same email has become a customer. Marks it won, and clears its follow-up.
+ * A business that asked not to be contacted stays that way. Never throws: a CRM tidy-up must not hold up an order.
+ */
+export async function markProspectWon(email: string | null | undefined): Promise<number> {
+  const e = (email ?? "").trim().toLowerCase();
+  if (!e) return 0;
+  try {
+    const r = await db.prospect.updateMany({ where: { email: e, status: { notIn: ["WON", "DO_NOT_CONTACT"] } }, data: { status: "WON", nextFollowUpAt: null } });
+    return r.count;
+  } catch (err) {
+    console.error("marking prospect won failed", err);
+    return 0;
+  }
 }

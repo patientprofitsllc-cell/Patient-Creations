@@ -1,93 +1,86 @@
-import { collectedCents } from "@/lib/payments/deposit";
 import Link from "next/link";
-import { db } from "@/lib/db";
+import { PipelineBoard } from "@/components/crm/PipelineBoard";
+import { loadPipeline } from "@/lib/crm/service";
+import { stageInfo, todayList } from "@/lib/crm/pipeline";
 
-function money(cents: number) {
-  return (cents / 100).toLocaleString(undefined, { style: "currency", currency: "USD" });
+export const dynamic = "force-dynamic";
+
+const money = (cents: number) => (cents / 100).toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+const day = (d: Date | null) => (d ? d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "");
+
+function Tile({ label, value, note }: { label: string; value: string; note?: string }) {
+  return (
+    <div className="glass-panel rounded-2xl p-4">
+      <p className="text-xs text-ice/40">{label}</p>
+      <p className="mt-1 font-display text-2xl text-ice">{value}</p>
+      {note && <p className="mt-1 text-[11px] leading-snug text-ice/40">{note}</p>}
+    </div>
+  );
 }
 
-export default async function CrmPage({ searchParams }: { searchParams: { q?: string } }) {
-  const q = searchParams.q?.trim().toLowerCase() ?? "";
-
-  const customers = await db.customer.findMany({
-    include: {
-      user: true,
-      orders: { where: { status: "PAID" } },
-      projects: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  const rows = customers
-    .map((c) => ({
-      id: c.id,
-      name: c.user.name ?? c.user.email,
-      email: c.user.email,
-      createdAt: c.createdAt,
-      totalSpendCents: c.orders.reduce((s, o) => s + collectedCents(o), 0),
-      orderCount: c.orders.length,
-      projectCount: c.projects.length,
-      activeProjectCount: c.projects.filter((p) => !["COMPLETED", "CANCELLED", "EXCEPTION"].includes(p.state)).length,
-    }))
-    .filter((c) => !q || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q))
-    .sort((a, b) => b.totalSpendCents - a.totalSpendCents);
+export default async function CrmPage() {
+  const { columns, summary, cards, lost, truncated } = await loadPipeline();
+  const today = todayList(cards);
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="mb-2 text-ice/70">Customers</h2>
-        <p className="text-sm text-ice/40">Every account, sorted by lifetime spend. Click a row to manage that customer.</p>
-      </div>
+    <div className="space-y-10">
+      <section>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="font-display text-2xl text-ice">Sales pipeline</h2>
+            <p className="mt-1 max-w-2xl text-sm text-ice/50">
+              Everyone from a first look to a customer who sends you customers, in eleven stages. Before a sale, prospects move on their own as things happen (you contact them, they pay for an audit, they reply) and you can set a stage by hand. After a sale, the stage comes from their real order, project, plan, and referrals.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs">
+            <Link href="/admin/prospects" className="rounded-full border border-white/15 px-4 py-2 text-ice/70 hover:border-gold/40 hover:text-gold">Add or import prospects</Link>
+            <Link href="/admin/crm/customers" className="rounded-full border border-white/15 px-4 py-2 text-ice/70 hover:border-gold/40 hover:text-gold">Customer list</Link>
+          </div>
+        </div>
 
-      <form className="max-w-sm">
-        <label htmlFor="crm-search" className="sr-only">Search customers</label>
-        <input
-          id="crm-search"
-          name="q"
-          defaultValue={searchParams.q ?? ""}
-          placeholder="Search by name or email…"
-          className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-2 text-sm text-ice placeholder:text-ice/30"
-        />
-      </form>
+        <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <Tile label="Open opportunities" value={money(summary.openCents)} note="Deals before a sale, at the value you set or the product's price." />
+          <Tile label="Weighted by your chances" value={money(summary.weightedCents)} note="Your own estimate. Not a forecast, and not a promise." />
+          <Tile label="Follow-ups due" value={String(summary.overdue)} note={`${summary.stale} going cold (no contact in two weeks)`} />
+          <Tile label="Balance owed to you" value={money(summary.owedCents)} note="Deposit orders and unpaid orders." />
+          <Tile label="Customers" value={String(summary.customers)} />
+          <Tile label="Paid to date" value={money(summary.lifetimeCents)} note="Cash collected from customers in the pipeline." />
+          <Tile label="Monthly plans" value={`${money(summary.mrrCents)}/mo`} note="Care and Monthly Ads that are active." />
+          <Tile label="Lost deals" value={String(lost)} />
+        </div>
+      </section>
 
-      <div className="overflow-x-auto rounded-2xl border border-gold/15">
-        <table className="w-full min-w-[720px] text-left text-sm">
-          <thead>
-            <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-ice/40">
-              <th className="px-4 py-3">Customer</th>
-              <th className="px-4 py-3">Lifetime Spend</th>
-              <th className="px-4 py-3">Orders</th>
-              <th className="px-4 py-3">Projects</th>
-              <th className="px-4 py-3">Active</th>
-              <th className="px-4 py-3">Joined</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((c) => (
-              <tr key={c.id} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02]">
-                <td className="px-4 py-3">
-                  <Link href={`/admin/crm/${c.id}`} className="block text-ice hover:text-gold">
-                    {c.name}
-                    <span className="block text-xs text-ice/40">{c.email}</span>
-                  </Link>
-                </td>
-                <td className="px-4 py-3 text-champagne">{money(c.totalSpendCents)}</td>
-                <td className="px-4 py-3 text-ice/70">{c.orderCount}</td>
-                <td className="px-4 py-3 text-ice/70">{c.projectCount}</td>
-                <td className="px-4 py-3 text-ice/70">{c.activeProjectCount}</td>
-                <td className="px-4 py-3 text-ice/40">{new Date(c.createdAt).toLocaleDateString()}</td>
-              </tr>
+      {today.length > 0 && (
+        <section aria-label="Needs you today">
+          <h3 className="mb-3 text-ice/70">Needs you today</h3>
+          <ul className="glass-panel divide-y divide-white/5 rounded-2xl">
+            {today.map((c) => (
+              <li key={c.key}>
+                <Link href={c.href} className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 text-sm hover:bg-white/[0.03]">
+                  <span>
+                    <span className="text-ice">{c.name}</span>
+                    <span className="ml-2 text-xs text-ice/40">{stageInfo(c.stage).label}</span>
+                    <span className="mt-0.5 block text-xs text-ice/60">{c.nextAction}</span>
+                  </span>
+                  <span className={`text-xs ${c.overdue ? "text-gold" : "text-red-300"}`}>{c.overdue ? `Due ${day(c.nextActionAt)}` : "Going cold"}</span>
+                </Link>
+              </li>
             ))}
-            {rows.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-ice/40">
-                  No customers match "{searchParams.q}".
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          </ul>
+        </section>
+      )}
+
+      <section aria-label="Pipeline">
+        <nav aria-label="Jump to a stage" className="mb-4 flex gap-2 overflow-x-auto pb-2 text-xs lg:hidden">
+          {columns.map((c) => (
+            <a key={c.stage.key} href={`#stage-${c.stage.key}`} className="shrink-0 rounded-full border border-white/10 px-3 py-1.5 text-ice/60">
+              {c.stage.label} ({c.cards.length})
+            </a>
+          ))}
+        </nav>
+        <PipelineBoard columns={columns} />
+        {truncated && <p className="mt-3 text-xs text-ice/40">Showing the newest 500 people in each list.</p>}
+      </section>
     </div>
   );
 }

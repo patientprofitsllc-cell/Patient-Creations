@@ -12,6 +12,12 @@ const schema = z
     email: z.string().max(120).nullable(),
     website: z.string().max(300).nullable(),
     markContacted: z.number().int().min(1).max(30),
+    stage: z.string().max(20).nullable(),
+    valueCents: z.number().int().min(0).max(100_000_000).nullable(),
+    probability: z.number().int().min(0).max(100).nullable(),
+    productInterest: z.string().max(60).nullable(),
+    nextAction: z.string().max(200).nullable(),
+    logContact: z.boolean(),
   })
   .partial()
   .strict();
@@ -38,7 +44,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   } catch (err) {
     if (err instanceof UnauthorizedError) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     if (err instanceof ForbiddenError) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    if (err instanceof Error && /asked not to be contacted|already closed|Unknown status|can't be changed/.test(err.message)) {
+    if (err instanceof Error && /asked not to be contacted|already closed|Unknown status|can't be changed|Unknown sales stage|Unknown value|Unknown chance|Unknown product/.test(err.message)) {
       return NextResponse.json({ error: err.message }, { status: 409 });
     }
     console.error("prospect update failed", err);
