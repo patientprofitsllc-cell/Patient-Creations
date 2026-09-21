@@ -1,3 +1,4 @@
+import { holdDeliveryForBalance } from "@/lib/payments/balanceGate";
 import { db } from "@/lib/db";
 import { logEvent } from "@/lib/analytics/events";
 import { trackFunnel } from "@/lib/analytics/funnel";
@@ -120,4 +121,10 @@ async function run(projectId: string) {
     previewUrl: previewUrlFor(fresh.previewToken!),
     statusUrl: statusUrlFor(fresh.statusToken!),
   });
+  // A deposit order owes its balance before launch. The owner still launches the site, so nothing is held automatically.
+  try {
+    await holdDeliveryForBalance(projectId, "notify");
+  } catch (err) {
+    console.error("balance request failed", err);
+  }
 }

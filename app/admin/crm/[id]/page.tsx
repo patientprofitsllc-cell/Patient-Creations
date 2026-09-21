@@ -1,3 +1,4 @@
+import { collectedCents } from "@/lib/payments/deposit";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
@@ -32,7 +33,7 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
     getCustomerTimeline(customer.id, 60),
   ]);
 
-  const totalSpendCents = customer.orders.filter((o) => o.status === "PAID").reduce((s, o) => s + o.totalCents, 0);
+  const totalSpendCents = customer.orders.filter((o) => o.status === "PAID").reduce((s, o) => s + collectedCents(o), 0);
 
   return (
     <div className="space-y-10">

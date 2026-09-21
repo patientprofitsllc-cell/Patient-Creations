@@ -1,4 +1,4 @@
-import { AUDIT_CREDIT_DAYS, AUDIT_FEE_CENTS, usd } from "@/lib/pricing/catalog";
+import { AUDIT_CREDIT_DAYS, AUDIT_FEE_CENTS, DEPOSIT, usd } from "@/lib/pricing/catalog";
 import { COMPANY, LEGAL_EFFECTIVE_DATE, POLICY, type LegalDoc } from "@/lib/legal/config";
 
 const C = COMPANY;
@@ -129,6 +129,7 @@ export const termsDoc: LegalDoc = {
       title: "11. Consultations, custom builds, and creative work",
       body: [
         `For consultations, software, automation, video, advertising, and other custom work, the scope, deliverables, and timeline are those described in your order or in a written statement of work or message we both confirm. Work outside that scope is additional work and may cost more. Deposits are non-refundable and are credited only as the product description says.`,
+        `Deposits and final payments. On orders of ${usd(DEPOSIT.minOrderCents)} or more that ship no physical goods, we may let you start with a deposit of ${DEPOSIT.percent}% of the order total instead of paying in full. The deposit starts production. The rest is invoiced when your build is ready, and it is due before we release the final files, deliver, or launch your website. We may hold delivery and launch until it is paid. A deposit is a payment toward your order, not a refundable reservation, and it is covered by the Refund and Cancellation Policy. If we bill you separately for extra work you asked for, that invoice is due when you receive it, and paying it adds to your order.`,
         `We make no promise about views, leads, sales, revenue, return on ad spend, or any other business result from ads, video, or creative work. You are responsible for following the rules of any advertising or social platform where the work is used, and for the claims, offers, and disclosures it contains. Advertising accounts can be limited or suspended by the platform, and we are not responsible for that.`,
         `If you give us images, video, voices, or names of real people, you confirm you have their permission to use them for this purpose.`,
       ],

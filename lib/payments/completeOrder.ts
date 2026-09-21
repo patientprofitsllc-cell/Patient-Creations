@@ -7,6 +7,7 @@ import { holdForIntake, startProductionIfReady } from "@/lib/projects/production
 import { recordReferralPurchase } from "@/lib/referrals/commissions";
 import { decrementInventoryForOrder } from "@/lib/inventory/decrement";
 import { consumeAuditCredit } from "@/lib/audit/paid";
+import { announceDeposit } from "@/lib/payments/invoices";
 import type { PaymentProvider } from "@/lib/types";
 
 /**
@@ -22,9 +23,12 @@ export async function completeOrderPayment(orderId: string, provider: PaymentPro
     return db.project.findUnique({ where: { orderId } });
   }
 
+  // A deposit order is "paid" once its deposit is in: production starts now and the rest is invoiced (see invoices.ts).
+  // What was collected is the total less the balance still owed.
+  const collectedNow = order.totalCents - order.balanceDueCents;
   await db.order.update({ where: { id: orderId }, data: { status: "PAID", paidAt: new Date() } });
   await db.payment.create({
-    data: { orderId, provider, providerRef: providerRef ?? null, amountCents: order.totalCents, status: "PAID" },
+    data: { orderId, provider, providerRef: providerRef ?? null, amountCents: collectedNow, status: "PAID" },
   });
 
   await logEvent("payment.succeeded", "Order", orderId, { provider });
@@ -33,7 +37,7 @@ export async function completeOrderPayment(orderId: string, provider: PaymentPro
   await trackFunnel("checkout_completed", {
     orderId,
     source: order.campaignSource ?? undefined,
-    totalCents: order.totalCents,
+    totalCents: collectedNow,
   });
 
   // Tell the owner right away, before anything slower runs. Never throws.
@@ -46,6 +50,8 @@ export async function completeOrderPayment(orderId: string, provider: PaymentPro
   await decrementInventoryForOrder(orderId);
 
   const project = await createProjectForOrder(orderId);
+
+  if (order.balanceDueCents > 0) await announceDeposit(orderId, project.name);
 
   // Production starts only when the order is paid AND (for website orders) the
   // customer has completed their intake; otherwise the project waits in

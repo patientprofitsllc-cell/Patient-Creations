@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { usd } from "@/lib/pricing/catalog";
 import { logEvent } from "@/lib/analytics/events";
 import { trackFunnel } from "@/lib/analytics/funnel";
 import { postAgentUpdate } from "@/lib/agents/relay";
@@ -63,6 +64,8 @@ export async function launchWebsite(projectId: string, liveUrlInput: string): Pr
   if (build.status === "LIVE") return { ok: true, detail: "already live" };
   if (build.status !== "APPROVED") return fail(409, "The customer hasn't approved this version yet.");
   if (project.state !== "DELIVERY_READY") return fail(409, `The project is in ${project.state}, not ready to launch.`);
+  const owed = await db.order.findUnique({ where: { id: project.orderId }, select: { balanceDueCents: true } });
+  if (owed && owed.balanceDueCents > 0) return fail(402, `The final payment of ${usd(owed.balanceDueCents)} has not been received yet. Launch after it is paid.`);
 
   const claim = await db.websiteBuild.updateMany({ where: { id: build.id, status: "APPROVED" }, data: { status: "LIVE", liveUrl } });
   if (claim.count === 0) return { ok: true, detail: "already live" };

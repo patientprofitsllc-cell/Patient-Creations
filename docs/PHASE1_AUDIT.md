@@ -49,7 +49,7 @@ Status: **Done** (works, tested), **Partial** (something real exists), **Missing
 | 7 | Monthly Ads with deliverables, turnaround, revisions, cancel anytime | Done | Cancel anytime is supported by the Stripe billing portal and is stated. |
 | 8 | Website Care $79 with a "keep your site running" offer after a website purchase | **Done** | The "your website is live" email now offers Website Care (price from the list, cancel any time, no monitoring claim); the confirmation page ladder offers it too; it starts from the project page once the site is live. |
 | 9 | Lead Engine tiers | **Done** | Tiers now $1,700 / $2,500 / $4,250. Tier names are still Core / Signature / Flagship. |
-| 10 | Separate high-ticket AI path with qualification | Partial | Prices and scopes exist; no qualification form or deposit flow. |
+| 10 | Separate high-ticket AI path with qualification | Partial | Prices and scopes exist; no qualification form. The deposit flow now exists (see item 22). |
 | 11 | Customer ascension system | **Done (v1)** | `lib/journey/ladder.ts`: what someone just bought and owns decides the next one to three offers. Shown on the confirmation page and the next-step page. Lifecycle emails that use it are Phase 4. |
 | 12 | Customer dashboard with full ledger and a progress bar | Partial | Projects and orders only. |
 | 13 | "Patient AI" concierge in the dashboard | Partial | Concierge exists per project. |
@@ -58,7 +58,7 @@ Status: **Done** (works, tested), **Partial** (something real exists), **Missing
 | 16 | CRM with 11-stage pipeline and founder dashboard | Partial | Prospect pipeline and customer notes exist. **New:** the owner's Audit Analyst at /admin/audits reads each paid audit's homepage more deeply than the customer sees and says what they need (each need with its evidence), which product to offer first and next, what not to pitch, objection answers, and a drafted message. The 11-stage pipeline itself is still Missing. |
 | 17 to 18 | Revenue dashboard and planning calculator | Partial | Growth dashboard exists; no full revenue/retention views or planning scenario. |
 | 19 to 21 | Homepage rebuild, journey visual, three-choice discovery | **Done** | New hero copy and CTAs, the three-choice finder, and the five-step path, on the approved live hero. Checked at 375, 390, 430, 768, 1024, 1280, and 1440 px. |
-| 22 | Checkout with personalized thank-you steps | Partial | The six-step "You just took the first step" stepper is **done** (website, project, and card variants). Deposits and invoices are still Missing. |
+| 22 | Checkout with personalized thank-you steps | Partial | The six-step "You just took the first step" stepper is **done** (website, project, and card variants). **Deposits and invoices are now built** (Phase 4): orders of $2,500 or more that ship nothing can start with a 50% deposit; production starts on the deposit; the balance is invoiced automatically when the build is ready and delivery (or a website launch) waits for it; the owner can bill extra work from /admin/invoices; customers get private pay links, receipts, and a portal Invoices page. The deposit percent and minimum live in `DEPOSIT` in the price catalog. |
 | 23 | Contextual upsells | **Done (v1)** | See item 11. Never offers what is owned; consultations get none; clicks and views are counted. |
 | 24 to 25 | Production pipeline with human approval and rollback | Partial | Agents, QA, and approval exist; rollback to a superseded version is not exposed. |
 | 26 to 27 | Design system and mobile | Done | Tested on phone sizes; one 320px overflow fixed this week. |
@@ -95,7 +95,8 @@ Status: **Done** (works, tested), **Partial** (something real exists), **Missing
 
 **Not started, in this order of value:** Phase 4 revenue engine (deposits and invoices), Phase 5 CRM (the 11-stage pipeline with value, probability, and source; merge with the prospect list), Phase 7 customer AI in the portal, Phase 9 partner program, Phase 10 revenue and retention dashboard with the planning scenario, then the founder dashboard, idea parking lot, bottleneck rule, and product profitability. The production-agent pipeline (Phase 8) already exists and needs rollback and the QA checklist from the spec.
 
+| 2026-09-21 | 4. Deposits and invoices | Deposit option at checkout for big builds, balance invoiced when the build is ready, delivery held until it is paid, extra-work invoices, private pay links and receipts, admin Invoices tab, portal Invoices page, revenue reports now count cash collected (not bare order totals). Terms and Refund Policy updated (legal version 2026-09-22). 34 new tests, 519 in all. |
 | 2026-09-21 | 6. Growth audit v2 | Audit made paid ($19, credited in full toward the first order for 30 days), free preview before payment, credit code that works as a coupon and is used up once, Audit Agent chat, and the owner's Audit Analyst dashboard. Terms and Refund Policy updated (legal version 2026-09-21). |
 | 2026-09-21 | 4. Revenue engine (lifecycle slice) | Follow-up queue and five follow-up emails, opt-out list and signed unsubscribe, secured optional daily trigger, Website Care offer in the website-live email. |
 
-**Test and check counts:** 485 unit tests; homepage, finder, audit, and confirmation page also checked in a real browser at phone and desktop widths.
+**Test and check counts:** 519 unit tests; homepage, finder, audit, and confirmation page also checked in a real browser at phone and desktop widths.

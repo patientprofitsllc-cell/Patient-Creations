@@ -19,6 +19,8 @@ import { notifyOwnerOfOrder } from "@/lib/alerts/ownerAlerts";
 import { sendEmail } from "@/lib/email/provider";
 import { intakeUrlFor } from "@/lib/intake/url";
 import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
+import { depositLineItems, quoteDeposit } from "@/lib/payments/deposit";
+import { usd } from "@/lib/pricing/catalog";
 
 const checkoutSchema = z.object({
   productIds: z.array(z.string()).min(1),
@@ -30,6 +32,8 @@ const checkoutSchema = z.object({
   cardMix: z.record(z.string(), z.number().int().min(1).max(100)).optional(),
   deliverySpeed: z.enum(["standard", "priority", "express", "immediate"]).default("standard"),
   paymentMethod: z.enum(["stripe", "zelle", "apple_pay"]).default("stripe"),
+  // "deposit" starts a big build with part of the price now and the rest invoiced later. The server decides if it is allowed.
+  paymentPlan: z.enum(["full", "deposit"]).default("full"),
   couponCode: z.string().optional(),
   // The customer must agree to the legal terms. The literal keeps a request without it from getting any further.
   acceptTerms: z.literal(true, { errorMap: () => ({ message: "You must agree to the Terms of Service, Privacy Policy, and Refund Policy to place an order." }) }),
@@ -64,7 +68,7 @@ export async function POST(req: NextRequest) {
   const body = checkoutSchema.safeParse(await req.json());
   if (!body.success) return NextResponse.json({ error: body.error.flatten() }, { status: 400 });
 
-  const { productIds, primaryVariantId, primaryQuantity, nfcAddonQuantity, cardMix, deliverySpeed, paymentMethod, couponCode, campaignSource, referralCode, account, website, visitorId, recoveryOffer } = body.data;
+  const { productIds, primaryVariantId, primaryQuantity, nfcAddonQuantity, cardMix, deliverySpeed, paymentMethod, paymentPlan, couponCode, campaignSource, referralCode, account, website, visitorId, recoveryOffer } = body.data;
 
   // Website orders need the business basics up front so production can start from them.
   const includesWebsite =
@@ -115,9 +119,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err instanceof Error ? err.message : "Invalid order" }, { status: 400 });
   }
 
+  // A deposit is only for big builds that ship nothing. The amounts are always worked out here, never taken from the browser.
+  let depositCents = 0;
+  let balanceDueCents = 0;
+  if (paymentPlan === "deposit") {
+    const quote = quoteDeposit(priced.totalCents, { shippingCents: priced.shippingCents });
+    if (!quote.eligible) return NextResponse.json({ error: quote.reason ?? "A deposit is not available on this order." }, { status: 400 });
+    depositCents = quote.depositCents;
+    balanceDueCents = quote.balanceCents;
+  }
+
   const order = await db.order.create({
     data: {
       customerId,
+      depositCents,
+      balanceDueCents,
       status: "PENDING",
       subtotalCents: priced.subtotalCents,
       discountCents: priced.discountCents,
@@ -174,7 +190,7 @@ export async function POST(req: NextRequest) {
       const names = await db.product.findMany({ where: { id: { in: priced.items.map((i) => i.productId) } }, select: { name: true } });
       const intake = await db.websiteIntake.findUnique({ where: { orderId: order.id }, select: { token: true } });
       await sendEmail(customerEmail, "order_received", {
-        summary: names.map((n) => n.name).join(", "),
+        summary: names.map((n) => n.name).join(", ") + (balanceDueCents > 0 ? ` (a ${usd(depositCents)} deposit now, and ${usd(balanceDueCents)} due before final delivery)` : ""),
         paymentLabel: paymentMethodLabel(paymentMethod),
         intakeUrl: intake ? intakeUrlFor(intake.token) : undefined,
       });
@@ -234,9 +250,13 @@ export async function POST(req: NextRequest) {
             },
           ]
         : [];
+    const isDeposit = balanceDueCents > 0;
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
-      line_items: [
+      // A deposit is one line, so the card is charged exactly the deposit; the rest is invoiced when the build is ready.
+      line_items: isDeposit
+        ? depositLineItems({ productNames: products.map((p) => p.name), depositCents, balanceCents: balanceDueCents })
+        : [
         ...discountedItems
           .filter((i) => i.discountedLineTotal > 0)
           .map((i) => {

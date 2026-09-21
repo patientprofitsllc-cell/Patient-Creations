@@ -27,6 +27,7 @@ import { sendEmail } from "@/lib/email/provider";
 import { notifyAdmin } from "@/lib/security/notify";
 import { generateStatusToken, statusUrlFor } from "@/lib/projects/statusToken";
 import { announce } from "@/lib/agents/relay";
+import { holdDeliveryForBalance } from "@/lib/payments/balanceGate";
 import { intakeUrlFor } from "@/lib/intake/url";
 
 export const MAX_RETRIES = 5;
@@ -271,6 +272,8 @@ async function runPipeline(projectId: string) {
       await transitionProject(projectId, "DELIVERY_READY");
       await markTask(projectId, "DELIVERY_READY", "PASSED");
       await logEvent("project.delivery_ready", "Project", projectId);
+      // A deposit order's final files are released only once the balance is paid; paying it finishes the delivery.
+      if (await holdDeliveryForBalance(projectId, "hold")) return;
       return finalizeDelivery(projectId);
     }
 
@@ -283,7 +286,7 @@ async function runPipeline(projectId: string) {
   return escalateToException(projectId, `Exceeded MAX_RETRIES (${MAX_RETRIES}) resolving QA/Perception`);
 }
 
-async function finalizeDelivery(projectId: string) {
+export async function finalizeDelivery(projectId: string) {
   const project = await db.project.findUniqueOrThrow({
     where: { id: projectId },
     include: { customer: { include: { user: true } } },

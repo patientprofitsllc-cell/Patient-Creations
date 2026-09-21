@@ -1,3 +1,4 @@
+import { collectedCents } from "@/lib/payments/deposit";
 import { createHmac, timingSafeEqual } from "crypto";
 import { db } from "@/lib/db";
 
@@ -146,7 +147,7 @@ export async function cartRecoveryStats(since: Date) {
     db.analyticsEvent.count({ where: { name: "cart_offer_used", createdAt: { gte: since } } }),
     db.order.findMany({
       where: { couponCode: RECOVERY_COUPON, createdAt: { gte: since } },
-      select: { status: true, totalCents: true, discountCents: true },
+      select: { status: true, totalCents: true, balanceDueCents: true, discountCents: true },
     }),
   ]);
   const paid = orders.filter((o) => o.status === "PAID");
@@ -154,7 +155,7 @@ export async function cartRecoveryStats(since: Date) {
     issued,
     used,
     paidOrders: paid.length,
-    revenueCents: paid.reduce((s, o) => s + o.totalCents, 0),
+    revenueCents: paid.reduce((s, o) => s + collectedCents(o), 0),
     discountGivenCents: paid.reduce((s, o) => s + o.discountCents, 0),
   };
 }

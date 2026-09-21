@@ -106,9 +106,13 @@ model Order {
   paymentMethod  String      @default("stripe") // PaymentMethod — chosen on the payment-method step of checkout
   stripeSessionId String?    @unique
   campaignSource String?
+  // A deposit order: depositCents is what was due at checkout, balanceDueCents is what is still owed (0 once settled).
+  depositCents   Int         @default(0)
+  balanceDueCents Int        @default(0)
   createdAt      DateTime    @default(now())
   paidAt         DateTime?
 
+  invoices       Invoice[]
   items          OrderItem[]
   payments       Payment[]
   project        Project?
@@ -757,5 +761,25 @@ model GrowthAudit {
   createdAt       DateTime  @default(now())
 
   @@index([email])
+  @@index([status])
+}
+
+// A bill for one order. BALANCE is what remains after a deposit; EXTRA is added work the owner bills separately (paying it
+// raises the order total). `token` is the private link a customer pays through. Paying is idempotent (status OPEN -> PAID).
+model Invoice {
+  id              String    @id @default(cuid())
+  seq             Int       @unique @default(autoincrement())
+  token           String    @unique
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id])
+  kind            String    // BALANCE | EXTRA
+  description     String
+  amountCents     Int
+  status          String    @default("OPEN") // OPEN | PAID | VOID
+  stripeSessionId String?   @unique
+  paidAt          DateTime?
+  paidVia         String?   // STRIPE | MANUAL | MOCK
+  createdAt       DateTime  @default(now())
+  @@index([orderId])
   @@index([status])
 }

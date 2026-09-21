@@ -63,6 +63,13 @@ export const AUDIT_FEE_CENTS: number = FEES["growth-audit"];
 /** How long the audit credit code works. */
 export const AUDIT_CREDIT_DAYS = 30;
 
+/**
+ * Big builds can be started with a deposit instead of paying everything up front. The deposit starts production; the
+ * rest is invoiced and is due before the final files are released or the site is launched. Only orders at or above the
+ * minimum can use it, and never orders that ship physical goods.
+ */
+export const DEPOSIT = { percent: 50, minOrderCents: 250_000 } as const;
+
 export type PricedSlug = keyof typeof PRICE_CENTS;
 
 export const priceOf = (slug: PricedSlug): number => PRICE_CENTS[slug];

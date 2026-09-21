@@ -8,6 +8,8 @@ import { RevisionForm } from "@/components/portal/RevisionForm";
 import { ReviewForm } from "@/components/portal/ReviewForm";
 import { ensureStatusToken } from "@/lib/projects/ensureStatusToken";
 import { statusUrlFor } from "@/lib/projects/statusToken";
+import Link from "next/link";
+import { usd } from "@/lib/pricing/catalog";
 
 export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -33,6 +35,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   const canReview = ["DELIVERED", "REVIEW_REQUESTED", "COMPLETED"].includes(project.state);
   const statusToken = await ensureStatusToken(project.id, project.statusToken);
   const shareUrl = statusUrlFor(statusToken);
+  const openBalance = project.order.balanceDueCents > 0 ? await db.invoice.findFirst({ where: { orderId: project.orderId, kind: "BALANCE", status: "OPEN" } }) : null;
 
   return (
     <div className="space-y-10">
@@ -40,6 +43,21 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Project</p>
         <h1 className="mt-2 font-display text-3xl text-ice">{project.name}</h1>
       </div>
+
+      {project.order.balanceDueCents > 0 && (
+        <div role="status" className="rounded-2xl border border-gold/40 bg-gold/5 p-5">
+          <p className="text-xs uppercase tracking-[0.25em] text-gold/80">Final payment</p>
+          <p className="mt-2 text-ice">
+            {usd(project.order.balanceDueCents)} remains on this project. Your final files are released, and a website is launched, once it is paid.
+            {openBalance ? "" : " We will send the invoice when your build is ready."}
+          </p>
+          {openBalance && (
+            <Link href={`/invoice/${openBalance.token}`} className="mt-4 inline-flex min-h-[44px] items-center rounded-full bg-gradient-to-b from-gold to-gold-deep px-6 text-sm font-semibold text-obsidian">
+              Pay {usd(openBalance.amountCents)} now
+            </Link>
+          )}
+        </div>
+      )}
 
       <div className="glass-panel rounded-2xl p-6">
         <div className="flex items-center justify-between">

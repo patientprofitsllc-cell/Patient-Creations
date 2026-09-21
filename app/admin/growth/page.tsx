@@ -1,3 +1,4 @@
+import { collectedCents } from "@/lib/payments/deposit";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { prospectStats } from "@/lib/prospects/service";
@@ -56,7 +57,7 @@ export default async function AdminGrowthPage() {
   const [paidOrders, eventGroups, landingRows, waiting, carePlans, outreach, recovery, adMrr] = await Promise.all([
     db.order.findMany({
       where: { status: "PAID", paidAt: { gte: cfg.start } },
-      select: { customerId: true, totalCents: true, campaignSource: true, items: { select: { product: { select: { slug: true } } } } },
+      select: { customerId: true, totalCents: true, balanceDueCents: true, campaignSource: true, items: { select: { product: { select: { slug: true } } } } },
     }),
     db.analyticsEvent.groupBy({
       by: ["name"],
@@ -84,7 +85,7 @@ export default async function AdminGrowthPage() {
 
   const customers = new Set(paidOrders.map((o) => o.customerId));
   const progress = acquisitionProgress(cfg, customers.size, now);
-  const revenue = paidOrders.reduce((s, o) => s + o.totalCents, 0);
+  const revenue = paidOrders.reduce((s, o) => s + collectedCents(o), 0);
   const websiteOrders = paidOrders.filter((o) => o.items.some((i) => i.product.slug === OFFER_SLUG || i.product.slug === NFC_BUNDLE_SLUG)).length;
 
   const counts: Partial<Record<FunnelEvent, number>> = {};
@@ -105,7 +106,7 @@ export default async function AdminGrowthPage() {
   for (const o of paidOrders) {
     const key = o.campaignSource ?? "direct or unknown";
     const cur = bySource.get(key) ?? { orders: 0, cents: 0 };
-    bySource.set(key, { orders: cur.orders + 1, cents: cur.cents + o.totalCents });
+    bySource.set(key, { orders: cur.orders + 1, cents: cur.cents + collectedCents(o) });
   }
   const sources = [...bySource.entries()].sort((a, b) => b[1].orders - a[1].orders);
 

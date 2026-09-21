@@ -13,6 +13,7 @@ import { PurchaseJourney } from "@/components/journey/PurchaseJourney";
 import { NextStepCards } from "@/components/journey/NextStepCards";
 import { nextOffers } from "@/lib/journey/ladder";
 import { thanksCueFor } from "@/lib/voice/cues";
+import { usd } from "@/lib/pricing/catalog";
 
 export default async function CheckoutSuccessPage({ searchParams }: { searchParams: { order?: string } }) {
   const order = searchParams.order
@@ -41,6 +42,7 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
       })
     : [];
   const awaitingManualPayment = order && order.paymentMethod !== "stripe" && order.status !== "PAID";
+  const owesBalance = Boolean(order && order.balanceDueCents > 0);
   const isNfcOrder = order?.items[0]?.product.category === "Merch";
   const hasNfcAddon = order?.items.some((i) => i.product.slug === NFC_ADDON_SLUG) ?? false;
   const includedCards = includedCardCount(order?.items[0]?.product.slug);
@@ -88,6 +90,12 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
               ? "Production has started. You can watch real progress in your portal."
               : "We're finishing setup on your order."}
         </p>
+        {owesBalance && order && (
+          <p className="mx-auto mt-6 max-w-md rounded-xl border border-gold/30 bg-gold/5 p-4 text-sm text-ice/80">
+            {awaitingManualPayment ? "Your deposit is" : "Your deposit was"} {usd(order.totalCents - order.balanceDueCents)}. The remaining {usd(order.balanceDueCents)} is due before your final files are released. We will invoice it when your build is ready.
+          </p>
+        )}
+
         {intake && intakePending && (
           <div className="mt-8">
             <Link

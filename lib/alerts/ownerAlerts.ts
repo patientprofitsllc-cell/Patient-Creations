@@ -14,6 +14,8 @@ export interface OrderAlertFacts {
   source?: string | null;
   returnVisitorOffer: boolean;
   adminUrl: string;
+  /** A deposit order: what is still owed after the deposit. The total is the full order value. */
+  balanceDueCents?: number;
 }
 
 const money = (cents: number) => `$${(cents / 100).toFixed(2)}`;
@@ -38,10 +40,14 @@ export function buildOrderAlert(f: OrderAlertFacts) {
   const head = f.kind === "paid" ? "NEW PAID ORDER" : "NEW ORDER, awaiting payment";
   const extra = [f.returnVisitorOffer ? "5% return offer used" : "", f.source ? `from ${ascii(f.source, 30)}` : ""].filter(Boolean).join(", ");
 
-  const sms = `Patient Creations: ${head} ${money(f.totalCents)} ${what}${who}. ${how}${extra ? `, ${extra}` : ""}. ${f.adminUrl}`;
-  const subject = `${head}: ${money(f.totalCents)} ${what}`;
+  const owed = f.balanceDueCents ?? 0;
+  const shown = owed > 0 ? `${money(f.totalCents - owed)} deposit (of ${money(f.totalCents)})` : money(f.totalCents);
+
+  const sms = `Patient Creations: ${head} ${shown} ${what}${who}. ${how}${extra ? `, ${extra}` : ""}. ${f.adminUrl}`;
+  const subject = `${head}: ${shown} ${what}`;
   const details = [
     `Total: ${money(f.totalCents)}`,
+    owed > 0 ? `Deposit: ${money(f.totalCents - owed)} ${f.kind === "paid" ? "received" : "due"}. The other ${money(owed)} is invoiced automatically and due before final delivery.` : "",
     `Items: ${f.productNames.join(", ") || "n/a"}`,
     f.businessName ? `Business: ${f.businessName}` : "",
     `Payment: ${how}${f.kind === "awaiting_payment" ? " (not confirmed yet; confirm it in the admin dashboard once the money arrives)" : ""}`,
@@ -117,6 +123,7 @@ export async function notifyOwnerOfOrder(orderId: string, kind: OrderAlertKind) 
       paymentMethod: order.paymentMethod,
       source: order.campaignSource,
       returnVisitorOffer: order.couponCode === "COMEBACK5",
+      balanceDueCents: order.balanceDueCents,
       adminUrl: `${base}/admin/dashboard`,
     });
 

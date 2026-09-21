@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { handleCareEvent } from "@/lib/care/events";
 import { handleAdsEvent } from "@/lib/ads/events";
 import { handleAuditEvent } from "@/lib/audit/paid";
+import { handleInvoiceEvent } from "@/lib/payments/invoices";
 
 // Stripe webhook is the ONLY server-side path (besides the mock-payment
 // route used only when Stripe isn't configured) allowed to mark an order
@@ -41,6 +42,7 @@ export async function POST(req: NextRequest) {
     await handleCareEvent(event);
     await handleAdsEvent(event);
     await handleAuditEvent(event);
+    await handleInvoiceEvent(event);
   } catch (err) {
     console.error("care plan webhook handling failed", err);
     return NextResponse.json({ error: "Handler failed" }, { status: 500 });

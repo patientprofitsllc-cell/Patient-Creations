@@ -18,6 +18,10 @@ export type EmailTemplateKey =
   | "ads_plan_started"
   | "owner_new_order"
   | "owner_audit_lead"
+  | "deposit_received"
+  | "invoice_issued"
+  | "invoice_paid"
+  | "balance_due_ready"
   | "growth_audit_ready"
   | "audit_followup_1"
   | "audit_followup_2"
@@ -81,6 +85,40 @@ One thing that makes a real difference: a specific offer. A clear product, a cle
 Your private plan page (keep this link, it is how you reach your plan): ${p.manageUrl}`,
   }),
   owner_new_order: (p) => ({ subject: String(p.subject ?? "New order"), body: String(p.body ?? "") }),
+  deposit_received: (p) => ({
+    subject: "Deposit received. Your build has started.",
+    body: `Thank you. We received your ${p.deposit} deposit, and "${p.projectName}" is now in production.
+
+The remaining ${p.balance} is due before we release the final files or launch your site. There is nothing to do about it now. We will email you when your build is ready, and you can also pay any time at this private link: ${p.invoiceUrl}
+
+If you have questions about your payment, reply to this email or call ${CONTACT_PHONE_DISPLAY}.${statusLine(p)}`,
+  }),
+  invoice_issued: (p) => ({
+    subject: `Invoice ${p.number}: ${p.amount}`,
+    body: `Hi${p.name ? ` ${String(p.name)}` : ""},
+
+Here is an invoice for ${p.amount}: ${p.description}
+
+You can pay by card at this private link: ${p.invoiceUrl}
+
+Questions? Reply to this email or call ${CONTACT_PHONE_DISPLAY}.`,
+  }),
+  invoice_paid: (p) => ({
+    subject: `Payment received. Thank you (${p.number})`,
+    body: `Thank you. We received your payment of ${p.amount} for invoice ${p.number}: ${p.description}
+
+${p.settled ? (p.released ? "Your order is now paid in full, and your final files have been released. Check your project page and your email for the delivery." : "Your order is now paid in full. If your build is still waiting to launch, we will take care of that next.") : "Your order total has been updated to include this work."}
+
+Keep this email as your receipt. Questions? Reply to it or call ${CONTACT_PHONE_DISPLAY}.`,
+  }),
+  balance_due_ready: (p) => ({
+    subject: p.beforeLaunch ? "Your preview is ready. Final payment is due before launch." : "Your build is finished. Final payment releases it.",
+    body: `Good news: "${p.projectName}" is finished.
+
+The final payment of ${p.amount} ${p.beforeLaunch ? "is due before we launch your site. You can look over your preview now and pay when you are ready" : "releases your final files as soon as it is paid, and delivery happens automatically"}. Pay by card at your private link: ${p.invoiceUrl}
+
+Questions? Reply to this email or call ${CONTACT_PHONE_DISPLAY}.`,
+  }),
   owner_audit_lead: (p) => ({ subject: String(p.subject ?? "New growth audit"), body: String(p.body ?? "") }),
   audit_followup_1: (p) => ({
     subject: "Any questions about your growth audit?",

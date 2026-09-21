@@ -1,3 +1,4 @@
+import { collectedCents } from "@/lib/payments/deposit";
 import { db } from "@/lib/db";
 import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
 import { MarkPaidButton } from "@/components/admin/MarkPaidButton";
@@ -31,7 +32,7 @@ export default async function AdminDashboardPage() {
   ]);
 
   const messagesNeedingYou = await getMessagesNeedingAdmin();
-  const revenue = orders.reduce((s, o) => s + o.totalCents, 0);
+  const revenue = orders.reduce((s, o) => s + collectedCents(o), 0);
   const aov = orders.length ? revenue / orders.length : 0;
   const activeProjects = projects.filter((p) => !["COMPLETED", "CANCELLED", "EXCEPTION"].includes(p.state));
   const stuckProjects = projects.filter((p) => p.state === "EXCEPTION");

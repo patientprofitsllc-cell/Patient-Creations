@@ -18,6 +18,7 @@ import { CARD_DESIGNS, CARD_MIX_PACK_SLUG } from "@/lib/payments/cardMix";
 import { supportsQuantity } from "@/lib/payments/quantityProducts";
 import { businessDays } from "@/lib/payments/deliveryWindow";
 import { PAYMENT_METHODS } from "@/lib/payments/paymentMethods";
+import { quoteDeposit } from "@/lib/payments/deposit";
 import type { PaymentMethod } from "@/lib/types";
 import { BUSINESS_TYPES, OFFER_SLUG } from "@/lib/site/offer";
 import { captureAttribution, readAttribution, sourceLabel } from "@/lib/analytics/attribution";
@@ -98,6 +99,7 @@ export function CheckoutForm({
   const [existingWebsite, setExistingWebsite] = useState("");
   const [step, setStep] = useState<"details" | "payment">("details");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("stripe");
+  const [plan, setPlan] = useState<"full" | "deposit">("full");
   const [loading, setLoading] = useState(false);
   const [agreed, setAgreed] = useState(false);
   // The 5% return-visitor offer, if the server decides this visitor has earned it.
@@ -193,6 +195,10 @@ export function CheckoutForm({
   const offerDiscount = offer ? Math.round(((primaryLineTotal + bumpTotal) * offer.percent) / 100) : 0;
   const subtotal = primaryLineTotal + bumpTotal + rushFeeCents + shippingCents - offerDiscount;
 
+  // The server works out the real amounts (including any coupon); this is what to show before that.
+  const depositQuote = quoteDeposit(subtotal, { shippingCents });
+  const usingDeposit = plan === "deposit" && depositQuote.eligible;
+
   async function submit() {
     if (!agreed) {
       setError("Please tick the box to agree to the terms before you continue.");
@@ -212,6 +218,7 @@ export function CheckoutForm({
           cardMix: isCardPack ? Object.fromEntries(Object.entries(mix).filter(([, q]) => q > 0)) : undefined,
           deliverySpeed,
           paymentMethod,
+          paymentPlan: usingDeposit ? "deposit" : "full",
           couponCode: coupon || undefined,
           acceptTerms: agreed,
           referralCode,
@@ -289,6 +296,33 @@ export function CheckoutForm({
                 </button>
               ))}
             </div>
+            {depositQuote.eligible && (
+              <div className="mt-6">
+                <h3 className="mb-1 text-sm text-ice">How much would you like to pay now?</h3>
+                <p className="mb-3 text-xs text-ice/40">On larger builds you can start with a deposit. Either way, production starts as soon as your payment is confirmed.</p>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Payment plan">
+                  {(
+                    [
+                      { key: "full", title: `Pay in full: ${money(subtotal)}`, blurb: "One payment. Nothing more to pay later." },
+                      { key: "deposit", title: `Pay ${depositQuote.percent}% now: ${money(depositQuote.depositCents)}`, blurb: `The other ${money(depositQuote.balanceCents)} is due before your final files are released.` },
+                    ] as const
+                  ).map((o) => (
+                    <button
+                      key={o.key}
+                      type="button"
+                      role="radio"
+                      aria-checked={plan === o.key}
+                      onClick={() => setPlan(o.key)}
+                      className={`rounded-xl border px-4 py-3 text-left text-sm transition ${plan === o.key ? "border-gold bg-gold/10 text-ice" : "border-white/10 text-ice/60 hover:border-gold/40"}`}
+                    >
+                      <span className="block">{o.title}</span>
+                      <span className="mt-1 block text-xs text-ice/40">{o.blurb}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-ice/40">Amounts are before any coupon. A coupon comes off the total first, and the exact amounts are shown when you pay.</p>
+              </div>
+            )}
             {isMerch && shippingQuote && (
               <p className="mt-4 text-xs text-ice/40">
                 Ships via {shippingQuote.boxLabel}, US only — {money(shippingCents)} shipping already included in
@@ -684,6 +718,12 @@ export function CheckoutForm({
           <span>Total</span>
           <span>{money(subtotal)}</span>
         </div>
+        {usingDeposit && (
+          <div className="mt-2 space-y-1 text-sm text-ice/70">
+            <div className="flex justify-between"><span>Due now ({depositQuote.percent}% deposit)</span><span>{money(depositQuote.depositCents)}</span></div>
+            <div className="flex justify-between"><span>Due before final delivery</span><span>{money(depositQuote.balanceCents)}</span></div>
+          </div>
+        )}
         <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-3 text-xs leading-relaxed text-ice/60 has-[:checked]:border-gold/50">
           <input
             id="checkout-agree"
@@ -708,7 +748,7 @@ export function CheckoutForm({
           disabled={loading || !detailsValid || !agreed || (isCardPack && mixTotal === 0)}
           className="mt-4 w-full rounded-full bg-gradient-to-b from-gold to-gold-deep px-6 py-3 text-sm font-semibold tracking-wide text-obsidian transition hover:brightness-110 disabled:opacity-40"
         >
-          {loading ? "Processing…" : step === "details" ? "Continue to payment" : `Reserve this build, pay via ${selectedMethod.label}`}
+          {loading ? "Processing…" : step === "details" ? "Continue to payment" : usingDeposit ? `Start my build, pay ${money(depositQuote.depositCents)} deposit via ${selectedMethod.label}` : `Reserve this build, pay via ${selectedMethod.label}`}
         </button>
         <p className="mt-3 text-center text-xs text-ice/30">
           {step === "payment" && !selectedMethod.live

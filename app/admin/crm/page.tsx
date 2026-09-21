@@ -1,3 +1,4 @@
+import { collectedCents } from "@/lib/payments/deposit";
 import Link from "next/link";
 import { db } from "@/lib/db";
 
@@ -23,7 +24,7 @@ export default async function CrmPage({ searchParams }: { searchParams: { q?: st
       name: c.user.name ?? c.user.email,
       email: c.user.email,
       createdAt: c.createdAt,
-      totalSpendCents: c.orders.reduce((s, o) => s + o.totalCents, 0),
+      totalSpendCents: c.orders.reduce((s, o) => s + collectedCents(o), 0),
       orderCount: c.orders.length,
       projectCount: c.projects.length,
       activeProjectCount: c.projects.filter((p) => !["COMPLETED", "CANCELLED", "EXCEPTION"].includes(p.state)).length,

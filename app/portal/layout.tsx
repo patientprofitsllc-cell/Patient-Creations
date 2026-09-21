@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/shared/SiteHeader";
 
 const TABS = [
   { href: "/portal/dashboard", label: "Dashboard" },
+  { href: "/portal/invoices", label: "Invoices" },
   { href: "/portal/referrals", label: "Referrals" },
 ];
 
