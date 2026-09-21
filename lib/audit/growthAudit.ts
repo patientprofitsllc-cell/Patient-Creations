@@ -2,7 +2,7 @@ import type { AuditResult } from "@/lib/prospects/audit";
 import { PRICE_CENTS, usd } from "@/lib/pricing/catalog";
 import { businessDays } from "@/lib/payments/deliveryWindow";
 
-// The Free Growth Audit. Every line in the report belongs to exactly one of three kinds, and says which:
+// The Growth Audit. Every line in the report belongs to exactly one of three kinds, and says which:
 //
 //   OBSERVED     something read directly from the public homepage today, or something the visitor told us.
 //   RECOMMENDED  what we suggest, with the observed facts or answers it is based on.

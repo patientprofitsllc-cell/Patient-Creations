@@ -6,6 +6,7 @@ import { createProjectForOrder } from "@/lib/agents/orchestrator";
 import { holdForIntake, startProductionIfReady } from "@/lib/projects/production";
 import { recordReferralPurchase } from "@/lib/referrals/commissions";
 import { decrementInventoryForOrder } from "@/lib/inventory/decrement";
+import { consumeAuditCredit } from "@/lib/audit/paid";
 import type { PaymentProvider } from "@/lib/types";
 
 /**
@@ -27,6 +28,8 @@ export async function completeOrderPayment(orderId: string, provider: PaymentPro
   });
 
   await logEvent("payment.succeeded", "Order", orderId, { provider });
+  // A Growth Audit credit is used up once the order it was applied to is paid.
+  await consumeAuditCredit(order.couponCode);
   await trackFunnel("checkout_completed", {
     orderId,
     source: order.campaignSource ?? undefined,

@@ -149,24 +149,26 @@ describe("growth audit: the email and the endpoint", () => {
     expect(t).toMatch(/cannot see your traffic/);
   });
 
-  it("is defended: rate limits, a hidden bot field, required consent, safe website checking, and the do-not-contact list", () => {
+  it("is defended: rate limits, a hidden bot field, required consent, safe website reading, and a paid unlock", () => {
     const route = readFileSync(join(process.cwd(), "app/api/audit/route.ts"), "utf8");
     expect(route).toContain("rateLimit(`audit:ip:");
     expect(route).toContain("rateLimit(`audit:email:");
     expect(route).toContain("company_url");
     expect(route).toContain("consent: z.literal(true)");
     expect(route).toContain("normalizeWebUrl(");
-    expect(route).toContain("auditWebsite(");
-    expect(route).toContain("DO_NOT_CONTACT");
+    expect(route).toContain("readSite(");
     expect(route).toContain('source: "growth-audit"');
-    expect(route).toContain('trackFunnel("audit_completed"');
     expect(route).toContain('trackFunnel("lead_submitted"');
+    // the full report is never in the response: only a teaser and a way to pay
+    expect(route).toContain("teaser: auditTeaser(report)");
+    const response = route.slice(route.lastIndexOf("return NextResponse.json({"));
+    expect(response).not.toMatch(/\n\s+report(:|,)/);
   });
 
   it("is a real page, in the sitemap, with the three labels explained", () => {
     const page = readFileSync(join(process.cwd(), "app/audit/page.tsx"), "utf8");
     expect(page).toContain("See what Patient Creations could improve in your business.");
     expect(readFileSync(join(process.cwd(), "app/sitemap.ts"), "utf8")).toContain("/audit");
-    expect(readFileSync(join(process.cwd(), "components/audit/AuditForm.tsx"), "utf8")).toContain("Get Your Patient Creations Growth Plan");
+    expect(readFileSync(join(process.cwd(), "components/audit/AuditReportView.tsx"), "utf8")).toContain("Get Your Patient Creations Growth Plan");
   });
 });

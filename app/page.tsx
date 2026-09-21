@@ -19,6 +19,7 @@ import { ProductFinder } from "@/components/home/ProductFinder";
 import { BusinessJourney } from "@/components/home/BusinessJourney";
 import { ProblemSection } from "@/components/marketing/ProblemSection";
 import { db } from "@/lib/db";
+import { AUDIT_FEE_CENTS, usd } from "@/lib/pricing/catalog";
 import { LOGO_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/config/site";
 import { OFFER_CHECKOUT_HREF, TRUST_ITEMS, getFaqs } from "@/lib/site/offer";
 import { FALLBACK_OFFER_PRICE_CENTS, getOfferProduct } from "@/lib/site/offerData";
@@ -110,7 +111,7 @@ export default async function HomePage() {
                 href="/audit"
                 className="w-full rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-4 text-base font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110 sm:w-auto"
               >
-                GET MY FREE GROWTH AUDIT
+                GET MY GROWTH AUDIT
               </Link>
               <Link
                 href="/services"
@@ -119,7 +120,10 @@ export default async function HomePage() {
                 EXPLORE SERVICES
               </Link>
             </div>
-            <p className="mt-4 text-sm text-ice/60">
+            <p className="mt-4 text-sm text-ice/70">
+              See what we found before you pay. The full audit is {usd(AUDIT_FEE_CENTS)}, credited toward your first order.
+            </p>
+            <p className="mt-2 text-sm text-ice/60">
               Just need a website? <Link href={OFFER_CHECKOUT_HREF} className="text-gold underline">Build it now for {price}.</Link>
             </p>
           </div>

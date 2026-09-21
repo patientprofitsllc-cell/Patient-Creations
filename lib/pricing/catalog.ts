@@ -49,6 +49,20 @@ export const PRICE_CENTS = {
   "ads-monthly-1000": 100_000,
 } as const;
 
+/**
+ * Fees that are not products on the shelf. The Growth Audit is $19 on purpose: enough that only people who mean it pay
+ * (paying is the cheapest proof of intent there is), little enough that nobody has to think twice, and below the
+ * smallest thing we sell, so it never reads as a substitute for buying. The whole fee comes back as a credit toward the
+ * first order, so anyone who was going to buy anyway pays nothing extra.
+ */
+export const FEES = {
+  "growth-audit": 1_900,
+} as const;
+
+export const AUDIT_FEE_CENTS: number = FEES["growth-audit"];
+/** How long the audit credit code works. */
+export const AUDIT_CREDIT_DAYS = 30;
+
 export type PricedSlug = keyof typeof PRICE_CENTS;
 
 export const priceOf = (slug: PricedSlug): number => PRICE_CENTS[slug];

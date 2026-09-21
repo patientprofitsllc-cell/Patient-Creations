@@ -132,11 +132,15 @@ Questions, or want to talk one through? Reply to this email or call ${CONTACT_PH
     subject: "Your Growth Audit Is Ready",
     body: `Hi${p.name ? ` ${String(p.name)}` : ""},
 
-Thanks for asking for a Patient Creations Growth Audit. Here it is.
+Thank you for ordering a Patient Creations Growth Audit. Here it is.
 
 ${String(p.report ?? "")}
-
-When you are ready, see what we build and what it costs: ${String(p.plansUrl ?? "")}
+${p.creditCode ? `
+YOUR CREDIT: ${String(p.creditAmount ?? "")} toward your first order
+Code: ${String(p.creditCode)}
+Enter it in the coupon box at checkout. It works once, for ${String(p.creditDays ?? 30)} days, so if you were going to buy anyway, the audit cost you nothing.
+` : ""}
+${p.reportUrl ? `Your private copy of this report: ${String(p.reportUrl)}\n\n` : ""}When you are ready, see what we build and what it costs: ${String(p.plansUrl ?? "")}
 
 Questions? Reply to this email or call ${CONTACT_PHONE_DISPLAY}.
 

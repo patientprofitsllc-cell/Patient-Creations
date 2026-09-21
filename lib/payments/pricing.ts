@@ -1,6 +1,7 @@
 import { addOnAvailable } from "@/lib/site/addOnPitch";
 import { OFFER_PERCENT, RECOVERY_COUPON } from "@/lib/funnel/cartRecovery";
 import { db } from "@/lib/db";
+import { isAuditCreditCode, resolveAuditCredit } from "@/lib/audit/paid";
 import { computeRushFeeCents, DeliverySpeedKey, DELIVERY_SPEEDS, getApplicableSpeeds } from "@/lib/payments/deliverySpeed";
 import { getActiveProjectCount } from "@/lib/payments/productionLoad";
 import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
@@ -224,6 +225,8 @@ export async function resolveDiscount(couponCode: string | undefined, subtotalCe
 }
 
 async function resolveCouponDiscount(code: string, subtotalCents: number): Promise<number> {
+  // A Growth Audit credit code: the audit fee, once, toward a first order.
+  if (isAuditCreditCode(code)) return resolveAuditCredit(code, subtotalCents);
   const rate = COUPONS[code.toUpperCase()];
   if (!rate) return 0;
   return Math.round(subtotalCents * rate);

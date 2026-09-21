@@ -6,7 +6,7 @@ import Link from "next/link";
 import { OFFER_CHECKOUT_HREF } from "@/lib/site/offer";
 
 const NAV = [
-  { href: "/audit", label: "Free Audit" },
+  { href: "/audit", label: "Growth Audit" },
   { href: "/examples", label: "Examples" },
   { href: "/pricing", label: "Pricing" },
   { href: "/monthly-ads", label: "Monthly Ads" },

@@ -3,20 +3,24 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { sendFunnelEvent } from "@/components/analytics/Track";
-import { AUDIT_CHANNELS, AUDIT_DEFINITIONS, AUDIT_GOALS, type GrowthAuditReport } from "@/lib/audit/growthAudit";
+import { PayButton } from "@/components/audit/PayButton";
+import { AUDIT_CHANNELS, AUDIT_GOALS } from "@/lib/audit/growthAudit";
 
 const field = "mt-1 block w-full rounded-xl border border-white/15 bg-obsidian px-4 py-3 text-base text-ice placeholder:text-ice/30 focus:border-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40";
 
-function Badge({ kind }: { kind: "Observed" | "Recommended" | "Estimated" }) {
-  const tone = kind === "Observed" ? "border-emerald-400/40 text-emerald-300" : kind === "Recommended" ? "border-gold/50 text-gold" : "border-sky-400/40 text-sky-300";
-  return <span className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${tone}`}>{kind}</span>;
+interface Requested {
+  token: string;
+  feeLabel: string;
+  creditDays: number;
+  headline: string;
+  checkoutUrl: string | null;
+  notice: string | null;
 }
 
-export function AuditForm({ industries }: { industries: string[] }) {
+export function AuditForm({ industries, feeLabel, creditDays }: { industries: string[]; feeLabel: string; creditDays: number }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [report, setReport] = useState<GrowthAuditReport | null>(null);
-  const [emailed, setEmailed] = useState(false);
+  const [requested, setRequested] = useState<Requested | null>(null);
   const started = useRef(false);
   const resultRef = useRef<HTMLDivElement>(null);
 
@@ -55,8 +59,12 @@ export function AuditForm({ industries }: { industries: string[] }) {
         setError(data.error ?? "Something went wrong. Please try again.");
         return;
       }
-      setReport(data.report as GrowthAuditReport);
-      setEmailed(Boolean(data.emailed));
+      // In development with no Stripe, the audit is already unlocked; go straight to it.
+      if (data.paid && data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+        return;
+      }
+      setRequested({ token: data.token, feeLabel, creditDays, headline: data.teaser.headline, checkoutUrl: data.checkoutUrl, notice: data.notice });
       setTimeout(() => resultRef.current?.focus(), 50);
     } catch {
       setError("We could not reach the server. Please check your connection and try again.");
@@ -65,101 +73,25 @@ export function AuditForm({ industries }: { industries: string[] }) {
     }
   }
 
-  if (report) {
+  if (requested) {
     return (
-      <div ref={resultRef} tabIndex={-1} className="mt-10 space-y-8 text-left outline-none" aria-live="polite">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Your Growth Audit</p>
-          <h2 className="mt-2 font-display text-3xl text-ice">{report.businessName}</h2>
-          <p className="mt-2 text-sm text-ice/50">{emailed ? "We also emailed you a copy." : "Save this page: we could not send the email copy right now."}</p>
-        </div>
-
-        <section className="glass-panel rounded-2xl p-6" aria-labelledby="obs">
-          <div className="flex items-center gap-3">
-            <Badge kind="Observed" />
-            <h3 id="obs" className="font-display text-xl text-ice">What we saw</h3>
+      <div ref={resultRef} tabIndex={-1} className="mx-auto mt-10 max-w-xl text-left outline-none" aria-live="polite">
+        <div className="glass-panel rounded-2xl p-6">
+          <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Your audit is ready</p>
+          <p className="mt-3 font-display text-2xl text-ice">{requested.headline}</p>
+          <p className="mt-3 text-sm text-ice/60">
+            The full audit shows exactly what we saw, what we suggest, and what it costs. It is {requested.feeLabel}, and the whole fee comes back as a {requested.feeLabel} credit toward your first order within {requested.creditDays} days.
+          </p>
+          <div className="mt-5">
+            <PayButton token={requested.token} url={requested.checkoutUrl} label={`Get my audit for ${requested.feeLabel}`} />
           </div>
-          <p className="mt-2 text-xs text-ice/40">{AUDIT_DEFINITIONS.observed}</p>
-          {report.observed.website.note && <p className="mt-3 text-sm text-ice/70">{report.observed.website.note}</p>}
-          <ul className="mt-3 space-y-2">
-            {report.observed.items.map((i) => (
-              <li key={i.label + i.source} className="flex items-start gap-3 text-sm text-ice/80">
-                <span aria-hidden className={`mt-0.5 ${i.status === "good" ? "text-emerald-300" : i.status === "issue" ? "text-amber-300" : "text-ice/40"}`}>
-                  {i.status === "good" ? "✓" : i.status === "issue" ? "!" : "·"}
-                </span>
-                <span>
-                  {i.label}
-                  {i.detail ? <span className="text-ice/50">: {i.detail}</span> : null}
-                  <span className="sr-only">{i.status === "good" ? " (fine)" : i.status === "issue" ? " (needs attention)" : ""}</span>
-                  <span className="ml-2 text-xs text-ice/30">{i.source}</span>
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="glass-panel rounded-2xl p-6" aria-labelledby="rec">
-          <div className="flex items-center gap-3">
-            <Badge kind="Recommended" />
-            <h3 id="rec" className="font-display text-xl text-ice">What we suggest</h3>
-          </div>
-          <p className="mt-2 text-xs text-ice/40">{AUDIT_DEFINITIONS.recommended}</p>
-          <ul className="mt-4 space-y-4">
-            {report.recommended.map((r) => (
-              <li key={r.id} className="rounded-xl border border-white/10 p-4">
-                <p className="text-ice">{r.title}</p>
-                <p className="mt-1 text-sm text-ice/60">{r.why}</p>
-                <p className="mt-2 text-xs text-ice/40">Based on: {r.basedOn.join("; ")}.</p>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="glass-panel rounded-2xl p-6" aria-labelledby="est">
-          <div className="flex items-center gap-3">
-            <Badge kind="Estimated" />
-            <h3 id="est" className="font-display text-xl text-ice">What it costs and how long it takes</h3>
-          </div>
-          <p className="mt-2 text-xs text-ice/40">{AUDIT_DEFINITIONS.estimated}</p>
-          <ul className="mt-3 divide-y divide-white/10 text-sm">
-            {report.estimated.map((e) => (
-              <li key={e.title} className="flex flex-wrap items-baseline justify-between gap-2 py-3 text-ice/80">
-                <span>{e.title}</span>
-                <span className="text-ice">
-                  {e.price}
-                  {e.timing && <span className="ml-2 text-xs text-ice/40">delivery target {e.timing}</span>}
-                </span>
-              </li>
-            ))}
-          </ul>
-          {report.bundle && (
-            <div className="mt-4 rounded-xl border border-gold/30 bg-gold/5 p-4 text-sm text-ice/80">
-              <p className="text-ice">{report.bundle.title}: {report.bundle.price}</p>
-              <p className="mt-1">Buying the same items one by one is {report.bundle.separately}, so the bundle saves {report.bundle.saving}.</p>
-            </div>
+          {requested.notice && (
+            <p role="alert" className="mt-3 text-sm text-amber-200">
+              {requested.notice}
+            </p>
           )}
-        </section>
-
-        <ul className="space-y-1 text-xs text-ice/40">
-          {report.notes.map((n) => (
-            <li key={n}>{n}</li>
-          ))}
-        </ul>
-
-        <section className="rounded-2xl border border-gold/40 bg-gradient-to-br from-gold/15 to-transparent p-6 text-center" aria-labelledby="plan">
-          <h3 id="plan" className="font-display text-2xl text-ice">Get Your Patient Creations Growth Plan</h3>
-          <p className="mt-2 text-sm text-ice/60">Start with the first suggestion, or book a call and we will walk through it with you.</p>
-          <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            {report.recommended[0] && (
-              <Link href={report.recommended[0].href} onClick={() => sendFunnelEvent("upsell_click", { source: "audit", offer: report.recommended[0].id })} className="inline-flex min-h-[48px] items-center rounded-full bg-gradient-to-b from-gold to-gold-deep px-7 text-sm font-semibold text-obsidian shadow-gold-glow transition hover:brightness-110">
-                Start with {report.recommended[0].title}
-              </Link>
-            )}
-            <Link href="/services" className="inline-flex min-h-[48px] items-center rounded-full border border-white/20 px-7 text-sm text-ice/80 transition hover:border-gold hover:text-gold">
-              See everything we build
-            </Link>
-          </div>
-        </section>
+          <p className="mt-4 text-xs text-ice/40">We also saved your audit at a private link, so you can come back to it. Secure payment by Stripe.</p>
+        </div>
       </div>
     );
   }
@@ -234,7 +166,7 @@ export function AuditForm({ industries }: { industries: string[] }) {
       <label className="flex cursor-pointer items-start gap-3 text-sm text-ice/60">
         <input type="checkbox" name="consent" required className="mt-1 h-5 w-5 accent-[#d4af6a]" />
         <span>
-          Send me my audit and follow up about it. We look at your public homepage and what you tell us here, nothing else. See our{" "}
+          Prepare my audit and follow up about it. We look at your public homepage and what you tell us here, nothing else. See our{" "}
           <Link href="/privacy" className="text-gold underline">Privacy Policy</Link>. You can say &ldquo;no thanks&rdquo; at any time.
         </span>
       </label>
@@ -246,8 +178,9 @@ export function AuditForm({ industries }: { industries: string[] }) {
       )}
 
       <button type="submit" disabled={busy} className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 text-base font-semibold text-obsidian shadow-gold-glow transition hover:brightness-110 disabled:opacity-60 sm:w-auto">
-        {busy ? "Looking at your homepage..." : "Get my free audit"}
+        {busy ? "Reading your homepage..." : "See what we found"}
       </button>
+      <p className="text-xs text-ice/40">You will see what we found before you pay anything. The full audit is {feeLabel}, credited in full toward your first order.</p>
       {busy && <p className="text-xs text-ice/40">This takes a few seconds. We are reading your public homepage.</p>}
     </form>
   );

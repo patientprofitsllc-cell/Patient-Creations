@@ -1,3 +1,4 @@
+import { AUDIT_CREDIT_DAYS, AUDIT_FEE_CENTS, usd } from "@/lib/pricing/catalog";
 import { COMPANY, LEGAL_EFFECTIVE_DATE, POLICY, type LegalDoc } from "@/lib/legal/config";
 
 const C = COMPANY;
@@ -31,6 +32,7 @@ export const refundsDoc: LegalDoc = {
             "Changing your mind, not using the work, not finishing your intake, not responding to us, or being unhappy with a business result are not reasons for a refund.",
             "Your order includes the number of revision rounds stated for it. If you want changes beyond that, or after you approve, they are additional work.",
             "Deposits and consultation fees are non-refundable. Where a product description says a fee is credited toward a later build, the credit applies only as described there and has no cash value.",
+            `The Growth Audit fee (${usd(AUDIT_FEE_CENTS)}) is credited in full toward your first order within ${AUDIT_CREDIT_DAYS} days, as the Terms describe. It is not refunded as cash, and an unused credit expires.`,
             "If a delivery target passes, that is not a reason for a refund. Targets are goals, and timelines depend on you as well.",
           ],
         },

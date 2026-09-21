@@ -44,8 +44,8 @@ export const VOICE_SCRIPT: readonly CueDef[] = [
   {
     id: "audit",
     kind: "page",
-    when: "Free Growth Audit page",
-    text: "This is your free growth audit. Tell us about your business, and we will show you what we saw, what we suggest, and what it costs.",
+    when: "Growth Audit page",
+    text: "This is your growth audit. Tell us about your business, and we will show you what we saw, what we suggest, and what it costs.",
   },
   {
     id: "monthly-ads",

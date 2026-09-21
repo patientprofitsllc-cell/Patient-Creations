@@ -734,3 +734,28 @@ model EmailOptOut {
   reason    String?
   createdAt DateTime @default(now())
 }
+
+// A paid Growth Audit. The report is built when the request is made (the visitor's homepage is read once), and only
+// shown in full after the fee is paid. The fee comes back as a single-use credit code toward the first order.
+model GrowthAudit {
+  id              String    @id @default(cuid())
+  token           String    @unique // powers the private /audit/report/[token] page
+  email           String
+  businessName    String
+  prospectId      String?
+  inputJson       String
+  reportJson      String
+  factsJson       String?   // extra things read from their homepage, for the owner's briefing only
+  briefingJson    String?   // the owner's briefing: what they need and what to offer
+  amountCents     Int
+  status          String    @default("PENDING") // PENDING | PAID
+  stripeSessionId String?   @unique
+  paidAt          DateTime?
+  creditCode      String?   @unique
+  creditExpiresAt DateTime?
+  creditUsedAt    DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@index([email])
+  @@index([status])
+}

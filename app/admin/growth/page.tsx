@@ -35,6 +35,7 @@ const EVENT_LABELS: Record<FunnelEvent, string> = {
   upsell_click: "Clicked a next step",
   audit_started: "Started a growth audit",
   audit_completed: "Received a growth audit",
+  audit_paid: "Paid for a growth audit",
   lead_submitted: "Lead submitted",
 };
 

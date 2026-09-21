@@ -1,3 +1,4 @@
+import { AUDIT_CREDIT_DAYS, AUDIT_FEE_CENTS, usd } from "@/lib/pricing/catalog";
 import { COMPANY, LEGAL_EFFECTIVE_DATE, POLICY, type LegalDoc } from "@/lib/legal/config";
 
 const C = COMPANY;
@@ -38,6 +39,7 @@ export const termsDoc: LegalDoc = {
         `Card payments are processed by Stripe. We do not see or store your full card number. Other payment methods we offer (for example, Zelle or Apple Pay requests) are collected directly. Production on an order starts only after payment is confirmed. Payments made by Zelle or similar transfers may be irreversible, so make sure the details are right.`,
         `You authorize us to charge your chosen payment method for the amounts due, including recurring amounts for any subscription you start. You confirm that you are authorized to use that payment method.`,
         `We may refuse, cancel, or limit any order, including if we suspect fraud or misuse, if a product is unavailable, if there is a pricing or description error, or if fulfilling it would break the law or these Terms. If we cancel an order before delivering it, we will refund what you paid for the part we did not deliver.`,
+        `GROWTH AUDIT: The Growth Audit is a report about your public homepage and your answers to our questions. Before you pay you see a free preview of what we found. It costs ${usd(AUDIT_FEE_CENTS)}. After you pay, we give you a single-use credit code worth ${usd(AUDIT_FEE_CENTS)} toward your first order placed within ${AUDIT_CREDIT_DAYS} days. The code has no cash value, is not refunded if you do not use it, and cannot be combined with other offers. The audit says what we found and what we suggest. It does not promise traffic, search rankings, leads, sales, or any other result, because we cannot see them.`,
         `If a coupon or special offer is used, its conditions apply. Offers cannot be combined unless we say so, have no cash value, and can be ended at any time.`,
       ],
     },

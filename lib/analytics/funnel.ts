@@ -23,6 +23,7 @@ export const FUNNEL_EVENTS = [
   "upsell_click",
   "audit_started",
   "audit_completed",
+  "audit_paid",
   "lead_submitted",
 ] as const;
 

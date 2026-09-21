@@ -15,9 +15,11 @@ describe("homepage: the ten-second test", () => {
     expect(home).toContain("launch, market, generate leads, and automate operations with websites,");
   });
 
-  it("puts the free growth audit first and the services second, and keeps the website offer one tap away", () => {
+  it("puts the growth audit first and the services second, and keeps the website offer one tap away", () => {
     expect(home).toContain('href="/audit"');
-    expect(home).toContain("GET MY FREE GROWTH AUDIT");
+    expect(home).toContain("GET MY GROWTH AUDIT");
+    expect(home).not.toMatch(/FREE GROWTH AUDIT/i);
+    expect(home).toContain("credited toward your first order");
     expect(home).toContain("EXPLORE SERVICES");
     expect(home).toContain("Just need a website?");
     expect(home).toContain("OFFER_CHECKOUT_HREF");

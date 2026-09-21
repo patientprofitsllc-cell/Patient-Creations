@@ -53,9 +53,9 @@ Status: **Done** (works, tested), **Partial** (something real exists), **Missing
 | 11 | Customer ascension system | **Done (v1)** | `lib/journey/ladder.ts`: what someone just bought and owns decides the next one to three offers. Shown on the confirmation page and the next-step page. Lifecycle emails that use it are Phase 4. |
 | 12 | Customer dashboard with full ledger and a progress bar | Partial | Projects and orders only. |
 | 13 | "Patient AI" concierge in the dashboard | Partial | Concierge exists per project. |
-| 14 | Free Growth Audit lead machine | **Done (v1)** | Public `/audit` form and API on the existing safe audit engine. Every line labeled Observed, Recommended, or Estimated. Feeds the prospect list, emails the visitor and the owner. Not yet: automated follow-up sequence (Phase 4/5). |
+| 14 | Growth Audit lead machine | **Done (v2, paid)** | Public `/audit`: the visitor sees a free preview (real counts from their homepage), pays $19 to unlock the full audit, and the whole fee comes back as a single-use $19 credit code for their first order within 30 days. Every line labeled Observed, Recommended, or Estimated. A question-answering Audit Agent sits on the page. Paying triggers the owner's analyst briefing (see item 16). |
 | 15 | Partner program and dashboard | Partial | Referral codes and commissions exist; no partner signup, assets, or partner dashboard. |
-| 16 | CRM with 11-stage pipeline and founder dashboard | Partial | Prospect pipeline and customer notes exist. |
+| 16 | CRM with 11-stage pipeline and founder dashboard | Partial | Prospect pipeline and customer notes exist. **New:** the owner's Audit Analyst at /admin/audits reads each paid audit's homepage more deeply than the customer sees and says what they need (each need with its evidence), which product to offer first and next, what not to pitch, objection answers, and a drafted message. The 11-stage pipeline itself is still Missing. |
 | 17 to 18 | Revenue dashboard and planning calculator | Partial | Growth dashboard exists; no full revenue/retention views or planning scenario. |
 | 19 to 21 | Homepage rebuild, journey visual, three-choice discovery | **Done** | New hero copy and CTAs, the three-choice finder, and the five-step path, on the approved live hero. Checked at 375, 390, 430, 768, 1024, 1280, and 1440 px. |
 | 22 | Checkout with personalized thank-you steps | Partial | The six-step "You just took the first step" stepper is **done** (website, project, and card variants). Deposits and invoices are still Missing. |
@@ -95,6 +95,7 @@ Status: **Done** (works, tested), **Partial** (something real exists), **Missing
 
 **Not started, in this order of value:** Phase 4 revenue engine (deposits and invoices), Phase 5 CRM (the 11-stage pipeline with value, probability, and source; merge with the prospect list), Phase 7 customer AI in the portal, Phase 9 partner program, Phase 10 revenue and retention dashboard with the planning scenario, then the founder dashboard, idea parking lot, bottleneck rule, and product profitability. The production-agent pipeline (Phase 8) already exists and needs rollback and the QA checklist from the spec.
 
+| 2026-09-21 | 6. Growth audit v2 | Audit made paid ($19, credited in full toward the first order for 30 days), free preview before payment, credit code that works as a coupon and is used up once, Audit Agent chat, and the owner's Audit Analyst dashboard. Terms and Refund Policy updated (legal version 2026-09-21). |
 | 2026-09-21 | 4. Revenue engine (lifecycle slice) | Follow-up queue and five follow-up emails, opt-out list and signed unsubscribe, secured optional daily trigger, Website Care offer in the website-live email. |
 
-**Test and check counts:** 438 unit tests; homepage, finder, audit, and confirmation page also checked in a real browser at phone and desktop widths.
+**Test and check counts:** 485 unit tests; homepage, finder, audit, and confirmation page also checked in a real browser at phone and desktop widths.

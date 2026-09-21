@@ -62,7 +62,7 @@ export function ProductFinder() {
         )}
       </div>
       <p className="mt-6 text-sm text-ice/50">
-        Not sure? <Link href="/audit" className="text-gold underline">Get a free growth audit</Link> and we will tell you.
+        Not sure? <Link href="/audit" className="text-gold underline">Get a growth audit</Link> and we will tell you what to start with.
       </p>
     </section>
   );
