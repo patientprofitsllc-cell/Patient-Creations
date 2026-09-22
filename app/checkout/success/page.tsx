@@ -116,7 +116,14 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
         )}
 
         {order && <PurchaseJourney kind={thankYouKind} intakePending={intakePending} />}
-        {order && <ThankYouCard kind={thankYouKind} firstName={firstName} />}
+        {order && (
+          <ThankYouCard
+            kind={thankYouKind}
+            firstName={firstName}
+            turnaround={order.items[0]?.product.turnaround ?? null}
+            revisionLimit={order.items[0]?.product.revisionLimit ?? 0}
+          />
+        )}
         {order && !awaitingManualPayment && <NextStepCards offers={offers} source="success" />}
 
         <div className="mt-10 flex justify-center gap-4">
