@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/security/authOptions";
 
 const TABS = [
   { href: "/admin/founder", label: "Founder" },
+  { href: "/admin/universe", label: "Agents" },
   { href: "/admin/dashboard", label: "Business" },
   { href: "/admin/revenue", label: "Revenue" },
   { href: "/admin/growth", label: "Growth" },

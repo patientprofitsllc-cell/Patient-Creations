@@ -912,3 +912,85 @@ model AppSetting {
   value     String
   updatedAt DateTime @updatedAt
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The Agent Universe. Every table is keyed by `domain` (the business the agents are serving), so a second business can share
+// the same tables without ever seeing the first one's rows. Settings (permission level, pause) live in AppSetting.
+
+// One request MASTER handled, the route it chose, and the whole result (every agent's message, the decision, the report).
+model UniverseMission {
+  id          String    @id
+  domain      String
+  command     String
+  objective   String
+  intent      String?
+  triggeredBy String    @default("user")
+  status      String
+  priority    String    @default("P2")
+  routeJson   String?
+  resultJson  String?
+  report      String?
+  createdAt   DateTime  @default(now())
+  finishedAt  DateTime?
+
+  @@index([domain, createdAt])
+}
+
+// The task board: what MASTER's decisions turned into, and what a person added.
+model UniverseTask {
+  id               String    @id @default(cuid())
+  domain           String
+  missionId        String?
+  title            String
+  detail           String    @default("")
+  priority         String    @default("P2")
+  status           String    @default("WAITING")
+  owner            String    @default("OWNER")
+  dependsOnJson    String    @default("[]")
+  approvalRequired Boolean   @default(false)
+  actionKindsJson  String    @default("[]")
+  result           String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  completedAt      DateTime?
+
+  @@index([domain, status])
+  @@index([missionId])
+}
+
+// What the agents remember: facts (with a source), decisions, results, assumptions, experiments, and preferences.
+model UniverseMemory {
+  id           String   @id @default(cuid())
+  domain       String
+  level        String
+  kind         String
+  topic        String
+  content      String
+  source       String?
+  agent        String?
+  status       String   @default("ACTIVE")
+  evidenceJson String   @default("[]")
+  createdAt    DateTime @default(now())
+
+  @@index([domain, level, kind])
+}
+
+// The audit trail: one row per agent step, with timing, handoff, and any error. Secrets and personal details are removed first.
+model UniverseActivity {
+  id         String   @id @default(cuid())
+  domain     String
+  missionId  String?
+  at         DateTime @default(now())
+  agent      String
+  task       String
+  input      String   @default("")
+  output     String   @default("")
+  status     String
+  durationMs Int      @default(0)
+  error      String?
+  handoff    String?
+  result     String?
+
+  @@index([domain, at])
+  @@index([missionId])
+}

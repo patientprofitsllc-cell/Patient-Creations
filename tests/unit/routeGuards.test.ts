@@ -40,6 +40,9 @@ const ROUTES: Record<string, { kind: Kind; why?: string }> = {
   "admin/prospects/[id]/audit": { kind: "admin" },
   "admin/reminders": { kind: "admin" },
   "admin/spend": { kind: "admin" },
+  "admin/universe/command": { kind: "admin" },
+  "admin/universe/settings": { kind: "admin" },
+  "admin/universe/tasks/[id]": { kind: "admin" },
   "admin/spend/[id]": { kind: "admin" },
 
   "portal/assistant": { kind: "session" },
@@ -62,6 +65,7 @@ const ROUTES: Record<string, { kind: Kind; why?: string }> = {
 
   "cron/followups": { kind: "secret" },
   "cron/founder-brief": { kind: "secret" },
+  "cron/universe": { kind: "secret" },
   "webhooks/stripe": { kind: "secret" },
 
   "auth/[...nextauth]": { kind: "public", why: "the sign-in handler itself" },
