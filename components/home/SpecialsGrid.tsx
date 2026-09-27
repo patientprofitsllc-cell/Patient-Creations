@@ -76,7 +76,7 @@ export async function SpecialsGrid({
           nowCents={starter.priceCents}
           href={`/checkout?product=${starter.slug}`}
           cta="Reserve this build"
-          footnote={`Add NFC cards for ${nfc ? money(nfc.priceCents) : usd(PRICE_CENTS["nfc-card-addon"])} each at checkout.`}
+          footnote={`Add Business Cards for ${nfc ? money(nfc.priceCents) : usd(PRICE_CENTS["nfc-card-addon"])} each at checkout.`}
         />
       ),
     });
@@ -102,7 +102,7 @@ export async function SpecialsGrid({
           nowCents={bundle.priceCents}
           href={`/checkout?product=${bundle.slug}`}
           cta="Get the bundle"
-          footnote="You pick your NFC card designs right after checkout."
+          footnote="You pick your Business Card designs right after checkout."
         />
       ),
     });

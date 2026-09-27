@@ -54,7 +54,7 @@ describe("the Audit Agent answers what people actually ask", () => {
     expect(ask("how long does it take?").reply).toMatch(/about a minute/);
     expect(ask("is my data safe?").reply).toMatch(/we do not sell your information/);
     expect(ask("I don't have a website, can I still do this?").intent).toBe("nosite");
-    expect(ask("what do you sell?").reply).toMatch(/NFC review cards/);
+    expect(ask("what do you sell?").reply).toMatch(/Business Cards/);
   });
 
   it("will not promise customers, rankings, or sales, and says so plainly", () => {

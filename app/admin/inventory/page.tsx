@@ -9,7 +9,7 @@ export default async function AdminInventoryPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display text-3xl text-ice">NFC Card Inventory</h2>
+        <h2 className="font-display text-3xl text-ice">Business Card Inventory</h2>
         <p className="mt-2 text-sm text-ice/50">
           Physical stock on hand. Auto-decrements when an order for that design is paid — Google Review's black/white
           split is fulfilled and adjusted by hand since checkout doesn't ask which color.

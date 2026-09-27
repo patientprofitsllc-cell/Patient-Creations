@@ -116,7 +116,7 @@ export function ruleBasedAuditReply(question: string): AgentReply {
   if (TEST.products.test(q)) {
     return reply(
       "products",
-      `We build websites, NFC review cards, ads, lead capture, and AI tools, from ${SMALLEST} up. The audit points you to the one that fits you first, so you are not buying a bigger thing than you need. You can also browse everything on our Services page.`,
+      `We build websites, Business Cards, ads, lead capture, and AI tools, from ${SMALLEST} up. The audit points you to the one that fits you first, so you are not buying a bigger thing than you need. You can also browse everything on our Services page.`,
       [S.what, S.price, S.human],
     );
   }

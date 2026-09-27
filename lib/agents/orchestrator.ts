@@ -61,7 +61,7 @@ export async function createProjectForOrder(orderId: string) {
   const primaryItem = order.items[0];
   // A mix-and-match card pack has one order line per design; name it as one pack.
   const isMixedCardPack = order.items.length > 1 && order.items.every((i) => i.product.category === "Merch");
-  const projectLabel = isMixedCardPack ? "NFC Cards (mix)" : (primaryItem?.product.name ?? "Project");
+  const projectLabel = isMixedCardPack ? "Business Cards (mix)" : (primaryItem?.product.name ?? "Project");
 
   const project = await db.project.create({
     data: {

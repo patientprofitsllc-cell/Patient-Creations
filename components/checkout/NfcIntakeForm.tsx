@@ -87,7 +87,7 @@ export function NfcIntakeForm({
       <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Card Setup</p>
       <h2 className="mt-2 font-display text-2xl text-ice">Tell us what to put on your card</h2>
       <p className="mt-2 text-sm text-ice/50">
-        A few quick details so your NFC card is programmed exactly the way you want it.
+        A few quick details so your Business Card is programmed exactly the way you want it.
       </p>
       <div className="mt-6 space-y-4">
         {showColorChoice && (
@@ -125,7 +125,7 @@ export function NfcIntakeForm({
         </div>
         <div>
           <label htmlFor="intake-content" className="mb-1 block text-xs text-ice/40">
-            {multi ? `What do you want your ${cardCount} NFC cards to show? List each one.` : "What do you want the NFC to show?"}
+            {multi ? `What do you want your ${cardCount} Business Cards to show? List each one.` : "What do you want the card to show?"}
           </label>
           <input
             id="intake-content"

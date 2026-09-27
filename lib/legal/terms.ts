@@ -26,7 +26,7 @@ export const termsDoc: LegalDoc = {
       id: "services",
       title: "2. Our Services",
       body: [
-        `We offer websites, video and creative work, NFC cards and other physical merchandise, software and automation projects, consultations, optional extras, a monthly website care plan, and Monthly Ads plans. What is included in each product is described on its page and in your order at the time you buy. If anything in a description conflicts with these Terms about legal rights or liability, these Terms control.`,
+        `We offer websites, video and creative work, Business Cards and other physical merchandise, software and automation projects, consultations, optional extras, a monthly website care plan, and Monthly Ads plans. What is included in each product is described on its page and in your order at the time you buy. If anything in a description conflicts with these Terms about legal rights or liability, these Terms control.`,
         `We may change, improve, pause, or stop any product or feature at any time. Prices and descriptions can change for future orders. A change does not affect an order that has already been placed and paid, except as these Terms allow.`,
         `Unless we agree otherwise in writing, we are an independent contractor. Nothing in these Terms makes you and us partners, joint venturers, employer and employee, or agent and principal.`,
       ],
@@ -117,10 +117,10 @@ export const termsDoc: LegalDoc = {
     },
     {
       id: "merch",
-      title: "10. NFC cards and physical products",
+      title: "10. Business Cards and physical products",
       body: [
-        `NFC cards are made and programmed to order from the information you give us, so they are personalized goods. We ship within the United States only unless we agree otherwise. Delivery times are estimates. We are not responsible for carrier delays, and risk of loss passes to you when we hand the package to the carrier. Provide a complete and correct shipping address; we are not responsible for packages sent to an address you gave us in error.`,
-        `We do not accept returns or exchanges of physical products. If a product arrives damaged or does not work as described, email ${C.email} within ${POLICY.defectClaimDays} days of delivery with your order details and clear photos, and we will decide, in our discretion, whether to repair, replace, or otherwise remedy it. NFC cards need a phone with NFC support and may behave differently across devices, cases, and apps, which is not a defect.`,
+        `Business Cards are made and programmed to order from the information you give us, so they are personalized goods. We ship within the United States only unless we agree otherwise. Delivery times are estimates. We are not responsible for carrier delays, and risk of loss passes to you when we hand the package to the carrier. Provide a complete and correct shipping address; we are not responsible for packages sent to an address you gave us in error.`,
+        `We do not accept returns or exchanges of physical products. If a product arrives damaged or does not work as described, email ${C.email} within ${POLICY.defectClaimDays} days of delivery with your order details and clear photos, and we will decide, in our discretion, whether to repair, replace, or otherwise remedy it. Business Cards need a phone with NFC support (the tap-to-share technology the card uses) and may behave differently across devices, cases, and apps, which is not a defect.`,
         `You are responsible for the content and links you ask us to put on a card, and for keeping those destinations working. Cards may be substituted with a similar design or color if a specific one is out of stock.`,
       ],
     },

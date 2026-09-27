@@ -131,7 +131,7 @@ export const VOICE_SCRIPT: readonly CueDef[] = [
     id: "basic-package",
     kind: "product",
     when: "Basic Package",
-    text: "The Basic Package gives you drone style videos of your building and storefront, made with AI from your photos, plus NFC cards.",
+    text: "The Basic Package gives you drone style videos of your building and storefront, made with AI from your photos, plus Business Cards.",
   },
   {
     id: "starter-website",
@@ -167,13 +167,13 @@ export const VOICE_SCRIPT: readonly CueDef[] = [
     id: "all-in-one-bundle",
     kind: "product",
     when: "All in One Launch Bundle",
-    text: "The All in One Launch Bundle packs a website, ads, and NFC cards into one fixed price, so you can launch everything at once.",
+    text: "The All in One Launch Bundle packs a website, ads, and Business Cards into one fixed price, so you can launch everything at once.",
   },
   {
     id: "nfc-cards",
     kind: "product",
-    when: "NFC cards, every design",
-    text: "NFC cards let a customer tap their phone to open your review page, menu, or link. You pick your designs after checkout.",
+    when: "Business Cards, every design",
+    text: "Business Cards let a customer tap their phone to open your review page, menu, or link. You pick your designs after checkout.",
   },
   {
     id: "ads-plan",
@@ -271,8 +271,8 @@ export const VOICE_SCRIPT: readonly CueDef[] = [
   {
     id: "thanks-nfc-cards",
     kind: "thanks",
-    when: "Thank you for purchasing: NFC cards, every design",
-    text: "Thank you for your NFC cards. Fill in your card details on this page so we can make each one right.",
+    when: "Thank you for purchasing: Business Cards, every design",
+    text: "Thank you for your Business Cards. Fill in your card details on this page so we can make each one right.",
   },
   {
     id: "thanks-ads-plan",

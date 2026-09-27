@@ -200,7 +200,7 @@ export function partnerAssets(link: string): MarketingAsset[] {
       id: "blurb",
       title: "One-line description",
       where: "Your bio, a directory listing, a quick reply",
-      text: `Patient Creations builds websites, NFC review cards, ads, and simple automation for small businesses, starting at ${usd(PRICE_CENTS["nfc-cards"])}. ${link}`,
+      text: `Patient Creations builds websites, Business Cards, ads, and simple automation for small businesses, starting at ${usd(PRICE_CENTS["nfc-cards"])}. ${link}`,
     },
     {
       id: "email",

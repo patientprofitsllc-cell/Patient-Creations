@@ -148,7 +148,7 @@ const SERVICES: ServiceDef[] = [
   },
   {
     slug: "nfc-cards",
-    name: "NFC Cards — Mix & Match",
+    name: "Business Cards — Mix & Match",
     category: "Merch",
     description: "Tap-to-share smart cards. A phone tap opens your contact info, socials, or booking link. Choose how many of each design you want. Setup is included.",
     baseCents: PRICE_CENTS["nfc-cards"],
@@ -160,7 +160,7 @@ const SERVICES: ServiceDef[] = [
   },
   {
     slug: "nfc-wifi",
-    name: "NFC WIFI Growth System",
+    name: "Business Card WiFi Growth System",
     category: "Merch",
     description: "Save the confusion of the password and simply scan and go. Setup is included.",
     baseCents: PRICE_CENTS["nfc-wifi"],
@@ -172,7 +172,7 @@ const SERVICES: ServiceDef[] = [
   },
   {
     slug: "nfc-custom-menu",
-    name: "NFC Custom Menu Business Growth System",
+    name: "Business Card Custom Menu Growth System",
     category: "Merch",
     description: "Save paper, copies, and time with your new scan and go menu. Setup is included.",
     baseCents: PRICE_CENTS["nfc-custom-menu"],
@@ -184,7 +184,7 @@ const SERVICES: ServiceDef[] = [
   },
   {
     slug: "nfc-youtube",
-    name: "NFC Youtube Growth System",
+    name: "Business Card YouTube Growth System",
     category: "Merch",
     description: "Turn every happy customer into a subscriber with one tap. Setup is included.",
     baseCents: PRICE_CENTS["nfc-youtube"],
@@ -196,7 +196,7 @@ const SERVICES: ServiceDef[] = [
   },
   {
     slug: "nfc-whatsapp",
-    name: "NFC WhatsApp Growth System",
+    name: "Business Card WhatsApp Growth System",
     category: "Merch",
     description: "Turn small talk into a conversation. Setup is included.",
     baseCents: PRICE_CENTS["nfc-whatsapp"],
@@ -208,7 +208,7 @@ const SERVICES: ServiceDef[] = [
   },
   {
     slug: "nfc-instagram",
-    name: "NFC Instagram Growth System",
+    name: "Business Card Instagram Growth System",
     category: "Merch",
     description: "Turn every happy customer into a potential follower with one tap. Setup is included.",
     baseCents: PRICE_CENTS["nfc-instagram"],
@@ -220,7 +220,7 @@ const SERVICES: ServiceDef[] = [
   },
   {
     slug: "nfc-tiktok",
-    name: "NFC Tik Tok Growth System",
+    name: "Business Card TikTok Growth System",
     category: "Merch",
     description: "Turn every happy customer into a potential follower with one tap. Setup is included.",
     baseCents: PRICE_CENTS["nfc-tiktok"],
@@ -232,7 +232,7 @@ const SERVICES: ServiceDef[] = [
   },
   {
     slug: "nfc-google-review",
-    name: "NFC Google Review Growth System",
+    name: "Business Card Google Review Growth System",
     category: "Merch",
     description: "Turn every happy customer into a potential Google review with one tap. Setup is included.",
     baseCents: PRICE_CENTS["nfc-google-review"],
@@ -327,10 +327,10 @@ const ADD_ONS: {
     // Price is the flat per-card price ($30). lib/payments/nfcAddon.ts makes the
     // first card free on a $1,000+ cinematic video tier.
     slug: "nfc-card-addon",
-    name: "NFC Card — Your Choice",
+    name: "Business Card — Your Choice",
     category: "Add-on",
     type: "ORDER_BUMP",
-    description: "Add NFC growth cards in the designs of your choice (Google Review, YouTube, Menu, WiFi, and more), $30 each. Tell us which designs right after checkout.",
+    description: "Add Business Cards in the designs of your choice (Google Review, YouTube, Menu, WiFi, and more), $30 each. Tell us which designs right after checkout.",
     priceCents: PRICE_CENTS["nfc-card-addon"],
     revisionLimit: 0,
     sortOrder: 5,

@@ -29,7 +29,7 @@ export function NfcOrderPicker() {
         onClick={() => router.push(`/checkout?product=${slug}`)}
         className="whitespace-nowrap rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-3 text-sm font-semibold tracking-wide text-obsidian transition hover:brightness-110"
       >
-        Order NFC Cards
+        Order Business Cards
       </button>
     </div>
   );

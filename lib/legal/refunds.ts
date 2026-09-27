@@ -42,9 +42,9 @@ export const refundsDoc: LegalDoc = {
     },
     {
       id: "physical",
-      title: "3. NFC cards and physical products",
+      title: "3. Business Cards and physical products",
       body: [
-        `These are personalized and programmed for you, so we do not accept returns or exchanges. If an item arrives damaged, or does not work as described, email ${C.email} within ${POLICY.defectClaimDays} days of delivery with your order details and clear photos. We will decide in our discretion whether to repair, replace, or otherwise remedy it. Shipping charges are not refundable. Problems caused by a phone, case, or app that does not support NFC, by a wrong address, or by wear or misuse are not defects.`,
+        `These are personalized and programmed for you, so we do not accept returns or exchanges. If an item arrives damaged, or does not work as described, email ${C.email} within ${POLICY.defectClaimDays} days of delivery with your order details and clear photos. We will decide in our discretion whether to repair, replace, or otherwise remedy it. Shipping charges are not refundable. Problems caused by a phone, case, or app that does not support NFC (the tap-to-share technology the card uses), by a wrong address, or by wear or misuse are not defects.`,
       ],
     },
     {

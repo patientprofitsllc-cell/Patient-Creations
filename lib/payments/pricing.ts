@@ -92,7 +92,7 @@ export async function priceOrder(
   }
 
   if (includedCardCount(primaryProduct.slug) > 0 && products.some((p) => p.slug === NFC_ADDON_SLUG)) {
-    throw new Error("This package already includes your NFC cards");
+    throw new Error("This package already includes your Business Cards");
   }
 
   const applicableSpeeds = getApplicableSpeeds(primaryProduct.turnaround);

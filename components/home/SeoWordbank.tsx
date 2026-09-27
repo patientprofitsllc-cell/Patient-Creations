@@ -20,16 +20,16 @@ const WORDBANK: { label: string; href: string }[] = [
   { label: "Cinematic video ads", href: "/#specials" },
   { label: "AI video ads for small business", href: "/#specials" },
   { label: "Rental listing video", href: "/services#book" },
-  { label: "NFC business cards", href: "/#nfc" },
-  { label: "Google review NFC card", href: "/#nfc" },
-  { label: "Tap to review card", href: "/#nfc" },
-  { label: "NFC menu card", href: "/#nfc" },
-  { label: "WiFi NFC card", href: "/#nfc" },
-  { label: "Instagram NFC card", href: "/#nfc" },
-  { label: "TikTok NFC card", href: "/#nfc" },
-  { label: "YouTube subscribe NFC card", href: "/#nfc" },
-  { label: "WhatsApp NFC card", href: "/#nfc" },
-  { label: "Custom NFC cards", href: "/#nfc" },
+  { label: "Business cards (NFC tap-to-share)", href: "/#business-cards" },
+  { label: "Google review Business Card", href: "/#business-cards" },
+  { label: "Tap to review card", href: "/#business-cards" },
+  { label: "Business Card menu", href: "/#business-cards" },
+  { label: "WiFi Business Card", href: "/#business-cards" },
+  { label: "Instagram Business Card", href: "/#business-cards" },
+  { label: "TikTok Business Card", href: "/#business-cards" },
+  { label: "YouTube subscribe Business Card", href: "/#business-cards" },
+  { label: "WhatsApp Business Card", href: "/#business-cards" },
+  { label: "Custom Business Cards", href: "/#business-cards" },
   { label: "AI software development", href: "/services#book" },
   { label: "Multi-agent AI systems", href: "/agents" },
   { label: "AI automation for small business", href: "/services#book" },
@@ -44,7 +44,7 @@ export function SeoWordbank() {
           Popular searches
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ice/50">
-          Patient Creations builds cinematic AI websites, cinematic and UGC ads, NFC cards, software, and multi-agent
+          Patient Creations builds cinematic AI websites, cinematic and UGC ads, Business Cards, software, and multi-agent
           systems for small businesses, creators, and hosts, at freelancer-floor pricing with agency-level quality.
         </p>
         <ul className="mt-5 flex flex-wrap gap-2">

@@ -129,9 +129,9 @@ describe("Basic Package", () => {
     expect(PRICE_CENTS["basic-package"]).toBe(100000);
     const scope = PRODUCT_SCOPES["basic-package"];
     expect(scope.summary).toMatch(/Three drone-style videos/);
-    expect(scope.summary).toMatch(/5 NFC cards/);
+    expect(scope.summary).toMatch(/5 Business Cards/);
     expect(scope.includes.join(" ")).toMatch(/^3 drone-style videos/);
-    expect(scope.includes.join(" ")).toMatch(/5 NFC cards of your choice/);
+    expect(scope.includes.join(" ")).toMatch(/5 Business Cards of your choice/);
     expect(includedCardCount("basic-package")).toBe(5);
   });
 

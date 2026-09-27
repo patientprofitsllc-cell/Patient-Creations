@@ -60,6 +60,46 @@ body {
   }
 }
 
+/* Two-line hover-reveal button: the visible label slides up and out while a second line slides down to take its place.
+   Colors match the site's own gold call-to-action buttons (bg-gradient-to-b from-gold to-gold-deep, text-obsidian). */
+.btn-reveal {
+  position: relative;
+  overflow: hidden;
+  border-radius: 9999px;
+  background-image: linear-gradient(180deg, #e0c48a 0%, #c39b52 100%);
+  color: #100d0b;
+  box-shadow: 0 0 40px rgba(224, 196, 138, 0.25);
+}
+.btn-reveal:hover,
+.btn-reveal:focus-visible {
+  background-image: linear-gradient(160deg, #e0c48a 0%, #c39b52 100%);
+  filter: brightness(1.08);
+}
+.btn-reveal > * {
+  display: inline-block;
+  transition: transform ease-in-out 0.4s;
+}
+.btn-reveal__visible {
+  padding: 1rem 2.25rem;
+}
+.btn-reveal__hidden {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2.25rem;
+  transform: translateY(-100%);
+}
+.btn-reveal:hover .btn-reveal__visible,
+.btn-reveal:focus-visible .btn-reveal__visible {
+  transform: translateY(100%);
+}
+.btn-reveal:hover .btn-reveal__hidden,
+.btn-reveal:focus-visible .btn-reveal__hidden {
+  transform: translateY(0);
+}
+
 /* Below-the-fold sections: the browser skips their layout and paint work until
    they are close to the screen. The size hint stops the scrollbar jumping, and
    "auto" makes the browser remember the real height once it has rendered. */

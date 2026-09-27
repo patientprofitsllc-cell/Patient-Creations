@@ -56,7 +56,7 @@ const RANK = { high: 0, medium: 1, low: 2 } as const;
 const PICKS: Record<string, { title: string; from?: boolean; why: string; href: string }> = {
   "starter-website": { title: "Quick Business Website", why: "A one page site with services, contact details, and a call button, built from their own words.", href: "/checkout?product=starter-website" },
   site: { title: "Cinematic AI Website", from: true, why: "A multi page site with a motion hero, for a business whose current site is bigger than one page.", href: "/checkout?product=site" },
-  "nfc-cards": { title: "NFC cards", why: "A tap opens their review page, so it is easy for happy customers to leave honest feedback.", href: "/checkout?product=nfc-cards" },
+  "nfc-cards": { title: "Business Cards", why: "A tap opens their review page, so it is easy for happy customers to leave honest feedback.", href: "/checkout?product=nfc-cards" },
   "lead-engine": { title: "Lead Engine", from: true, why: "A landing page, lead capture, and automatic follow-up, so visitors have a clear way to reach them.", href: "/checkout?product=lead-engine" },
   "ugc-ad-special": { title: "A launch ad (UGC Ad Special)", why: "A creator style video ad, a low-cost way to get in front of people.", href: "/checkout?product=ugc-ad-special" },
   "strategy-session": { title: "Strategy Session", why: "A live call to map out what to build first, before committing to a build.", href: "/checkout?product=strategy-session" },
@@ -172,7 +172,7 @@ export function buildBriefing(a: BriefingInput): OwnerBriefing {
   ];
   const objections = [
     ...(reachable ? [{ objection: "I already have a website.", answer: `They do, and it works in the basics. ${top[0] ? `The gap is ${top[0].need.toLowerCase()}: ${top[0].evidence[0].toLowerCase()}.` : "The audit shows where it could do more."}` }] : []),
-    { objection: "That is more than I wanted to spend.", answer: `Their audit fee is already a credit. ${primary.title} is ${primary.price} before it${a.credit ? ` and about ${usd(net)} after` : ""}. If that is still too much, the smallest step is ${usd(PRICE_CENTS["nfc-cards"])} for an NFC card.` },
+    { objection: "That is more than I wanted to spend.", answer: `Their audit fee is already a credit. ${primary.title} is ${primary.price} before it${a.credit ? ` and about ${usd(net)} after` : ""}. If that is still too much, the smallest step is ${usd(PRICE_CENTS["nfc-cards"])} for a Business Card.` },
     { objection: "Can you guarantee this will get me customers?", answer: "No, and nobody honestly can. We can make it easier for people to call, book, or leave a review. What that earns depends on their offer and their market." },
     { objection: "I will do it myself.", answer: "Fair. The audit lists exactly what to fix either way. If they would rather have it built, that is what the credit is for." },
     { objection: "I need to think about it.", answer: `That is fine. Their credit lasts ${a.credit?.days ?? 30} days. Offer a short call or a Strategy Session (${usd(PRICE_CENTS["strategy-session"])}) to talk it through.` },

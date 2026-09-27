@@ -27,7 +27,7 @@ export const NEEDS: readonly NeedChoice[] = [
 export const SUGGESTIONS: Record<NeedId, Suggestion[]> = {
   website: [
     { title: "Quick Business Website", why: "One page with your services, contact details, and a call button, built from your own words.", price: usd(PRICE_CENTS["starter-website"]), href: "/checkout?product=starter-website" },
-    { title: "All-in-One Launch Bundle", why: "A website, ads, and NFC cards together, so you launch everything at once.", price: usd(PRICE_CENTS["all-in-one-bundle"]), href: "/checkout?product=all-in-one-bundle" },
+    { title: "All-in-One Launch Bundle", why: "A website, ads, and Business Cards together, so you launch everything at once.", price: usd(PRICE_CENTS["all-in-one-bundle"]), href: "/checkout?product=all-in-one-bundle" },
     { title: "Cinematic AI Website", why: "A multi page site with a motion hero, for a business that wants to stand out.", price: `from ${usd(PRICE_CENTS.site)}`, href: "/checkout?product=site" },
   ],
   customers: [
@@ -43,7 +43,7 @@ export const SUGGESTIONS: Record<NeedId, Suggestion[]> = {
 };
 
 export const JOURNEY = [
-  { n: "01", stage: "Build", line: "Website and branding", detail: "Get online with a site, a look, and NFC cards that all match.", href: "/services" },
+  { n: "01", stage: "Build", line: "Website and branding", detail: "Get online with a site, a look, and Business Cards that all match.", href: "/services" },
   { n: "02", stage: "Attract", line: "UGC and cinematic advertising", detail: "Ads that get people to look, one at a time or every month.", href: "/monthly-ads" },
   { n: "03", stage: "Capture", line: "Lead generation and funnels", detail: "Landing pages, lead capture, and follow-up so interest is not lost.", href: "/checkout?product=lead-engine" },
   { n: "04", stage: "Automate", line: "AI and agents", detail: "Software that does the repeat work for you.", href: "/agents" },

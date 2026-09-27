@@ -32,7 +32,7 @@ export function NfcShowcase({ priceCents }: { priceCents: number }) {
                 <div className="relative aspect-[3/4] overflow-hidden rounded-md">
                   <Image
                     src={card.src}
-                    alt={`${card.name} NFC card`}
+                    alt={`${card.name} Business Card`}
                     fill
                     sizes="(max-width: 640px) 25vw, 120px"
                     quality={90}
@@ -49,8 +49,8 @@ export function NfcShowcase({ priceCents }: { priceCents: number }) {
 
         <div className="mt-8 flex flex-col items-center justify-between gap-6 border-t border-gold/20 pt-8 text-center sm:flex-row sm:text-left">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Merch</p>
-            <h3 className="mt-2 font-display text-2xl text-ice">NFC Cards, {money(priceCents)} each — setup included</h3>
+            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Business Cards</p>
+            <h3 className="mt-2 font-display text-2xl text-ice">Business Cards, {money(priceCents)} each — setup included</h3>
             <p className="mt-2 max-w-sm text-sm text-ice/50">
               Tap-to-share smart cards. A phone tap opens your review page, contact info, socials, or booking link. Setup is
               included in the price.

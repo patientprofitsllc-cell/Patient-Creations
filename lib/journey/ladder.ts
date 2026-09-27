@@ -60,11 +60,11 @@ export function nextOffers(ctx: LadderContext): Offer[] {
       ? null
       : {
           id: "nfc-cards",
-          title: "NFC cards",
+          title: "Business Cards",
           why: "A tap on the card opens your review page, menu, or booking link, so it is easy for customers to find you.",
           priceLabel: `${usd(PRICE_CENTS["nfc-card-addon"])} each`,
           href: checkout("nfc-cards"),
-          cta: "Add NFC cards",
+          cta: "Add Business Cards",
         };
   const launchAd = (): Offer | null =>
     owns(ADS)
@@ -185,11 +185,11 @@ export function firstOffers(): Offer[] {
     },
     {
       id: "nfc-cards",
-      title: "NFC cards",
+      title: "Business Cards",
       why: "A tap on the card opens your review page, menu, or booking link.",
       priceLabel: `${usd(PRICE_CENTS["nfc-card-addon"])} each`,
       href: checkout("nfc-cards"),
-      cta: "Add NFC cards",
+      cta: "Add Business Cards",
     },
     {
       id: "launch-ad",

@@ -45,7 +45,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="mx-auto mt-12 max-w-7xl border-t border-white/5 pt-8">
-        <p className="text-ice/70">Have an NFC card?</p>
+        <p className="text-ice/70">Have a Business Card?</p>
         <p className="mt-1">
           Call or text Patient Profits LLC at{" "}
           <a href={`tel:${CONTACT_PHONE_DIGITS}`} className="inline-block py-3 text-gold hover:brightness-110 sm:py-2">
