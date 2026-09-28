@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { HeroBackdrop } from "@/components/cinematic/HeroBackdrop";
 import { ProductCard } from "@/components/catalog/ProductCard";
+import { HomeTabs, type HomeTab } from "@/components/home/HomeTabs";
 import { NfcShowcase } from "@/components/home/NfcShowcase";
 import { SeoWordbank } from "@/components/home/SeoWordbank";
 import { SpecialsGrid } from "@/components/home/SpecialsGrid";
@@ -15,8 +16,6 @@ import { GrowthLadder } from "@/components/marketing/GrowthLadder";
 import { HowItWorksSimple } from "@/components/marketing/HowItWorksSimple";
 import { IndustryGrid } from "@/components/marketing/IndustryGrid";
 import { OfferCard } from "@/components/marketing/OfferCard";
-import { ProductFinder } from "@/components/home/ProductFinder";
-import { BusinessJourney } from "@/components/home/BusinessJourney";
 import { ProblemSection } from "@/components/marketing/ProblemSection";
 import { db } from "@/lib/db";
 import { AUDIT_FEE_CENTS, usd } from "@/lib/pricing/catalog";
@@ -49,9 +48,141 @@ export default async function HomePage() {
     .filter((p): p is NonNullable<typeof p> => Boolean(p))
     .sort((a, b) => a.priceCents - b.priceCents);
   const nfc = bySlug.get("nfc-cards");
+  const adsAndCreation = featured.filter((p) => p.slug === "ad" || p.slug === "rental-listing-film");
+  const saasAndAgents = featured.filter((p) => p.slug === "saas" || p.slug === "agents" || p.slug === "lead-engine");
 
   const offerCents = offer?.priceCents ?? FALLBACK_OFFER_PRICE_CENTS;
   const price = money(offerCents);
+
+  const productCard = (product: (typeof featured)[number]) => (
+    <ProductCard
+      key={product.slug}
+      category={product.category}
+      name={product.name}
+      description={product.description}
+      priceCents={product.priceCents}
+      hasTiers={product.variants.length > 0}
+      topTierCents={product.variants[product.variants.length - 1]?.priceCents}
+      turnaround={product.turnaround}
+      action={
+        <Link href={`/checkout?product=${product.slug}`} className={CARD_CTA_CLASS}>
+          Reserve this build
+        </Link>
+      }
+    />
+  );
+
+  const tabs: HomeTab[] = [
+    {
+      id: "websites",
+      label: "Websites",
+      blurb: "Get online, done for you",
+      panel: (
+        <div className="space-y-16 pb-16 pt-8">
+          <div id="offer" className="scroll-mt-24">
+            <TrackOnScreen event="offer_view">
+              <OfferCard priceCents={offerCents} />
+            </TrackOnScreen>
+          </div>
+          <SpecialsGrid exclude={["ads", "starter"]} heading="More website" />
+          <CaseStudies />
+          <section>
+            <div className="mb-10 text-center">
+              <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Examples</p>
+              <h2 className="mt-4 font-display text-3xl text-ice sm:text-4xl">
+                One system, <span className="text-gradient-champagne italic">every kind of business.</span>
+              </h2>
+              <p className="mx-auto mt-4 max-w-xl text-ice/50">
+                Sample designs that show how a one-page site adapts to your industry. They&apos;re design concepts, not
+                real customer results.
+              </p>
+            </div>
+            <IndustryGrid />
+            <div className="mt-10 text-center">
+              <Link href="/examples" className="text-sm text-gold hover:brightness-110">
+                See all examples →
+              </Link>
+            </div>
+          </section>
+          <HowItWorksSimple />
+          <ProblemSection />
+          <FaqSection faqs={getFaqs(price)} />
+        </div>
+      ),
+    },
+    {
+      id: "business-cards",
+      label: "Business Cards",
+      blurb: "Tap-to-share smart cards",
+      panel: (
+        <div className="space-y-6 pb-16 pt-8 text-center">
+          <p className="mx-auto max-w-xl text-ice/60">
+            A tap opens your review page, menu, socials, or booking link. Pick a design below, or mix and match.
+          </p>
+          {nfc && <NfcShowcase priceCents={nfc.priceCents} />}
+        </div>
+      ),
+    },
+    {
+      id: "ai-ads",
+      label: "AI Creation & Ads",
+      blurb: "Cinematic and UGC video",
+      panel: (
+        <div className="space-y-16 pb-16 pt-8">
+          <p className="mx-auto max-w-xl text-center text-ice/60">
+            Scroll-stopping video ads, made with AI: cinematic, creator-style (UGC), or a rental listing film, priced
+            per ad. A fresh batch every month if you want it on autopilot.
+          </p>
+          <SpecialsGrid exclude={["starter", "bundle", "site"]} heading="Ad" />
+          {adsAndCreation.length > 0 && (
+            <section>
+              <div className="mb-10 text-center">
+                <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Bigger builds</p>
+                <h2 className="mt-4 font-display text-3xl text-ice sm:text-4xl">
+                  Flagship <span className="text-gradient-champagne italic">video work.</span>
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">{adsAndCreation.map(productCard)}</div>
+            </section>
+          )}
+          <section className="glass-panel mx-auto max-w-2xl rounded-2xl p-8 text-center">
+            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">On autopilot</p>
+            <h2 className="mt-3 font-display text-2xl text-ice">Monthly Ads</h2>
+            <p className="mt-2 text-sm text-ice/60">A fresh batch of ads every month. Cancel any time.</p>
+            <Link href="/monthly-ads" className={`mt-5 inline-block ${CARD_CTA_CLASS}`}>
+              See the plans
+            </Link>
+          </section>
+        </div>
+      ),
+    },
+    {
+      id: "saas-agents",
+      label: "SaaS & Creation Agents",
+      blurb: "Software and AI agent teams",
+      panel: (
+        <div className="space-y-16 pb-16 pt-8">
+          <p className="mx-auto max-w-xl text-center text-ice/60">
+            Your idea turned into a working app, or a team of AI agents that work the repeat tasks in your business.
+            Every build starts scoped on a call, so we build the right thing the first time.
+          </p>
+          {saasAndAgents.length > 0 && (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">{saasAndAgents.map(productCard)}</div>
+          )}
+          <section className="glass-panel mx-auto max-w-2xl rounded-2xl p-8 text-center">
+            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Not sure what you need?</p>
+            <h2 className="mt-3 font-display text-2xl text-ice">Start with a Strategy Session</h2>
+            <p className="mt-2 text-sm text-ice/60">
+              A live call to scope the right build before you commit. The fee is credited toward the project.
+            </p>
+            <Link href="/checkout?product=strategy-session" className={`mt-5 inline-block ${CARD_CTA_CLASS}`}>
+              Book a Strategy Session
+            </Link>
+          </section>
+        </div>
+      ),
+    },
+  ];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -143,116 +274,15 @@ export default async function HomePage() {
           </ul>
         </section>
 
-        {/* 2b. Start here: three questions instead of fifteen services */}
-        <ProductFinder />
+        {/* 3. Four bar tabs: everything below is grouped under one of these, so nothing is a long, undifferentiated scroll. */}
+        <HomeTabs tabs={tabs} />
 
-        {/* 2c. The path from getting online to running on its own */}
-        <div className="defer-offscreen">
-          <BusinessJourney />
-        </div>
-
-        {/* 3. Problem */}
-        <div className="defer-offscreen">
-          <ProblemSection />
-        </div>
-
-        {/* 4. The offer */}
-        <section id="offer" className="mx-auto max-w-5xl scroll-mt-24 px-6 py-12">
-          <TrackOnScreen event="offer_view">
-            <OfferCard priceCents={offerCents} />
-          </TrackOnScreen>
-        </section>
-
-        {/* 5. Real results (renders only when a published case study exists) */}
-        <CaseStudies />
-
-        {/* 6. Examples */}
-        <section className="defer-offscreen mx-auto max-w-6xl px-6 py-20">
-          <div className="mb-10 text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Examples</p>
-            <h2 className="mt-4 font-display text-3xl text-ice sm:text-4xl">
-              One system, <span className="text-gradient-champagne italic">every kind of business.</span>
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-ice/50">
-              Sample designs that show how a one-page site adapts to your industry. They&apos;re design concepts, not
-              real customer results.
-            </p>
-          </div>
-          <IndustryGrid />
-          <div className="mt-10 text-center">
-            <Link href="/examples" className="text-sm text-gold hover:brightness-110">
-              See all examples →
-            </Link>
-          </div>
-        </section>
-
-        {/* 7. How it works */}
-        <div className="defer-offscreen">
-          <HowItWorksSimple />
-        </div>
-
-        {/* 8. FAQ */}
-        <div className="defer-offscreen">
-          <FaqSection faqs={getFaqs(price)} />
-        </div>
-
-        {/* 9. Growth ladder: what comes after the website */}
-        <div className="defer-offscreen">
+        {/* 4. What comes after: shared across every tab, so it isn't repeated four times. */}
+        <div className="defer-offscreen border-t border-white/5">
           <GrowthLadder />
         </div>
 
-        {/* 10. Everything else we sell, kept below the main offer */}
-        <div className="defer-offscreen border-t border-white/5 pt-8">
-          <div className="mx-auto max-w-3xl px-6 pt-12 text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">More from Patient Creations</p>
-            <h2 className="mt-4 font-display text-3xl text-ice sm:text-4xl">
-              Ads, cards, and <span className="text-gradient-champagne italic">custom builds.</span>
-            </h2>
-          </div>
-
-          <SpecialsGrid exclude={["starter"]} heading="More" />
-
-          {nfc && <NfcShowcase priceCents={nfc.priceCents} />}
-
-          <section className="mx-auto max-w-6xl px-6 pb-8 pt-20">
-            <div className="mb-10 text-center">
-              <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Featured</p>
-              <h2 className="mt-4 font-display text-3xl text-ice sm:text-4xl">
-                What <span className="text-gradient-champagne italic">We Build</span>
-              </h2>
-              <p className="mx-auto mt-4 max-w-xl text-ice/50">
-                Bigger projects go through the same production system: research, strategy, build, QA, and review
-                before delivery.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {featured.map((product) => (
-                <ProductCard
-                  key={product.slug}
-                  category={product.category}
-                  name={product.name}
-                  description={product.description}
-                  priceCents={product.priceCents}
-                  hasTiers={product.variants.length > 0}
-                  topTierCents={product.variants[product.variants.length - 1]?.priceCents}
-                  turnaround={product.turnaround}
-                  action={
-                    <Link href={`/checkout?product=${product.slug}`} className={CARD_CTA_CLASS}>
-                      Reserve this build
-                    </Link>
-                  }
-                />
-              ))}
-            </div>
-            <div className="mt-10 text-center">
-              <Link href="/services" className="text-sm text-gold hover:brightness-110">
-                See every service &amp; compare pricing →
-              </Link>
-            </div>
-          </section>
-        </div>
-
-        {/* 11. Final call to action */}
+        {/* 5. Final call to action */}
         <section className="defer-offscreen mx-auto max-w-3xl px-6 py-24 text-center">
           <h2 className="font-display text-3xl text-ice sm:text-4xl">
             Ready to look <span className="text-gradient-champagne italic">professional online?</span>

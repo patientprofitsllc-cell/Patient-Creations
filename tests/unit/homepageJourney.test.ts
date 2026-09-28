@@ -30,9 +30,10 @@ describe("homepage: the ten-second test", () => {
     expect(home).toContain('<TrackView event="landing_page_view" />');
   });
 
-  it("shows the three-choice finder and the path from building to scaling", () => {
-    expect(home).toContain("<ProductFinder />");
-    expect(home).toContain("<BusinessJourney />");
+  it("groups everything below the fold into the four-tab bar, so a first-time visitor isn't handed one long scroll", () => {
+    expect(home).toContain("<HomeTabs");
+    for (const id of ["websites", "business-cards", "ai-ads", "saas-agents"]) expect(home, id).toContain(`id: "${id}"`);
+    for (const label of ["Websites", "Business Cards", "AI Creation & Ads", "SaaS & Creation Agents"]) expect(home, label).toContain(`label: "${label}"`);
   });
 });
 
