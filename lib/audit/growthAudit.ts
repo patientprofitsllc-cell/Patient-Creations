@@ -181,8 +181,9 @@ export function buildGrowthAudit(input: AuditInput, site: AuditResult | null, fa
   // ---- the bundle, only when it really covers what was recommended ----
   const coveredByBundle = ["website", "reviews", "launch-ad"].filter((id) => recommended.some((r) => r.id === id));
   let bundle: GrowthAuditReport["bundle"] = null;
-  if (coveredByBundle.length >= 2) {
-    const separately = WEBSITE_BUILD_CENTS + 2 * PRICE_CENTS["cinematic-ad-special"] + 2 * PRICE_CENTS["ugc-ad-special"] + 3 * PRICE_CENTS["nfc-cards"];
+  const separately = WEBSITE_BUILD_CENTS + 2 * PRICE_CENTS["cinematic-ad-special"] + 2 * PRICE_CENTS["ugc-ad-special"] + 3 * PRICE_CENTS["nfc-cards"];
+  // Pitched as a saving only when it really is one.
+  if (coveredByBundle.length >= 2 && separately > PRICE_CENTS["all-in-one-bundle"]) {
     bundle = {
       title: "All-in-One Launch Bundle",
       price: usd(PRICE_CENTS["all-in-one-bundle"]),

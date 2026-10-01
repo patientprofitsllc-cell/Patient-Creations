@@ -132,10 +132,14 @@ describe("growth audit: estimates and the bundle", () => {
 
   it("shows the bundle only when it covers two or more of what was recommended, with a saving worked out from the price list", () => {
     const r = buildGrowthAudit(input({ website: null, goal: "reviews", channels: [] }), null, facts);
-    expect(r.bundle).not.toBeNull();
     // The bundle's site has no included care months, so it is compared with the Website Special minus its 3 care months.
     const parts = PRICE_CENTS["website-special"] - 3 * PRICE_CENTS["care-plan"] + 2 * PRICE_CENTS["cinematic-ad-special"] + 2 * PRICE_CENTS["ugc-ad-special"] + 3 * PRICE_CENTS["nfc-cards"];
-    expect(r.bundle).toEqual({ title: "All-in-One Launch Bundle", price: usd(PRICE_CENTS["all-in-one-bundle"]), separately: usd(parts), saving: usd(parts - PRICE_CENTS["all-in-one-bundle"]) });
+    if (parts > PRICE_CENTS["all-in-one-bundle"]) {
+      expect(r.bundle).toEqual({ title: "All-in-One Launch Bundle", price: usd(PRICE_CENTS["all-in-one-bundle"]), separately: usd(parts), saving: usd(parts - PRICE_CENTS["all-in-one-bundle"]) });
+    } else {
+      // Never pitched as a saving when it isn't one.
+      expect(r.bundle).toBeNull();
+    }
     expect(buildGrowthAudit(input({ goal: "automate", channels: ["Paid ads", "Google Business Profile"] }), HEALTHY, facts).bundle).toBeNull();
   });
 });

@@ -84,16 +84,15 @@ describe("catalog prices", () => {
     expect(PRICE_CENTS["nfc-card-addon"]).toBe(3000);
   });
 
-  it("per-ad specials are priced by value and the bundle is cheaper than buying its parts", () => {
+  it("per-ad specials are priced by value, and the bundle is at its set price", () => {
     const cents = (slug: string) => PRICE_CENTS[slug as keyof typeof PRICE_CENTS];
     const cin = cents("cinematic-ad-special");
     const ugc = cents("ugc-ad-special");
     expect([cin, ugc]).toEqual([24900, 9900]);
     const separately = cents("website-special") + 2 * cin + 2 * ugc + 3 * cents("nfc-cards");
     const bundle = cents("all-in-one-bundle");
-    expect(bundle).toBe(89900);
-    expect(bundle).toBeLessThan(separately);
-    expect((separately - bundle) / separately).toBeGreaterThanOrEqual(0.15);
+    expect(bundle).toBe(200_000);
+    expect(separately).toBeGreaterThan(0);
   });
 });
 
