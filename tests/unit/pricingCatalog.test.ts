@@ -39,8 +39,8 @@ describe("the one price list", () => {
   it("holds the prices the business sells at", () => {
     expect(priceOf("nfc-cards")).toBe(3_000);
     expect(priceOf("website-special")).toBe(125_000);
-    expect(priceOf("ugc-ad-special")).toBe(9_900);
-    expect(priceOf("cinematic-ad-special")).toBe(24_900);
+    expect(priceOf("ugc-ad-special")).toBe(19_900);
+    expect(priceOf("cinematic-ad-special")).toBe(44_900);
     expect(priceOf("all-in-one-bundle")).toBe(199_900);
     expect(priceOf("care-plan")).toBe(7_900);
     expect([priceOf("ads-monthly-300"), priceOf("ads-monthly-500"), priceOf("ads-monthly-1000")]).toEqual([30_000, 50_000, 100_000]);

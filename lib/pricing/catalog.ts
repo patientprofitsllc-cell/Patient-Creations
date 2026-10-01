@@ -21,8 +21,8 @@ export const PRICE_CENTS = {
   "website-special": 125_000, // includes 3 months of Website Care
   "site": 200_000,
   // Get attention
-  "ugc-ad-special": 9_900,
-  "cinematic-ad-special": 24_900,
+  "ugc-ad-special": 19_900,
+  "cinematic-ad-special": 44_900,
   "ad": 50_000,
   "rental-listing-film": 50_000,
   "basic-package": 100_000,
