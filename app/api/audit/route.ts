@@ -30,7 +30,7 @@ const schema = z.object({
   company_url: z.string().max(200).optional(),
 });
 
-const FACT_SLUGS = ["starter-website", "nfc-cards", "ugc-ad-special", "lead-engine", "strategy-session", "all-in-one-bundle"] as const;
+const FACT_SLUGS = ["website-special", "nfc-cards", "ugc-ad-special", "lead-engine", "strategy-session", "all-in-one-bundle"] as const;
 
 async function loadFacts(): Promise<Record<string, ProductFacts>> {
   const rows = await db.product.findMany({ where: { slug: { in: [...FACT_SLUGS] }, active: true }, select: { slug: true, name: true, priceCents: true, turnaround: true } });

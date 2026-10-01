@@ -205,8 +205,8 @@ export default async function HomePage() {
       },
       {
         "@type": "Offer",
-        name: "Quick Business Website",
-        description: "A custom one-page business website: mobile optimized, business-specific copy, basic SEO, deployed live, one revision.",
+        name: "Website Special",
+        description: "A custom one-page business website: mobile optimized, business-specific copy, basic SEO, deployed live, one revision, and 3 months of monthly maintenance.",
         price: (offerCents / 100).toFixed(2),
         priceCurrency: "USD",
         url: `${SITE_URL}${OFFER_CHECKOUT_HREF}`,

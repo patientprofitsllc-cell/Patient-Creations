@@ -190,9 +190,9 @@ describe("optional extras", () => {
   });
 
   it("hides the social pack from the website product, since it has no hero visual", () => {
-    expect(addOnAvailable("social-asset-pack", "starter-website")).toBe(false);
+    expect(addOnAvailable("social-asset-pack", "website-special")).toBe(false);
     expect(addOnAvailable("social-asset-pack", "ad")).toBe(true);
-    expect(addOnAvailable("brand-kit", "starter-website")).toBe(true);
-    expect(addOnAvailable("nfc-card-addon", "starter-website")).toBe(true);
+    expect(addOnAvailable("brand-kit", "website-special")).toBe(true);
+    expect(addOnAvailable("nfc-card-addon", "website-special")).toBe(true);
   });
 });

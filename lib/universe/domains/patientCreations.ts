@@ -284,7 +284,7 @@ export function createPatientCreationsDomain(opts: { sources?: PcSources; now?: 
       { id: "home", name: "Home page", url: site("/"), expects: ["cta", "contact"] },
       { id: "services", name: "Services page", url: site("/services"), expects: ["price", "cta"] },
       { id: "audit", name: "Free audit page", url: site("/audit"), expects: ["form", "cta"] },
-      { id: "checkout", name: "Checkout page", url: site("/checkout?product=starter-website"), expects: ["form", "price"] },
+      { id: "checkout", name: "Checkout page", url: site("/checkout?product=website-special"), expects: ["form", "price"] },
     ],
     levers: [
       { id: "acquisition", title: "Put the audit, the offers, and the partner link in front of more of the right people", component: "acquisition", triggerTags: ["acquisition", "low-traffic"], when: "negative", rationale: "Fewer people are arriving than the business needs to judge or grow.", expectedEffect: "More qualified people could reach the free audit and the offers.", dependencies: ["Knowing where each new lead came from"], risks: ["Effort spent on a channel that does not fit", "Paid channels cost money"], secondOrder: ["More leads may test fulfillment capacity"], severity: "high", rank: 1 },

@@ -89,7 +89,7 @@ describe("catalog prices", () => {
     const cin = cents("cinematic-ad-special");
     const ugc = cents("ugc-ad-special");
     expect([cin, ugc]).toEqual([24900, 9900]);
-    const separately = cents("starter-website") + 2 * cin + 2 * ugc + 3 * cents("nfc-cards");
+    const separately = cents("website-special") + 2 * cin + 2 * ugc + 3 * cents("nfc-cards");
     const bundle = cents("all-in-one-bundle");
     expect(bundle).toBe(89900);
     expect(bundle).toBeLessThan(separately);
@@ -100,8 +100,8 @@ describe("catalog prices", () => {
 describe("delivery times", () => {
   const turnaround = (slug: string) => /turnaround: "([^"]*)"/.exec(productBlock(slug))?.[1];
 
-  it("says the Quick Business Website is 72 hours everywhere, as hours and not as business days", () => {
-    expect(turnaround("starter-website")).toBe("72 hours");
+  it("says the Website Special is 72 hours everywhere, as hours and not as business days", () => {
+    expect(turnaround("website-special")).toBe("72 hours");
     const offer = readFileSync(join(process.cwd(), "lib/site/offer.ts"), "utf8");
     expect(offer).toMatch(/72-hour target/);
   });
@@ -114,7 +114,7 @@ describe("delivery times", () => {
 
   it("keeps a bigger build from being quoted a shorter time than a smaller one that is part of it", () => {
     const days = (slug: string) => parseTurnaroundMaxDays(turnaround(slug))!;
-    expect(days("site")).toBeGreaterThan(days("starter-website"));
+    expect(days("site")).toBeGreaterThan(days("website-special"));
     expect(days("all-in-one-bundle")).toBeGreaterThan(days("cinematic-ad-special"));
     expect(days("saas")).toBeGreaterThan(days("site"));
     expect(days("agents")).toBeGreaterThanOrEqual(days("saas"));

@@ -18,7 +18,7 @@ export interface AddOnPitch {
 
 export const EXTRA_REVISION_SLUG = "extra-revision-package";
 export const EXTRA_REVISION_ROUNDS = 2;
-const STARTER_WEBSITE_SLUG = "starter-website";
+const STARTER_WEBSITE_SLUG = "website-special";
 const SOCIAL_PACK_SLUG = "social-asset-pack";
 
 /** The Extra Revision Package pitch, worded for the number of rounds the chosen product already includes. */
@@ -60,7 +60,7 @@ export const ADD_ON_PITCH: Record<string, AddOnPitch> = {
 
 /**
  * Whether an add-on makes sense for the main product. The Social Asset Pack is
- * crops of a hero visual, which the Quick Business Website doesn't have, so it
+ * crops of a hero visual, which the Website Special doesn't have, so it
  * isn't offered (or accepted) with it.
  */
 export function addOnAvailable(addOnSlug: string, primarySlug: string): boolean {

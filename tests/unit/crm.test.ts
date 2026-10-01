@@ -135,9 +135,9 @@ describe("a prospect's card", () => {
   });
 
   it("uses the audit analyst's top recommendation when nothing else is set, and labels it that way", () => {
-    const c = buildProspectCard(prospect({ paidAudit: { primarySlug: "starter-website" } }), NOW);
-    expect(c.productInterest).toBe("starter-website");
-    expect(c.valueCents).toBe(PRICE_CENTS["starter-website"]);
+    const c = buildProspectCard(prospect({ paidAudit: { primarySlug: "website-special" } }), NOW);
+    expect(c.productInterest).toBe("website-special");
+    expect(c.valueCents).toBe(PRICE_CENTS["website-special"]);
     expect(c.valueSource).toBe("audit");
     expect(c.badges).toContain("Paid for an audit");
   });
@@ -262,7 +262,7 @@ describe("a customer's card", () => {
 describe("the board", () => {
   const cards = [
     buildProspectCard(prospect({ id: "a", businessName: "A", productInterest: "site" }), NOW),
-    buildProspectCard(prospect({ id: "b", businessName: "B", productInterest: "starter-website", nextFollowUpAt: daysAgo(1) }), NOW),
+    buildProspectCard(prospect({ id: "b", businessName: "B", productInterest: "website-special", nextFollowUpAt: daysAgo(1) }), NOW),
     buildProspectCard(prospect({ id: "c", businessName: "C", status: "CALL_BOOKED", valueCents: 900_000, probability: 50 }), NOW),
     buildCustomerCard(customer({ id: "d", orders: [{ status: "PAID", totalCents: 100_000, balanceDueCents: 40_000, createdAt: daysAgo(3), intakePending: false }], projects: [{ state: "BUILD" }], monthlyCents: 7_900, activePlans: 1 }), NOW)!,
   ];
@@ -282,8 +282,8 @@ describe("the board", () => {
 
   it("adds up only what is before the sale as open opportunities, and never counts a customer's balance as one", () => {
     const { summary } = buildBoard(cards);
-    expect(summary.openCents).toBe(PRICE_CENTS.site + PRICE_CENTS["starter-website"] + 900_000);
-    expect(summary.weightedCents).toBe(Math.round(PRICE_CENTS.site * 0.05) + Math.round(PRICE_CENTS["starter-website"] * 0.05) + 450_000);
+    expect(summary.openCents).toBe(PRICE_CENTS.site + PRICE_CENTS["website-special"] + 900_000);
+    expect(summary.weightedCents).toBe(Math.round(PRICE_CENTS.site * 0.05) + Math.round(PRICE_CENTS["website-special"] * 0.05) + 450_000);
     expect(summary.owedCents).toBe(40_000);
     expect(summary.customers).toBe(1);
     expect(summary.lifetimeCents).toBe(60_000);
@@ -301,7 +301,7 @@ describe("the board", () => {
 
 describe("product names", () => {
   it("come from one place, with prices from the price list", () => {
-    expect(dealProductName("starter-website")).toBe("Quick Business Website");
+    expect(dealProductName("website-special")).toBe("Website Special");
     expect(dealProductName("mystery")).toBe("mystery");
     expect(dealProductName(null)).toBeNull();
     const site = DEAL_PRODUCTS.find((p) => p.slug === "site")!;
@@ -313,7 +313,7 @@ describe("product names", () => {
 
 describe("the board on the page", () => {
   const cards = [
-    buildProspectCard(prospect({ id: "a", businessName: "Joe's Cuts", productInterest: "starter-website", nextFollowUpAt: daysAgo(1), createdAt: daysAgo(30) }), NOW),
+    buildProspectCard(prospect({ id: "a", businessName: "Joe's Cuts", productInterest: "website-special", nextFollowUpAt: daysAgo(1), createdAt: daysAgo(30) }), NOW),
     buildCustomerCard(customer({ id: "d", name: "Sam Buyer", suggestedOffer: "NFC cards" }), NOW)!,
   ];
   const html = renderToStaticMarkup(createElement(PipelineBoard, { columns: buildBoard(cards).columns }));
@@ -327,7 +327,7 @@ describe("the board on the page", () => {
     expect(html).toContain("Joe&#x27;s Cuts");
     expect(html).toContain('href="/admin/prospects/a"');
     expect(html).toContain('href="/admin/crm/d"');
-    expect(html).toContain("Quick Business Website");
+    expect(html).toContain("Website Special");
     expect(html).toContain("(default)");
     expect(html).toContain("Going cold");
     expect(html).toContain("Offer NFC cards");

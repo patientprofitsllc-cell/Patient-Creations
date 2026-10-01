@@ -24,7 +24,7 @@ describe("which pay-later methods fit an amount", () => {
   });
 
   it("offers them on the sites, the bundle, the lead engine, and the AI builds, within each provider's limit", () => {
-    expect(bnplMethodsFor(PRICE_CENTS["starter-website"])).toEqual(["klarna", "afterpay_clearpay"]);
+    expect(bnplMethodsFor(PRICE_CENTS["website-special"])).toEqual(["klarna", "afterpay_clearpay"]);
     expect(bnplMethodsFor(PRICE_CENTS.site)).toEqual(["klarna", "afterpay_clearpay"]);
     expect(bnplMethodsFor(PRICE_CENTS["lead-engine"])).toEqual(["klarna", "afterpay_clearpay"]);
     expect(bnplMethodsFor(PRICE_CENTS.agents)).toEqual(["klarna"]);

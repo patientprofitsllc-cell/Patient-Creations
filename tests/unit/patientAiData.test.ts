@@ -56,7 +56,7 @@ const customer = (tag: "A" | "B") => ({
       totalCents: tag === "A" ? 123_400 : 987_600,
       balanceDueCents: tag === "A" ? 0 : 400_000,
       createdAt: new Date(),
-      items: [{ productId: "x", quantity: 1, product: product(`${tag === "A" ? "ALPHA" : "BRAVO"}-SECRET product`, "starter-website", "desc") }],
+      items: [{ productId: "x", quantity: 1, product: product(`${tag === "A" ? "ALPHA" : "BRAVO"}-SECRET product`, "website-special", "desc") }],
       invoices: [{ id: `i${tag}`, seq: tag === "A" ? 1 : 2, status: "OPEN", token: `invtok${tag}`, description: `${tag === "A" ? "ALPHA" : "BRAVO"}-SECRET invoice`, amountCents: 400_000 }],
     },
   ],

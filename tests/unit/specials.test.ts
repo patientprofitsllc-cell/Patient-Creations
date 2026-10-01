@@ -4,7 +4,7 @@ import { resolveNfcAddonPriceCents, priceNfcAddon, includedCardCount } from "@/l
 describe("priceNfcAddon (card add-on quantity)", () => {
   // Cards are a flat $30 each: no volume special and no website special.
   const LIST = 3000;
-  const website = { slug: "starter-website", category: "Websites" };
+  const website = { slug: "website-special", category: "Websites" };
   const video = { slug: "ad", category: "Video" };
   const service = { slug: "site", category: "Websites" };
 
@@ -68,7 +68,7 @@ describe("resolveNfcAddonPriceCents", () => {
   const DEFAULT = 3000;
 
   it("is the normal price on the Starter Website (there is no separate website price)", () => {
-    expect(resolveNfcAddonPriceCents(DEFAULT, { slug: "starter-website", category: "Websites" }, 30000)).toBe(DEFAULT);
+    expect(resolveNfcAddonPriceCents(DEFAULT, { slug: "website-special", category: "Websites" }, 30000)).toBe(DEFAULT);
   });
 
   it("is free on a $1,000+ cinematic video tier", () => {
@@ -102,6 +102,6 @@ describe("includedCardCount", () => {
   it("says how many NFC cards ship in the price: 3 with the bundle, 5 with the Basic Package, none elsewhere", () => {
     expect(includedCardCount("all-in-one-bundle")).toBe(3);
     expect(includedCardCount("basic-package")).toBe(5);
-    for (const slug of ["site", "starter-website", "ad", "rental-listing-film", "nfc-cards", "", null, undefined]) expect(includedCardCount(slug)).toBe(0);
+    for (const slug of ["site", "website-special", "ad", "rental-listing-film", "nfc-cards", "", null, undefined]) expect(includedCardCount(slug)).toBe(0);
   });
 });

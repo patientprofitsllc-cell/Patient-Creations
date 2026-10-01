@@ -6,7 +6,7 @@ import type { AuditResult, Finding } from "@/lib/prospects/audit";
 import { PRICE_CENTS, usd } from "@/lib/pricing/catalog";
 
 const facts: Record<string, ProductFacts> = {
-  "starter-website": { slug: "starter-website", name: "Quick Business Website", priceCents: PRICE_CENTS["starter-website"], turnaround: "72 hours" },
+  "website-special": { slug: "website-special", name: "Website Special", priceCents: PRICE_CENTS["website-special"], turnaround: "72 hours" },
   "nfc-cards": { slug: "nfc-cards", name: "NFC Cards", priceCents: PRICE_CENTS["nfc-cards"], turnaround: "5-7 business days" },
   "ugc-ad-special": { slug: "ugc-ad-special", name: "UGC Ad Special", priceCents: PRICE_CENTS["ugc-ad-special"], turnaround: "5-7 days" },
   "lead-engine": { slug: "lead-engine", name: "Lead Engine", priceCents: PRICE_CENTS["lead-engine"], turnaround: "2-3 weeks" },
@@ -57,7 +57,7 @@ describe("growth audit: what it recommends, and why", () => {
   it("suggests a website when there is none", () => {
     const r = buildGrowthAudit(input({ website: null }), null, facts);
     const w = r.recommended.find((x) => x.id === "website")!;
-    expect(w.slug).toBe("starter-website");
+    expect(w.slug).toBe("website-special");
     expect(w.basedOn).toContain("You did not give a website address");
     expect(r.observed.website.note).toMatch(/nothing to check/);
   });
@@ -122,10 +122,10 @@ describe("growth audit: what it recommends, and why", () => {
 
 describe("growth audit: estimates and the bundle", () => {
   it("reads each price and delivery target from the live catalog facts, and falls back to the price list", () => {
-    const r = buildGrowthAudit(input({ website: null, channels: [] }), null, { ...facts, "starter-website": { ...facts["starter-website"], priceCents: 31_500, turnaround: "3 days" } });
-    expect(r.estimated.find((e) => e.title === "Quick Business Website")).toEqual({ title: "Quick Business Website", price: "$315", timing: "3 business days" });
+    const r = buildGrowthAudit(input({ website: null, channels: [] }), null, { ...facts, "website-special": { ...facts["website-special"], priceCents: 31_500, turnaround: "3 days" } });
+    expect(r.estimated.find((e) => e.title === "Website Special")).toEqual({ title: "Website Special", price: "$315", timing: "3 business days" });
     const noFacts = buildGrowthAudit(input({ website: null, channels: [] }), null, {});
-    expect(noFacts.estimated[0].price).toBe(usd(PRICE_CENTS["starter-website"]));
+    expect(noFacts.estimated[0].price).toBe(usd(PRICE_CENTS["website-special"]));
     expect(noFacts.estimated[0].timing).toBeNull();
     expect(r.estimated.find((e) => e.title === "Strategy Session")).toBeUndefined();
   });
@@ -133,7 +133,8 @@ describe("growth audit: estimates and the bundle", () => {
   it("shows the bundle only when it covers two or more of what was recommended, with a saving worked out from the price list", () => {
     const r = buildGrowthAudit(input({ website: null, goal: "reviews", channels: [] }), null, facts);
     expect(r.bundle).not.toBeNull();
-    const parts = PRICE_CENTS["starter-website"] + 2 * PRICE_CENTS["cinematic-ad-special"] + 2 * PRICE_CENTS["ugc-ad-special"] + 3 * PRICE_CENTS["nfc-cards"];
+    // The bundle's site has no included care months, so it is compared with the Website Special minus its 3 care months.
+    const parts = PRICE_CENTS["website-special"] - 3 * PRICE_CENTS["care-plan"] + 2 * PRICE_CENTS["cinematic-ad-special"] + 2 * PRICE_CENTS["ugc-ad-special"] + 3 * PRICE_CENTS["nfc-cards"];
     expect(r.bundle).toEqual({ title: "All-in-One Launch Bundle", price: usd(PRICE_CENTS["all-in-one-bundle"]), separately: usd(parts), saving: usd(parts - PRICE_CENTS["all-in-one-bundle"]) });
     expect(buildGrowthAudit(input({ goal: "automate", channels: ["Paid ads", "Google Business Profile"] }), HEALTHY, facts).bundle).toBeNull();
   });

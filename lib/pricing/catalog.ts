@@ -18,7 +18,7 @@ export const PRICE_CENTS = {
   "nfc-instagram": 3_000,
   "nfc-tiktok": 3_000,
   "nfc-google-review": 3_000,
-  "starter-website": 30_000,
+  "website-special": 125_000, // includes 3 months of Website Care
   "site": 200_000,
   // Get attention
   "ugc-ad-special": 9_900,
@@ -48,6 +48,15 @@ export const PRICE_CENTS = {
   "ads-monthly-500": 50_000,
   "ads-monthly-1000": 100_000,
 } as const;
+
+/** Months of Website Care included in the Website Special's price. */
+export const SPECIAL_CARE_MONTHS = 3;
+
+/**
+ * The Website Special's website build on its own, without the Website Care months it includes. Used when comparing the
+ * All-in-One bundle (whose one-page site has no care months) with buying its parts separately.
+ */
+export const WEBSITE_BUILD_CENTS: number = PRICE_CENTS["website-special"] - SPECIAL_CARE_MONTHS * PRICE_CENTS["care-plan"];
 
 /**
  * Fees that are not products on the shelf. The Growth Audit is $19 on purpose: enough that only people who mean it pay

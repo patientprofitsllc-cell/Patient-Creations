@@ -1,4 +1,4 @@
-import { PRICE_CENTS, usd } from "@/lib/pricing/catalog";
+import { PRICE_CENTS, SPECIAL_CARE_MONTHS, usd } from "@/lib/pricing/catalog";
 import type { ReactNode } from "react";
 import { db } from "@/lib/db";
 import { deliveryLine } from "@/lib/payments/deliveryWindow";
@@ -10,12 +10,13 @@ import { BUNDLE_ITEMS } from "@/lib/site/adSpecials";
 const SLUGS = [
   "site",
   "ad",
-  "starter-website",
+  "website-special",
   "cinematic-ad-special",
   "ugc-ad-special",
   "all-in-one-bundle",
   "strategy-session",
   "nfc-cards",
+  "care-plan",
 ];
 
 /**
@@ -36,13 +37,14 @@ export async function SpecialsGrid({
   const rows = await db.product.findMany({ where: { slug: { in: SLUGS }, active: true } });
   const bySlug = new Map(rows.map((p) => [p.slug, p]));
 
-  const starter = bySlug.get("starter-website");
+  const starter = bySlug.get("website-special");
   const siteProduct = bySlug.get("site");
   const cinAd = bySlug.get("cinematic-ad-special");
   const ugcAd = bySlug.get("ugc-ad-special");
   const consult = bySlug.get("strategy-session");
   const bundle = bySlug.get("all-in-one-bundle");
   const nfc = bySlug.get("nfc-cards");
+  const care = bySlug.get("care-plan");
 
   // Each special carries the price it's sorted by, so the grid always reads
   // lowest price to highest no matter which specials are active.
@@ -75,8 +77,8 @@ export async function SpecialsGrid({
           delivery={deliveryLine(starter.turnaround)}
           nowCents={starter.priceCents}
           href={`/checkout?product=${starter.slug}`}
-          cta="Reserve this build"
-          footnote={`Add Business Cards for ${nfc ? money(nfc.priceCents) : usd(PRICE_CENTS["nfc-card-addon"])} each at checkout.`}
+          cta="Get the Website Special"
+          footnote={`Includes ${SPECIAL_CARE_MONTHS} months of monthly maintenance. Add Business Cards for ${nfc ? money(nfc.priceCents) : usd(PRICE_CENTS["nfc-card-addon"])} each at checkout.`}
         />
       ),
     });
@@ -84,8 +86,8 @@ export async function SpecialsGrid({
 
   if (!exclude.includes("bundle") && bundle) {
     const separately =
-      starter && cinAd && ugcAd && nfc
-        ? starter.priceCents + 2 * cinAd.priceCents + 2 * ugcAd.priceCents + 3 * nfc.priceCents
+      starter && cinAd && ugcAd && nfc && care
+        ? starter.priceCents - SPECIAL_CARE_MONTHS * care.priceCents + 2 * cinAd.priceCents + 2 * ugcAd.priceCents + 3 * nfc.priceCents
         : undefined;
     const [first, ...rest] = bundle.name.split(" ");
     specials.push({

@@ -141,9 +141,9 @@ describe("thank-you emails", () => {
   });
 
   it("thanks a manual-payment customer straight away and says what comes next", () => {
-    const m = renderTemplate("order_received", { summary: "Quick Business Website", paymentLabel: "Zelle", intakeUrl: "https://x.test/intake/abc" });
+    const m = renderTemplate("order_received", { summary: "Website Special", paymentLabel: "Zelle", intakeUrl: "https://x.test/intake/abc" });
     expect(m.subject).toMatch(/Thank you/);
-    expect(m.body).toContain("Quick Business Website");
+    expect(m.body).toContain("Website Special");
     expect(m.body).toMatch(/Zelle instructions/);
     expect(m.body).toContain("https://x.test/intake/abc");
     const plain = renderTemplate("order_received", { summary: "Ad", paymentLabel: "Zelle" });

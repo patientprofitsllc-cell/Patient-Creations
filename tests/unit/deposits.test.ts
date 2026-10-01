@@ -141,7 +141,7 @@ describe("the deposit rules", () => {
     expect(quoteDeposit(PRICE_CENTS["lead-engine"]).eligible).toBe(true);
     expect(quoteDeposit(PRICE_CENTS.site).eligible).toBe(true);
     expect(quoteDeposit(PRICE_CENTS["basic-package"]).eligible).toBe(false);
-    expect(quoteDeposit(PRICE_CENTS["starter-website"]).eligible).toBe(false);
+    expect(quoteDeposit(PRICE_CENTS["website-special"]).eligible).toBe(false);
   });
 
   it("never apply to an order that ships physical goods", () => {

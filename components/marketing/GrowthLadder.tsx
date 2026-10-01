@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 // After the website: what we can add next, in the order most businesses need it.
-// Deliberately smaller than the $300 offer so the website stays the front door.
+// Deliberately smaller than the Website Special so the website stays the front door.
 const LADDER = [
   {
     title: "Website growth",

@@ -55,7 +55,7 @@ describe("the three-choice finder", () => {
         if (slug) expect(PRICE_CENTS, `${slug} must be priced in the catalog`).toHaveProperty([slug]);
       }
     }
-    expect(SUGGESTIONS.website[0].price).toBe(usd(PRICE_CENTS["starter-website"]));
+    expect(SUGGESTIONS.website[0].price).toBe(usd(PRICE_CENTS["website-special"]));
     expect(SUGGESTIONS.website[1].price).toBe(usd(PRICE_CENTS["all-in-one-bundle"]));
     expect(SUGGESTIONS.customers[0].price).toBe(usd(PRICE_CENTS["ugc-ad-special"]));
     expect(SUGGESTIONS.customers[1].price).toBe(`from ${usd(PRICE_CENTS["ads-monthly-300"])} a month`);

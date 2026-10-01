@@ -22,7 +22,7 @@ const leadEngineGrowth = TIER_PRICE_OVERRIDES["lead-engine"]?.Signature ?? PRICE
 /** The example scenario, with quantities from the founder's plan and prices from the price list. */
 export function exampleScenario(): PlanLine[] {
   return [
-    { id: "websites", label: "Quick Business Websites", kind: "one-time", slug: "starter-website", quantity: 30, unitCents: PRICE_CENTS["starter-website"] },
+    { id: "websites", label: "Website Specials", kind: "one-time", slug: "website-special", quantity: 30, unitCents: PRICE_CENTS["website-special"] },
     { id: "bundles", label: "Launch Bundles", kind: "one-time", slug: "all-in-one-bundle", quantity: 10, unitCents: PRICE_CENTS["all-in-one-bundle"] },
     { id: "ads", label: "Monthly Ads (Growth plan)", kind: "monthly", slug: "ads-monthly-500", quantity: 40, unitCents: PRICE_CENTS["ads-monthly-500"] },
     { id: "cinematic", label: "Cinematic Websites", kind: "one-time", slug: "site", quantity: 8, unitCents: PRICE_CENTS.site },

@@ -216,7 +216,7 @@ describe("paying for the audit", () => {
     const a = await newAudit();
     await markAuditPaid(a.id, "cs_paid_4");
     const briefing = JSON.parse(store.audits[0].briefingJson);
-    expect(briefing.primary.slug).toBe("starter-website");
+    expect(briefing.primary.slug).toBe("website-special");
     expect(briefing.suggestedMessage).toContain(store.audits[0].creditCode);
     expect(store.prospects[0].status).toBe("AUDITED");
     expect(store.prospects[0].auditedAt).toBeInstanceOf(Date);

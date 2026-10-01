@@ -1,5 +1,5 @@
 import type { AuditResult } from "@/lib/prospects/audit";
-import { PRICE_CENTS, usd } from "@/lib/pricing/catalog";
+import { PRICE_CENTS, WEBSITE_BUILD_CENTS, usd } from "@/lib/pricing/catalog";
 import { businessDays } from "@/lib/payments/deliveryWindow";
 
 // The Growth Audit. Every line in the report belongs to exactly one of three kinds, and says which:
@@ -139,7 +139,7 @@ export function buildGrowthAudit(input: AuditInput, site: AuditResult | null, fa
     if (issue("https")) websiteWhy.push("The page does not load securely");
     if (problems >= 3) websiteWhy.push(`${problems} basics on the page need attention`);
   }
-  add("starter-website", "website", "A one page site with your services, contact details, and a call button, built from your own words.", websiteWhy, checkout("starter-website"));
+  add("website-special", "website", "A one page site with your services, contact details, and a call button, built from your own words, with 3 months of maintenance included.", websiteWhy, checkout("website-special"));
 
   // 2. Reviews
   const reviewWhy: string[] = [];
@@ -182,7 +182,7 @@ export function buildGrowthAudit(input: AuditInput, site: AuditResult | null, fa
   const coveredByBundle = ["website", "reviews", "launch-ad"].filter((id) => recommended.some((r) => r.id === id));
   let bundle: GrowthAuditReport["bundle"] = null;
   if (coveredByBundle.length >= 2) {
-    const separately = PRICE_CENTS["starter-website"] + 2 * PRICE_CENTS["cinematic-ad-special"] + 2 * PRICE_CENTS["ugc-ad-special"] + 3 * PRICE_CENTS["nfc-cards"];
+    const separately = WEBSITE_BUILD_CENTS + 2 * PRICE_CENTS["cinematic-ad-special"] + 2 * PRICE_CENTS["ugc-ad-special"] + 3 * PRICE_CENTS["nfc-cards"];
     bundle = {
       title: "All-in-One Launch Bundle",
       price: usd(PRICE_CENTS["all-in-one-bundle"]),

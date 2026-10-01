@@ -17,7 +17,7 @@ export const AD_SPECIAL_BLURB: Record<AdSpecialKind, string> = {
 export const CINEMATIC_SPECIAL_DESCRIPTION = `A cinematic, scroll-stopping ad, priced per ad. Choose how many you want. ${AD_SPECIAL_INCLUDES.cinematic}`;
 export const UGC_SPECIAL_DESCRIPTION = `A creator-style ad that looks like a customer made it, priced per ad. Choose how many you want. ${AD_SPECIAL_INCLUDES.ugc}`;
 
-export const BUNDLE_ITEMS = ["A Quick Business Website", "2 Cinematic Ads", "2 UGC Ads (3 hook variations each)", "3 Business Cards of your choice"];
+export const BUNDLE_ITEMS = ["A one-page business website", "2 Cinematic Ads", "2 UGC Ads (3 hook variations each)", "3 Business Cards of your choice"];
 export const BUNDLE_DESCRIPTION =
-  "Everything to launch: a Starter Website, 2 Cinematic Ads, 2 UGC Ads (each with 3 opening-hook variations), and 3 Business Cards of your choice, for one fixed price.";
+  "Everything to launch: a one-page business website, 2 Cinematic Ads, 2 UGC Ads (each with 3 opening-hook variations), and 3 Business Cards of your choice, for one fixed price.";
 

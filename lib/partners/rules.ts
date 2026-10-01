@@ -194,7 +194,7 @@ const DISCLOSURE = "Disclosure: I may earn a commission if you buy through this 
  * claim about results or earnings, and takes its prices from the price list.
  */
 export function partnerAssets(link: string): MarketingAsset[] {
-  const site = usd(PRICE_CENTS["starter-website"]);
+  const site = usd(PRICE_CENTS["website-special"]);
   return [
     {
       id: "blurb",
