@@ -91,7 +91,7 @@ describe("catalog prices", () => {
     expect([cin, ugc]).toEqual([24900, 9900]);
     const separately = cents("website-special") + 2 * cin + 2 * ugc + 3 * cents("nfc-cards");
     const bundle = cents("all-in-one-bundle");
-    expect(bundle).toBe(200_000);
+    expect(bundle).toBe(199_900);
     expect(separately).toBeGreaterThan(0);
   });
 });

@@ -26,7 +26,7 @@ export const PRICE_CENTS = {
   "ad": 50_000,
   "rental-listing-film": 50_000,
   "basic-package": 100_000,
-  "all-in-one-bundle": 200_000,
+  "all-in-one-bundle": 199_900,
   // Get customers
   "lead-engine": 170_000,
   "payments-setup": 90_000,
