@@ -19,6 +19,12 @@ describe("the deploy-time catalog sync", () => {
     expect(read("scripts/sync-catalog.ts")).not.toMatch(/db\.(user|order|inventoryItem)/);
   });
 
+  it("only changes prices on the production deploy, never from a deploy preview or branch deploy", () => {
+    const script = read("scripts/sync-catalog.ts");
+    expect(script).toMatch(/process\.env\.CONTEXT/);
+    expect(script).toMatch(/context && context !== "production"/);
+  });
+
   it("skips without a Postgres database and swallows connection errors", () => {
     const script = read("scripts/sync-catalog.ts");
     expect(script).toMatch(/postgres\(ql\)\?/);

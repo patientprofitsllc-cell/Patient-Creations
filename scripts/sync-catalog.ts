@@ -6,6 +6,13 @@ import { PrismaClient } from "@prisma/client";
 import { syncCatalog } from "../prisma/seed";
 
 async function run() {
+  // Netlify sets CONTEXT on every build. Deploy previews and branch deploys share the live database, so only the
+  // production deploy (a merge to master) may change prices; a preview of an unmerged change must never reach customers.
+  const context = process.env.CONTEXT;
+  if (context && context !== "production") {
+    console.log(`sync-catalog: ${context} build, skipped (only the production deploy updates prices)`);
+    return;
+  }
   const url = process.env.DATABASE_URL ?? "";
   if (!/^postgres(ql)?:\/\//.test(url)) {
     console.log("sync-catalog: no Postgres DATABASE_URL at build time, skipped");
