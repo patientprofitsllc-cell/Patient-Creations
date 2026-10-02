@@ -1,4 +1,4 @@
-import { FREE_FIRST_CARD_VIDEO_MIN_CENTS, PRICE_CENTS } from "@/lib/pricing/catalog";
+import { BUNDLE_PARTS, FREE_FIRST_CARD_VIDEO_MIN_CENTS, PRICE_CENTS } from "@/lib/pricing/catalog";
 import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
 
 export const NFC_ADDON_SLUG = "nfc-card-addon";
@@ -12,7 +12,7 @@ export const NFC_ADDON_BULK_UNIT_CENTS = PRICE_CENTS["nfc-card-addon"];
 // The all-in-one bundle already includes this many NFC cards, so the card
 // add-on isn't offered on top of it.
 export const NFC_BUNDLE_SLUG = "all-in-one-bundle";
-export const NFC_BUNDLE_CARD_COUNT = 3;
+export const NFC_BUNDLE_CARD_COUNT = BUNDLE_PARTS.cards;
 export const BASIC_PACKAGE_SLUG = "basic-package";
 export const BASIC_PACKAGE_CARD_COUNT = 5;
 

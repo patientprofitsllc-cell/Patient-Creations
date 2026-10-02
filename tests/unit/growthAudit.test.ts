@@ -132,8 +132,8 @@ describe("growth audit: estimates and the bundle", () => {
 
   it("shows the bundle only when it covers two or more of what was recommended, with a saving worked out from the price list", () => {
     const r = buildGrowthAudit(input({ website: null, goal: "reviews", channels: [] }), null, facts);
-    // The bundle's site has no included care months, so it is compared with the Website Special minus its 3 care months.
-    const parts = PRICE_CENTS["website-special"] - 3 * PRICE_CENTS["care-plan"] + 2 * PRICE_CENTS["cinematic-ad-special"] + 2 * PRICE_CENTS["ugc-ad-special"] + 3 * PRICE_CENTS["nfc-cards"];
+    // A Website Special, 4 Cinematic Ads, 4 UGC Ads and 5 Business Cards.
+    const parts = PRICE_CENTS["website-special"] + 4 * PRICE_CENTS["cinematic-ad-special"] + 4 * PRICE_CENTS["ugc-ad-special"] + 5 * PRICE_CENTS["nfc-cards"];
     if (parts > PRICE_CENTS["all-in-one-bundle"]) {
       expect(r.bundle).toEqual({ title: "All-in-One Launch Bundle", price: usd(PRICE_CENTS["all-in-one-bundle"]), separately: usd(parts), saving: usd(parts - PRICE_CENTS["all-in-one-bundle"]) });
     } else {

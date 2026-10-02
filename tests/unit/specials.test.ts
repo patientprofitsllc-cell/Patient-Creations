@@ -99,8 +99,8 @@ describe("supportsQuantity", () => {
 });
 
 describe("includedCardCount", () => {
-  it("says how many NFC cards ship in the price: 3 with the bundle, 5 with the Basic Package, none elsewhere", () => {
-    expect(includedCardCount("all-in-one-bundle")).toBe(3);
+  it("says how many NFC cards ship in the price: 5 with the bundle, 5 with the Basic Package, none elsewhere", () => {
+    expect(includedCardCount("all-in-one-bundle")).toBe(5);
     expect(includedCardCount("basic-package")).toBe(5);
     for (const slug of ["site", "website-special", "ad", "rental-listing-film", "nfc-cards", "", null, undefined]) expect(includedCardCount(slug)).toBe(0);
   });

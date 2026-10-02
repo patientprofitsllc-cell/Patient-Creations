@@ -1,4 +1,4 @@
-import { PRICE_CENTS, SPECIAL_CARE_MONTHS, usd } from "@/lib/pricing/catalog";
+import { PRICE_CENTS, SPECIAL_CARE_MONTHS, bundleSeparatelyCents, usd } from "@/lib/pricing/catalog";
 import type { ReactNode } from "react";
 import { db } from "@/lib/db";
 import { deliveryLine } from "@/lib/payments/deliveryWindow";
@@ -16,7 +16,6 @@ const SLUGS = [
   "all-in-one-bundle",
   "strategy-session",
   "nfc-cards",
-  "care-plan",
 ];
 
 /**
@@ -44,7 +43,6 @@ export async function SpecialsGrid({
   const consult = bySlug.get("strategy-session");
   const bundle = bySlug.get("all-in-one-bundle");
   const nfc = bySlug.get("nfc-cards");
-  const care = bySlug.get("care-plan");
 
   // Each special carries the price it's sorted by, so the grid always reads
   // lowest price to highest no matter which specials are active.
@@ -86,8 +84,8 @@ export async function SpecialsGrid({
 
   if (!exclude.includes("bundle") && bundle) {
     const separately =
-      starter && cinAd && ugcAd && nfc && care
-        ? starter.priceCents - SPECIAL_CARE_MONTHS * care.priceCents + 2 * cinAd.priceCents + 2 * ugcAd.priceCents + 3 * nfc.priceCents
+      starter && cinAd && ugcAd && nfc
+        ? bundleSeparatelyCents({ website: starter.priceCents, cinematicAd: cinAd.priceCents, ugcAd: ugcAd.priceCents, card: nfc.priceCents })
         : undefined;
     const [first, ...rest] = bundle.name.split(" ");
     specials.push({
