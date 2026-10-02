@@ -1,4 +1,5 @@
 import { PRICE_CENTS, usd } from "@/lib/pricing/catalog";
+import { includedCareMonths } from "@/lib/care/included";
 
 // The customer ladder, as rules. Given what someone has just bought and what they already own, it names the one to
 // three things that make sense next, in order, and never anything that is irrelevant or already theirs.
@@ -77,14 +78,19 @@ export function nextOffers(ctx: LadderContext): Offer[] {
           href: checkout("ugc-ad-special"),
           cta: "Add a launch ad",
         };
+  // A Website Special or bundle already includes months of care, so for those buyers the offer says so.
+  const freeCareMonths = includedCareMonths([...ctx.owned, ...ctx.justBought]);
   const care = (): Offer | null =>
     ctx.hasCarePlan || !ctx.statusPath
       ? null
       : {
           id: "care-plan",
-          title: "Keep your site running",
-          why: "Small updates handled for you every month, so you never have to manage the site yourself. You start it from your project page once your website is live.",
-          priceLabel: `${usd(PRICE_CENTS["care-plan"])} a month`,
+          title: freeCareMonths > 0 ? `Start your ${freeCareMonths} included months of website care` : "Keep your site running",
+          why:
+            freeCareMonths > 0
+              ? `Your order includes ${freeCareMonths} months of small updates at no charge. You start them from your project page once your website is live, and you can cancel before they end and pay nothing.`
+              : "Small updates handled for you every month, so you never have to manage the site yourself. You start it from your project page once your website is live.",
+          priceLabel: freeCareMonths > 0 ? `${freeCareMonths} months included, then ${usd(PRICE_CENTS["care-plan"])} a month` : `${usd(PRICE_CENTS["care-plan"])} a month`,
           href: ctx.statusPath,
           cta: "See website care",
         };

@@ -26,6 +26,8 @@ import { captureAttribution, readAttribution, sourceLabel } from "@/lib/analytic
 import { TrackView } from "@/components/analytics/Track";
 import { AddOnCard } from "@/components/checkout/AddOnCard";
 import { ADD_ON_PITCH, EXTRA_REVISION_SLUG, addOnAvailable, revisionPitchWhy } from "@/lib/site/addOnPitch";
+import { ScopePanel } from "@/components/catalog/ScopePanel";
+import type { ScopeTier } from "@/lib/site/productScopes";
 
 interface ProductLite {
   id: string;
@@ -148,6 +150,7 @@ export function CheckoutForm({
   // The bundle and the Basic Package already include NFC cards, so the card add-on isn't offered on top of them.
   const shownBumps = (includedCardCount(primaryProduct.slug) > 0 ? orderBumps.filter((b) => b.slug !== NFC_ADDON_SLUG) : orderBumps).filter((b) => addOnAvailable(b.slug, primaryProduct.slug));
   const selectedVariant = variants.find((v) => v.id === variantId);
+  const tierName: ScopeTier = selectedVariant?.name === "Signature" || selectedVariant?.name === "Flagship" ? selectedVariant.name : "Core";
   // The Extra Revision pitch says how many rounds this product already includes.
   const pitchFor = (slug: string) => {
     const pitch = ADD_ON_PITCH[slug];
@@ -457,6 +460,8 @@ export function CheckoutForm({
                 </button>
               ))}
             </div>
+            {/* What the chosen tier includes, rebuilt each time a tier is picked. */}
+            <ScopePanel slug={primaryProduct.slug} tier={tierName} open className="mt-5 border-t border-white/10 pt-4" />
           </div>
         )}
 

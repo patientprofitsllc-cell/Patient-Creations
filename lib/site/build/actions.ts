@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { includedCareMonths } from "@/lib/care/included";
 import { usd } from "@/lib/pricing/catalog";
 import { logEvent } from "@/lib/analytics/events";
 import { trackFunnel } from "@/lib/analytics/funnel";
@@ -66,7 +67,7 @@ export async function launchWebsite(projectId: string, liveUrlInput: string, opt
   if (build.status === "LIVE") return { ok: true, detail: "already live" };
   if (build.status !== "APPROVED") return fail(409, "The customer hasn't approved this version yet.");
   if (project.state !== "DELIVERY_READY") return fail(409, `The project is in ${project.state}, not ready to launch.`);
-  const owed = await db.order.findUnique({ where: { id: project.orderId }, select: { balanceDueCents: true } });
+  const owed = await db.order.findUnique({ where: { id: project.orderId }, select: { balanceDueCents: true, items: { select: { product: { select: { slug: true } } } } } });
   if (owed && owed.balanceDueCents > 0) return fail(402, `The final payment of ${usd(owed.balanceDueCents)} has not been received yet. Launch after it is paid.`);
 
   // The launch checklist: every required line must be true for this exact version, unless the owner says to skip it on purpose.
@@ -83,7 +84,8 @@ export async function launchWebsite(projectId: string, liveUrlInput: string, opt
   await logEvent("website.launched", "Project", projectId, { liveUrl });
   await trackFunnel("deployed", { projectId, orderId: project.orderId });
   await postAgentUpdate(projectId, "Coordinator Agent", `Your website is live: ${liveUrl}`);
-  await sendEmail(ctx.email, "website_live", { projectName: project.name, liveUrl, statusUrl: ctx.statusUrl });
+  const freeCareMonths = includedCareMonths((owed?.items ?? []).map((i) => i.product.slug));
+  await sendEmail(ctx.email, "website_live", { projectName: project.name, liveUrl, statusUrl: ctx.statusUrl, freeCareMonths });
   await transitionProject(projectId, "REVIEW_REQUESTED");
   await logEvent("review.requested", "Project", projectId);
   await sendEmail(ctx.email, "review_request", { projectName: project.name, statusUrl: ctx.statusUrl });

@@ -2,7 +2,7 @@
 // this list, so a visitor finds any product and its price in one place. Prices are never written here: they come from
 // the product rows (or the price list as a fallback). Pure data: safe in the browser, the server, and tests.
 import { AD_PLANS } from "@/lib/ads/plans";
-import { BUNDLE_PARTS, SPECIAL_CARE_MONTHS, type PricedSlug } from "@/lib/pricing/catalog";
+import { BUNDLE_PARTS, CARD_BULK, SPECIAL_CARE_MONTHS, usd, type PricedSlug } from "@/lib/pricing/catalog";
 
 export interface PriceListItem {
   slug: PricedSlug;
@@ -53,11 +53,11 @@ export const PRICE_LIST: readonly PriceListGroup[] = [
     title: "Ads and video",
     blurb: "Video ads made with AI, priced per ad, or a fresh batch every month.",
     items: [
-      { slug: "ugc-ad-special", name: "UGC Ad", line: "A creator-style ad with an AI presenter, up to 30 seconds, with 3 opening hooks to test.", unit: "per ad" },
-      { slug: "cinematic-ad-special", name: "Cinematic Ad", line: "A polished, film-style ad, up to 30 seconds, wide and vertical.", unit: "per ad" },
-      { slug: "rental-listing-film", name: "Rental Listing Film", line: "A cinematic video tour of your rental, made from your listing photos." },
+      { slug: "ugc-ad-special", name: "UGC Ad Special", line: "A creator-style ad with an AI presenter, up to 30 seconds, with 3 opening hooks to test.", unit: "per ad" },
+      { slug: "cinematic-ad-special", name: "Cinematic Ad Special", line: "A polished, film-style ad, up to 30 seconds, wide and vertical.", unit: "per ad" },
+      { slug: "rental-listing-film", name: "Rental Listing Film", line: "A cinematic video tour of your rental, made from your listing photos. Bigger tiers add a longer cut and a second video." },
       { slug: "basic-package", name: "Basic Package", line: "Three drone-style videos of your building and storefront, plus 5 Business Cards." },
-      { slug: "ad", name: "Cinematic Ad, custom", line: "A longer, made-to-brief cinematic ad with 2 revision rounds, for when a single ad needs more." },
+      { slug: "ad", name: "Cinematic Ad", line: "Up to 60 seconds, made to your brief, in 3 formats. Bigger tiers add short cuts, hooks, and a second ad." },
     ],
     tip: "Want more than a couple of ads? Monthly Ads works out much cheaper per ad.",
   },
@@ -65,7 +65,7 @@ export const PRICE_LIST: readonly PriceListGroup[] = [
     id: "business-cards",
     title: "Business Cards",
     blurb: "Tap-to-share smart cards. One tap opens your reviews, menu, socials, or booking link.",
-    items: [{ slug: "nfc-cards", name: "Business Cards", line: "Pick your designs and mix and match. Setup included. Shipping is extra.", unit: "each" }],
+    items: [{ slug: "nfc-cards", name: "Business Cards", line: `Pick your designs and mix and match. ${usd(CARD_BULK.unitCents)} each when you order ${CARD_BULK.minQty} or more. Shipping is extra.`, unit: "each" }],
   },
   {
     id: "automation",
@@ -85,7 +85,7 @@ export const PRICE_LIST: readonly PriceListGroup[] = [
     blurb: "Optional, and you can cancel any time.",
     items: [
       { slug: "ads-monthly-300", name: "Monthly Ads", line: `${AD_PLANS[0].counts.shortAds} to ${AD_PLANS[AD_PLANS.length - 1].counts.shortAds} new ads every month, depending on the plan.`, href: "/monthly-ads", unit: "a month", from: true, cta: "See plans" },
-      { slug: "care-plan", name: "Website Care", line: "Up to 3 small updates a month, and your site kept online. Start it once your site is live.", href: "/faq#after-launch", unit: "a month", cta: "How it works" },
+      { slug: "care-plan", name: "Website Care Plan", line: "Up to 3 small updates a month, and your site kept online. Start it once your site is live.", href: "/faq#after-launch", unit: "a month", cta: "How it works" },
     ],
   },
 ];

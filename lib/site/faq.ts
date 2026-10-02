@@ -10,6 +10,7 @@ import {
   BNPL,
   BUNDLE_PARTS,
   BUNDLE_SEPARATELY_CENTS,
+  CARD_BULK,
   DEPOSIT,
   PRICE_CENTS,
   SPECIAL_CARE_MONTHS,
@@ -91,8 +92,8 @@ export function faqGroups({ bnpl }: { bnpl: boolean }): FaqGroup[] {
       title: "After your site is live",
       faqs: [
         {
-          q: `What happens after the ${SPECIAL_CARE_MONTHS} months of maintenance?`,
-          a: `You can keep it going with Website Care for ${p("care-plan")} a month: up to 3 small updates a month, and your site kept online and your domain looked after. It's optional, you start it from your project page, and you can cancel any time.`,
+          q: `How do the ${SPECIAL_CARE_MONTHS} months of maintenance work, and what happens after?`,
+          a: `Your included months run as the Website Care Plan: up to 3 small updates a month, and your site kept online and your domain looked after. Start it from your project page once your site is live. There's no charge until the ${SPECIAL_CARE_MONTHS} months are up; after that it's ${p("care-plan")} a month, and you can cancel before then and pay nothing.`,
         },
         {
           q: "How do I ask for an update or follow my project?",
@@ -106,11 +107,11 @@ export function faqGroups({ bnpl }: { bnpl: boolean }): FaqGroup[] {
       faqs: [
         {
           q: "Should I buy single ads or Monthly Ads?",
-          a: `Single ads are best if you want one or two: a UGC Ad is ${p("ugc-ad-special")} and a Cinematic Ad is ${p("cinematic-ad-special")}. If you want ads every month, Monthly Ads is much cheaper per ad: from ${p("ads-monthly-300")} a month for ${starter.counts.shortAds} short ads, up to ${scale.counts.shortAds} ads plus cinematic videos on the bigger plans. Cancel any time.`,
+          a: `Single ads are best if you want one or two: a UGC Ad Special is ${p("ugc-ad-special")} and a Cinematic Ad Special is ${p("cinematic-ad-special")}. If you want ads every month, Monthly Ads is much cheaper per ad: from ${p("ads-monthly-300")} a month for ${starter.counts.shortAds} short ads, up to ${scale.counts.shortAds} ads plus cinematic videos on the bigger plans. Cancel any time.`,
         },
         {
-          q: "What's the difference between a UGC Ad and a Cinematic Ad?",
-          a: "A UGC Ad looks like a customer or creator made it, with an AI presenter talking to camera and 3 opening hooks to test. A Cinematic Ad is a polished, film-style spot. Both are up to 30 seconds, with a caption and headline options written for you.",
+          q: "What's the difference between the ad options?",
+          a: `The UGC Ad Special looks like a customer or creator made it, with an AI presenter talking to camera and 3 opening hooks to test. The Cinematic Ad Special is a polished, film-style spot. Both are up to 30 seconds, with a caption and headline options written for you. For a longer ad made to your brief, the Cinematic Ad (from ${p("ad")}) runs up to 60 seconds in 3 formats, and its bigger tiers add short cuts, hooks, and a second ad.`,
         },
         {
           q: "Do you run my ads or pay for ad spend?",
@@ -118,7 +119,7 @@ export function faqGroups({ bnpl }: { bnpl: boolean }): FaqGroup[] {
         },
         {
           q: "How long do ads take?",
-          a: "Single ads have a target of 5 to 7 days. Monthly Ads batches arrive within about 7 to 14 business days of your monthly brief, depending on the plan.",
+          a: "Single ads have a target of 5 to 7 business days. Monthly Ads batches arrive within about 7 to 14 business days of your monthly brief, depending on the plan.",
         },
       ],
     },
@@ -138,7 +139,7 @@ export function faqGroups({ bnpl }: { bnpl: boolean }): FaqGroup[] {
       faqs: [
         {
           q: "How do the Business Cards work?",
-          a: `Each card has a chip inside. A customer taps it with their phone and it opens your review page, menu, socials, WiFi, or booking link. They're ${p("nfc-cards")} each, setup included, and you can mix and match designs.`,
+          a: `Each card has a chip inside. A customer taps it with their phone and it opens your review page, menu, socials, WiFi, or booking link. They're ${p("nfc-cards")} each, or ${usd(CARD_BULK.unitCents)} each when you order ${CARD_BULK.minQty} or more, and you can mix and match designs.`,
         },
         {
           q: "When do the cards arrive?",

@@ -39,9 +39,9 @@ describe("the one price list", () => {
   it("holds the prices the business sells at", () => {
     expect(priceOf("nfc-cards")).toBe(3_000);
     expect(priceOf("website-special")).toBe(125_000);
-    expect(priceOf("ugc-ad-special")).toBe(19_900);
-    expect(priceOf("cinematic-ad-special")).toBe(44_900);
-    expect(priceOf("all-in-one-bundle")).toBe(300_000);
+    expect(priceOf("ugc-ad-special")).toBe(12_900);
+    expect(priceOf("cinematic-ad-special")).toBe(29_900);
+    expect(priceOf("all-in-one-bundle")).toBe(249_900);
     expect(priceOf("care-plan")).toBe(7_900);
     expect([priceOf("ads-monthly-300"), priceOf("ads-monthly-500"), priceOf("ads-monthly-1000")]).toEqual([30_000, 50_000, 100_000]);
     expect(priceOf("lead-engine")).toBe(170_000);
@@ -75,7 +75,7 @@ describe("the one price list", () => {
 
   it("makes the launch bundle cheaper than buying its parts one by one, so its saving is real", () => {
     const parts = PRICE_CENTS["website-special"] + 4 * PRICE_CENTS["cinematic-ad-special"] + 4 * PRICE_CENTS["ugc-ad-special"] + 5 * PRICE_CENTS["nfc-cards"];
-    expect(parts).toBe(399_200);
+    expect(parts).toBe(311_200);
     expect(BUNDLE_SEPARATELY_CENTS).toBe(parts);
     expect(PRICE_CENTS["all-in-one-bundle"]).toBeLessThan(parts);
   });
@@ -125,7 +125,7 @@ describe("no other price anywhere", () => {
       ["lib/ads/plans.ts", 'PRICE_CENTS["ads-monthly-300"]'],
       ["lib/site/carePlan.ts", 'PRICE_CENTS["care-plan"]'],
       ["lib/site/offerData.ts", 'PRICE_CENTS["website-special"]'],
-      ["lib/payments/nfcAddon.ts", 'PRICE_CENTS["nfc-card-addon"]'],
+      ["lib/payments/nfcAddon.ts", "CARD_BULK.unitCents"],
       ["lib/site/marketComparison.ts", "PRICE_CENTS.saas"],
     ] as const) {
       expect(read(file), file).toContain(needle);

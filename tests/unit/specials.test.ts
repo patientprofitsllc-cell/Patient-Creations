@@ -18,9 +18,12 @@ describe("priceNfcAddon (card add-on quantity)", () => {
     expect(priceNfcAddon(LIST, video, 125000, 4).totalCents).toBe(3 * 3000);
   });
 
-  it("charges the same $30 for every card at any quantity, so a bigger order never costs less in total", () => {
-    for (const qty of [2, 3, 9, 10, 25, 100]) {
+  it("charges $30 a card under 10, and $20 a card on all of them from 10 (so 9 cards cost more than 10, on purpose: buy 10 and save)", () => {
+    for (const qty of [2, 3, 9]) {
       expect(priceNfcAddon(LIST, service, 200000, qty)).toEqual({ lines: [{ quantity: qty, priceCents: 3000 }], totalCents: qty * 3000 });
+    }
+    for (const qty of [10, 25, 100]) {
+      expect(priceNfcAddon(LIST, service, 200000, qty)).toEqual({ lines: [{ quantity: qty, priceCents: 2000 }], totalCents: qty * 2000 });
     }
   });
 

@@ -3,10 +3,12 @@ import { NO_STORE, guardCare } from "@/lib/care/access";
 import { getStripe, isStripeConfigured } from "@/lib/payments/stripe";
 import { recordAcceptance } from "@/lib/legal/acceptance";
 import { LIVE_CARE_STATUSES, getCarePlanProduct } from "@/lib/site/carePlan";
+import { includedCareEnds, includedCareMonths } from "@/lib/care/included";
 
 // Starts the monthly care plan for a customer whose website is live. Stripe
-// Checkout collects the card and takes the payment; a Stripe webhook records the
-// subscription. The price is read from the product row, never from the browser.
+// Checkout collects the card and takes the payment (or, when the order included
+// free months of care, the first payment when they end); a Stripe webhook records
+// the subscription. The price is read from the product row, never from the browser.
 export async function POST(req: NextRequest) {
   const guarded = await guardCare(req, "checkout", 5);
   if ("response" in guarded) return guarded.response;
@@ -33,6 +35,13 @@ export async function POST(req: NextRequest) {
   try {
     const base = process.env.APP_BASE_URL ?? "http://localhost:3000";
     const meta = { kind: "care_plan", projectId: project.id, customerId: project.customerId };
+    // A Website Special or bundle comes with months of care: the plan starts with them free and the first charge is
+    // when they end. Only the project's first care plan gets them.
+    const freeMonths = includedCareMonths(
+      project.order.items.map((i) => i.product.slug),
+      project.careSubscriptions.length > 0,
+    );
+    const trialEnd = freeMonths > 0 ? Math.floor(includedCareEnds(new Date(), freeMonths).getTime() / 1000) : undefined;
     const session = await getStripe().checkout.sessions.create({
       mode: "subscription",
       customer_email: project.customer.user.email,
@@ -48,7 +57,7 @@ export async function POST(req: NextRequest) {
         },
       ],
       metadata: meta,
-      subscription_data: { metadata: meta },
+      subscription_data: { metadata: meta, ...(trialEnd ? { trial_end: trialEnd } : {}) },
       success_url: `${base}/status/${token}?care=started`,
       cancel_url: `${base}/status/${token}`,
     });

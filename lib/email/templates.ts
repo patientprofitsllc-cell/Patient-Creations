@@ -255,7 +255,7 @@ You asked for this audit, so we sent it. If you would rather not hear from us ag
   }),
   website_live: (p) => ({
     subject: "Your website is live.",
-    body: `"${p.projectName}" is live${p.liveUrl ? `: ${p.liveUrl}` : "."}${p.statusUrl ? `\n\nKeep your site running: Website Care is ${usd(PRICE_CENTS["care-plan"])} a month. Small updates are handled for you every month, so you never have to manage the site yourself. You can start it from your project page, and cancel any time.` : ""}${statusLine(p)}`,
+    body: `"${p.projectName}" is live${p.liveUrl ? `: ${p.liveUrl}` : "."}${p.statusUrl ? (Number(p.freeCareMonths) > 0 ? `\n\nYour order includes ${p.freeCareMonths} months of Website Care: up to 3 small updates a month, handled for you. Start it from your project page. There's no charge until those months are up, then it's ${usd(PRICE_CENTS["care-plan"])} a month, and you can cancel before then and pay nothing.` : `\n\nKeep your site running: Website Care is ${usd(PRICE_CENTS["care-plan"])} a month. Small updates are handled for you every month, so you never have to manage the site yourself. You can start it from your project page, and cancel any time.`) : ""}${statusLine(p)}`,
   }),
   intake_reminder: (p) => ({
     subject: p.last ? "Last reminder: your website details." : "Your website is waiting on a few details.",
