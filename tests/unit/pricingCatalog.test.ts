@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readdirSync, readFileSync, statSync } from "fs";
 import { join } from "path";
-import { FREE_FIRST_CARD_VIDEO_MIN_CENTS, PRICE_CENTS, TIER_MULTIPLIERS, TIER_PRICE_OVERRIDES, priceOf, tierPriceCents, usd } from "@/lib/pricing/catalog";
+import { BUNDLE_SEPARATELY_CENTS, FREE_FIRST_CARD_VIDEO_MIN_CENTS, PRICE_CENTS, TIER_MULTIPLIERS, TIER_PRICE_OVERRIDES, priceOf, tierPriceCents, usd } from "@/lib/pricing/catalog";
 
 const root = process.cwd();
 const read = (f: string) => readFileSync(join(root, f), "utf8");
@@ -41,7 +41,7 @@ describe("the one price list", () => {
     expect(priceOf("website-special")).toBe(125_000);
     expect(priceOf("ugc-ad-special")).toBe(19_900);
     expect(priceOf("cinematic-ad-special")).toBe(44_900);
-    expect(priceOf("all-in-one-bundle")).toBe(199_900);
+    expect(priceOf("all-in-one-bundle")).toBe(300_000);
     expect(priceOf("care-plan")).toBe(7_900);
     expect([priceOf("ads-monthly-300"), priceOf("ads-monthly-500"), priceOf("ads-monthly-1000")]).toEqual([30_000, 50_000, 100_000]);
     expect(priceOf("lead-engine")).toBe(170_000);
@@ -74,7 +74,9 @@ describe("the one price list", () => {
   });
 
   it("makes the launch bundle cheaper than buying its parts one by one, so its saving is real", () => {
-    const parts = PRICE_CENTS["website-special"] + 2 * PRICE_CENTS["cinematic-ad-special"] + 2 * PRICE_CENTS["ugc-ad-special"] + 3 * PRICE_CENTS["nfc-cards"];
+    const parts = PRICE_CENTS["website-special"] + 4 * PRICE_CENTS["cinematic-ad-special"] + 4 * PRICE_CENTS["ugc-ad-special"] + 5 * PRICE_CENTS["nfc-cards"];
+    expect(parts).toBe(399_200);
+    expect(BUNDLE_SEPARATELY_CENTS).toBe(parts);
     expect(PRICE_CENTS["all-in-one-bundle"]).toBeLessThan(parts);
   });
 

@@ -17,8 +17,10 @@ describe("ad specials", () => {
   it("are the same words on the card, in the product rows, and in the bundle", () => {
     expect(CINEMATIC_SPECIAL_DESCRIPTION).toContain(AD_SPECIAL_INCLUDES.cinematic);
     expect(UGC_SPECIAL_DESCRIPTION).toContain(AD_SPECIAL_INCLUDES.ugc);
-    expect(BUNDLE_DESCRIPTION).toMatch(/2 UGC Ads \(each with 3 opening-hook variations\)/);
-    expect(BUNDLE_ITEMS).toContain("2 UGC Ads (3 hook variations each)");
+    expect(BUNDLE_DESCRIPTION).toMatch(/4 UGC Ads \(each with 3 opening-hook variations\)/);
+    expect(BUNDLE_ITEMS).toContain("4 UGC Ads (3 hook variations each)");
+    expect(BUNDLE_ITEMS).toContain("4 Cinematic Ads");
+    expect(BUNDLE_ITEMS).toContain("5 Business Cards of your choice");
     const seed = readFileSync(join(process.cwd(), "prisma/seed.ts"), "utf8");
     for (const name of ["CINEMATIC_SPECIAL_DESCRIPTION", "UGC_SPECIAL_DESCRIPTION", "BUNDLE_DESCRIPTION"]) expect(seed, name).toContain(`description: ${name}`);
   });

@@ -15,12 +15,13 @@ describe("homepage: the ten-second test", () => {
     expect(home).toContain("launch, market, generate leads, and automate operations with websites,");
   });
 
-  it("puts the growth audit first and the services second, and keeps the website offer one tap away", () => {
+  it("puts the growth audit first and the products and prices second, and keeps the website offer one tap away", () => {
     expect(home).toContain('href="/audit"');
     expect(home).toContain("GET MY GROWTH AUDIT");
     expect(home).not.toMatch(/FREE GROWTH AUDIT/i);
     expect(home).toContain("credited toward your first order");
-    expect(home).toContain("EXPLORE SERVICES");
+    expect(home).toContain("SEE PRODUCTS AND PRICES");
+    expect(home).toContain('href="#products"');
     expect(home).toContain("Just need a website?");
     expect(home).toContain("OFFER_CHECKOUT_HREF");
   });
@@ -30,10 +31,12 @@ describe("homepage: the ten-second test", () => {
     expect(home).toContain('<TrackView event="landing_page_view" />');
   });
 
-  it("groups everything below the fold into the four-tab bar, so a first-time visitor isn't handed one long scroll", () => {
-    expect(home).toContain("<HomeTabs");
-    for (const id of ["websites", "business-cards", "ai-ads", "saas-agents"]) expect(home, id).toContain(`id: "${id}"`);
-    for (const label of ["Websites", "Business Cards", "AI Creation & Ads", "SaaS & Creation Agents"]) expect(home, label).toContain(`label: "${label}"`);
+  it("keeps it short: three questions, one price list, the top answers, and nothing repeated", () => {
+    expect(home).toContain("<ProductFinder");
+    expect(home).toContain("<PriceList");
+    expect(home).toContain("topFaqs(");
+    expect(home).toContain('href="/faq"');
+    for (const gone of ["<HomeTabs", "<OfferCard", "<SpecialsGrid", "<GrowthLadder"]) expect(home, gone).not.toContain(gone);
   });
 });
 

@@ -26,7 +26,7 @@ export const PRICE_CENTS = {
   "ad": 50_000,
   "rental-listing-film": 50_000,
   "basic-package": 100_000,
-  "all-in-one-bundle": 199_900,
+  "all-in-one-bundle": 300_000,
   // Get customers
   "lead-engine": 170_000,
   "payments-setup": 90_000,
@@ -52,11 +52,21 @@ export const PRICE_CENTS = {
 /** Months of Website Care included in the Website Special's price. */
 export const SPECIAL_CARE_MONTHS = 3;
 
-/**
- * The Website Special's website build on its own, without the Website Care months it includes. Used when comparing the
- * All-in-One bundle (whose one-page site has no care months) with buying its parts separately.
- */
-export const WEBSITE_BUILD_CENTS: number = PRICE_CENTS["website-special"] - SPECIAL_CARE_MONTHS * PRICE_CENTS["care-plan"];
+/** What the All-in-One Launch Bundle contains, besides one Website Special. The wording, card picker and savings read this. */
+export const BUNDLE_PARTS = { cinematicAds: 4, ugcAds: 4, cards: 5 } as const;
+
+/** What the bundle's contents cost bought one by one, from whichever prices are passed (the live rows or the price list). */
+export function bundleSeparatelyCents(p: { website: number; cinematicAd: number; ugcAd: number; card: number }): number {
+  return p.website + BUNDLE_PARTS.cinematicAds * p.cinematicAd + BUNDLE_PARTS.ugcAds * p.ugcAd + BUNDLE_PARTS.cards * p.card;
+}
+
+/** The bundle's "bought separately" total at list prices. */
+export const BUNDLE_SEPARATELY_CENTS: number = bundleSeparatelyCents({
+  website: PRICE_CENTS["website-special"],
+  cinematicAd: PRICE_CENTS["cinematic-ad-special"],
+  ugcAd: PRICE_CENTS["ugc-ad-special"],
+  card: PRICE_CENTS["nfc-cards"],
+});
 
 /**
  * Fees that are not products on the shelf. The Growth Audit is $19 on purpose: enough that only people who mean it pay

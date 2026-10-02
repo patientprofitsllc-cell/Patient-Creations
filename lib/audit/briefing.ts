@@ -1,5 +1,5 @@
 import type { AuditResult } from "@/lib/prospects/audit";
-import { AUDIT_FEE_CENTS, PRICE_CENTS, WEBSITE_BUILD_CENTS, usd } from "@/lib/pricing/catalog";
+import { AUDIT_FEE_CENTS, BUNDLE_SEPARATELY_CENTS, PRICE_CENTS, usd } from "@/lib/pricing/catalog";
 import { nextOffers } from "@/lib/journey/ladder";
 import { CONTACT_PHONE_DISPLAY } from "@/lib/config/site";
 import type { AuditInput, GrowthAuditReport } from "@/lib/audit/growthAudit";
@@ -141,7 +141,7 @@ export function buildBriefing(a: BriefingInput): OwnerBriefing {
   const secondarySlug = nextOffers({ justBought: [primary.slug], owned: [primary.slug], statusPath: null })[0];
   const secondary = secondarySlug ? (PICKS[secondarySlug.href.replace("/checkout?product=", "")] ? pick(secondarySlug.href.replace("/checkout?product=", "")) : null) : null;
 
-  const partsCents = WEBSITE_BUILD_CENTS + 2 * PRICE_CENTS["cinematic-ad-special"] + 2 * PRICE_CENTS["ugc-ad-special"] + 3 * PRICE_CENTS["nfc-cards"];
+  const partsCents = BUNDLE_SEPARATELY_CENTS;
   const bundle = report.bundle ? { title: report.bundle.title, price: report.bundle.price, separately: usd(partsCents) } : null;
 
   const avoid: string[] = [];

@@ -1,5 +1,5 @@
 import type { AuditResult } from "@/lib/prospects/audit";
-import { PRICE_CENTS, WEBSITE_BUILD_CENTS, usd } from "@/lib/pricing/catalog";
+import { BUNDLE_SEPARATELY_CENTS, PRICE_CENTS, usd } from "@/lib/pricing/catalog";
 import { businessDays } from "@/lib/payments/deliveryWindow";
 
 // The Growth Audit. Every line in the report belongs to exactly one of three kinds, and says which:
@@ -181,7 +181,7 @@ export function buildGrowthAudit(input: AuditInput, site: AuditResult | null, fa
   // ---- the bundle, only when it really covers what was recommended ----
   const coveredByBundle = ["website", "reviews", "launch-ad"].filter((id) => recommended.some((r) => r.id === id));
   let bundle: GrowthAuditReport["bundle"] = null;
-  const separately = WEBSITE_BUILD_CENTS + 2 * PRICE_CENTS["cinematic-ad-special"] + 2 * PRICE_CENTS["ugc-ad-special"] + 3 * PRICE_CENTS["nfc-cards"];
+  const separately = BUNDLE_SEPARATELY_CENTS;
   // Pitched as a saving only when it really is one.
   if (coveredByBundle.length >= 2 && separately > PRICE_CENTS["all-in-one-bundle"]) {
     bundle = {

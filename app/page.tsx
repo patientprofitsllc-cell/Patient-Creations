@@ -3,24 +3,17 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { HeroBackdrop } from "@/components/cinematic/HeroBackdrop";
-import { ProductCard } from "@/components/catalog/ProductCard";
-import { HomeTabs, type HomeTab } from "@/components/home/HomeTabs";
-import { NfcShowcase } from "@/components/home/NfcShowcase";
+import { PriceList } from "@/components/catalog/PriceList";
+import { ProductFinder } from "@/components/home/ProductFinder";
 import { SeoWordbank } from "@/components/home/SeoWordbank";
-import { SpecialsGrid } from "@/components/home/SpecialsGrid";
-import { CARD_CTA_CLASS, money } from "@/components/home/specialFrame";
-import { TrackOnScreen, TrackView } from "@/components/analytics/Track";
-import { CaseStudies } from "@/components/marketing/CaseStudies";
+import { money } from "@/components/home/specialFrame";
+import { TrackView } from "@/components/analytics/Track";
 import { FaqSection } from "@/components/marketing/FaqSection";
-import { GrowthLadder } from "@/components/marketing/GrowthLadder";
-import { HowItWorksSimple } from "@/components/marketing/HowItWorksSimple";
-import { IndustryGrid } from "@/components/marketing/IndustryGrid";
-import { OfferCard } from "@/components/marketing/OfferCard";
-import { ProblemSection } from "@/components/marketing/ProblemSection";
-import { db } from "@/lib/db";
 import { AUDIT_FEE_CENTS, usd } from "@/lib/pricing/catalog";
 import { LOGO_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/config/site";
-import { OFFER_CHECKOUT_HREF, TRUST_ITEMS, getFaqs } from "@/lib/site/offer";
+import { bnplEnabled } from "@/lib/payments/bnpl";
+import { topFaqs } from "@/lib/site/faq";
+import { OFFER_CHECKOUT_HREF } from "@/lib/site/offer";
 import { FALLBACK_OFFER_PRICE_CENTS, getOfferProduct } from "@/lib/site/offerData";
 
 // Same catalog/pricing data, cached and refreshed every 60s: a price or
@@ -30,159 +23,10 @@ export const revalidate = 60;
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
-// The six flagship builds, the same lineup /services compares against the
-// market. Displayed lowest price to highest, not DB sortOrder.
-const FEATURED_SLUGS = ["site", "saas", "agents", "ad", "rental-listing-film", "lead-engine"];
-
 export default async function HomePage() {
-  const [offer, rows] = await Promise.all([
-    getOfferProduct(),
-    db.product.findMany({
-      where: { slug: { in: [...FEATURED_SLUGS, "nfc-cards"] }, active: true },
-      include: { variants: { where: { active: true }, orderBy: { priceCents: "asc" } } },
-    }),
-  ]);
-  const bySlug = new Map(rows.map((p) => [p.slug, p]));
-
-  const featured = FEATURED_SLUGS.map((slug) => bySlug.get(slug))
-    .filter((p): p is NonNullable<typeof p> => Boolean(p))
-    .sort((a, b) => a.priceCents - b.priceCents);
-  const nfc = bySlug.get("nfc-cards");
-  const adsAndCreation = featured.filter((p) => p.slug === "ad" || p.slug === "rental-listing-film");
-  const saasAndAgents = featured.filter((p) => p.slug === "saas" || p.slug === "agents" || p.slug === "lead-engine");
-
+  const offer = await getOfferProduct();
   const offerCents = offer?.priceCents ?? FALLBACK_OFFER_PRICE_CENTS;
   const price = money(offerCents);
-
-  const productCard = (product: (typeof featured)[number]) => (
-    <ProductCard
-      key={product.slug}
-      category={product.category}
-      name={product.name}
-      description={product.description}
-      priceCents={product.priceCents}
-      hasTiers={product.variants.length > 0}
-      topTierCents={product.variants[product.variants.length - 1]?.priceCents}
-      turnaround={product.turnaround}
-      action={
-        <Link href={`/checkout?product=${product.slug}`} className={CARD_CTA_CLASS}>
-          Reserve this build
-        </Link>
-      }
-    />
-  );
-
-  const tabs: HomeTab[] = [
-    {
-      id: "websites",
-      label: "Websites",
-      blurb: "Get online, done for you",
-      panel: (
-        <div className="space-y-16 pb-16 pt-8">
-          <div id="offer" className="scroll-mt-24">
-            <TrackOnScreen event="offer_view">
-              <OfferCard priceCents={offerCents} />
-            </TrackOnScreen>
-          </div>
-          <SpecialsGrid exclude={["ads", "starter"]} heading="More website" />
-          <CaseStudies />
-          <section>
-            <div className="mb-10 text-center">
-              <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Examples</p>
-              <h2 className="mt-4 font-display text-3xl text-ice sm:text-4xl">
-                One system, <span className="text-gradient-champagne italic">every kind of business.</span>
-              </h2>
-              <p className="mx-auto mt-4 max-w-xl text-ice/50">
-                Sample designs that show how a one-page site adapts to your industry. They&apos;re design concepts, not
-                real customer results.
-              </p>
-            </div>
-            <IndustryGrid />
-            <div className="mt-10 text-center">
-              <Link href="/examples" className="text-sm text-gold hover:brightness-110">
-                See all examples →
-              </Link>
-            </div>
-          </section>
-          <HowItWorksSimple />
-          <ProblemSection />
-          <FaqSection faqs={getFaqs(price)} />
-        </div>
-      ),
-    },
-    {
-      id: "business-cards",
-      label: "Business Cards",
-      blurb: "Tap-to-share smart cards",
-      panel: (
-        <div className="space-y-6 pb-16 pt-8 text-center">
-          <p className="mx-auto max-w-xl text-ice/60">
-            A tap opens your review page, menu, socials, or booking link. Pick a design below, or mix and match.
-          </p>
-          {nfc && <NfcShowcase priceCents={nfc.priceCents} />}
-        </div>
-      ),
-    },
-    {
-      id: "ai-ads",
-      label: "AI Creation & Ads",
-      blurb: "Cinematic and UGC video",
-      panel: (
-        <div className="space-y-16 pb-16 pt-8">
-          <p className="mx-auto max-w-xl text-center text-ice/60">
-            Scroll-stopping video ads, made with AI: cinematic, creator-style (UGC), or a rental listing film, priced
-            per ad. A fresh batch every month if you want it on autopilot.
-          </p>
-          <SpecialsGrid exclude={["starter", "bundle", "site"]} heading="Ad" />
-          {adsAndCreation.length > 0 && (
-            <section>
-              <div className="mb-10 text-center">
-                <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Bigger builds</p>
-                <h2 className="mt-4 font-display text-3xl text-ice sm:text-4xl">
-                  Flagship <span className="text-gradient-champagne italic">video work.</span>
-                </h2>
-              </div>
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">{adsAndCreation.map(productCard)}</div>
-            </section>
-          )}
-          <section className="glass-panel mx-auto max-w-2xl rounded-2xl p-8 text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">On autopilot</p>
-            <h2 className="mt-3 font-display text-2xl text-ice">Monthly Ads</h2>
-            <p className="mt-2 text-sm text-ice/60">A fresh batch of ads every month. Cancel any time.</p>
-            <Link href="/monthly-ads" className={`mt-5 inline-block ${CARD_CTA_CLASS}`}>
-              See the plans
-            </Link>
-          </section>
-        </div>
-      ),
-    },
-    {
-      id: "saas-agents",
-      label: "SaaS & Creation Agents",
-      blurb: "Software and AI agent teams",
-      panel: (
-        <div className="space-y-16 pb-16 pt-8">
-          <p className="mx-auto max-w-xl text-center text-ice/60">
-            Your idea turned into a working app, or a team of AI agents that work the repeat tasks in your business.
-            Every build starts scoped on a call, so we build the right thing the first time.
-          </p>
-          {saasAndAgents.length > 0 && (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">{saasAndAgents.map(productCard)}</div>
-          )}
-          <section className="glass-panel mx-auto max-w-2xl rounded-2xl p-8 text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Not sure what you need?</p>
-            <h2 className="mt-3 font-display text-2xl text-ice">Start with a Strategy Session</h2>
-            <p className="mt-2 text-sm text-ice/60">
-              A live call to scope the right build before you commit. The fee is credited toward the project.
-            </p>
-            <Link href="/checkout?product=strategy-session" className={`mt-5 inline-block ${CARD_CTA_CLASS}`}>
-              Book a Strategy Session
-            </Link>
-          </section>
-        </div>
-      ),
-    },
-  ];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -245,10 +89,10 @@ export default async function HomePage() {
                 GET MY GROWTH AUDIT
               </Link>
               <Link
-                href="/services"
+                href="#products"
                 className="champagne-border w-full rounded-full px-8 py-4 text-sm tracking-wide text-champagne transition hover:bg-champagne/10 sm:w-auto"
               >
-                EXPLORE SERVICES
+                SEE PRODUCTS AND PRICES
               </Link>
             </div>
             <p className="mt-4 text-sm text-ice/70">
@@ -260,26 +104,20 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* 2. Trust row */}
-        <section aria-label="What you get" className="border-y border-white/5 bg-white/[0.02]">
-          <ul className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-6 py-5 text-sm text-ice/70">
-            {TRUST_ITEMS.map((item) => (
-              <li key={item} className="flex items-center gap-2">
-                <span aria-hidden className="text-gold">
-                  ✓
-                </span>
-                {item}
-              </li>
-            ))}
-          </ul>
-        </section>
+        {/* 2. Three questions, so a first-time visitor sees only the few things that fit them. */}
+        <ProductFinder />
 
-        {/* 3. Four bar tabs: everything below is grouped under one of these, so nothing is a long, undifferentiated scroll. */}
-        <HomeTabs tabs={tabs} />
+        {/* 3. Every product and price on one list, grouped, with a jump link to each group. */}
+        <PriceList className="py-16" />
 
-        {/* 4. What comes after: shared across every tab, so it isn't repeated four times. */}
-        <div className="defer-offscreen border-t border-white/5">
-          <GrowthLadder />
+        {/* 4. The questions most people ask, with the rest one tap away. */}
+        <div className="defer-offscreen">
+          <FaqSection faqs={topFaqs({ bnpl: bnplEnabled() })} />
+          <p className="-mt-12 pb-8 text-center text-sm">
+            <Link href="/faq" className="text-gold underline">
+              See every question and answer
+            </Link>
+          </p>
         </div>
 
         {/* 5. Final call to action */}
