@@ -3,32 +3,29 @@ import { resolveNfcAddonPriceCents, priceNfcAddon, includedCardCount } from "@/l
 
 describe("priceNfcAddon (card add-on quantity)", () => {
   // Cards are a flat $30 each: no volume special and no website special.
-  const LIST = 3000;
+  const LIST = 2000;
   const website = { slug: "website-special", category: "Websites" };
   const video = { slug: "ad", category: "Video" };
   const service = { slug: "site", category: "Websites" };
 
-  it("charges $30 for one card on anything, including the Starter Website", () => {
-    expect(priceNfcAddon(LIST, website, 30000, 1)).toEqual({ lines: [{ quantity: 1, priceCents: 3000 }], totalCents: 3000 });
-    expect(priceNfcAddon(LIST, service, 200000, 1).totalCents).toBe(3000);
+  it("charges $20 for one card on anything, including the Website Special", () => {
+    expect(priceNfcAddon(LIST, website, 125000, 1)).toEqual({ lines: [{ quantity: 1, priceCents: 2000 }], totalCents: 2000 });
+    expect(priceNfcAddon(LIST, service, 200000, 1).totalCents).toBe(2000);
   });
 
   it("keeps the first card free on a $1,000+ cinematic video tier", () => {
     expect(priceNfcAddon(LIST, video, 125000, 1).totalCents).toBe(0);
-    expect(priceNfcAddon(LIST, video, 125000, 4).totalCents).toBe(3 * 3000);
+    expect(priceNfcAddon(LIST, video, 125000, 4).totalCents).toBe(3 * 2000);
   });
 
-  it("charges $30 a card under 10, and $20 a card on all of them from 10 (so 9 cards cost more than 10, on purpose: buy 10 and save)", () => {
-    for (const qty of [2, 3, 9]) {
-      expect(priceNfcAddon(LIST, service, 200000, qty)).toEqual({ lines: [{ quantity: qty, priceCents: 3000 }], totalCents: qty * 3000 });
-    }
-    for (const qty of [10, 25, 100]) {
+  it("charges the same $20 for every card at any quantity, so a bigger order never costs less in total", () => {
+    for (const qty of [2, 3, 9, 10, 25, 100]) {
       expect(priceNfcAddon(LIST, service, 200000, qty)).toEqual({ lines: [{ quantity: qty, priceCents: 2000 }], totalCents: qty * 2000 });
     }
   });
 
   it("never lets the bulk constant raise a price above the list price", () => {
-    expect(priceNfcAddon(2000, service, 200000, 10).totalCents).toBe(10 * 2000);
+    expect(priceNfcAddon(1500, service, 200000, 10).totalCents).toBe(10 * 1500);
   });
 });
 

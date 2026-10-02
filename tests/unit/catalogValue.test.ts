@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { PRODUCT_SCOPES, SCOPED_SLUGS, scopeFor } from "@/lib/site/productScopes";
-import { CARD_BULK, CARD_SETUP_FEE_CENTS, PRICE_CENTS, tierPriceCents } from "@/lib/pricing/catalog";
+import { PRICE_CENTS, tierPriceCents } from "@/lib/pricing/catalog";
 import { PRICE_LIST_SLUGS } from "@/lib/site/priceList";
 import { includedCardCount } from "@/lib/payments/nfcAddon";
 import { parseTurnaroundMaxDays } from "@/lib/payments/deliverySpeed";
@@ -74,16 +74,15 @@ describe("catalog prices", () => {
     expect(tierPriceCents("saas", "Flagship", PRICE_CENTS.saas)).toBe(2500000);
   });
 
-  it("NFC cards are $30, or $20 each from 10 (the difference is a setup fee bulk orders skip), on every card product and the add-on", () => {
+  it("NFC cards are a flat $20 with no setup fee, on every card product and the add-on", () => {
     for (const slug of ["nfc-cards", "nfc-wifi", "nfc-custom-menu", "nfc-youtube", "nfc-whatsapp", "nfc-instagram", "nfc-tiktok", "nfc-google-review"]) {
       const b = productBlock(slug);
       expect(b, slug).toContain('PRICE_CENTS["' + slug + '"]');
-      expect(PRICE_CENTS[slug as keyof typeof PRICE_CENTS], slug).toBe(3000);
-      expect(b, slug).toContain("setupFeeCents: CARD_SETUP_FEE_CENTS");
-      expect(PRICE_CENTS[slug as keyof typeof PRICE_CENTS] - CARD_SETUP_FEE_CENTS, slug).toBe(CARD_BULK.unitCents);
+      expect(PRICE_CENTS[slug as keyof typeof PRICE_CENTS], slug).toBe(2000);
+      expect(b, slug).toContain("setupFeeCents: 0");
     }
     expect(productBlock("nfc-card-addon")).toContain('PRICE_CENTS["nfc-card-addon"]');
-    expect(PRICE_CENTS["nfc-card-addon"]).toBe(3000);
+    expect(PRICE_CENTS["nfc-card-addon"]).toBe(2000);
   });
 
   it("per-ad specials are priced by value and the bundle is cheaper than buying its parts", () => {

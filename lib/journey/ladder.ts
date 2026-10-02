@@ -21,7 +21,7 @@ export interface Offer {
   title: string;
   /** Why it fits, in one sentence. */
   why: string;
-  /** "$30 each", "$79 a month", "from $1,700". */
+  /** "$20 each", "$79 a month", "from $1,700". */
   priceLabel: string;
   href: string;
   cta: string;

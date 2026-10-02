@@ -1,12 +1,13 @@
-import { BUNDLE_PARTS, CARD_BULK, FREE_FIRST_CARD_VIDEO_MIN_CENTS, PRICE_CENTS } from "@/lib/pricing/catalog";
+import { BUNDLE_PARTS, FREE_FIRST_CARD_VIDEO_MIN_CENTS, PRICE_CENTS } from "@/lib/pricing/catalog";
 import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
 
 export const NFC_ADDON_SLUG = "nfc-card-addon";
 
-// Cards added to another order get the same bulk price as a card order: at or above this
-// quantity every card is CARD_BULK.unitCents (see lib/pricing/catalog.ts).
+// Cards are a flat price (see the seed), so there is no volume special. These stay so the
+// pricing code has one place to add a bulk price later: at or above this quantity every card
+// is at most this price. It equals the list price, so nothing changes today.
 export const NFC_ADDON_BULK_MIN_QTY = BULK_SETUP_WAIVER_MIN_QTY;
-export const NFC_ADDON_BULK_UNIT_CENTS: number = CARD_BULK.unitCents;
+export const NFC_ADDON_BULK_UNIT_CENTS = PRICE_CENTS["nfc-card-addon"];
 
 // The all-in-one bundle already includes this many NFC cards, so the card
 // add-on isn't offered on top of it.
@@ -31,7 +32,7 @@ const VIDEO_FREE_THRESHOLD_CENTS = FREE_FIRST_CARD_VIDEO_MIN_CENTS; // a cinemat
 
 /**
  * The NFC card add-on's price depends on what it's bundled with: free on a
- * $1,000+ cinematic video tier, and its normal listed price ($30) on everything else. Shared by the server-side pricer and the
+ * $1,000+ cinematic video tier, and its normal listed price ($20) on everything else. Shared by the server-side pricer and the
  * checkout form's client-side display so the two can never drift apart.
  */
 export function resolveNfcAddonPriceCents(

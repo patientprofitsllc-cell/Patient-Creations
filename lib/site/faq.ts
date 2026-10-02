@@ -10,7 +10,6 @@ import {
   BNPL,
   BUNDLE_PARTS,
   BUNDLE_SEPARATELY_CENTS,
-  CARD_BULK,
   DEPOSIT,
   PRICE_CENTS,
   SPECIAL_CARE_MONTHS,
@@ -139,7 +138,7 @@ export function faqGroups({ bnpl }: { bnpl: boolean }): FaqGroup[] {
       faqs: [
         {
           q: "How do the Business Cards work?",
-          a: `Each card has a chip inside. A customer taps it with their phone and it opens your review page, menu, socials, WiFi, or booking link. They're ${p("nfc-cards")} each, or ${usd(CARD_BULK.unitCents)} each when you order ${CARD_BULK.minQty} or more, and you can mix and match designs.`,
+          a: `Each card has a chip inside. A customer taps it with their phone and it opens your review page, menu, socials, WiFi, or booking link. They're ${p("nfc-cards")} each, setup included, and you can mix and match designs.`,
         },
         {
           q: "When do the cards arrive?",
