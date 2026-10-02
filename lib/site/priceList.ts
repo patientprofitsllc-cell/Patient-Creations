@@ -2,7 +2,7 @@
 // this list, so a visitor finds any product and its price in one place. Prices are never written here: they come from
 // the product rows (or the price list as a fallback). Pure data: safe in the browser, the server, and tests.
 import { AD_PLANS } from "@/lib/ads/plans";
-import { BUNDLE_PARTS, SPECIAL_CARE_MONTHS, type PricedSlug } from "@/lib/pricing/catalog";
+import { BUNDLE_PARTS, CARD_BULK, SPECIAL_CARE_MONTHS, usd, type PricedSlug } from "@/lib/pricing/catalog";
 
 export interface PriceListItem {
   slug: PricedSlug;
@@ -65,7 +65,7 @@ export const PRICE_LIST: readonly PriceListGroup[] = [
     id: "business-cards",
     title: "Business Cards",
     blurb: "Tap-to-share smart cards. One tap opens your reviews, menu, socials, or booking link.",
-    items: [{ slug: "nfc-cards", name: "Business Cards", line: "Pick your designs and mix and match. Setup included. Shipping is extra.", unit: "each" }],
+    items: [{ slug: "nfc-cards", name: "Business Cards", line: `Pick your designs and mix and match. ${usd(CARD_BULK.unitCents)} each when you order ${CARD_BULK.minQty} or more. Shipping is extra.`, unit: "each" }],
   },
   {
     id: "automation",

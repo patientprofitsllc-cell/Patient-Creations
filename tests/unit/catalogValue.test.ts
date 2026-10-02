@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { PRODUCT_SCOPES, SCOPED_SLUGS, scopeFor } from "@/lib/site/productScopes";
-import { PRICE_CENTS, tierPriceCents } from "@/lib/pricing/catalog";
+import { CARD_BULK, CARD_SETUP_FEE_CENTS, PRICE_CENTS, tierPriceCents } from "@/lib/pricing/catalog";
 import { PRICE_LIST_SLUGS } from "@/lib/site/priceList";
 import { includedCardCount } from "@/lib/payments/nfcAddon";
 import { parseTurnaroundMaxDays } from "@/lib/payments/deliverySpeed";
@@ -74,12 +74,13 @@ describe("catalog prices", () => {
     expect(tierPriceCents("saas", "Flagship", PRICE_CENTS.saas)).toBe(2500000);
   });
 
-  it("NFC cards are a flat $30 with no setup fee, on every card product and the add-on", () => {
+  it("NFC cards are $30, or $20 each from 10 (the difference is a setup fee bulk orders skip), on every card product and the add-on", () => {
     for (const slug of ["nfc-cards", "nfc-wifi", "nfc-custom-menu", "nfc-youtube", "nfc-whatsapp", "nfc-instagram", "nfc-tiktok", "nfc-google-review"]) {
       const b = productBlock(slug);
       expect(b, slug).toContain('PRICE_CENTS["' + slug + '"]');
       expect(PRICE_CENTS[slug as keyof typeof PRICE_CENTS], slug).toBe(3000);
-      expect(b, slug).toContain("setupFeeCents: 0");
+      expect(b, slug).toContain("setupFeeCents: CARD_SETUP_FEE_CENTS");
+      expect(PRICE_CENTS[slug as keyof typeof PRICE_CENTS] - CARD_SETUP_FEE_CENTS, slug).toBe(CARD_BULK.unitCents);
     }
     expect(productBlock("nfc-card-addon")).toContain('PRICE_CENTS["nfc-card-addon"]');
     expect(PRICE_CENTS["nfc-card-addon"]).toBe(3000);
@@ -89,10 +90,10 @@ describe("catalog prices", () => {
     const cents = (slug: string) => PRICE_CENTS[slug as keyof typeof PRICE_CENTS];
     const cin = cents("cinematic-ad-special");
     const ugc = cents("ugc-ad-special");
-    expect([cin, ugc]).toEqual([44900, 19900]);
+    expect([cin, ugc]).toEqual([29900, 12900]);
     const separately = cents("website-special") + 4 * cin + 4 * ugc + 5 * cents("nfc-cards");
     const bundle = cents("all-in-one-bundle");
-    expect(bundle).toBe(300_000);
+    expect(bundle).toBe(249_900);
     expect(bundle).toBeLessThan(separately);
     expect((separately - bundle) / separately).toBeGreaterThanOrEqual(0.15);
   });
@@ -124,10 +125,10 @@ describe("delivery times", () => {
 });
 
 describe("Basic Package", () => {
-  it("stays at $1,000 and promises 3 videos and 5 NFC cards, matching what checkout and the card questionnaire use", () => {
+  it("is priced from the list and promises 3 videos and 5 NFC cards, matching what checkout and the card questionnaire use", () => {
     const b = productBlock("basic-package");
     expect(productBlock("basic-package")).toContain('PRICE_CENTS["basic-package"]');
-    expect(PRICE_CENTS["basic-package"]).toBe(100000);
+    expect(PRICE_CENTS["basic-package"]).toBe(64_900);
     const scope = PRODUCT_SCOPES["basic-package"];
     expect(scope.summary).toMatch(/Three drone-style videos/);
     expect(scope.summary).toMatch(/5 Business Cards/);
@@ -163,7 +164,7 @@ describe("market comparison", () => {
       { slug: "saas", name: "AI Software / App", priceCents: 1000000 },
       { slug: "site", name: "Cinematic AI Website", priceCents: 200000 },
     ]);
-    expect(rows[0].slug).toBe("ad"); // no live row, so it fell back to its stored price
+    expect(rows[0].slug).toBe("rental-listing-film"); // no live row, so it fell back to its stored price
     const saas = rows.find((r) => r.slug === "saas")!;
     expect(saas.youCents).toBe(1000000);
     expect(saas.standing.position).toBe("below");

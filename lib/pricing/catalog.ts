@@ -21,12 +21,12 @@ export const PRICE_CENTS = {
   "website-special": 125_000, // includes 3 months of Website Care
   "site": 200_000,
   // Get attention
-  "ugc-ad-special": 19_900,
-  "cinematic-ad-special": 44_900,
+  "ugc-ad-special": 12_900,
+  "cinematic-ad-special": 29_900,
   "ad": 50_000,
-  "rental-listing-film": 50_000,
-  "basic-package": 100_000,
-  "all-in-one-bundle": 300_000,
+  "rental-listing-film": 29_900,
+  "basic-package": 64_900,
+  "all-in-one-bundle": 249_900,
   // Get customers
   "lead-engine": 170_000,
   "payments-setup": 90_000,
@@ -48,6 +48,13 @@ export const PRICE_CENTS = {
   "ads-monthly-500": 50_000,
   "ads-monthly-1000": 100_000,
 } as const;
+
+/**
+ * Business Cards: list price each, and the price each when this many or more are ordered. The difference is charged as a
+ * per-card setup fee that bulk orders don't pay (see BULK_SETUP_WAIVER_MIN_QTY), which is how checkout already prices it.
+ */
+export const CARD_BULK = { minQty: 10, unitCents: 2_000 } as const;
+export const CARD_SETUP_FEE_CENTS: number = PRICE_CENTS["nfc-cards"] - CARD_BULK.unitCents;
 
 /** Months of Website Care included in the Website Special's price. */
 export const SPECIAL_CARE_MONTHS = 3;

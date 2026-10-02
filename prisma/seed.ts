@@ -3,12 +3,15 @@ import bcrypt from "bcryptjs";
 import { AD_PLANS, planDescription } from "../lib/ads/plans";
 import { BUNDLE_DESCRIPTION, CINEMATIC_SPECIAL_DESCRIPTION, UGC_SPECIAL_DESCRIPTION } from "../lib/site/adSpecials";
 import { PRODUCT_SCOPES } from "../lib/site/productScopes";
-import { PRICE_CENTS, tierPriceCents, usd } from "../lib/pricing/catalog";
+import { CARD_BULK, CARD_SETUP_FEE_CENTS, PRICE_CENTS, tierPriceCents, usd } from "../lib/pricing/catalog";
 
 const db = new PrismaClient();
 
 // The client type, so syncCatalog can run on any connection (the seed's, or the deploy step's).
 type Db = PrismaClient;
+
+// Said on every Business Card product, so the bulk price is never a surprise at checkout.
+const CARD_BULK_LINE = `Order ${CARD_BULK.minQty} or more and every card is ${usd(CARD_BULK.unitCents)}.`;
 
 // Every price comes from lib/pricing/catalog.ts, the one price list. A tiered product has a base (Core) price
 // with Signature and Flagship tiers, worked out (or set by hand) in that file too.
@@ -154,9 +157,9 @@ const SERVICES: ServiceDef[] = [
     slug: "nfc-cards",
     name: "Business Cards — Mix & Match",
     category: "Merch",
-    description: "Tap-to-share smart cards. A phone tap opens your contact info, socials, or booking link. Choose how many of each design you want. Setup is included.",
+    description: `Tap-to-share smart cards. A phone tap opens your contact info, socials, or booking link. Choose how many of each design you want. ${CARD_BULK_LINE}`,
     baseCents: PRICE_CENTS["nfc-cards"],
-    setupFeeCents: 0,
+    setupFeeCents: CARD_SETUP_FEE_CENTS,
     tierable: false,
     revisionLimit: 0,
     turnaround: "5-7 business days",
@@ -166,9 +169,9 @@ const SERVICES: ServiceDef[] = [
     slug: "nfc-wifi",
     name: "Business Card WiFi Growth System",
     category: "Merch",
-    description: "Save the confusion of the password and simply scan and go. Setup is included.",
+    description: `Save the confusion of the password and simply scan and go. ${CARD_BULK_LINE}`,
     baseCents: PRICE_CENTS["nfc-wifi"],
-    setupFeeCents: 0,
+    setupFeeCents: CARD_SETUP_FEE_CENTS,
     tierable: false,
     revisionLimit: 0,
     turnaround: "5-7 business days",
@@ -178,9 +181,9 @@ const SERVICES: ServiceDef[] = [
     slug: "nfc-custom-menu",
     name: "Business Card Custom Menu Growth System",
     category: "Merch",
-    description: "Save paper, copies, and time with your new scan and go menu. Setup is included.",
+    description: `Save paper, copies, and time with your new scan and go menu. ${CARD_BULK_LINE}`,
     baseCents: PRICE_CENTS["nfc-custom-menu"],
-    setupFeeCents: 0,
+    setupFeeCents: CARD_SETUP_FEE_CENTS,
     tierable: false,
     revisionLimit: 0,
     turnaround: "5-7 business days",
@@ -190,9 +193,9 @@ const SERVICES: ServiceDef[] = [
     slug: "nfc-youtube",
     name: "Business Card YouTube Growth System",
     category: "Merch",
-    description: "Turn every happy customer into a subscriber with one tap. Setup is included.",
+    description: `Turn every happy customer into a subscriber with one tap. ${CARD_BULK_LINE}`,
     baseCents: PRICE_CENTS["nfc-youtube"],
-    setupFeeCents: 0,
+    setupFeeCents: CARD_SETUP_FEE_CENTS,
     tierable: false,
     revisionLimit: 0,
     turnaround: "5-7 business days",
@@ -202,9 +205,9 @@ const SERVICES: ServiceDef[] = [
     slug: "nfc-whatsapp",
     name: "Business Card WhatsApp Growth System",
     category: "Merch",
-    description: "Turn small talk into a conversation. Setup is included.",
+    description: `Turn small talk into a conversation. ${CARD_BULK_LINE}`,
     baseCents: PRICE_CENTS["nfc-whatsapp"],
-    setupFeeCents: 0,
+    setupFeeCents: CARD_SETUP_FEE_CENTS,
     tierable: false,
     revisionLimit: 0,
     turnaround: "5-7 business days",
@@ -214,9 +217,9 @@ const SERVICES: ServiceDef[] = [
     slug: "nfc-instagram",
     name: "Business Card Instagram Growth System",
     category: "Merch",
-    description: "Turn every happy customer into a potential follower with one tap. Setup is included.",
+    description: `Turn every happy customer into a potential follower with one tap. ${CARD_BULK_LINE}`,
     baseCents: PRICE_CENTS["nfc-instagram"],
-    setupFeeCents: 0,
+    setupFeeCents: CARD_SETUP_FEE_CENTS,
     tierable: false,
     revisionLimit: 0,
     turnaround: "5-7 business days",
@@ -226,9 +229,9 @@ const SERVICES: ServiceDef[] = [
     slug: "nfc-tiktok",
     name: "Business Card TikTok Growth System",
     category: "Merch",
-    description: "Turn every happy customer into a potential follower with one tap. Setup is included.",
+    description: `Turn every happy customer into a potential follower with one tap. ${CARD_BULK_LINE}`,
     baseCents: PRICE_CENTS["nfc-tiktok"],
-    setupFeeCents: 0,
+    setupFeeCents: CARD_SETUP_FEE_CENTS,
     tierable: false,
     revisionLimit: 0,
     turnaround: "5-7 business days",
@@ -238,9 +241,9 @@ const SERVICES: ServiceDef[] = [
     slug: "nfc-google-review",
     name: "Business Card Google Review Growth System",
     category: "Merch",
-    description: "Turn every happy customer into a potential Google review with one tap. Setup is included.",
+    description: `Turn every happy customer into a potential Google review with one tap. ${CARD_BULK_LINE}`,
     baseCents: PRICE_CENTS["nfc-google-review"],
-    setupFeeCents: 0,
+    setupFeeCents: CARD_SETUP_FEE_CENTS,
     tierable: false,
     revisionLimit: 0,
     turnaround: "5-7 business days",
@@ -334,7 +337,7 @@ const ADD_ONS: {
     name: "Business Card — Your Choice",
     category: "Add-on",
     type: "ORDER_BUMP",
-    description: `Add Business Cards in the designs of your choice (Google Review, YouTube, Menu, WiFi, and more), ${usd(PRICE_CENTS["nfc-card-addon"])} each. Tell us which designs right after checkout.`,
+    description: `Add Business Cards in the designs of your choice (Google Review, YouTube, Menu, WiFi, and more), ${usd(PRICE_CENTS["nfc-card-addon"])} each, or ${usd(CARD_BULK.unitCents)} each when you add ${CARD_BULK.minQty} or more. Tell us which designs right after checkout.`,
     priceCents: PRICE_CENTS["nfc-card-addon"],
     revisionLimit: 0,
     sortOrder: 5,
