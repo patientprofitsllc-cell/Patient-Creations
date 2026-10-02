@@ -3,9 +3,12 @@ import bcrypt from "bcryptjs";
 import { AD_PLANS, planDescription } from "../lib/ads/plans";
 import { BUNDLE_DESCRIPTION, CINEMATIC_SPECIAL_DESCRIPTION, UGC_SPECIAL_DESCRIPTION } from "../lib/site/adSpecials";
 import { PRODUCT_SCOPES } from "../lib/site/productScopes";
-import { PRICE_CENTS, tierPriceCents } from "../lib/pricing/catalog";
+import { PRICE_CENTS, tierPriceCents, usd } from "../lib/pricing/catalog";
 
 const db = new PrismaClient();
+
+// The client type, so syncCatalog can run on any connection (the seed's, or the deploy step's).
+type Db = PrismaClient;
 
 // Every price comes from lib/pricing/catalog.ts, the one price list. A tiered product has a base (Core) price
 // with Signature and Flagship tiers, worked out (or set by hand) in that file too.
@@ -331,7 +334,7 @@ const ADD_ONS: {
     name: "Business Card — Your Choice",
     category: "Add-on",
     type: "ORDER_BUMP",
-    description: "Add Business Cards in the designs of your choice (Google Review, YouTube, Menu, WiFi, and more), $30 each. Tell us which designs right after checkout.",
+    description: `Add Business Cards in the designs of your choice (Google Review, YouTube, Menu, WiFi, and more), ${usd(PRICE_CENTS["nfc-card-addon"])} each. Tell us which designs right after checkout.`,
     priceCents: PRICE_CENTS["nfc-card-addon"],
     revisionLimit: 0,
     sortOrder: 5,
@@ -400,7 +403,12 @@ const LEGACY_SLUGS = [
   "starter-website", // the $300 Quick Business Website, replaced by the Website Special
 ];
 
-async function main() {
+/**
+ * Makes the product and add-on rows match the code: prices, tiers, names, descriptions, and what is on sale. Touches
+ * nothing else (no users, orders, or inventory), so it is safe to run on the live database on every deploy
+ * (scripts/sync-catalog.ts), as well as from the full seed below.
+ */
+export async function syncCatalog(db: Db) {
   await db.product.updateMany({ where: { slug: { in: LEGACY_SLUGS } }, data: { active: false } });
 
   for (const s of SERVICES) {
@@ -449,8 +457,12 @@ async function main() {
   }
 
   for (const a of ADD_ONS) {
-    await db.product.upsert({ where: { slug: a.slug }, update: a, create: a });
+    await db.product.upsert({ where: { slug: a.slug }, update: { ...a, active: true }, create: a });
   }
+}
+
+async function main() {
+  await syncCatalog(db);
 
   for (const i of INVENTORY) {
     await db.inventoryItem.upsert({
@@ -475,11 +487,14 @@ async function main() {
   console.log(`Seeded ${SERVICES.length} services and ${ADD_ONS.length} add-ons.`);
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await db.$disconnect();
-  });
+// Run the full seed only when this file is run directly (npm run db:seed), not when the deploy step imports syncCatalog.
+if (/seed\.ts$/.test(process.argv[1] ?? "")) {
+  main()
+    .catch((e) => {
+      console.error(e);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await db.$disconnect();
+    });
+}
