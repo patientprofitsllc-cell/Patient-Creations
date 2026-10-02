@@ -13,6 +13,7 @@ import { AUDIT_FEE_CENTS, usd } from "@/lib/pricing/catalog";
 import { LOGO_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/config/site";
 import { bnplEnabled } from "@/lib/payments/bnpl";
 import { topFaqs } from "@/lib/site/faq";
+import { getLivePrices } from "@/lib/site/livePrices";
 import { OFFER_CHECKOUT_HREF } from "@/lib/site/offer";
 import { FALLBACK_OFFER_PRICE_CENTS, getOfferProduct } from "@/lib/site/offerData";
 
@@ -24,7 +25,7 @@ export const revalidate = 60;
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function HomePage() {
-  const offer = await getOfferProduct();
+  const [offer, prices] = await Promise.all([getOfferProduct(), getLivePrices()]);
   const offerCents = offer?.priceCents ?? FALLBACK_OFFER_PRICE_CENTS;
   const price = money(offerCents);
 
@@ -112,7 +113,7 @@ export default async function HomePage() {
 
         {/* 4. The questions most people ask, with the rest one tap away. */}
         <div className="defer-offscreen">
-          <FaqSection faqs={topFaqs({ bnpl: bnplEnabled() })} />
+          <FaqSection faqs={topFaqs({ bnpl: bnplEnabled(), prices })} />
           <p className="-mt-12 pb-8 text-center text-sm">
             <Link href="/faq" className="text-gold underline">
               See every question and answer

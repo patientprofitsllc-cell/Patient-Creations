@@ -52,4 +52,15 @@ describe("the FAQ", () => {
     expect(top.length).toBe(7);
     for (const f of top) expect(all(false)).toContainEqual(f);
   });
+
+  it("quotes the live prices when it has them, so its answers match the price list and checkout", () => {
+    const live = faqGroups({ bnpl: false, prices: { "all-in-one-bundle": 259_900, "website-special": 135_000 } }).flatMap((g) => g.faqs);
+    const bundle = live.find((f) => f.q.startsWith("What's in the All-in-One"))!;
+    expect(bundle.a).toContain("$2,599");
+    expect(bundle.a).not.toContain(usd(PRICE_CENTS["all-in-one-bundle"]));
+    // The saving is worked out from the same live prices.
+    expect(bundle.a).toContain(usd(BUNDLE_SEPARATELY_CENTS - PRICE_CENTS["website-special"] + 135_000 - 259_900));
+    expect(live.find((f) => f.q.startsWith("What's included in the"))!.q).toContain("$1,350");
+    expect(topFaqs({ bnpl: false, prices: { "all-in-one-bundle": 259_900 } }).some((f) => f.a.includes("$2,599"))).toBe(true);
+  });
 });

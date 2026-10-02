@@ -9,11 +9,12 @@ import {
   AUDIT_FEE_CENTS,
   BNPL,
   BUNDLE_PARTS,
-  BUNDLE_SEPARATELY_CENTS,
   DEPOSIT,
   PRICE_CENTS,
+  bundleSeparatelyCents,
   SPECIAL_CARE_MONTHS,
   usd,
+  type PricedSlug,
 } from "@/lib/pricing/catalog";
 import { OFFER_INCLUDES } from "@/lib/site/offer";
 
@@ -29,14 +30,31 @@ export interface FaqGroup {
   faqs: Faq[];
 }
 
-const p = (slug: keyof typeof PRICE_CENTS) => usd(PRICE_CENTS[slug]);
 const lower = (items: string[]) => items.map((s) => s.charAt(0).toLowerCase() + s.slice(1)).join(", ");
 const starter = AD_PLANS[0];
 const scale = AD_PLANS[AD_PLANS.length - 1];
 
-/** Every question and answer, by topic. `bnpl` is whether pay-later is switched on at checkout. */
-export function faqGroups({ bnpl }: { bnpl: boolean }): FaqGroup[] {
-  const bundleSaving = BUNDLE_SEPARATELY_CENTS - PRICE_CENTS["all-in-one-bundle"];
+/** Live prices by product slug (the product rows checkout charges). Anything missing falls back to the price list. */
+export type LivePrices = Partial<Record<PricedSlug, number>>;
+
+export interface FaqOptions {
+  /** Whether pay-later is switched on at checkout. */
+  bnpl: boolean;
+  /** The live product prices, so the answers quote what the price list and checkout show. */
+  prices?: LivePrices;
+}
+
+/** Every question and answer, by topic. */
+export function faqGroups({ bnpl, prices = {} }: FaqOptions): FaqGroup[] {
+  const cents = (slug: PricedSlug) => prices[slug] ?? PRICE_CENTS[slug];
+  const p = (slug: PricedSlug) => usd(cents(slug));
+  const separately = bundleSeparatelyCents({
+    website: cents("website-special"),
+    cinematicAd: cents("cinematic-ad-special"),
+    ugcAd: cents("ugc-ad-special"),
+    card: cents("nfc-cards"),
+  });
+  const bundleSaving = separately - cents("all-in-one-bundle");
   return [
     {
       id: "start",
@@ -128,7 +146,7 @@ export function faqGroups({ bnpl }: { bnpl: boolean }): FaqGroup[] {
       faqs: [
         {
           q: "What's in the All-in-One Launch Bundle?",
-          a: `A Website Special with ${SPECIAL_CARE_MONTHS} months of maintenance, ${BUNDLE_PARTS.cinematicAds} Cinematic Ads, ${BUNDLE_PARTS.ugcAds} UGC Ads, and ${BUNDLE_PARTS.cards} Business Cards of your choice, for ${p("all-in-one-bundle")}.${bundleSaving > 0 ? ` Bought one by one, the same things cost ${usd(BUNDLE_SEPARATELY_CENTS)}, so you save ${usd(bundleSaving)}.` : ""}`,
+          a: `A Website Special with ${SPECIAL_CARE_MONTHS} months of maintenance, ${BUNDLE_PARTS.cinematicAds} Cinematic Ads, ${BUNDLE_PARTS.ugcAds} UGC Ads, and ${BUNDLE_PARTS.cards} Business Cards of your choice, for ${p("all-in-one-bundle")}.${bundleSaving > 0 ? ` Bought one by one, the same things cost ${usd(separately)}, so you save ${usd(bundleSaving)}.` : ""}`,
         },
       ],
     },
@@ -168,7 +186,7 @@ export function faqGroups({ bnpl }: { bnpl: boolean }): FaqGroup[] {
 }
 
 /** The few questions most people ask, for the homepage. */
-export function topFaqs(opts: { bnpl: boolean }): Faq[] {
+export function topFaqs(opts: FaqOptions): Faq[] {
   const all = faqGroups(opts).flatMap((g) => g.faqs);
   const pick = (start: string) => all.find((f) => f.q.startsWith(start));
   return [

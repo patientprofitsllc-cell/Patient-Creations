@@ -10,6 +10,7 @@ import { db } from "@/lib/db";
 import { bnplEnabled } from "@/lib/payments/bnpl";
 import { ADD_ON_PITCH } from "@/lib/site/addOnPitch";
 import { topFaqs } from "@/lib/site/faq";
+import { getLivePrices } from "@/lib/site/livePrices";
 import { FALLBACK_OFFER_PRICE_CENTS, getOfferProduct } from "@/lib/site/offerData";
 
 export const revalidate = 60;
@@ -25,7 +26,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PricingPage() {
-  const addOns = await db.product.findMany({ where: { type: "ORDER_BUMP", active: true }, orderBy: { priceCents: "asc" } });
+  const [addOns, prices] = await Promise.all([
+    db.product.findMany({ where: { type: "ORDER_BUMP", active: true }, orderBy: { priceCents: "asc" } }),
+    getLivePrices(),
+  ]);
 
   return (
     <>
@@ -60,7 +64,7 @@ export default async function PricingPage() {
           </section>
         )}
 
-        <FaqSection faqs={topFaqs({ bnpl: bnplEnabled() })} />
+        <FaqSection faqs={topFaqs({ bnpl: bnplEnabled(), prices })} />
         <p className="-mt-12 pb-24 text-center text-sm">
           <Link href="/faq" className="text-gold underline">
             See every question and answer
