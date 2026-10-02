@@ -4,6 +4,7 @@ import { join } from "path";
 import { renderTemplate } from "@/lib/email/templates";
 import { CALENDLY_URL, kickoffUrlFor, needsKickoff } from "@/lib/config/calendly";
 import { ONBOARDING_KIT_URL } from "@/lib/config/onboarding";
+import { BNPL, BUNDLE_SEPARATELY_CENTS, DEPOSIT, PRICE_CENTS, usd } from "@/lib/pricing/catalog";
 
 describe("post-purchase welcome kit", () => {
   it("sends the kit link with every purchase confirmation", () => {
@@ -43,5 +44,26 @@ describe("post-purchase welcome kit", () => {
     expect(agreement).toMatch(/the Terms control/);
     // Only the Website Special and the bundle include care months.
     expect(kit).not.toMatch(/3 months on website plans/);
+  });
+
+  it("only shows prices that match the price list, so a price change can't leave the kit out of date", () => {
+    // The kit is a static page, so the deploy-time catalog sync can't update it. This test fails instead,
+    // naming the stale amount, until public/welcome-kit/index.html is edited to match.
+    const kit = readFileSync(join(process.cwd(), "public/welcome-kit/index.html"), "utf8");
+    const current: Record<string, string> = {
+      [usd(0)]: "sample invoice placeholder",
+      [usd(PRICE_CENTS["website-special"])]: "Website Special",
+      [usd(PRICE_CENTS["all-in-one-bundle"])]: "All-in-One bundle",
+      [usd(BUNDLE_SEPARATELY_CENTS)]: "bundle bought separately",
+      [usd(BUNDLE_SEPARATELY_CENTS - PRICE_CENTS["all-in-one-bundle"])]: "bundle saving",
+      [usd(PRICE_CENTS["care-plan"])]: "Website Care Plan",
+      [usd(DEPOSIT.overCents)]: "deposit minimum",
+      [usd(BNPL.minCents)]: "pay-later minimum",
+      [usd(PRICE_CENTS["strategy-session"])]: "Strategy Session",
+    };
+    const shown = [...new Set(kit.match(/\$[0-9][0-9,]*(\.[0-9]{2})?/g) ?? [])];
+    for (const amount of shown) expect(current, `${amount} in the welcome kit is not a current price`).toHaveProperty([amount]);
+    // And the headline prices are really there.
+    for (const amount of [usd(PRICE_CENTS["website-special"]), usd(PRICE_CENTS["all-in-one-bundle"]), usd(PRICE_CENTS["care-plan"])]) expect(shown).toContain(amount);
   });
 });
