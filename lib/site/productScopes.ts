@@ -129,13 +129,38 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
     ],
     tierAdds: {
       Signature: ["Up to 2 landing pages", "Up to 5 follow up emails", "A booking calendar link"],
-      Flagship: ["Up to 3 landing pages", "Up to 8 follow up emails", "A booking calendar link"],
+      Flagship: [
+        "Up to 3 landing pages",
+        "Up to 8 follow up emails",
+        "Two versions of your main page's headline, so you can see which brings in more leads",
+        "A walkthrough call when we hand it over",
+      ],
     },
   },
   "automation-add-on": {
     summary: "Connect your build to lead routing and email automation.",
     includes: ["Up to 2 automations (for example a new lead alert plus a welcome email)", "Testing and a short written guide", "1 revision round"],
     notIncluded: ["Ongoing monitoring", "Subscriptions for the tools involved", "More than 2 automations (quoted separately)"],
+  },
+  ad: {
+    summary: "A made-to-brief cinematic video ad, longer and more involved than the per-ad specials.",
+    includes: [
+      "1 cinematic ad, up to 60 seconds, made to your brief",
+      "Delivered wide, vertical, and square",
+      "A caption and headline options written for you",
+      "Made with AI from the photos, footage, and details you send",
+      "2 revision rounds",
+    ],
+    notIncluded: ["Filming on location", "Music rights or licensed music", "Running the ad or ad spend", "Any promise of sales or results"],
+    tierAdds: {
+      Signature: ["2 short 15-second cuts for Reels, TikTok, and Stories", "3 opening-hook variations to test"],
+      Flagship: [
+        "2 short 15-second cuts for Reels, TikTok, and Stories",
+        "3 opening-hook variations to test",
+        "A second full ad on a different angle",
+        "A short planning call before we start",
+      ],
+    },
   },
   "rental-listing-film": {
     summary: "A cinematic video tour of your rental, made with AI from your listing photos.",
@@ -146,6 +171,14 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
       "1 revision round",
     ],
     notIncluded: ["Filming on location or real drone footage", "Music rights or licensed music", "Any promise of bookings"],
+    tierAdds: {
+      Signature: ["A longer video, up to 90 seconds", "A short 15-second cut for Reels, TikTok, and Stories"],
+      Flagship: [
+        "A longer video, up to 90 seconds",
+        "A short 15-second cut for Reels, TikTok, and Stories",
+        "A second video: another property, or the neighborhood around this one",
+      ],
+    },
   },
   "basic-package": {
     summary: "Three drone-style videos of your building and storefront, made with AI from your photos, plus 5 Business Cards.",

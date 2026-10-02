@@ -65,7 +65,7 @@ const SERVICES: ServiceDef[] = [
     slug: "ad",
     name: "Cinematic Ad",
     category: "Video",
-    description: "A short, scroll-stopping video ad made for social media.",
+    description: PRODUCT_SCOPES.ad.summary,
     baseCents: PRICE_CENTS["ad"],
     tierable: true,
     revisionLimit: 2,

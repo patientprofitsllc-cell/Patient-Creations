@@ -55,9 +55,9 @@ export const PRICE_LIST: readonly PriceListGroup[] = [
     items: [
       { slug: "ugc-ad-special", name: "UGC Ad", line: "A creator-style ad with an AI presenter, up to 30 seconds, with 3 opening hooks to test.", unit: "per ad" },
       { slug: "cinematic-ad-special", name: "Cinematic Ad", line: "A polished, film-style ad, up to 30 seconds, wide and vertical.", unit: "per ad" },
-      { slug: "rental-listing-film", name: "Rental Listing Film", line: "A cinematic video tour of your rental, made from your listing photos." },
+      { slug: "rental-listing-film", name: "Rental Listing Film", line: "A cinematic video tour of your rental, made from your listing photos. Bigger tiers add a longer cut and a second video." },
       { slug: "basic-package", name: "Basic Package", line: "Three drone-style videos of your building and storefront, plus 5 Business Cards." },
-      { slug: "ad", name: "Cinematic Ad, custom", line: "A longer, made-to-brief cinematic ad with 2 revision rounds, for when a single ad needs more." },
+      { slug: "ad", name: "Cinematic Ad, custom", line: "Up to 60 seconds, made to your brief, in 3 formats. Bigger tiers add short cuts, hooks, and a second ad." },
     ],
     tip: "Want more than a couple of ads? Monthly Ads works out much cheaper per ad.",
   },
