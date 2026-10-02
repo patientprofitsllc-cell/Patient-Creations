@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { renderTemplate } from "@/lib/email/templates";
 import { CALENDLY_URL, kickoffUrlFor, needsKickoff } from "@/lib/config/calendly";
 import { ONBOARDING_KIT_URL } from "@/lib/config/onboarding";
 import { BNPL, BUNDLE_SEPARATELY_CENTS, DEPOSIT, PRICE_CENTS, usd } from "@/lib/pricing/catalog";
+import { CONTACT_EMAIL, CONTACT_PHONE_DISPLAY } from "@/lib/config/site";
+import KIT from "@/lib/site/welcomeKit/kit.html?raw";
+import { kitValues, renderKit, type KitRow } from "@/lib/site/welcomeKit/render";
 
 describe("post-purchase welcome kit", () => {
   it("sends the kit link with every purchase confirmation", () => {
@@ -31,7 +34,7 @@ describe("post-purchase welcome kit", () => {
   });
 
   it("keeps the kit's agreement page in line with the Terms of Service", () => {
-    const kit = readFileSync(join(process.cwd(), "public/welcome-kit/index.html"), "utf8");
+    const kit = renderKit(KIT, kitValues([]));
     const agreement = kit.slice(kit.indexOf('aria-label="3. Contract and Scope"'), kit.indexOf('aria-label="4. Onboarding Form"'));
     // Disputes go to arbitration (Terms 26 and 27), not straight to a county court.
     expect(agreement).toMatch(/binding individual arbitration/);
@@ -43,27 +46,52 @@ describe("post-purchase welcome kit", () => {
     expect(agreement).not.toMatch(/7 days&#39; written notice|7 days' written notice/);
     expect(agreement).toMatch(/the Terms control/);
     // Only the Website Special and the bundle include care months.
-    expect(kit).not.toMatch(/3 months on website plans/);
+    expect(kit).not.toMatch(/months on website plans/);
+  });
+});
+
+describe("the welcome kit shows the same prices and terms as the site", () => {
+  it("has no price, contact detail, or policy number typed into its template, only placeholders", () => {
+    // $0 is the sample invoice's blank line, not a price.
+    expect((KIT.match(/\$[0-9][0-9,]*/g) ?? []).filter((a) => a !== "$0")).toEqual([]);
+    expect(KIT).not.toContain(CONTACT_EMAIL);
+    expect(KIT).not.toContain(CONTACT_PHONE_DISPLAY);
+    expect(KIT).not.toMatch(/\b\d+ to \d+ (weeks|business days)\b|\b72 hours\b/);
   });
 
-  it("only shows prices that match the price list, so a price change can't leave the kit out of date", () => {
-    // The kit is a static page, so the deploy-time catalog sync can't update it. This test fails instead,
-    // naming the stale amount, until public/welcome-kit/index.html is edited to match.
-    const kit = readFileSync(join(process.cwd(), "public/welcome-kit/index.html"), "utf8");
-    const current: Record<string, string> = {
-      [usd(0)]: "sample invoice placeholder",
-      [usd(PRICE_CENTS["website-special"])]: "Website Special",
-      [usd(PRICE_CENTS["all-in-one-bundle"])]: "All-in-One bundle",
-      [usd(BUNDLE_SEPARATELY_CENTS)]: "bundle bought separately",
-      [usd(BUNDLE_SEPARATELY_CENTS - PRICE_CENTS["all-in-one-bundle"])]: "bundle saving",
-      [usd(PRICE_CENTS["care-plan"])]: "Website Care Plan",
-      [usd(DEPOSIT.overCents)]: "deposit minimum",
-      [usd(BNPL.minCents)]: "pay-later minimum",
-      [usd(PRICE_CENTS["strategy-session"])]: "Strategy Session",
-    };
-    const shown = [...new Set(kit.match(/\$[0-9][0-9,]*(\.[0-9]{2})?/g) ?? [])];
-    for (const amount of shown) expect(current, `${amount} in the welcome kit is not a current price`).toHaveProperty([amount]);
-    // And the headline prices are really there.
-    for (const amount of [usd(PRICE_CENTS["website-special"]), usd(PRICE_CENTS["all-in-one-bundle"]), usd(PRICE_CENTS["care-plan"])]) expect(shown).toContain(amount);
+  it("fills every placeholder from the price list when the database has no rows", () => {
+    const html = renderKit(KIT, kitValues([]));
+    expect(html).not.toMatch(/\{\{/);
+    for (const cents of [PRICE_CENTS["website-special"], PRICE_CENTS["all-in-one-bundle"], PRICE_CENTS["care-plan"], PRICE_CENTS["strategy-session"], BUNDLE_SEPARATELY_CENTS, BUNDLE_SEPARATELY_CENTS - PRICE_CENTS["all-in-one-bundle"], DEPOSIT.overCents, BNPL.minCents]) {
+      expect(html).toContain(usd(cents));
+    }
+    expect(html).toContain(CONTACT_EMAIL);
+    expect(html).toContain("Website Special 72 hours, Cinematic AI Website 2 to 3 weeks, single ads 5 to 7 business days.");
+  });
+
+  it("follows the live product rows, the same ones checkout charges", () => {
+    const rows: KitRow[] = [
+      { slug: "all-in-one-bundle", priceCents: 259_900, revisionLimit: 3, turnaround: "3-4 weeks" },
+      { slug: "website-special", priceCents: 135_000, revisionLimit: 2, turnaround: "96 hours" },
+    ];
+    const html = renderKit(KIT, kitValues(rows));
+    expect(html).toContain("$2,599");
+    expect(html).toContain("$1,350");
+    expect(html).not.toContain(usd(PRICE_CENTS["all-in-one-bundle"]));
+    expect(html).toContain("Revision rounds used: 0 of 3");
+    expect(html).toContain("Website Special 96 hours");
+    // The saving follows too: the parts at their prices, minus the bundle.
+    expect(html).toContain(usd(BUNDLE_SEPARATELY_CENTS - PRICE_CENTS["website-special"] + 135_000 - 259_900));
+  });
+
+  it("refuses to render a placeholder it has no value for", () => {
+    expect(() => renderKit("<p>{{noSuchThing}}</p>", kitValues([]))).toThrow(/noSuchThing/);
+  });
+
+  it("is served by the site, not as a static file that could go stale", () => {
+    expect(existsSync(join(process.cwd(), "public/welcome-kit/index.html"))).toBe(false);
+    expect(ONBOARDING_KIT_URL.endsWith("/welcome-kit")).toBe(true);
+    const route = readFileSync(join(process.cwd(), "app/welcome-kit/route.ts"), "utf8");
+    expect(route).toMatch(/revalidate = 60/);
   });
 });
