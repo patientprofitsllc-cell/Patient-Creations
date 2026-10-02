@@ -1,4 +1,6 @@
 import { db } from "@/lib/db";
+import { ONBOARDING_KIT_URL } from "@/lib/config/onboarding";
+import { kickoffUrlFor } from "@/lib/config/calendly";
 import { ProjectState } from "@/lib/types";
 import { logEvent } from "@/lib/analytics/events";
 import { transitionProject } from "@/lib/workflows/stateMachine";
@@ -102,6 +104,9 @@ export async function createProjectForOrder(orderId: string) {
     projectName: project.name,
     statusUrl: statusUrlFor(project.statusToken!),
     intakeUrl: intake && intake.status !== "COMPLETE" ? intakeUrlFor(intake.token) : undefined,
+    kitUrl: ONBOARDING_KIT_URL,
+    // Builds without a website intake (custom sites, software, agents, ads) start with a kickoff call. Cards ship, so no call.
+    kickoffUrl: !intake && primaryItem?.product.category !== "Merch" ? kickoffUrlFor(order.customer.user.name, order.customer.user.email) : undefined,
   });
 
   // Fire-and-continue: run the pipeline in-process. A slow first task

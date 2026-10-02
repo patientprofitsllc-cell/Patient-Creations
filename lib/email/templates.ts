@@ -40,6 +40,13 @@ function statusLine(p: Record<string, unknown>) {
   return p.statusUrl ? `\n\nTrack real-time progress any time: ${p.statusUrl}` : "";
 }
 
+// Sent with every purchase: the onboarding kit, and the kickoff booking link for builds that start with a call.
+function welcomeKitLines(p: Record<string, unknown>) {
+  const kit = p.kitUrl ? `\n\nYour welcome kit (how we work, your terms, what we need from you, and what happens at handover): ${p.kitUrl}` : "";
+  const call = p.kickoffUrl ? `\n\nBook your 30-minute kickoff call: ${p.kickoffUrl}` : "";
+  return kit + call;
+}
+
 /** The legal footer every follow-up carries: who we are, where we are, and how to stop these emails. */
 function footerOf(p: Record<string, unknown>): string {
   return p.footer ? `\n\n${String(p.footer)}` : "";
@@ -56,10 +63,10 @@ What happens next:
 2. We build your one-page website from your own words and facts. Our 72-hour target starts once we have your info.
 3. You get a private preview link to approve it or ask for a change.
 
-One thing that makes a real difference: specific answers. Your real services, your real prices, your hours, and the neighborhoods you serve are what help a local customer decide to call you.${statusLine(p)}`
+One thing that makes a real difference: specific answers. Your real services, your real prices, your hours, and the neighborhoods you serve are what help a local customer decide to call you.${welcomeKitLines(p)}${statusLine(p)}`
       : `Thank you for choosing Patient Creations. It means a lot that you trusted a small team with your project.
 
-"${p.projectName}" has entered production. Your private project page shows every step as it happens, and you can message us from it any time. The clearer your notes there (colors, examples you like, a line you want said), the fewer revisions you will need.${statusLine(p)}`,
+"${p.projectName}" has entered production. Your private project page shows every step as it happens, and you can message us from it any time. The clearer your notes there (colors, examples you like, a line you want said), the fewer revisions you will need.${welcomeKitLines(p)}${statusLine(p)}`,
   }),
   order_received: (p) => ({
     subject: "Thank you. We have your order.",
