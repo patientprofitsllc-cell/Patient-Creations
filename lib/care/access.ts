@@ -23,7 +23,11 @@ export async function guardCare(req: NextRequest, scope: string, perTokenPerMinu
 
   const project = await db.project.findUnique({
     where: { statusToken: token },
-    include: { customer: { include: { user: true } }, careSubscriptions: { orderBy: { createdAt: "desc" } } },
+    include: {
+      customer: { include: { user: true } },
+      careSubscriptions: { orderBy: { createdAt: "desc" } },
+      order: { select: { items: { select: { product: { select: { slug: true } } } } } },
+    },
   });
   if (!project) return { response: NextResponse.json({ error: "Not found" }, { status: 404, headers: NO_STORE }) };
 

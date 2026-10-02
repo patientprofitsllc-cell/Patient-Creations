@@ -73,7 +73,10 @@ describe("the customer ladder", () => {
     const byId = Object.fromEntries(all.map((o) => [o.id, o]));
     expect(byId["nfc-cards"].priceLabel).toBe(`${usd(PRICE_CENTS["nfc-card-addon"])} each`);
     expect(byId["launch-ad"].priceLabel).toBe(usd(PRICE_CENTS["ugc-ad-special"]));
-    expect(byId["care-plan"].priceLabel).toBe(`${usd(PRICE_CENTS["care-plan"])} a month`);
+    // A Website Special includes 3 months of care, so its care offer says so before the monthly price.
+    expect(byId["care-plan"].priceLabel).toBe(`3 months included, then ${usd(PRICE_CENTS["care-plan"])} a month`);
+    const plain = nextOffers({ justBought: ["site"], owned: [], statusPath: "/status/x" }).find((o) => o.id === "care-plan")!;
+    expect(plain.priceLabel).toBe(`${usd(PRICE_CENTS["care-plan"])} a month`);
     expect(byId["lead-engine"].priceLabel).toBe(`from ${usd(PRICE_CENTS["lead-engine"])}`);
     expect(byId["monthly-ads"].priceLabel).toBe(`from ${usd(PRICE_CENTS["ads-monthly-300"])} a month`);
     for (const o of all) {

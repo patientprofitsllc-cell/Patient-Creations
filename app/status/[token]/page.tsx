@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CarePlanCard } from "@/components/care/CarePlanCard";
+import { careDate, includedCareEnds, includedCareMonths } from "@/lib/care/included";
 import { money } from "@/components/home/specialFrame";
 import { CARE_PLAN_INCLUDES, CARE_PLAN_NOT_INCLUDED, CARE_PLAN_TIMING_NOTE, getCarePlanProduct } from "@/lib/site/carePlan";
 import { notFound } from "next/navigation";
@@ -40,7 +41,7 @@ export default async function PublicStatusPage({ params }: { params: { token: st
           status: true,
           paidAt: true,
           websiteIntake: { select: { token: true, status: true, completedAt: true } },
-          items: { take: 1, select: { product: { select: { turnaround: true } } } },
+          items: { select: { product: { select: { turnaround: true, slug: true } } } },
         },
       },
       websiteBuilds: { orderBy: { version: "asc" }, select: { status: true, version: true, liveUrl: true, createdAt: true, approvedAt: true } },
@@ -57,6 +58,8 @@ export default async function PublicStatusPage({ params }: { params: { token: st
   const careProduct = build?.status === "LIVE" ? await getCarePlanProduct() : null;
   const care = project.careSubscriptions[0] ?? null;
   const careState = care && care.status !== "CANCELED" ? (care.status === "PAST_DUE" ? "past_due" : "active") : "offer";
+  // A Website Special or bundle includes months of care: starting the plan today, the first charge is when they end.
+  const freeCareMonths = includedCareMonths(project.order.items.map((i) => i.product.slug), Boolean(care));
   const intake = project.order.websiteIntake;
   const pendingIntake = intake && intake.status !== "COMPLETE" ? intake : null;
   const isWebsite = Boolean(intake);
@@ -120,6 +123,8 @@ export default async function PublicStatusPage({ params }: { params: { token: st
                   timingNote={CARE_PLAN_TIMING_NOTE}
                   renewsOn={care?.currentPeriodEnd ? care.currentPeriodEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : null}
                   cancelsAtPeriodEnd={care?.cancelAtPeriodEnd ?? false}
+                  freeMonths={freeCareMonths}
+                  firstChargeOn={freeCareMonths > 0 ? careDate(includedCareEnds(new Date(), freeCareMonths)) : null}
                 />
               )}
             </aside>

@@ -14,6 +14,8 @@ export function CarePlanCard({
   timingNote,
   renewsOn,
   cancelsAtPeriodEnd,
+  freeMonths = 0,
+  firstChargeOn = null,
 }: {
   token: string;
   state: "offer" | "active" | "past_due";
@@ -23,7 +25,12 @@ export function CarePlanCard({
   timingNote: string;
   renewsOn: string | null;
   cancelsAtPeriodEnd: boolean;
+  /** Months of care the customer's order already includes (the Website Special's), free before the first charge. */
+  freeMonths?: number;
+  /** When the first charge would be, if they start the plan today with their included months. */
+  firstChargeOn?: string | null;
 }) {
+  const included = freeMonths > 0 && Boolean(firstChargeOn);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [justStarted, setJustStarted] = useState(false);
@@ -92,10 +99,20 @@ export function CarePlanCard({
       {justStarted && (
         <p className="mt-2 rounded-lg bg-black/30 p-3 text-sm text-ice/80">Thanks. Your plan is being set up and will show as active here within a minute or so.</p>
       )}
-      <p className="mt-2 font-display text-3xl text-ice">
-        {priceLabel}
-        <span className="text-base text-ice/50"> / month</span>
-      </p>
+      {included ? (
+        <>
+          <p className="mt-2 font-display text-xl text-ice">Your first {freeMonths} months are included</p>
+          <p className="mt-1 font-display text-3xl text-ice">
+            $0 today
+            <span className="text-base text-ice/50">, then {priceLabel} / month from {firstChargeOn}</span>
+          </p>
+        </>
+      ) : (
+        <p className="mt-2 font-display text-3xl text-ice">
+          {priceLabel}
+          <span className="text-base text-ice/50"> / month</span>
+        </p>
+      )}
       <ul className="mt-4 space-y-2">
         {includes.map((item) => (
           <li key={item} className="flex items-start gap-3 text-sm text-ice/80">
@@ -111,13 +128,22 @@ export function CarePlanCard({
       <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-3 text-xs leading-relaxed text-ice/60 has-[:checked]:border-gold/50">
         <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-[#c39b52]" />
         <span>
-          I understand this plan <strong className="text-ice/80">renews automatically every month at {priceLabel}</strong> until I cancel, that I can cancel any time (effective at the end of the paid month, with no refund for the current month), and I agree to the{" "}
+          {included ? (
+            <>
+              I understand my first {freeMonths} months are included at no charge, and that this plan then{" "}
+              <strong className="text-ice/80">renews automatically every month at {priceLabel}, starting {firstChargeOn}</strong>, until I cancel. If I cancel before {firstChargeOn}, I pay nothing; after that, cancelling takes effect at the end of the paid month, with no refund for the current month. I agree to the{" "}
+            </>
+          ) : (
+            <>
+              I understand this plan <strong className="text-ice/80">renews automatically every month at {priceLabel}</strong> until I cancel, that I can cancel any time (effective at the end of the paid month, with no refund for the current month), and I agree to the{" "}
+            </>
+          )}
           <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-gold underline">Terms of Service</a>, including binding arbitration, and the{" "}
           <a href="/refunds" target="_blank" rel="noopener noreferrer" className="text-gold underline">Refund and Cancellation Policy</a>.
         </span>
       </label>
       <button type="button" onClick={() => void go("checkout")} disabled={busy || !agreed} className={`${BUTTON} mt-4`}>
-        {busy ? "Opening checkout…" : `Start the care plan, ${priceLabel}/month`}
+        {busy ? "Opening checkout…" : included ? "Start my included care, $0 today" : `Start the care plan, ${priceLabel}/month`}
       </button>
       {error && (
         <p role="alert" className="mt-3 text-sm text-red-400">
