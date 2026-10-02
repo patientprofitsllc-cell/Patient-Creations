@@ -4,7 +4,7 @@ import { ONBOARDING_KIT_URL } from "@/lib/config/onboarding";
 // the confirmation email, so a customer always knows what comes next and what we need from them.
 const STEPS = [
   "Welcome",
-  "Invoice and terms",
+  "Sample invoice and terms",
   "Agreement",
   "Your intake",
   "Access we need",
