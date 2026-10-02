@@ -44,7 +44,7 @@ export default async function ServicesPage() {
           </p>
         </section>
 
-        <SpecialsGrid className="pb-24" />
+        <SpecialsGrid className="pb-24" exclude={["site"]} />
 
         <section id="pricing" className="mx-auto max-w-5xl scroll-mt-24 px-6 pb-28">
           <div className="mb-10 max-w-2xl">

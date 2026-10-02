@@ -39,10 +39,16 @@ const WORDBANK: { label: string; href: string }[] = [
 export function SeoWordbank() {
   return (
     <section aria-labelledby="popular-searches" className="mx-auto max-w-5xl px-6 pb-24 pt-8">
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
-        <h2 id="popular-searches" className="text-xs uppercase tracking-[0.3em] text-gold/70">
-          Popular searches
-        </h2>
+      {/* Folded by default so it doesn't crowd the page; the links are still in the page for search engines. */}
+      <details className="group rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
+        <summary className="flex cursor-pointer list-none items-center justify-between marker:hidden">
+          <h2 id="popular-searches" className="text-xs uppercase tracking-[0.3em] text-gold/70">
+            Popular searches
+          </h2>
+          <span aria-hidden className="text-gold transition group-open:rotate-45">
+            +
+          </span>
+        </summary>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ice/50">
           Patient Creations builds cinematic AI websites, cinematic and UGC ads, Business Cards, software, and multi-agent
           systems for small businesses, creators, and hosts, at freelancer-floor pricing with agency-level quality.
@@ -59,7 +65,7 @@ export function SeoWordbank() {
             </li>
           ))}
         </ul>
-      </div>
+      </details>
     </section>
   );
 }

@@ -3,6 +3,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { PRODUCT_SCOPES, SCOPED_SLUGS, scopeFor } from "@/lib/site/productScopes";
 import { PRICE_CENTS, tierPriceCents } from "@/lib/pricing/catalog";
+import { PRICE_LIST_SLUGS } from "@/lib/site/priceList";
 import { includedCardCount } from "@/lib/payments/nfcAddon";
 import { parseTurnaroundMaxDays } from "@/lib/payments/deliverySpeed";
 import { MARKET_ROWS, compareRows, standing, standingText, totalsOf } from "@/lib/site/marketComparison";
@@ -212,8 +213,7 @@ describe("catalog stays simple", () => {
   });
 
   it("does not point the homepage or the specials at a product that is no longer sold", () => {
-    const home = readFileSync(join(process.cwd(), "app/page.tsx"), "utf8");
-    expect(/const FEATURED_SLUGS = \[([^\]]*)\]/.exec(home)?.[1]).not.toMatch(/monthly-optimization/);
+    for (const legacy of ["monthly-optimization", "starter-website"]) expect(PRICE_LIST_SLUGS as string[]).not.toContain(legacy);
     const specials = readFileSync(join(process.cwd(), "components/home/SpecialsGrid.tsx"), "utf8");
     expect(/const SLUGS = \[([\s\S]*?)\];/.exec(specials)?.[1]).not.toMatch(/monthly-optimization/);
   });
