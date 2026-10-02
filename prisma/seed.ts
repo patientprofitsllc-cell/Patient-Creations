@@ -136,11 +136,12 @@ const SERVICES: ServiceDef[] = [
     sortOrder: 10,
   },
   {
-    slug: "starter-website",
-    name: "Quick Business Website",
+    slug: "website-special",
+    name: "Website Special",
     category: "Websites",
-    description: "A custom one-page website built around your business: your services, contact details, call and text button, map, and basic SEO, deployed live with one revision. Our target is 72 hours once we have your info.",
-    baseCents: PRICE_CENTS["starter-website"],
+    type: "SPECIAL",
+    description: "A custom one-page website built around your business: your services, contact details, call and text button, map, and basic SEO, deployed live with one revision. Includes 3 months of monthly website maintenance (up to 3 small updates a month). Our target is 72 hours once we have your info.",
+    baseCents: PRICE_CENTS["website-special"],
     tierable: false,
     revisionLimit: 1,
     turnaround: "72 hours",
@@ -396,6 +397,7 @@ const LEGACY_SLUGS = [
   "ai-character",
   "ai-agent-system",
   "monthly-optimization", // promised monitoring that is not built
+  "starter-website", // the $300 Quick Business Website, replaced by the Website Special
 ];
 
 async function main() {

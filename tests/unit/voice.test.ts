@@ -111,7 +111,7 @@ describe("which line plays where", () => {
     expect(cueForRoute("/agents")).toBe("agents");
     expect(cueForRoute("/checkout", "site")).toBe("site");
     expect(cueForRoute("/checkout", "saas")).toBe("saas");
-    expect(cueForRoute("/checkout", "starter-website")).toBe("starter-website");
+    expect(cueForRoute("/checkout", "website-special")).toBe("website-special");
     expect(cueForRoute("/checkout", "nfc-google-review")).toBe("nfc-cards");
     expect(cueForRoute("/checkout", "nfc-wifi")).toBe("nfc-cards");
     expect(cueForRoute("/checkout")).toBe("checkout");

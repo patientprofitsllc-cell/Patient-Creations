@@ -3,7 +3,7 @@ import { PRICE_CENTS, usd, type PricedSlug } from "@/lib/pricing/catalog";
 // The products a deal can be about, by the names the owner uses. Prices come from the price list, never typed here.
 const NAMES: Partial<Record<PricedSlug, string>> = {
   "nfc-cards": "Business Cards",
-  "starter-website": "Quick Business Website",
+  "website-special": "Website Special",
   site: "Cinematic AI Website",
   "basic-package": "Basic Package",
   "all-in-one-bundle": "Launch Bundle",

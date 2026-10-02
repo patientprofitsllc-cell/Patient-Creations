@@ -126,7 +126,7 @@ describe("unsubscribe links", () => {
 
 describe("the follow-up emails", () => {
   const footer = "Patient Profits LLC\n1 Test St, Atlanta, GA 30303\nDo not want these emails? Stop them here: https://x.test/unsubscribe?e=a&t=b";
-  const render = (k: FollowupKind, p: Record<string, unknown> = {}) => renderTemplate(k, { name: "Joe", business: "Joe's Cuts", project: "Joe's Cuts site", product: "the Quick Business Website", link: "https://x.test/checkout?product=starter-website", offers: "- NFC cards ($30 each): why\n  https://x.test/checkout?product=nfc-cards", footer, ...p });
+  const render = (k: FollowupKind, p: Record<string, unknown> = {}) => renderTemplate(k, { name: "Joe", business: "Joe's Cuts", project: "Joe's Cuts site", product: "the Website Special", link: "https://x.test/checkout?product=website-special", offers: "- NFC cards ($30 each): why\n  https://x.test/checkout?product=nfc-cards", footer, ...p });
 
   it("each say who they are for, carry the footer with the address and the stop link, and read like a person", () => {
     for (const k of FOLLOWUP_KINDS) {
@@ -150,8 +150,8 @@ describe("the follow-up emails", () => {
 
   it("name the product, link back to it, and invite a reply in the reminder for an unfinished checkout", () => {
     const m = render("abandoned_checkout");
-    expect(m.body).toContain("the Quick Business Website");
-    expect(m.body).toContain("https://x.test/checkout?product=starter-website");
+    expect(m.body).toContain("the Website Special");
+    expect(m.body).toContain("https://x.test/checkout?product=website-special");
     expect(m.body).toMatch(/reply to this email/i);
   });
 

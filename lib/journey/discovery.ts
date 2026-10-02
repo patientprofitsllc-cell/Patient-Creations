@@ -26,7 +26,7 @@ export const NEEDS: readonly NeedChoice[] = [
 
 export const SUGGESTIONS: Record<NeedId, Suggestion[]> = {
   website: [
-    { title: "Quick Business Website", why: "One page with your services, contact details, and a call button, built from your own words.", price: usd(PRICE_CENTS["starter-website"]), href: "/checkout?product=starter-website" },
+    { title: "Website Special", why: "One page with your services, contact details, and a call button, built from your own words, with 3 months of maintenance included.", price: usd(PRICE_CENTS["website-special"]), href: "/checkout?product=website-special" },
     { title: "All-in-One Launch Bundle", why: "A website, ads, and Business Cards together, so you launch everything at once.", price: usd(PRICE_CENTS["all-in-one-bundle"]), href: "/checkout?product=all-in-one-bundle" },
     { title: "Cinematic AI Website", why: "A multi page site with a motion hero, for a business that wants to stand out.", price: `from ${usd(PRICE_CENTS.site)}`, href: "/checkout?product=site" },
   ],

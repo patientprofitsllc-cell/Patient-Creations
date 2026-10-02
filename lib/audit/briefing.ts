@@ -1,5 +1,5 @@
 import type { AuditResult } from "@/lib/prospects/audit";
-import { AUDIT_FEE_CENTS, PRICE_CENTS, usd } from "@/lib/pricing/catalog";
+import { AUDIT_FEE_CENTS, PRICE_CENTS, WEBSITE_BUILD_CENTS, usd } from "@/lib/pricing/catalog";
 import { nextOffers } from "@/lib/journey/ladder";
 import { CONTACT_PHONE_DISPLAY } from "@/lib/config/site";
 import type { AuditInput, GrowthAuditReport } from "@/lib/audit/growthAudit";
@@ -54,7 +54,7 @@ export interface BriefingInput {
 const RANK = { high: 0, medium: 1, low: 2 } as const;
 
 const PICKS: Record<string, { title: string; from?: boolean; why: string; href: string }> = {
-  "starter-website": { title: "Quick Business Website", why: "A one page site with services, contact details, and a call button, built from their own words.", href: "/checkout?product=starter-website" },
+  "website-special": { title: "Website Special", why: "A one page site with services, contact details, and a call button, built from their own words, with 3 months of maintenance included.", href: "/checkout?product=website-special" },
   site: { title: "Cinematic AI Website", from: true, why: "A multi page site with a motion hero, for a business whose current site is bigger than one page.", href: "/checkout?product=site" },
   "nfc-cards": { title: "Business Cards", why: "A tap opens their review page, so it is easy for happy customers to leave honest feedback.", href: "/checkout?product=nfc-cards" },
   "lead-engine": { title: "Lead Engine", from: true, why: "A landing page, lead capture, and automatic follow-up, so visitors have a clear way to reach them.", href: "/checkout?product=lead-engine" },
@@ -131,7 +131,7 @@ export function buildBriefing(a: BriefingInput): OwnerBriefing {
   const complex = Boolean(facts && (facts.navLinks >= 8 || facts.words > 1200));
   const rebuild = has("no-site") || has("mobile") || has("secure") || problems >= 3 || (has("thin") && has("contact"));
   let primary: OfferPick;
-  if (rebuild) primary = pick(complex && judgeable ? "site" : "starter-website");
+  if (rebuild) primary = pick(complex && judgeable ? "site" : "website-special");
   else if (goal === "reviews" || has("reviews")) primary = pick("nfc-cards");
   else if (goal === "customers" && (has("cta") || has("contact"))) primary = pick("lead-engine");
   else if (goal === "customers") primary = pick("ugc-ad-special");
@@ -141,7 +141,7 @@ export function buildBriefing(a: BriefingInput): OwnerBriefing {
   const secondarySlug = nextOffers({ justBought: [primary.slug], owned: [primary.slug], statusPath: null })[0];
   const secondary = secondarySlug ? (PICKS[secondarySlug.href.replace("/checkout?product=", "")] ? pick(secondarySlug.href.replace("/checkout?product=", "")) : null) : null;
 
-  const partsCents = PRICE_CENTS["starter-website"] + 2 * PRICE_CENTS["cinematic-ad-special"] + 2 * PRICE_CENTS["ugc-ad-special"] + 3 * PRICE_CENTS["nfc-cards"];
+  const partsCents = WEBSITE_BUILD_CENTS + 2 * PRICE_CENTS["cinematic-ad-special"] + 2 * PRICE_CENTS["ugc-ad-special"] + 3 * PRICE_CENTS["nfc-cards"];
   const bundle = report.bundle ? { title: report.bundle.title, price: report.bundle.price, separately: usd(partsCents) } : null;
 
   const avoid: string[] = [];

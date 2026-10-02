@@ -80,7 +80,7 @@ describe("invoices and what is owed", () => {
   });
 
   it("says an unpaid order is waiting for payment", () => {
-    const f = facts({ orders: [{ summary: "Quick Business Website", totalCents: PRICE_CENTS["starter-website"], status: "PENDING", balanceDueCents: 0, revisionLimit: 2, included: null, turnaround: null }] });
+    const f = facts({ orders: [{ summary: "Website Special", totalCents: PRICE_CENTS["website-special"], status: "PENDING", balanceDueCents: 0, revisionLimit: 2, included: null, turnaround: null }] });
     expect(ask("what is my balance", f).reply).toMatch(/waiting for payment/);
   });
 

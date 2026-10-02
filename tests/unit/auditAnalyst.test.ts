@@ -73,10 +73,10 @@ function briefing(i: AuditInput, s: AuditResult | null, fa: SiteFacts | null, ex
 }
 
 describe("the analyst's briefing: what they need, and what to offer", () => {
-  it("tells someone with no website to start with the Quick Business Website, and says why", () => {
+  it("tells someone with no website to start with the Website Special, and says why", () => {
     const b = briefing(input({ website: null }), null, null);
-    expect(b.primary.slug).toBe("starter-website");
-    expect(b.primary.price).toBe(usd(PRICE_CENTS["starter-website"]));
+    expect(b.primary.slug).toBe("website-special");
+    expect(b.primary.price).toBe(usd(PRICE_CENTS["website-special"]));
     expect(b.needs[0]).toMatchObject({ id: "no-site", severity: "high", evidence: ["They gave no website address"] });
     expect(b.confidence).toBe("medium");
   });
@@ -84,7 +84,7 @@ describe("the analyst's briefing: what they need, and what to offer", () => {
   it("tells someone whose site fails the basics on a phone the same, with the evidence", () => {
     const s = site([f("https", "Loads securely (https)", false), f("viewport", "Declares a mobile layout", false), f("title", "Has a page title", true), f("phone", "Shows a phone number", true)]);
     const b = briefing(input(), s, facts({ navLinks: 3, words: 300 }));
-    expect(b.primary.slug).toBe("starter-website");
+    expect(b.primary.slug).toBe("website-special");
     expect(b.needs.map((n) => n.id)).toEqual(expect.arrayContaining(["mobile", "secure"]));
     expect(b.needs.find((n) => n.id === "mobile")!.evidence).toEqual(["The page has no mobile layout setting"]);
   });
@@ -129,7 +129,7 @@ describe("the analyst's briefing: what they need, and what to offer", () => {
     expect(b.confidence).toBe("low");
     expect(b.needs.some((n) => n.id === "no-site" || n.id === "mobile" || n.id === "cta")).toBe(false);
     expect(b.nextAction).toMatch(/Open their website yourself/);
-    expect(b.primary.slug).not.toBe("starter-website");
+    expect(b.primary.slug).not.toBe("website-special");
   });
 
   it("is highly confident only when it really read the page", () => {
@@ -147,9 +147,9 @@ describe("the analyst's briefing: what they need, and what to offer", () => {
 
   it("drafts a message that names what was found, the offer, the credit code, and the price after the credit", () => {
     const b = briefing(input({ website: null }), null, null);
-    const net = usd(PRICE_CENTS["starter-website"] - AUDIT_FEE_CENTS);
+    const net = usd(PRICE_CENTS["website-special"] - AUDIT_FEE_CENTS);
     expect(b.suggestedMessage).toContain("Hi Joe's Cuts");
-    expect(b.suggestedMessage).toContain("Quick Business Website");
+    expect(b.suggestedMessage).toContain("Website Special");
     expect(b.suggestedMessage).toContain("AUDIT-ABCDEFGH");
     expect(b.suggestedMessage).toContain(net);
     expect(b.talkingPoints.join(" ")).toContain(net);

@@ -4,7 +4,7 @@ import { buildOrderAlert, sendSms, smsConfig, type OrderAlertFacts } from "@/lib
 const facts: OrderAlertFacts = {
   kind: "paid",
   totalCents: 30000,
-  productNames: ["Quick Business Website"],
+  productNames: ["Website Special"],
   businessName: "Joe's Cuts",
   paymentMethod: "stripe",
   source: "google:spring",
@@ -17,7 +17,7 @@ describe("buildOrderAlert", () => {
     const { sms } = buildOrderAlert(facts);
     expect(sms).toContain("NEW PAID ORDER");
     expect(sms).toContain("$300.00");
-    expect(sms).toContain("Quick Business Website");
+    expect(sms).toContain("Website Special");
     expect(sms).toContain("(Joe's Cuts)");
     expect(sms).toContain("Card");
     expect(sms).toContain("from google:spring");

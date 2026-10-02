@@ -37,7 +37,7 @@ export interface LadderContext {
   statusPath?: string | null;
 }
 
-const WEBSITE = ["starter-website", "site"];
+const WEBSITE = ["website-special", "site"];
 const BUNDLE = ["all-in-one-bundle"];
 const ADS = ["ad", "cinematic-ad-special", "ugc-ad-special", "rental-listing-film", "basic-package"];
 const LEAD = ["lead-engine"];
@@ -138,10 +138,10 @@ export function nextOffers(ctx: LadderContext): Offer[] {
       ? null
       : {
           id: "website",
-          title: "A Quick Business Website",
+          title: "A Website Special",
           why: "Give your cards and ads a home: a one page site with your services, contact details, and a call button.",
-          priceLabel: usd(PRICE_CENTS["starter-website"]),
-          href: checkout("starter-website"),
+          priceLabel: usd(PRICE_CENTS["website-special"]),
+          href: checkout("website-special"),
           cta: "Get the website",
         };
 
@@ -177,10 +177,10 @@ export function firstOffers(): Offer[] {
   return [
     {
       id: "website",
-      title: "A Quick Business Website",
-      why: "One page with your services, contact details, and a call button, built from your own words.",
-      priceLabel: usd(PRICE_CENTS["starter-website"]),
-      href: checkout("starter-website"),
+      title: "A Website Special",
+      why: "One page with your services, contact details, and a call button, built from your own words, with 3 months of maintenance included.",
+      priceLabel: usd(PRICE_CENTS["website-special"]),
+      href: checkout("website-special"),
       cta: "Get the website",
     },
     {

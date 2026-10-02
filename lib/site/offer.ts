@@ -1,8 +1,8 @@
 // The acquisition offer and the copy that surrounds it. Price is never here:
 // it is read from the product row (slug below), so changing it in the database
 // changes it everywhere at once.
-export const OFFER_SLUG = "starter-website";
-export const OFFER_NAME = "Quick Business Website";
+export const OFFER_SLUG = "website-special";
+export const OFFER_NAME = "Website Special";
 export const OFFER_CHECKOUT_HREF = `/checkout?product=${OFFER_SLUG}`;
 
 export const OFFER_INCLUDES = [
@@ -17,6 +17,7 @@ export const OFFER_INCLUDES = [
   "Basic SEO setup",
   "Deployed live",
   "One revision",
+  "3 months of monthly maintenance",
 ];
 
 export const TRUST_ITEMS = [
@@ -25,6 +26,7 @@ export const TRUST_ITEMS = [
   "SEO-ready foundation",
   "72-hour target delivery",
   "One revision included",
+  "3 months of maintenance included",
 ];
 
 // Honest timing language: a target, tied to when we have what we need.
@@ -74,7 +76,7 @@ export function getFaqs(price: string) {
   return [
   {
     q: `What's included in the ${price} website?`,
-    a: "A custom one-page website with your services or products, contact details, a call and text button, social links, a map, basic SEO setup, and deployment so it's live, plus one revision. It's built around your business, not a template with your name dropped in.",
+    a: "A custom one-page website with your services or products, contact details, a call and text button, social links, a map, basic SEO setup, and deployment so it's live, plus one revision and 3 months of monthly maintenance (up to 3 small updates a month: text, hours, prices, phone number, or links). It's built around your business, not a template with your name dropped in.",
   },
   {
     q: "How long does it take?",
@@ -90,7 +92,7 @@ export function getFaqs(price: string) {
   },
   {
     q: "Do I need a domain? What about hosting?",
-    a: "If you already own a domain, tell us and we'll help you connect it. If you don't, we'll help you choose one. We deploy your site live at launch. Ongoing hosting, updates, and monitoring after that are separate; ask us and we'll walk you through the options.",
+    a: "If you already own a domain, tell us and we'll help you connect it. If you don't, we'll help you choose one. We deploy your site live at launch, and the first 3 months of maintenance are included: we keep it online, look after your domain connection, and make up to 3 small updates a month. After that, Website Care is optional and you can cancel any time.",
   },
   {
     q: "Will this get me to the top of Google?",

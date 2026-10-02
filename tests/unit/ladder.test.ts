@@ -11,7 +11,7 @@ const read = (f: string) => readFileSync(join(process.cwd(), f), "utf8");
 
 describe("the customer ladder", () => {
   it("offers a website buyer NFC cards, a launch ad, and website care, then monthly ads (three at most)", () => {
-    expect(ids({ justBought: ["starter-website"], owned: ["starter-website"] })).toEqual<OfferId[]>(["nfc-cards", "launch-ad", "care-plan"]);
+    expect(ids({ justBought: ["website-special"], owned: ["website-special"] })).toEqual<OfferId[]>(["nfc-cards", "launch-ad", "care-plan"]);
     expect(ids({ justBought: ["site"], owned: ["site"] })).toEqual<OfferId[]>(["nfc-cards", "launch-ad", "care-plan"]);
   });
 
@@ -25,7 +25,7 @@ describe("the customer ladder", () => {
   });
 
   it("offers a Monthly Ads subscriber the Lead Engine, and never the plan they already have", () => {
-    const list = ids({ owned: ["starter-website"], hasAdsPlan: true, justBought: [] });
+    const list = ids({ owned: ["website-special"], hasAdsPlan: true, justBought: [] });
     expect(list).not.toContain("monthly-ads");
     expect(ids({ justBought: [], owned: [], hasAdsPlan: true })).toEqual<OfferId[]>(["lead-engine", "website"]);
   });
@@ -44,7 +44,7 @@ describe("the customer ladder", () => {
   });
 
   it("never offers anything the customer already owns or has just bought", () => {
-    const list = ids({ justBought: ["starter-website"], owned: ["starter-website", "nfc-card-addon", "ugc-ad-special"], hasCarePlan: true });
+    const list = ids({ justBought: ["website-special"], owned: ["website-special", "nfc-card-addon", "ugc-ad-special"], hasCarePlan: true });
     expect(list).not.toContain("nfc-cards");
     expect(list).not.toContain("launch-ad");
     expect(list).not.toContain("care-plan");
@@ -58,7 +58,7 @@ describe("the customer ladder", () => {
   });
 
   it("skips website care when there is no project page to start it from", () => {
-    expect(ids({ justBought: ["starter-website"], owned: ["starter-website"], statusPath: null })).not.toContain("care-plan");
+    expect(ids({ justBought: ["website-special"], owned: ["website-special"], statusPath: null })).not.toContain("care-plan");
   });
 
   it("looks back at what is owned when nothing was just bought, and never repeats an offer", () => {
@@ -69,7 +69,7 @@ describe("the customer ladder", () => {
   });
 
   it("reads every price from the price list, and promises no results", () => {
-    const all = [...nextOffers({ justBought: ["starter-website"], owned: [] , statusPath: "/status/x"}), ...nextOffers({ justBought: ["lead-engine"], owned: [] }), ...nextOffers({ justBought: ["ugc-ad-special"], owned: [] }), ...firstOffers()];
+    const all = [...nextOffers({ justBought: ["website-special"], owned: [] , statusPath: "/status/x"}), ...nextOffers({ justBought: ["lead-engine"], owned: [] }), ...nextOffers({ justBought: ["ugc-ad-special"], owned: [] }), ...firstOffers()];
     const byId = Object.fromEntries(all.map((o) => [o.id, o]));
     expect(byId["nfc-cards"].priceLabel).toBe(`${usd(PRICE_CENTS["nfc-card-addon"])} each`);
     expect(byId["launch-ad"].priceLabel).toBe(usd(PRICE_CENTS["ugc-ad-special"]));

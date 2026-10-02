@@ -123,7 +123,7 @@ const order = (id: string, customerId: string, paidAt: string | null, over: Part
   totalCents: 30_000,
   balanceDueCents: 0,
   campaignSource: null,
-  items: [{ slug: "starter-website", name: "Quick Business Website", priceCents: 30_000, quantity: 1 }],
+  items: [{ slug: "website-special", name: "Website Special", priceCents: 30_000, quantity: 1 }],
   ...over,
 });
 
@@ -252,36 +252,36 @@ describe("monthly plans", () => {
 describe("products", () => {
   const item = (slug: string, name: string, priceCents: number, quantity = 1) => ({ slug, name, priceCents, quantity });
   const orders: OrderRow[] = [
-    order("1", "c1", "2026-08-01T12:00:00Z", { items: [item("starter-website", "Quick Business Website", 30_000)] }),
+    order("1", "c1", "2026-08-01T12:00:00Z", { items: [item("website-special", "Website Special", 30_000)] }),
     order("2", "c1", "2026-08-20T12:00:00Z", { items: [item("nfc-cards", "NFC cards", 3_000, 5)] }),
-    order("3", "c2", "2026-08-02T12:00:00Z", { items: [item("starter-website", "Quick Business Website", 30_000)] }),
-    order("4", "c3", "2026-08-03T12:00:00Z", { items: [item("starter-website", "Quick Business Website", 30_000)] }),
+    order("3", "c2", "2026-08-02T12:00:00Z", { items: [item("website-special", "Website Special", 30_000)] }),
+    order("4", "c3", "2026-08-03T12:00:00Z", { items: [item("website-special", "Website Special", 30_000)] }),
     order("5", "c4", "2026-08-04T12:00:00Z", { items: [item("lead-engine", "Lead Engine", 170_000)] }),
-    order("6", "c5", "2026-08-05T12:00:00Z", { items: [item("starter-website", "Quick Business Website", 30_000)] }),
+    order("6", "c5", "2026-08-05T12:00:00Z", { items: [item("website-special", "Website Special", 30_000)] }),
   ];
   const subs: SubRow[] = [{ customerId: "c1", kind: "care", status: "ACTIVE", priceCents: 7_900, createdAt: iso("2026-08-25T12:00:00Z"), updatedAt: iso("2026-08-25T12:00:00Z") }];
   const stats = productStats(orders, subs);
   const bySlug = (s: string) => stats.find((x) => x.slug === s)!;
 
   it("counts units and revenue at the price charged", () => {
-    expect(bySlug("starter-website")).toMatchObject({ units: 4, revenueCents: 120_000 });
+    expect(bySlug("website-special")).toMatchObject({ units: 4, revenueCents: 120_000 });
     expect(bySlug("nfc-cards")).toMatchObject({ units: 5, revenueCents: 15_000 });
     expect(stats[0].slug).toBe("nfc-cards");
   });
 
   it("works out the upsell rate from customers whose FIRST order had the product", () => {
-    expect(bySlug("starter-website").upsell).toEqual({ numerator: 1, denominator: 4, percent: 25 });
+    expect(bySlug("website-special").upsell).toEqual({ numerator: 1, denominator: 4, percent: 25 });
     expect(bySlug("nfc-cards").upsell.denominator).toBe(0);
     expect(bySlug("lead-engine").upsell.percent).toBe(0);
   });
 
   it("works out how many buyers of a product are on a monthly plan now", () => {
-    expect(bySlug("starter-website").onPlan).toEqual({ numerator: 1, denominator: 4, percent: 25 });
+    expect(bySlug("website-special").onPlan).toEqual({ numerator: 1, denominator: 4, percent: 25 });
     expect(bySlug("lead-engine").onPlan.percent).toBe(0);
   });
 
   it("names a best product by a rate only when at least three customers stand behind it", () => {
-    expect(topBy(stats, (s) => s.upsell)?.slug).toBe("starter-website");
+    expect(topBy(stats, (s) => s.upsell)?.slug).toBe("website-special");
     expect(topBy(stats, (s) => s.upsell, 5)).toBeNull();
     const oneSale = productStats([order("z", "c9", "2026-08-01T12:00:00Z")], []);
     expect(topBy(oneSale, (s) => s.upsell)).toBeNull();
@@ -300,7 +300,7 @@ describe("the planning scenario", () => {
 
   it("starts from the plan's quantities and today's prices from the price list", () => {
     expect(lines.map((l) => [l.id, l.quantity])).toEqual([["websites", 30], ["bundles", 10], ["ads", 40], ["cinematic", 8], ["lead", 5], ["agents", 2], ["other", 1]]);
-    expect(line("websites").unitCents).toBe(PRICE_CENTS["starter-website"]);
+    expect(line("websites").unitCents).toBe(PRICE_CENTS["website-special"]);
     expect(line("bundles").unitCents).toBe(PRICE_CENTS["all-in-one-bundle"]);
     expect(line("ads").unitCents).toBe(PRICE_CENTS["ads-monthly-500"]);
     expect(line("cinematic").unitCents).toBe(PRICE_CENTS.site);

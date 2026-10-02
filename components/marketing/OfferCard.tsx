@@ -2,7 +2,7 @@ import Link from "next/link";
 import { SPECIAL_FRAME, money } from "@/components/home/specialFrame";
 import { DELIVERY_NOTE, OFFER_CHECKOUT_HREF, OFFER_INCLUDES, OFFER_NAME } from "@/lib/site/offer";
 
-/** The $300 offer. The price comes from the product row, never from here. */
+/** The Website Special offer. The price comes from the product row, never from here. */
 export function OfferCard({
   priceCents,
   wasCents,
@@ -24,7 +24,7 @@ export function OfferCard({
           <p className={`${wasCents && wasCents > priceCents ? "mt-1" : "mt-4"} font-display text-7xl text-champagne sm:text-8xl`}>
             {money(priceCents)}
           </p>
-          <p className="mt-1 text-sm text-ice/50">One-time price. No agency headache.</p>
+          <p className="mt-1 text-sm text-ice/50">One-time price. 3 months of maintenance included.</p>
           <Link
             href={OFFER_CHECKOUT_HREF}
             className="mt-8 inline-block w-full rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-4 text-center text-base font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110 sm:w-auto"

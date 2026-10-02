@@ -10,4 +10,4 @@ export async function getOfferProduct() {
 
 // Only used if the row is missing (e.g. an unseeded dev database), so pages
 // still render instead of crashing.
-export const FALLBACK_OFFER_PRICE_CENTS = PRICE_CENTS["starter-website"];
+export const FALLBACK_OFFER_PRICE_CENTS = PRICE_CENTS["website-special"];

@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const price = money(offer?.priceCents ?? FALLBACK_OFFER_PRICE_CENTS);
   return {
     title: `Pricing: a professional website starting at ${price}`,
-    description: `Simple pricing for small business websites. The ${price} Quick Business Website includes custom one-page design, mobile optimization, copy, basic SEO, deployment, and one revision.`,
+    description: `Simple pricing for small business websites. The ${price} Website Special includes custom one-page design, mobile optimization, copy, basic SEO, deployment, one revision, and 3 months of monthly maintenance.`,
     alternates: { canonical: "/pricing" },
   };
 }
@@ -137,7 +137,7 @@ export default async function PricingPage() {
 
         <section className="mx-auto max-w-3xl px-6 pb-24 text-center">
           <Link
-            href="/checkout?product=starter-website"
+            href="/checkout?product=website-special"
             className="inline-block rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-4 text-base font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110"
           >
             BUILD MY WEBSITE

@@ -134,10 +134,10 @@ export const VOICE_SCRIPT: readonly CueDef[] = [
     text: "The Basic Package gives you drone style videos of your building and storefront, made with AI from your photos, plus Business Cards.",
   },
   {
-    id: "starter-website",
+    id: "website-special",
     kind: "product",
-    when: "Quick Business Website",
-    text: "The Quick Business Website is a one page site with your services, contact details, and a call button, built from your own words.",
+    when: "Website Special",
+    text: "The Website Special is a one page site with your services, contact details, and a call button, built from your own words, with three months of maintenance included.",
   },
   {
     id: "strategy-session",
@@ -233,10 +233,10 @@ export const VOICE_SCRIPT: readonly CueDef[] = [
     text: "Thank you for choosing the Basic Package. Fill in your card details, and book your kickoff call on this page.",
   },
   {
-    id: "thanks-starter-website",
+    id: "thanks-website-special",
     kind: "thanks",
-    when: "Thank you for purchasing: Quick Business Website",
-    text: "Thank you for ordering your Quick Business Website. Finish the short intake on this page, and we will build it from your own words.",
+    when: "Thank you for purchasing: Website Special",
+    text: "Thank you for ordering your Website Special. Finish the short intake on this page, and we will build it from your own words.",
   },
   {
     id: "thanks-strategy-session",

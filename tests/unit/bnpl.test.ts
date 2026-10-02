@@ -16,16 +16,17 @@ describe("which pay-later methods fit an amount", () => {
     expect(bnplMethodsFor(BNPL.klarnaMaxCents + 1)).toEqual([]);
   });
 
-  it("never offers them on the small things: the audit, NFC cards, ads, and the quick add-ons", () => {
-    for (const slug of ["nfc-cards", "ugc-ad-special", "cinematic-ad-special", "strategy-session", "custom-build", "brand-kit", "care-plan"] as const) {
+  it("never offers them on the small things: the audit, NFC cards, UGC ads, and the quick add-ons", () => {
+    for (const slug of ["nfc-cards", "ugc-ad-special", "strategy-session", "custom-build", "brand-kit", "care-plan"] as const) {
       expect(bnplMethodsFor(PRICE_CENTS[slug]), slug).toEqual([]);
     }
     expect(bnplMethodsFor(1_900)).toEqual([]);
   });
 
   it("offers them on the sites, the bundle, the lead engine, and the AI builds, within each provider's limit", () => {
-    expect(bnplMethodsFor(PRICE_CENTS["starter-website"])).toEqual(["klarna", "afterpay_clearpay"]);
+    expect(bnplMethodsFor(PRICE_CENTS["website-special"])).toEqual(["klarna", "afterpay_clearpay"]);
     expect(bnplMethodsFor(PRICE_CENTS.site)).toEqual(["klarna", "afterpay_clearpay"]);
+    expect(bnplMethodsFor(PRICE_CENTS["cinematic-ad-special"])).toEqual(["klarna", "afterpay_clearpay"]);
     expect(bnplMethodsFor(PRICE_CENTS["lead-engine"])).toEqual(["klarna", "afterpay_clearpay"]);
     expect(bnplMethodsFor(PRICE_CENTS.agents)).toEqual(["klarna"]);
     expect(bnplMethodsFor(PRICE_CENTS.saas)).toEqual(["klarna"]);

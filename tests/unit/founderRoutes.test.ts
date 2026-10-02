@@ -159,9 +159,9 @@ describe("moving an idea", () => {
 describe("the owner's own numbers", () => {
   it("saves a product's costs, and only for a product we sell, as whole numbers", async () => {
     asAdmin();
-    const ok = { slug: "starter-website", fulfillmentCents: 0, aiApiCents: 150, laborMinutes: 45, softwareCents: 200, note: "hosting" };
+    const ok = { slug: "website-special", fulfillmentCents: 0, aiApiCents: 150, laborMinutes: 45, softwareCents: 200, note: "hosting" };
     expect((await saveCost(post("/api/admin/product-costs", ok))).status).toBe(200);
-    expect(h.costs[0]).toMatchObject({ slug: "starter-website", aiApiCents: 150, laborMinutes: 45 });
+    expect(h.costs[0]).toMatchObject({ slug: "website-special", aiApiCents: 150, laborMinutes: 45 });
     for (const bad of [{ ...ok, slug: "free-money" }, { ...ok, aiApiCents: -1 }, { ...ok, laborMinutes: 1.5 }, { ...ok, softwareCents: 1e12 }, {}]) expect((await saveCost(post("/api/admin/product-costs", bad))).status).toBe(400);
     expect(h.costs).toHaveLength(1);
   });

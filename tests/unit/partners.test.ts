@@ -209,7 +209,7 @@ describe("the ready-made words for partners", () => {
       expect(a.text).not.toMatch(/[—–]/);
     }
     expect(assets.find((a) => a.id === "blurb")!.text).toContain(usd(PRICE_CENTS["nfc-cards"]));
-    expect(assets.find((a) => a.id === "email")!.text).toContain(usd(PRICE_CENTS["starter-website"]));
+    expect(assets.find((a) => a.id === "email")!.text).toContain(usd(PRICE_CENTS["website-special"]));
   });
 
   it("come with rules that forbid promising results and unsolicited bulk messages", () => {
