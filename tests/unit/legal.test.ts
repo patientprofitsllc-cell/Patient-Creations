@@ -194,5 +194,16 @@ describe("optional extras", () => {
     expect(addOnAvailable("social-asset-pack", "ad")).toBe(true);
     expect(addOnAvailable("brand-kit", "website-special")).toBe(true);
     expect(addOnAvailable("nfc-card-addon", "website-special")).toBe(true);
+    // The social pack only where there is a visual to crop.
+    for (const slug of ["ugc-ad-special", "cinematic-ad-special", "site", "all-in-one-bundle"]) expect(addOnAvailable("social-asset-pack", slug), slug).toBe(true);
+    for (const slug of ["lead-engine", "payments-setup", "saas", "agents", "nfc-cards"]) expect(addOnAvailable("social-asset-pack", slug), slug).toBe(false);
+    // Nothing on a consultation, and no revisions or extra cards on a card order.
+    for (const a of ["brand-kit", "extra-revision-package", "social-asset-pack", "nfc-card-addon"]) {
+      expect(addOnAvailable(a, "strategy-session"), a).toBe(false);
+      expect(addOnAvailable(a, "custom-build"), a).toBe(false);
+    }
+    expect(addOnAvailable("extra-revision-package", "nfc-cards")).toBe(false);
+    expect(addOnAvailable("nfc-card-addon", "nfc-google-review")).toBe(false);
+    expect(addOnAvailable("brand-kit", "nfc-cards")).toBe(true);
   });
 });

@@ -6,8 +6,8 @@ import { BUNDLE_PARTS, SPECIAL_CARE_MONTHS, type PricedSlug } from "@/lib/pricin
 
 export interface PriceListItem {
   slug: PricedSlug;
-  /** Shown instead of the product row's name, when a shorter one reads better. */
-  name?: string;
+  /** The name shown on the list (never the product's internal slug). */
+  name: string;
   /** What you get, in one line. */
   line: string;
   /** Where the button goes. Defaults to the product's checkout. */
@@ -37,10 +37,10 @@ export const PRICE_LIST: readonly PriceListGroup[] = [
     blurb: "Get online with a site built around your business.",
     items: [
       {
-        slug: "website-special",
+        slug: "website-special", name: "Website Special",
         line: `A one-page website, live in about 72 hours, with ${SPECIAL_CARE_MONTHS} months of maintenance included.`,
       },
-      { slug: "site", line: "Up to 5 pages with a cinematic motion hero. Bigger tiers add more pages." },
+      { slug: "site", name: "Cinematic AI Website", line: "Up to 5 pages with a cinematic motion hero. Bigger tiers add more pages." },
       {
         slug: "all-in-one-bundle",
         name: "All-in-One Launch Bundle",
@@ -55,8 +55,8 @@ export const PRICE_LIST: readonly PriceListGroup[] = [
     items: [
       { slug: "ugc-ad-special", name: "UGC Ad", line: "A creator-style ad with an AI presenter, up to 30 seconds, with 3 opening hooks to test.", unit: "per ad" },
       { slug: "cinematic-ad-special", name: "Cinematic Ad", line: "A polished, film-style ad, up to 30 seconds, wide and vertical.", unit: "per ad" },
-      { slug: "rental-listing-film", line: "A cinematic video tour of your rental, made from your listing photos." },
-      { slug: "basic-package", line: "Three drone-style videos of your building and storefront, plus 5 Business Cards." },
+      { slug: "rental-listing-film", name: "Rental Listing Film", line: "A cinematic video tour of your rental, made from your listing photos." },
+      { slug: "basic-package", name: "Basic Package", line: "Three drone-style videos of your building and storefront, plus 5 Business Cards." },
       { slug: "ad", name: "Cinematic Ad, custom", line: "A longer, made-to-brief cinematic ad with 2 revision rounds, for when a single ad needs more." },
     ],
     tip: "Want more than a couple of ads? Monthly Ads works out much cheaper per ad.",
@@ -72,11 +72,11 @@ export const PRICE_LIST: readonly PriceListGroup[] = [
     title: "Get customers and automate",
     blurb: "Lead capture, payments, software, and AI agents. Bigger builds start with a scoping call.",
     items: [
-      { slug: "lead-engine", line: "A landing page, a lead form, and automatic follow-up emails." },
-      { slug: "payments-setup", line: "Take card payments on your website or app through Stripe." },
-      { slug: "agents", line: "Up to 3 AI agents working together on one business process." },
-      { slug: "saas", line: "A working web app for one core workflow, with the code handed to you." },
-      { slug: "strategy-session", line: "Not sure what you need? A one-hour call, and the fee is credited toward your build." },
+      { slug: "lead-engine", name: "Lead Engine", line: "A landing page, a lead form, and automatic follow-up emails." },
+      { slug: "payments-setup", name: "Payments Setup", line: "Take card payments on your website or app through Stripe." },
+      { slug: "agents", name: "Multi-Agent System", line: "Up to 3 AI agents working together on one business process." },
+      { slug: "saas", name: "AI Software / App", line: "A working web app for one core workflow, with the code handed to you." },
+      { slug: "strategy-session", name: "Strategy Session", line: "Not sure what you need? A one-hour call, and the fee is credited toward your build." },
     ],
   },
   {

@@ -18,7 +18,6 @@ export interface AddOnPitch {
 
 export const EXTRA_REVISION_SLUG = "extra-revision-package";
 export const EXTRA_REVISION_ROUNDS = 2;
-const STARTER_WEBSITE_SLUG = "website-special";
 const SOCIAL_PACK_SLUG = "social-asset-pack";
 
 /** The Extra Revision Package pitch, worded for the number of rounds the chosen product already includes. */
@@ -58,12 +57,25 @@ export const ADD_ON_PITCH: Record<string, AddOnPitch> = {
   },
 };
 
+// Products with a hero visual or video to crop for social. Only these get the Social Asset Pack.
+const VISUAL_SLUGS = new Set(["site", "ad", "rental-listing-film", "basic-package", "cinematic-ad-special", "ugc-ad-special", "all-in-one-bundle"]);
+// Consultations are calls: there is nothing to revise, brand, crop, or ship with them.
+const CONSULTATION_SLUGS = new Set(["strategy-session", "custom-build"]);
+const isCard = (slug: string) => slug.startsWith("nfc-");
+
 /**
- * Whether an add-on makes sense for the main product. The Social Asset Pack is
- * crops of a hero visual, which the Website Special doesn't have, so it
- * isn't offered (or accepted) with it.
+ * Whether an add-on makes sense with the main product, so checkout only offers (and only accepts) extras that do
+ * something for it:
+ * - nothing on a consultation, which is a call;
+ * - the Social Asset Pack only on products with a hero visual or video to crop (not the Website Special, software,
+ *   automation, or cards);
+ * - no Extra Revision Package on Business Cards, which have no revision rounds;
+ * - no Business Card add-on on a Business Card order, which already picks its cards.
  */
 export function addOnAvailable(addOnSlug: string, primarySlug: string): boolean {
-  if (addOnSlug === SOCIAL_PACK_SLUG && primarySlug === STARTER_WEBSITE_SLUG) return false;
+  if (CONSULTATION_SLUGS.has(primarySlug)) return false;
+  if (addOnSlug === SOCIAL_PACK_SLUG) return VISUAL_SLUGS.has(primarySlug);
+  if (addOnSlug === EXTRA_REVISION_SLUG && isCard(primarySlug)) return false;
+  if (addOnSlug === "nfc-card-addon" && isCard(primarySlug)) return false;
   return true;
 }

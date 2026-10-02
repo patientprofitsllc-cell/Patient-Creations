@@ -47,7 +47,7 @@ export async function PriceList({ className = "" }: { className?: string }) {
                   return (
                     <li key={i.slug} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-6 sm:p-5">
                       <div className="flex-1">
-                        <p className="font-semibold text-ice">{i.name ?? row?.name ?? i.slug}</p>
+                        <p className="font-semibold text-ice">{i.name}</p>
                         <p className="mt-1 text-sm text-ice/60">{i.line}</p>
                       </div>
                       <div className="flex items-center justify-between gap-4 sm:justify-end">
