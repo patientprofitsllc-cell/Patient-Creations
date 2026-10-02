@@ -37,7 +37,7 @@ describe("the one price list", () => {
   });
 
   it("holds the prices the business sells at", () => {
-    expect(priceOf("nfc-cards")).toBe(3_000);
+    expect(priceOf("nfc-cards")).toBe(2_000);
     expect(priceOf("website-special")).toBe(125_000);
     expect(priceOf("ugc-ad-special")).toBe(12_900);
     expect(priceOf("cinematic-ad-special")).toBe(29_900);
@@ -75,7 +75,7 @@ describe("the one price list", () => {
 
   it("makes the launch bundle cheaper than buying its parts one by one, so its saving is real", () => {
     const parts = PRICE_CENTS["website-special"] + 4 * PRICE_CENTS["cinematic-ad-special"] + 4 * PRICE_CENTS["ugc-ad-special"] + 5 * PRICE_CENTS["nfc-cards"];
-    expect(parts).toBe(311_200);
+    expect(parts).toBe(306_200);
     expect(BUNDLE_SEPARATELY_CENTS).toBe(parts);
     expect(PRICE_CENTS["all-in-one-bundle"]).toBeLessThan(parts);
   });
@@ -83,7 +83,7 @@ describe("the one price list", () => {
   it("charges the same for a card on its own, on any design, and added to an order", () => {
     const cards = Object.entries(PRICE_CENTS).filter(([k]) => k.startsWith("nfc-"));
     expect(cards.length).toBe(9);
-    for (const [k, v] of cards) expect(v, k).toBe(3_000);
+    for (const [k, v] of cards) expect(v, k).toBe(2_000);
     expect(FREE_FIRST_CARD_VIDEO_MIN_CENTS).toBe(100_000);
   });
 
@@ -125,7 +125,7 @@ describe("no other price anywhere", () => {
       ["lib/ads/plans.ts", 'PRICE_CENTS["ads-monthly-300"]'],
       ["lib/site/carePlan.ts", 'PRICE_CENTS["care-plan"]'],
       ["lib/site/offerData.ts", 'PRICE_CENTS["website-special"]'],
-      ["lib/payments/nfcAddon.ts", "CARD_BULK.unitCents"],
+      ["lib/payments/nfcAddon.ts", 'PRICE_CENTS["nfc-card-addon"]'],
       ["lib/site/marketComparison.ts", "PRICE_CENTS.saas"],
     ] as const) {
       expect(read(file), file).toContain(needle);

@@ -10,14 +10,14 @@
 /** The price of everything on sale, in cents, by product slug. */
 export const PRICE_CENTS = {
   // Get online
-  "nfc-cards": 3_000,
-  "nfc-wifi": 3_000,
-  "nfc-custom-menu": 3_000,
-  "nfc-youtube": 3_000,
-  "nfc-whatsapp": 3_000,
-  "nfc-instagram": 3_000,
-  "nfc-tiktok": 3_000,
-  "nfc-google-review": 3_000,
+  "nfc-cards": 2_000,
+  "nfc-wifi": 2_000,
+  "nfc-custom-menu": 2_000,
+  "nfc-youtube": 2_000,
+  "nfc-whatsapp": 2_000,
+  "nfc-instagram": 2_000,
+  "nfc-tiktok": 2_000,
+  "nfc-google-review": 2_000,
   "website-special": 125_000, // includes 3 months of Website Care
   "site": 200_000,
   // Get attention
@@ -37,7 +37,7 @@ export const PRICE_CENTS = {
   "strategy-session": 15_000,
   "custom-build": 10_000,
   // Extras added to an order
-  "nfc-card-addon": 3_000,
+  "nfc-card-addon": 2_000,
   "brand-kit": 25_000,
   "extra-revision-package": 15_000,
   "social-asset-pack": 12_000,
@@ -48,13 +48,6 @@ export const PRICE_CENTS = {
   "ads-monthly-500": 50_000,
   "ads-monthly-1000": 100_000,
 } as const;
-
-/**
- * Business Cards: list price each, and the price each when this many or more are ordered. The difference is charged as a
- * per-card setup fee that bulk orders don't pay (see BULK_SETUP_WAIVER_MIN_QTY), which is how checkout already prices it.
- */
-export const CARD_BULK = { minQty: 10, unitCents: 2_000 } as const;
-export const CARD_SETUP_FEE_CENTS: number = PRICE_CENTS["nfc-cards"] - CARD_BULK.unitCents;
 
 /** Months of Website Care included in the Website Special's price. */
 export const SPECIAL_CARE_MONTHS = 3;
