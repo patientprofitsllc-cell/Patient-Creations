@@ -19,6 +19,15 @@ const nextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: protectiveHeaders }];
   },
+  // The welcome kit used to be a static file; links already shared keep working.
+  async redirects() {
+    return [{ source: "/welcome-kit/index.html", destination: "/welcome-kit", permanent: true }];
+  },
+  // "file?raw" imports a file's text (the welcome kit's HTML), bundled into the build so the server never reads it from disk.
+  webpack(config) {
+    config.module.rules.push({ resourceQuery: /raw/, type: "asset/source" });
+    return config;
+  },
 };
 
 export default nextConfig;

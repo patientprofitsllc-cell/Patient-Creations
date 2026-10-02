@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
 import { NfcIntakeForm } from "@/components/checkout/NfcIntakeForm";
 import { CalendlyBooking } from "@/components/checkout/CalendlyBooking";
+import { WelcomeKitPanel } from "@/components/checkout/WelcomeKitPanel";
 import { ThankYouCard, type ThankYouKind } from "@/components/checkout/ThankYouCard";
 import { statusUrlFor } from "@/lib/projects/statusToken";
 import { NFC_ADDON_SLUG, includedCardCount } from "@/lib/payments/nfcAddon";
@@ -164,6 +165,8 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
             </p>
           )
         )}
+
+        {order && !awaitingManualPayment && <WelcomeKitPanel />}
 
         {showCardSetup && order && (
           <NfcIntakeForm

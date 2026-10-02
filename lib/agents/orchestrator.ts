@@ -1,4 +1,6 @@
 import { db } from "@/lib/db";
+import { ONBOARDING_KIT_URL } from "@/lib/config/onboarding";
+import { kickoffUrlFor, needsKickoff } from "@/lib/config/calendly";
 import { ProjectState } from "@/lib/types";
 import { logEvent } from "@/lib/analytics/events";
 import { transitionProject } from "@/lib/workflows/stateMachine";
@@ -102,6 +104,9 @@ export async function createProjectForOrder(orderId: string) {
     projectName: project.name,
     statusUrl: statusUrlFor(project.statusToken!),
     intakeUrl: intake && intake.status !== "COMPLETE" ? intakeUrlFor(intake.token) : undefined,
+    kitUrl: ONBOARDING_KIT_URL,
+    // Only the builds the welcome kit says start with a kickoff call get the booking link (see KICKOFF_SLUGS).
+    kickoffUrl: needsKickoff(order.items.map((i) => i.product.slug)) ? kickoffUrlFor(order.customer.user.name, order.customer.user.email) : undefined,
   });
 
   // Fire-and-continue: run the pipeline in-process. A slow first task
