@@ -11,8 +11,37 @@ export interface ProductScope {
   summary: string;
   includes: string[];
   notIncluded: string[];
-  /** What the higher tiers add on top of the base tier, by tier name. */
+  /** What the higher tiers add on top of the base tier, by tier name. Flagship also gets everything Signature adds. */
   tierAdds?: { Signature: string[]; Flagship: string[] };
+  /**
+   * A tier line that upgrades an earlier one ("Up to 8 pages" over "Up to 5 pages"), mapped to the start of each line it
+   * replaces, in the base list, a lower tier, or the not-included list. Used to show exactly what the chosen tier includes.
+   */
+  supersedes?: Record<string, string[]>;
+}
+
+export type ScopeTier = "Core" | "Signature" | "Flagship";
+
+/**
+ * Exactly what one tier includes and doesn't: the base list, plus every line the tier (and the tiers below it) adds,
+ * with upgraded lines replacing what they supersede in place. Core is the base list as written.
+ */
+export function scopeForTier(scope: ProductScope, tier: ScopeTier): { includes: string[]; notIncluded: string[] } {
+  let includes = [...scope.includes];
+  let notIncluded = [...scope.notIncluded];
+  const steps = tier === "Core" ? [] : tier === "Signature" ? (["Signature"] as const) : (["Signature", "Flagship"] as const);
+  for (const step of steps) {
+    for (const line of scope.tierAdds?.[step] ?? []) {
+      if (includes.includes(line)) continue;
+      const replaced = (l: string) => (scope.supersedes?.[line] ?? []).some((start) => l.startsWith(start));
+      const at = includes.findIndex(replaced);
+      includes = includes.filter((l) => !replaced(l));
+      notIncluded = notIncluded.filter((l) => !replaced(l));
+      if (at === -1) includes.push(line);
+      else includes.splice(at, 0, line);
+    }
+  }
+  return { includes, notIncluded };
 }
 
 export const PRODUCT_SCOPES: Record<string, ProductScope> = {
@@ -39,6 +68,7 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
       Signature: ["Up to 8 pages", "A gallery, blog, or portfolio section", "A booking or scheduling link connected"],
       Flagship: ["Up to 12 pages", "Cinematic motion sections on more than one page", "A short strategy call before we start"],
     },
+    supersedes: { "Up to 8 pages": ["Up to 5 pages"], "Up to 12 pages": ["Up to 5 pages", "Up to 8 pages"] },
   },
   saas: {
     summary: "A working web app for one core workflow, built to launch.",
@@ -64,6 +94,13 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
       Signature: ["Up to 15 screens", "Up to 3 integrations", "Two user roles (for example customer and staff)"],
       Flagship: ["Up to 25 screens", "Up to 5 integrations", "Three user roles", "A written technical handover and one training call"],
     },
+    supersedes: {
+      "Up to 15 screens": ["Up to 8 screens"],
+      "Up to 25 screens": ["Up to 8 screens", "Up to 15 screens"],
+      "Up to 3 integrations": ["Integrations beyond payments"],
+      "Up to 5 integrations": ["Integrations beyond payments", "Up to 3 integrations"],
+      "Three user roles": ["Two user roles"],
+    },
   },
   agents: {
     summary: "Up to 3 AI agents working together on one business process, with your approval where it matters.",
@@ -87,6 +124,11 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
       Signature: ["Up to 5 agents and 5 connected tools"],
       Flagship: ["Up to 8 agents and 8 connected tools", "Two business processes"],
     },
+    supersedes: {
+      "Up to 5 agents and 5 connected tools": ["Up to 3 AI agents", "Connections to up to 3"],
+      "Up to 8 agents and 8 connected tools": ["Up to 3 AI agents", "Connections to up to 3", "Up to 5 agents"],
+      "Two business processes": ["More than one business process"],
+    },
   },
   "payments-setup": {
     summary: "Start taking card payments on your website or app through Stripe.",
@@ -108,6 +150,10 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
     tierAdds: {
       Signature: ["Up to 10 products, coupons, and a customer billing portal"],
       Flagship: ["Up to 25 products, several subscription plans, and custom confirmation pages"],
+    },
+    supersedes: {
+      "Up to 10 products, coupons, and a customer billing portal": ["Up to 3 products"],
+      "Up to 25 products, several subscription plans, and custom confirmation pages": ["Up to 3 products", "Up to 10 products"],
     },
   },
   "lead-engine": {
@@ -135,6 +181,12 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
         "Two versions of your main page's headline, so you can see which brings in more leads",
         "A walkthrough call when we hand it over",
       ],
+    },
+    supersedes: {
+      "Up to 2 landing pages": ["One landing page"],
+      "Up to 5 follow up emails": ["A simple follow up sequence"],
+      "Up to 3 landing pages": ["One landing page", "Up to 2 landing pages"],
+      "Up to 8 follow up emails": ["A simple follow up sequence", "Up to 5 follow up emails"],
     },
   },
   "automation-add-on": {
@@ -172,13 +224,14 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
     ],
     notIncluded: ["Filming on location or real drone footage", "Music rights or licensed music", "Any promise of bookings"],
     tierAdds: {
-      Signature: ["A longer video, up to 90 seconds", "A short 15-second cut for Reels, TikTok, and Stories"],
+      Signature: ["A longer video, up to 90 seconds, delivered wide and vertical", "A short 15-second cut for Reels, TikTok, and Stories"],
       Flagship: [
-        "A longer video, up to 90 seconds",
+        "A longer video, up to 90 seconds, delivered wide and vertical",
         "A short 15-second cut for Reels, TikTok, and Stories",
         "A second video: another property, or the neighborhood around this one",
       ],
     },
+    supersedes: { "A longer video, up to 90 seconds, delivered wide and vertical": ["1 video, up to 45 seconds"] },
   },
   "basic-package": {
     summary: "Three drone-style videos of your building and storefront, made with AI from your photos, plus 5 Business Cards.",
