@@ -12,6 +12,13 @@ describe("the price list", () => {
     expect(ids).toEqual(expect.arrayContaining(["websites", "ads", "business-cards"]));
   });
 
+  it("gives every row a real name, so a product missing from the database never shows its slug", () => {
+    for (const i of PRICE_LIST.flatMap((g) => g.items)) {
+      expect(i.name.trim(), i.slug).not.toBe("");
+      expect(i.name, i.slug).not.toBe(i.slug);
+    }
+  });
+
   it("names the new website offer and leaves the retired one out", () => {
     expect(PRICE_LIST_SLUGS).toContain("website-special");
     expect(PRICE_LIST_SLUGS).not.toContain("starter-website" as never);
