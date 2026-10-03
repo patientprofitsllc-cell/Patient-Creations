@@ -108,3 +108,72 @@ body {
   contain-intrinsic-size: auto 700px;
 }
 
+
+/* ---- Motion layer (components/motion). Only opacity and transform animate, so nothing shifts the layout. ---- */
+
+/* Scroll reveal: hidden only once JavaScript has marked the page ready, so content is never lost without it. */
+.js-motion .reveal {
+  opacity: 0;
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.js-motion .reveal[data-effect="up"] { transform: translate3d(0, 28px, 0); }
+.js-motion .reveal[data-effect="scale"] { transform: scale(0.96); }
+.js-motion .reveal[data-effect="left"] { transform: translate3d(-32px, 0, 0); }
+.js-motion .reveal[data-effect="right"] { transform: translate3d(32px, 0, 0); }
+.js-motion .reveal[data-seen] { opacity: 1; transform: none; }
+
+/* Gold shimmer that sweeps across a few key words, a few times, then rests. */
+.text-shimmer {
+  background: linear-gradient(100deg, #e0c48a 0%, #e0c48a 40%, #fff6dc 50%, #e0c48a 60%, #c39b52 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 3.2s ease-in-out 0.6s 3 both;
+}
+@keyframes shimmer {
+  from { background-position: 100% 50%; }
+  to { background-position: 0% 50%; }
+}
+
+/* Headline words rise in one after another (fast, so the first screen is ready in well under a second). */
+.word-rise > span {
+  display: inline-block;
+  animation: wordRise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+@keyframes wordRise {
+  from { opacity: 0; transform: translate3d(0, 0.45em, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+/* The main button's glow breathes a few times when the page opens, then holds still. */
+.cta-primary { animation: ctaGlow 2.4s ease-in-out 1.2s 3; }
+@keyframes ctaGlow {
+  0%, 100% { box-shadow: 0 0 30px rgba(224, 196, 138, 0.25); }
+  50% { box-shadow: 0 0 55px rgba(224, 196, 138, 0.55); }
+}
+
+/* Endless strip. */
+.marquee-track { animation: marquee var(--marquee-duration, 38s) linear infinite; }
+@keyframes marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+.marquee { mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+
+/* Sticky call to action slides up into place. */
+.sticky-cta { transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease; }
+.sticky-cta[data-show="false"] { transform: translate3d(0, 120%, 0); opacity: 0; pointer-events: none; }
+
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js-motion .reveal { opacity: 1 !important; transform: none !important; }
+  .marquee-track { animation: none; flex-wrap: wrap; width: auto; }
+  .marquee-copy { display: none; }
+  .marquee { mask-image: none; }
+  .text-shimmer, .word-rise > span, .cta-primary { animation: none; }
+  .text-shimmer { color: #e0c48a; background: none; }
+}

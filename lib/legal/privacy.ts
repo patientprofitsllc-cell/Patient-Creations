@@ -7,7 +7,7 @@ export const privacyDoc: LegalDoc = {
   title: "Privacy Policy",
   description: `How ${C.legalName} collects, uses, and shares personal information on ${C.brand}, and the choices you have.`,
   summary: [
-    `We collect what we need to take your order, build your work, get paid, and keep the site safe. We do not sell your personal information, and we do not use advertising cookies.`,
+    `We collect what we need to take your order, build your work, get paid, and keep the site safe. We do not sell your personal information, and we do not use advertising cookies. We use Google Analytics to count visits and see which pages help people buy.`,
     `Card payments are handled by Stripe; we never see or store your full card number. You can ask us to access, correct, or delete your information at ${C.email}.`,
   ],
   sections: [
@@ -39,7 +39,8 @@ export const privacyDoc: LegalDoc = {
             "a random visitor identifier and, if you arrived through a link, the referral code or campaign source (utm details), stored in your browser so we can tell which links lead to orders and recognize a returning visitor, for example to show a one-time welcome-back discount to someone who has looked at checkout more than once without ordering;",
             "the pages you view and actions you take on our Site, with times, so we can count visits and see where people drop off;",
             "your internet address and browser type, used to keep the Site secure, limit abuse, prevent fraud, and keep records of your agreement. For referral clicks we keep a scrambled (hashed) version of the internet address;",
-            "a sign-in cookie, only if you sign in or check out with an account.",
+            "a sign-in cookie, only if you sign in or check out with an account;",
+            "analytics cookies set by Google Analytics, described in section 5.",
           ],
         },
         `Information from others: Stripe (payment results), Calendly or a video tool when you book or join a call with us (name, email, meeting time), and the person who referred you if you came through a referral.`,
@@ -70,7 +71,7 @@ export const privacyDoc: LegalDoc = {
         `We do not sell your personal information and we do not share it for cross-context behavioral advertising. We share it only as follows:`,
         {
           list: [
-            "with service providers who help us run the business and are allowed to use the information only for that purpose: payment processing (Stripe), website hosting and delivery (Netlify), database hosting (Neon), email delivery (Resend), scheduling and video meetings (Calendly, Zoom), shipping carriers (such as USPS), and, if we turn on AI features, an AI provider described below;",
+            "with service providers who help us run the business and are allowed to use the information only for that purpose: payment processing (Stripe), visit statistics (Google Analytics), website hosting and delivery (Netlify), database hosting (Neon), email delivery (Resend), scheduling and video meetings (Calendly, Zoom), shipping carriers (such as USPS), and, if we turn on AI features, an AI provider described below;",
             "with card issuers, payment providers, and dispute processes, including records of your order, agreement, approvals, and messages, if a payment is questioned;",
             "with professional advisers such as lawyers, accountants, and insurers;",
             "with authorities or other parties when we believe the law requires it, or to protect our rights, safety, or property, or those of others;",
@@ -84,7 +85,9 @@ export const privacyDoc: LegalDoc = {
       id: "cookies",
       title: "5. Cookies and similar technology",
       body: [
-        `We do not use advertising or cross-site tracking cookies. We use a sign-in cookie that is needed to keep you signed in, and your browser's local storage to keep a random visitor identifier and referral details. You can clear or block these in your browser settings, but sign-in and checkout may not work without the sign-in cookie. Our Site does not respond to "Do Not Track" signals because we do not track you across other sites.`,
+        `We do not use advertising or cross-site tracking cookies. We use a sign-in cookie that is needed to keep you signed in, and your browser's local storage to keep a random visitor identifier and referral details. You can clear or block these in your browser settings, but sign-in and checkout may not work without the sign-in cookie.`,
+        `Google Analytics: we use Google Analytics to understand how people use our Site, for example which pages they view, how far they scroll, which buttons they press, when they start checkout, and the amount and products of a completed order. It sets first-party analytics cookies and Google receives your internet address, browser and device type, and approximate location. We do not send Google your name, email, phone number, address, or card details, and we have turned off Google's advertising features and Google signals, so this data is not used to show you ads. Google handles it under its own privacy policy (policies.google.com/privacy). You can opt out with Google's browser add-on (tools.google.com/dlpage/gaoptout) or by blocking cookies.`,
+        `If your browser sends a "Do Not Track" signal, we do not load Google Analytics. We do not track you across other sites.`,
       ],
     },
     {
