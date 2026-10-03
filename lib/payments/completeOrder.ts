@@ -7,6 +7,7 @@ import { holdForIntake, startProductionIfReady } from "@/lib/projects/production
 import { recordReferralPurchase } from "@/lib/referrals/commissions";
 import { decrementInventoryForOrder } from "@/lib/inventory/decrement";
 import { consumeAuditCredit } from "@/lib/audit/paid";
+import { consumeReviewReward } from "@/lib/reviews/reward";
 import { announceDeposit } from "@/lib/payments/invoices";
 import { markProspectWon } from "@/lib/prospects/service";
 import { recordPartnerPurchase } from "@/lib/partners/service";
@@ -36,6 +37,8 @@ export async function completeOrderPayment(orderId: string, provider: PaymentPro
   await logEvent("payment.succeeded", "Order", orderId, { provider });
   // A Growth Audit credit is used up once the order it was applied to is paid.
   await consumeAuditCredit(order.couponCode);
+  // So is a review reward code (one Business Card for $5).
+  await consumeReviewReward(order.couponCode);
   await trackFunnel("checkout_completed", {
     orderId,
     source: order.campaignSource ?? undefined,

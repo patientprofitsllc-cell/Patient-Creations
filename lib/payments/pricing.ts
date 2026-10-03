@@ -2,6 +2,7 @@ import { addOnAvailable } from "@/lib/site/addOnPitch";
 import { OFFER_PERCENT, RECOVERY_COUPON } from "@/lib/funnel/cartRecovery";
 import { db } from "@/lib/db";
 import { isAuditCreditCode, resolveAuditCredit } from "@/lib/audit/paid";
+import { isReviewRewardCode, resolveReviewReward } from "@/lib/reviews/reward";
 import { computeRushFeeCents, DeliverySpeedKey, DELIVERY_SPEEDS, getApplicableSpeeds } from "@/lib/payments/deliverySpeed";
 import { getActiveProjectCount } from "@/lib/payments/productionLoad";
 import { BULK_SETUP_WAIVER_MIN_QTY } from "@/lib/payments/bulkPricing";
@@ -13,6 +14,8 @@ import { CARD_DESIGN_SLUGS } from "@/lib/payments/cardMix";
 export interface PriceOptions {
   /** A verified return-visitor offer (see lib/funnel/cartRecovery.ts). Only the server sets this. */
   recoveryOffer?: boolean;
+  /** The price of one Business Card when this is a card order, so a review reward code can bring one card to $5. */
+  cardUnitCents?: number;
 }
 
 export interface PricedOrder {
@@ -141,7 +144,8 @@ export async function priceOrder(
 
   const subtotalCents = items.reduce((sum, i) => sum + i.priceCents * i.quantity, 0);
 
-  const { discountCents, couponApplied } = await resolveDiscount(couponCode, subtotalCents, opts);
+  const cardUnitCents = primaryProduct.category === "Merch" ? items[0]?.priceCents : undefined;
+  const { discountCents, couponApplied } = await resolveDiscount(couponCode, subtotalCents, { ...opts, cardUnitCents });
 
   const activeProjectCount = await getActiveProjectCount();
   const rushFeeCents = computeRushFeeCents(items[0].priceCents, deliverySpeed as DeliverySpeedKey, activeProjectCount);
@@ -190,7 +194,8 @@ export async function priceCardMix(mix: Record<string, number>, couponCode?: str
   });
 
   const subtotalCents = items.reduce((sum, i) => sum + i.priceCents * i.quantity, 0);
-  const { discountCents, couponApplied } = await resolveDiscount(couponCode, subtotalCents, opts);
+  const cardUnitCents = Math.min(...items.map((i) => i.priceCents));
+  const { discountCents, couponApplied } = await resolveDiscount(couponCode, subtotalCents, { ...opts, cardUnitCents });
   const shipping = calculateShippingCents(totalQty);
   const totalCents = Math.max(0, subtotalCents - discountCents + shipping.cents);
 
@@ -218,15 +223,17 @@ const COUPONS: Record<string, number> = {
  * return-visitor offer (5%). They never stack.
  */
 export async function resolveDiscount(couponCode: string | undefined, subtotalCents: number, opts: PriceOptions = {}) {
-  const couponCents = couponCode ? await resolveCouponDiscount(couponCode, subtotalCents) : 0;
+  const couponCents = couponCode ? await resolveCouponDiscount(couponCode, subtotalCents, opts.cardUnitCents) : 0;
   const offerCents = opts.recoveryOffer ? Math.round((subtotalCents * OFFER_PERCENT) / 100) : 0;
   if (offerCents > couponCents) return { discountCents: offerCents, couponApplied: RECOVERY_COUPON as string | undefined };
   return { discountCents: couponCents, couponApplied: couponCents > 0 ? couponCode?.toUpperCase() : undefined };
 }
 
-async function resolveCouponDiscount(code: string, subtotalCents: number): Promise<number> {
+async function resolveCouponDiscount(code: string, subtotalCents: number, cardUnitCents?: number): Promise<number> {
   // A Growth Audit credit code: the audit fee, once, toward a first order.
   if (isAuditCreditCode(code)) return resolveAuditCredit(code, subtotalCents);
+  // A review reward code: one Business Card for $5, on a card order only.
+  if (isReviewRewardCode(code)) return resolveReviewReward(code, subtotalCents, cardUnitCents);
   const rate = COUPONS[code.toUpperCase()];
   if (!rate) return 0;
   return Math.round(subtotalCents * rate);

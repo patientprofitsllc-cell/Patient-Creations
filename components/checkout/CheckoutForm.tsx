@@ -93,7 +93,8 @@ export function CheckoutForm({
   // Mix-and-match card pack: how many of each design.
   const [mix, setMix] = useState<Record<string, number>>({});
   const [selectedBumps, setSelectedBumps] = useState<string[]>([]);
-  const [coupon, setCoupon] = useState("");
+  // A link can carry a code (for example the review thank-you link), so the customer never has to type it.
+  const [coupon, setCoupon] = useState(() => params.get("code") ?? "");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -764,7 +765,7 @@ export function CheckoutForm({
         <p className="mt-3 text-center text-xs text-ice/30">
           {step === "payment" && !selectedMethod.live
             ? "Your project starts production once we confirm your payment."
-            : "Secured checkout. Your project starts production immediately after payment is verified."}
+            : "Secured checkout. Sales tax, where it applies, is added on the payment page from your billing address. Your project starts production immediately after payment is verified."}
         </p>
       </div>
     </div>

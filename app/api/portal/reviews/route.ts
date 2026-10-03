@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { issueReviewReward } from "@/lib/reviews/reward";
 import { requireSession, UnauthorizedError } from "@/lib/security/permissions";
 
 const schema = z.object({
@@ -38,5 +39,7 @@ export async function POST(req: NextRequest) {
     create: { ...fields, projectId: project.id, customerId: project.customerId },
   });
 
-  return NextResponse.json({ review });
+  // Every review earns the reward, whatever it says: the reward never depends on the rating.
+  const rewardCode = await issueReviewReward(project.id, project.customerId);
+  return NextResponse.json({ review, rewardCode });
 }

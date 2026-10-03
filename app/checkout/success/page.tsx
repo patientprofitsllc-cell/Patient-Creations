@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { GaPurchase } from "@/components/analytics/Track";
+import { CartPaid } from "@/components/cart/CartPaid";
+import { CARD_DESIGN_SLUGS, CARD_MIX_PACK_SLUG } from "@/lib/payments/cardMix";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { db } from "@/lib/db";
@@ -79,6 +81,15 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
       <SiteHeader />
       <main id="main" className="mx-auto max-w-2xl px-6 pb-28 pt-40 text-center">
         {order && !awaitingManualPayment && <VoiceCue id={thanksCueFor(order.items[0]?.product.slug)} />}
+        {/* Checked out: these leave the cart (a card-design order counts as the Business Cards item). */}
+        {order && (
+          <CartPaid
+            slugs={[
+              ...order.items.map((i) => i.product.slug),
+              ...(order.items.some((i) => CARD_DESIGN_SLUGS.includes(i.product.slug)) ? [CARD_MIX_PACK_SLUG] : []),
+            ]}
+          />
+        )}
         {order && order.status === "PAID" && (
           <GaPurchase
             order={{

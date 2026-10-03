@@ -1,4 +1,5 @@
 import { randomBytes } from "crypto";
+import { createTaxedSession, preTaxCents, reportTaxFallback } from "@/lib/payments/tax";
 import type Stripe from "stripe";
 import { db } from "@/lib/db";
 import { AUDIT_CREDIT_DAYS, AUDIT_FEE_CENTS, usd } from "@/lib/pricing/catalog";
@@ -102,7 +103,7 @@ export async function startAuditCheckout(auditId: string): Promise<CheckoutStart
   }
   try {
     const meta = { kind: "growth_audit", auditId: audit.id };
-    const session = await createWithBnplFallback(audit.amountCents, (types) => getStripe().checkout.sessions.create({
+    const session = await createWithBnplFallback(audit.amountCents, (types) => createTaxedSession({
       mode: "payment",
       ...(types ? { payment_method_types: types as never } : {}),
       customer_email: audit.email,
@@ -120,7 +121,7 @@ export async function startAuditCheckout(auditId: string): Promise<CheckoutStart
       payment_intent_data: { metadata: meta },
       success_url: `${reportUrl}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: reportUrl,
-    }));
+    }, (p) => getStripe().checkout.sessions.create(p as never), reportTaxFallback));
     if (!session.url) return { ok: false, status: 502, error: "We could not start checkout. Please try again." };
     return { ok: true, url: session.url };
   } catch (err) {
@@ -204,7 +205,7 @@ export async function confirmAuditPayment(auditId: string, sessionId: string): P
   try {
     const s: Stripe.Checkout.Session = await getStripe().checkout.sessions.retrieve(sessionId);
     const audit = await db.growthAudit.findUnique({ where: { id: auditId }, select: { amountCents: true } });
-    if (!audit || s.payment_status !== "paid" || s.metadata?.kind !== "growth_audit" || s.metadata?.auditId !== auditId || s.amount_total !== audit.amountCents) return false;
+    if (!audit || s.payment_status !== "paid" || s.metadata?.kind !== "growth_audit" || s.metadata?.auditId !== auditId || preTaxCents(s) !== audit.amountCents) return false;
     await markAuditPaid(auditId, s.id);
     return true;
   } catch (err) {
@@ -221,6 +222,6 @@ export async function handleAuditEvent(event: Stripe.Event): Promise<void> {
   const auditId = s.metadata.auditId;
   if (!auditId) return;
   const audit = await db.growthAudit.findUnique({ where: { id: auditId }, select: { amountCents: true } });
-  if (!audit || s.amount_total !== audit.amountCents) return;
+  if (!audit || preTaxCents(s) !== audit.amountCents) return;
   await markAuditPaid(auditId, s.id);
 }

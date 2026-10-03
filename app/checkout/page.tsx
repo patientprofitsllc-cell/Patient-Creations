@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { bnplEnabled } from "@/lib/payments/bnpl";
 import { db } from "@/lib/db";
 import { getActiveProjectCount } from "@/lib/payments/productionLoad";
@@ -30,6 +31,8 @@ export default async function CheckoutPage({ searchParams }: { searchParams: { p
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Reserve This Build</p>
         <h1 className="mt-4 font-display text-4xl text-ice">{primaryProduct.name}</h1>
         <p className="mt-2 max-w-xl text-ice/50">{primaryProduct.description}</p>
+        {/* Not ready yet? Keep it for later; it'll be waiting next visit. */}
+        <AddToCartButton slug={primaryProduct.slug} className="mt-4" />
         {/* Tiered products show this inside the tier picker instead, so it follows the tier the customer picks. */}
         {scopeFor(primaryProduct.slug) && primaryProduct.variants.length === 0 && (
           <div className="glass-panel mt-6 max-w-2xl rounded-2xl p-5">
