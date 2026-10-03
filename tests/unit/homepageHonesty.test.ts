@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
 import { FUNNEL_EVENTS } from "@/lib/analytics/funnel";
-import { GA_EVENT_FOR, safeParams } from "@/lib/analytics/ga";
+import { GA_DEFAULT_ID, GA_EVENT_FOR, GA_HOSTS, safeParams } from "@/lib/analytics/ga";
 
 const read = (f: string) => readFileSync(join(process.cwd(), f), "utf8");
 const dir = (d: string) => readdirSync(join(process.cwd(), d)).map((f) => `${d}/${f}`);
@@ -50,8 +50,11 @@ describe("Google Analytics", () => {
     expect(Object.keys(sent).sort()).toEqual(["description", "product", "value"]);
   });
 
-  it("loads nothing until a measurement ID is set, skips Do Not Track, and keeps Google's ad features off", () => {
+  it("uses the site's tag, runs only on the live domain, skips Do Not Track, and keeps Google's ad features off", () => {
+    expect(GA_DEFAULT_ID).toMatch(/^G-[A-Z0-9]+$/);
+    expect(GA_HOSTS).toEqual(["patientcreations.com", "www.patientcreations.com"]);
     const c = read("components/analytics/GoogleAnalytics.tsx");
+    expect(c).toContain("indexOf(location.hostname)<0)return;");
     expect(c).toMatch(/if \(!\/\^G-\[A-Z0-9\]\+\$\/\.test\(GA_ID\)\) return null;/);
     expect(c).toContain("doNotTrack");
     expect(c).toContain("allow_google_signals:false");

@@ -5,26 +5,33 @@ import { JOURNEY, NEEDS, SUGGESTIONS } from "@/lib/journey/discovery";
 import { PRICE_CENTS, usd } from "@/lib/pricing/catalog";
 
 const read = (f: string) => readFileSync(join(process.cwd(), f), "utf8");
-const EXPERIENCE = ["OfferStack", "TrustRow", "Proof"].map((c) => `components/home/experience/${c}.tsx`);
+const EXPERIENCE = ["OfferStack", "TrustRow", "Proof", "Sections", "Showcase", "ConceptSlides", "MoveTabs", "FindYourMove"].map((c) => `components/home/experience/${c}.tsx`);
 
 describe("homepage: the ten-second test", () => {
   const home = read("app/page.tsx");
 
   it("says what Patient Creations does in the headline, and what it helps with in the line under it", () => {
-    expect(home).toContain("Build Your Business. Get More Customers.");
-    expect(home).toContain("Automate the Work.");
-    expect(home).toContain("launch, market, generate leads, and automate operations with websites,");
+    expect(home).toContain('<WordRise text="Built to stand out." />');
+    expect(home).toContain('<WordRise text="Made to move you forward."');
+    expect(home).toContain("Cinematic websites. Content that gets noticed. AI that gets to work.");
   });
 
-  it("leads with one main button (the Website Special at its live price), the growth audit second, and the price list a tap away", () => {
+  it("opens with two buttons into the page (find your move, explore), and keeps checkout one tap away in the header and sticky bar", () => {
     const hero = home.slice(home.indexOf('id="hero"'), home.indexOf("</section>", home.indexOf('id="hero"')));
     const buttons = [...hero.matchAll(/<MagneticButton href=\{?"?([^"}\s]+)/g)].map((m) => m[1]);
-    expect(buttons).toEqual(["OFFER_CHECKOUT_HREF", "/audit"]);
-    expect(hero).toContain("BUILD MY WEBSITE {price}");
-    expect(hero).toContain("GET MY GROWTH AUDIT");
+    expect(buttons).toEqual(["#products", "#experience"]);
+    expect(home).toContain("<FindYourMove />");
+    expect(read("components/home/experience/FindYourMove.tsx")).toContain('id="products"');
+    expect(read("components/home/experience/Showcase.tsx")).toContain('id="experience"');
+    expect(read("components/shared/SiteHeader.tsx")).toContain("OFFER_CHECKOUT_HREF");
     expect(home).not.toMatch(/FREE GROWTH AUDIT/i);
-    expect(hero).toContain("credited toward your first order");
-    expect(hero).toContain('href="#products"');
+  });
+
+  it("explains the Growth Audit in two short points wherever it's offered", () => {
+    for (const t of [home, read("components/home/experience/Sections.tsx")]) {
+      expect(t).toContain("The Growth Audit helps you choose what to do first.");
+      expect(t).toMatch(/credited toward your first order within \{(AUDIT_CREDIT_DAYS|creditDays)\} days/);
+    }
   });
 
   it("keeps the next step in reach: a sticky button to the same checkout, hidden at the final call to action", () => {
@@ -42,13 +49,24 @@ describe("homepage: the ten-second test", () => {
     expect(home).toContain('<TrackView event="landing_page_view" />');
   });
 
-  it("keeps it short: three questions, one price list, the top answers, and nothing repeated", () => {
-    expect(home).toContain("<ProductFinder");
-    expect(home).toContain("<OfferStack prices={prices} />");
-    expect(home).toContain("<PriceList");
-    expect(home).toContain("topFaqs(");
+  it("runs in the concept site's order, with every price live and the answers one tap away", () => {
+    const order = ["<Showcase", "<Marquee", "<TrustRow", "<BiggerPicture", "<Reimagined", "<FindYourMove", "<OfferStack prices={prices} />", "<IdeaToOnline", "topFaqs(", 'id="final-cta"'];
+    const at = order.map((x) => home.indexOf(x));
+    for (const [i, x] of order.entries()) expect(at[i], x).toBeGreaterThan(-1);
+    expect([...at].sort((p, q) => p - q)).toEqual(at);
     expect(home).toContain('href="/faq"');
     for (const gone of ["<HomeTabs", "<OfferCard", "<SpecialsGrid", "<GrowthLadder"]) expect(home, gone).not.toContain(gone);
+  });
+
+  it("labels the sample designs as concepts and links each to its real sample page", () => {
+    const s = read("components/home/experience/Sections.tsx");
+    expect(s).toContain("Design concepts, not customer results.");
+    for (const slug of ["barbers", "restaurants", "local-retail"]) expect(s).toContain(`/examples/${slug}`);
+  });
+
+  it("lets anyone pause the motion", () => {
+    expect(home).toContain("<PauseMotion />");
+    expect(read("app/globals.css")).toContain('html[data-motion="paused"]');
   });
 });
 

@@ -50,17 +50,17 @@ export function StickyCta({ label, price, href, heroId = "hero", endId = "final-
     <div
       data-show={show ? "true" : "false"}
       aria-hidden={!show}
-      className="sticky-cta fixed inset-x-0 bottom-0 z-50 border-t border-gold/20 bg-obsidian/95 px-4 py-3 backdrop-blur-lg sm:inset-x-auto sm:bottom-6 sm:right-6 sm:rounded-full sm:border sm:px-3 sm:py-2"
+      className="sticky-cta fixed inset-x-0 bottom-0 z-50 border-t border-pc-sand/20 bg-pc-bg/95 px-4 py-3 backdrop-blur-lg sm:inset-x-auto sm:bottom-6 sm:right-6 sm:rounded-2xl sm:border sm:px-3 sm:py-2"
     >
       <div className="mx-auto flex max-w-xl items-center gap-3">
-        <p className="flex-1 text-sm text-ice/80 sm:pl-3">
-          {label} <span className="font-semibold text-champagne">{price}</span>
+        <p className="flex-1 text-sm text-pc-cream/80 sm:pl-3">
+          {label} <span className="font-semibold text-pc-sand">{price}</span>
         </p>
         <Link
           href={href}
           tabIndex={show ? 0 : -1}
           onClick={() => trackCta("sticky")}
-          className="inline-flex min-h-[44px] items-center rounded-full bg-gradient-to-b from-gold to-gold-deep px-5 text-sm font-semibold text-obsidian transition hover:brightness-110 active:scale-[0.97]"
+          className="inline-flex min-h-[44px] items-center rounded-xl bg-pc-sand px-5 text-sm font-semibold text-pc-ink transition hover:brightness-110 active:scale-[0.97]"
         >
           Start now →
         </Link>

@@ -1,10 +1,14 @@
 // Google Analytics 4: which of our funnel events become which GA4 events, and a safe way to send them. Pure and
-// client-safe. GA only loads when NEXT_PUBLIC_GA_MEASUREMENT_ID is set (see components/analytics/GoogleAnalytics.tsx),
-// so until then every call here is a no-op. Nothing personal is ever sent: no names, emails, phone numbers, addresses,
+// client-safe. GA only loads on the live site (see components/analytics/GoogleAnalytics.tsx), so
+// everywhere else every call here is a no-op. Nothing personal is ever sent: no names, emails, phone numbers, addresses,
 // or card details, only product slugs, prices and which button was pressed.
 import type { FunnelEvent } from "@/lib/analytics/funnel";
 
-export const GA_ID = (process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "").trim();
+/** The site's GA4 measurement ID, from the Google tag for patientcreations.com. An env var can override it. */
+export const GA_DEFAULT_ID = "G-07567QKJL2";
+export const GA_ID = (process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || GA_DEFAULT_ID).trim();
+/** GA only runs on the live site, so previews, local runs, and tests never add to the numbers. */
+export const GA_HOSTS = ["patientcreations.com", "www.patientcreations.com"];
 
 /**
  * Our funnel event → the GA4 recommended event that GA's reports understand. null means GA already measures it on its own

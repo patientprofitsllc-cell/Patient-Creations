@@ -40,3 +40,20 @@ export function useInViewOnce<T extends Element>(threshold = 0.2) {
   }, [seen, threshold]);
   return { ref, seen };
 }
+
+/**
+ * True while the visitor has pressed "Pause motion" (or their device asks for less motion). Auto-advancing tabs and
+ * slides check this, and CSS pauses every running animation under html[data-motion="paused"].
+ */
+export function useMotionPaused(): boolean {
+  const reduced = useReducedMotion();
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    const read = () => setPaused(document.documentElement.dataset.motion === "paused");
+    read();
+    const mo = new MutationObserver(read);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-motion"] });
+    return () => mo.disconnect();
+  }, []);
+  return reduced || paused;
+}
