@@ -1,4 +1,4 @@
-// The owner's quick sign-in: a 4-digit PIN that works only on a device the owner has already signed in on with email
+// The owner's quick sign-in: a 4 to 9 digit code that works only on a device the owner has already signed in on with email
 // and password (like unlocking a phone). A stranger's device can't use it at all, five wrong PINs lock it until the next
 // password sign-in, and the owner is alerted. Only hashes are stored: the PIN as bcrypt, the device token as SHA-256.
 // Everything lives in AppSetting, so no migration is needed.
@@ -14,16 +14,19 @@ export const MAX_DEVICES = 5;
 export const SEED_PASSWORD = "change-me-now";
 
 const pinKey = (userId: string) => `owner_pin:${userId}`;
+const lenKey = (userId: string) => `owner_pin_len:${userId}`;
+export const PIN_MIN = 4;
+export const PIN_MAX = 9;
 const failKey = (userId: string) => `owner_pin_fails:${userId}`;
 const deviceKey = (tokenHash: string) => `owner_device:${tokenHash}`;
 
 /** The PINs people pick most often (and so get guessed first). */
-const COMMON = new Set(["1234", "4321", "1212", "2580", "0123", "1004", "2000", "6969", "1122", "1313", "2468", "1357", "9876", "0987"]);
+const COMMON = new Set(["1234", "4321", "1212", "2580", "0123", "1004", "2000", "6969", "1122", "1313", "2468", "1357", "9876", "0987", "123456", "654321", "1234567", "12345678", "123456789", "987654321", "123123", "112233"]);
 
 /** null if the PIN is acceptable, otherwise why not. */
 export function validatePin(pin: unknown): string | null {
-  if (typeof pin !== "string" || !/^\d{4}$/.test(pin)) return "Use exactly 4 digits.";
-  if (/^(\d)\1{3}$/.test(pin) || COMMON.has(pin)) return "That PIN is too easy to guess. Pick another.";
+  if (typeof pin !== "string" || !new RegExp(`^\\d{${PIN_MIN},${PIN_MAX}}$`).test(pin)) return `Use ${PIN_MIN} to ${PIN_MAX} digits.`;
+  if (/^(\d)\1+$/.test(pin) || COMMON.has(pin)) return "That PIN is too easy to guess. Pick another.";
   return null;
 }
 
@@ -49,15 +52,22 @@ export async function hasPin(userId: string) {
   return (await getSetting(pinKey(userId))) !== null;
 }
 
+/** How many digits the owner's code has (4 to 9), so the keypad can show that many dots. */
+export async function pinLength(userId: string) {
+  const n = Number(await getSetting(lenKey(userId)));
+  return n >= PIN_MIN && n <= PIN_MAX ? n : PIN_MIN;
+}
+
 export async function setPin(userId: string, pin: string) {
   const problem = validatePin(pin);
   if (problem) throw new Error(problem);
   await setSetting(pinKey(userId), await bcrypt.hash(pin, 10));
+  await setSetting(lenKey(userId), String(pin.length)); // only so the keypad knows how many dots to show; the code itself is never stored
   await resetFailures(userId);
 }
 
 export async function clearPin(userId: string) {
-  await db.appSetting.deleteMany({ where: { key: { in: [pinKey(userId), failKey(userId)] } } });
+  await db.appSetting.deleteMany({ where: { key: { in: [pinKey(userId), lenKey(userId), failKey(userId)] } } });
 }
 
 export async function failures(userId: string) {
@@ -130,7 +140,7 @@ export async function checkPin(deviceToken: string | null | undefined, pin: unkn
   if (!hash) return { ok: false, reason: "no_pin" };
   if ((await failures(userId)) >= MAX_FAILS) return { ok: false, reason: "locked", failures: MAX_FAILS };
 
-  const good = typeof pin === "string" && /^\d{4}$/.test(pin) && (await bcrypt.compare(pin, hash));
+  const good = typeof pin === "string" && new RegExp(`^\\d{${PIN_MIN},${PIN_MAX}}$`).test(pin) && (await bcrypt.compare(pin, hash));
   if (!good) {
     const n = await recordFailure(userId);
     if (n === MAX_FAILS && onLocked) await onLocked(user.email).catch(() => {});

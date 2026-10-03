@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { PinPad } from "@/components/auth/PinPad";
-import { DEVICE_COOKIE, MAX_FAILS, failures, findUserByDevice, hasPin } from "@/lib/security/ownerPin";
+import { DEVICE_COOKIE, MAX_FAILS, failures, findUserByDevice, hasPin, pinLength } from "@/lib/security/ownerPin";
 
 export const metadata: Metadata = { title: "Owner sign-in", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -12,6 +12,7 @@ export default async function PinPage() {
   const userId = await findUserByDevice(cookies().get(DEVICE_COOKIE)?.value).catch(() => null);
   const ready = userId ? await hasPin(userId).catch(() => false) : false;
   const fails = userId && ready ? await failures(userId).catch(() => 0) : 0;
+  const length = userId && ready ? await pinLength(userId).catch(() => 4) : 4;
 
   let note: string | null = null;
   if (!userId || !ready) note = "This device isn't set up for PIN sign-in. Sign in with your email and password, then set a PIN on the Security page.";
@@ -30,7 +31,7 @@ export default async function PinPage() {
           </Link>
         </div>
       ) : (
-        <PinPad triesLeft={MAX_FAILS - fails} />
+        <PinPad triesLeft={MAX_FAILS - fails} length={length} />
       )}
     </main>
   );

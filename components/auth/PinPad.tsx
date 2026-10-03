@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "⌫"];
 
 /** Four dots and a phone-style keypad. Signs in on the 4th digit; a wrong PIN shakes and shows the tries left. */
-export function PinPad({ triesLeft }: { triesLeft: number }) {
+export function PinPad({ triesLeft, length = 4 }: { triesLeft: number; length?: number }) {
   const router = useRouter();
   const [pin, setPin] = useState("");
   const [busy, setBusy] = useState(false);
@@ -17,7 +17,7 @@ export function PinPad({ triesLeft }: { triesLeft: number }) {
     if (busy) return;
     setWrong(false);
     if (k === "⌫") setPin((p) => p.slice(0, -1));
-    else if (k && pin.length < 4) setPin((p) => p + k);
+    else if (k && pin.length < length) setPin((p) => p + k);
   };
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export function PinPad({ triesLeft }: { triesLeft: number }) {
   });
 
   useEffect(() => {
-    if (pin.length !== 4) return;
+    if (pin.length !== length) return;
     setBusy(true);
     signIn("owner-pin", { pin, redirect: false }).then((res) => {
       if (res?.ok && !res.error) {
@@ -46,8 +46,8 @@ export function PinPad({ triesLeft }: { triesLeft: number }) {
 
   return (
     <div className="mt-8 flex flex-col items-center">
-      <div className={`flex gap-4 ${wrong ? "animate-[pinShake_0.4s]" : ""}`} aria-live="polite" aria-label={`${pin.length} of 4 digits entered`}>
-        {[0, 1, 2, 3].map((i) => (
+      <div className={`flex gap-3 ${wrong ? "animate-[pinShake_0.4s]" : ""}`} aria-live="polite" aria-label={`${pin.length} of ${length} digits entered`}>
+        {Array.from({ length }, (_, i) => i).map((i) => (
           <span key={i} className={`h-4 w-4 rounded-full border border-pc-sand transition ${i < pin.length ? "bg-pc-sand" : ""}`} />
         ))}
       </div>
