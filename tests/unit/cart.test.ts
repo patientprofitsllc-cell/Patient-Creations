@@ -70,3 +70,17 @@ describe("the cart's server side", () => {
     expect(d.items.map((i: Row) => i.slug)).toEqual(["website-special"]);
   });
 });
+
+describe("cart sync stays quiet for visitors who aren't signed in", () => {
+  it("asks who is signed in before touching the cart route, so nobody sees a 401 in their console", async () => {
+    const { readFileSync } = await import("fs");
+    const src = readFileSync("components/cart/CartSync.tsx", "utf8");
+    expect(src.indexOf('fetch("/api/auth/session")')).toBeGreaterThan(-1);
+    expect(src.indexOf('fetch("/api/auth/session")')).toBeLessThan(src.indexOf('fetch("/api/cart")'));
+  });
+
+  it("the add button holds its space until the cart is read, instead of flashing the wrong state", async () => {
+    const { readFileSync } = await import("fs");
+    expect(readFileSync("components/cart/AddToCartButton.tsx", "utf8")).toContain("if (!ready) return <span aria-hidden");
+  });
+});
