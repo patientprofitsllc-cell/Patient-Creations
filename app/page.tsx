@@ -1,28 +1,30 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CaseStudies } from "@/components/marketing/CaseStudies";
-import { HowItWorksSimple } from "@/components/marketing/HowItWorksSimple";
 import { StickyCta } from "@/components/home/StickyCta";
 import { OfferStack } from "@/components/home/experience/OfferStack";
 import { Proof } from "@/components/home/experience/Proof";
 import { TrustRow } from "@/components/home/experience/TrustRow";
+import { FindYourMove } from "@/components/home/experience/FindYourMove";
+import { BiggerPicture, IdeaToOnline, Reimagined, SectionHead } from "@/components/home/experience/Sections";
+import { Showcase } from "@/components/home/experience/Showcase";
 import { MagneticButton } from "@/components/motion/MagneticButton";
+import { ParallaxLayer } from "@/components/motion/ParallaxLayer";
+import { PauseMotion } from "@/components/motion/PauseMotion";
+import { WordRise } from "@/components/motion/WordRise";
 import { Marquee } from "@/components/motion/Marquee";
 import { MotionReady } from "@/components/motion/MotionReady";
-import { ParallaxLayer } from "@/components/motion/ParallaxLayer";
 import { Reveal } from "@/components/motion/Reveal";
 import { ScrollProgress } from "@/components/motion/ScrollProgress";
-import { WordRise } from "@/components/motion/WordRise";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { HeroBackdrop } from "@/components/cinematic/HeroBackdrop";
-import { PriceList } from "@/components/catalog/PriceList";
-import { ProductFinder } from "@/components/home/ProductFinder";
 import { SeoWordbank } from "@/components/home/SeoWordbank";
 import { money } from "@/components/home/specialFrame";
 import { TrackView } from "@/components/analytics/Track";
 import { FaqSection } from "@/components/marketing/FaqSection";
-import { AUDIT_FEE_CENTS, usd } from "@/lib/pricing/catalog";
+import { AUDIT_CREDIT_DAYS, AUDIT_FEE_CENTS, PRICE_CENTS, SPECIAL_CARE_MONTHS, usd, type PricedSlug } from "@/lib/pricing/catalog";
+import { INDUSTRIES } from "@/lib/site/industries";
 import { LOGO_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/config/site";
 import { bnplEnabled } from "@/lib/payments/bnpl";
 import { topFaqs } from "@/lib/site/faq";
@@ -43,8 +45,9 @@ export default async function HomePage() {
   const price = money(offerCents);
   const bnpl = bnplEnabled();
   const revisions = offer?.revisionLimit ?? 1;
-  // A strip of what we make, named as on the price list. Plain words, no links, so the repeat is harmless.
-  const making = ["Websites", "UGC Ads", "Cinematic Ads", "Business Cards", "Rental Listing Films", "Lead Engines", "Payments Setup", "AI Agents", "Custom Software", "Monthly Ads"];
+  const live = (slug: PricedSlug) => money(prices[slug] ?? PRICE_CENTS[slug]);
+  // The gold band: what we make, in plain words (no links, so the repeat that makes the loop is harmless).
+  const making = ["Websites", "AI Video Ads", "Smart Business Cards", "Cinematic Films", "Lead Engines", "AI Agents", "Custom Software", "Monthly Ads"];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -84,46 +87,57 @@ export default async function HomePage() {
       <ScrollProgress />
       <SiteHeader />
       <TrackView event="landing_page_view" />
-      <main id="main">
-        {/* 1. Hero: one promise, one main button (the Website Special at its live price), the Growth Audit second. */}
-        <section id="hero" className="relative isolate flex min-h-[92vh] items-center overflow-hidden bg-obsidian pb-10 pt-20 sm:pb-0 sm:pt-24">
-          {/* Glass layers and a glowing network, drawn live (no video), with a still of the same scene from first paint. */}
+      <main id="main" className="overflow-x-clip bg-pc-bg text-pc-cream">
+        {/* 1. Hero: the promise, two buttons, and a look inside. */}
+        <section id="hero" className="relative isolate overflow-hidden pb-16 pt-28 sm:pt-36">
+          {/* The live network, dimmed into a starfield behind the headline. */}
           <HeroBackdrop poster="/assets/hero/hero-poster.jpg" posterMobile="/assets/hero/hero-poster-mobile.jpg" deferMs={600} />
-          {/* Keeps the headline easy to read over any frame. */}
-          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-obsidian/70 via-obsidian/50 to-obsidian" />
-          <ParallaxLayer speed={0.18} fade className="relative mx-auto max-w-4xl px-6 text-center">
-            <p className="mb-4 text-xs uppercase tracking-[0.4em] text-gold/80 sm:mb-6">Patient Creations</p>
-            <h1 className="font-display text-[2.1rem] leading-tight text-ice min-[400px]:text-5xl sm:text-6xl md:text-7xl">
-              <WordRise text="Build Your Business. Get More Customers. Automate the Work." shimmer={["Automate", "Work"]} />
-            </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-base text-ice/80 sm:mt-6 sm:text-lg">
-              Patient Creations helps businesses launch, market, generate leads, and automate operations with websites,
-              content, growth systems, and AI.
+          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-pc-bg/85 via-pc-bg/80 to-pc-bg" />
+          <div aria-hidden className="pc-glow absolute left-1/2 top-24 -z-10 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-pc-sand/10 blur-[110px]" />
+          <ParallaxLayer speed={0.12} fade className="relative mx-auto max-w-3xl px-5 text-center sm:px-6">
+            <p className="whitespace-nowrap text-[0.62rem] font-semibold uppercase tracking-[0.16em] text-pc-sand min-[400px]:text-xs sm:tracking-[0.22em]">
+              <span aria-hidden className="mr-3">✦</span>Creative thinking. Intelligent systems.
             </p>
-            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4">
-              <MagneticButton href={OFFER_CHECKOUT_HREF} cta="hero-website-special" className="w-full sm:w-auto">
-                BUILD MY WEBSITE {price}
+            <h1 className="mt-7 text-[2.9rem] font-light leading-[1.02] tracking-[-0.045em] min-[400px]:text-[3.3rem] sm:text-7xl">
+              <WordRise text="Built to stand out." />
+              <br />
+              <span className="text-pc-sand">
+                <WordRise text="Made to move you forward." shimmer={["forward"]} />
+              </span>
+            </h1>
+            <p className="mx-auto mt-7 max-w-xl text-lg leading-relaxed text-pc-mute">
+              Cinematic websites. Content that gets noticed. AI that gets to work. Everything your business needs for its next chapter.
+            </p>
+            <div className="mt-9 grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:mx-auto sm:max-w-lg">
+              <MagneticButton href="#products" cta="hero-find-your-move" variant="sand">
+                Find your next move
               </MagneticButton>
-              <MagneticButton href="/audit" cta="hero-growth-audit" variant="ghost" className="w-full text-sm sm:w-auto">
-                GET MY GROWTH AUDIT
+              <MagneticButton href="#experience" cta="hero-explore" variant="outline">
+                Explore the experience
               </MagneticButton>
             </div>
-            <p className="mt-4 text-sm text-ice/70">
-              A one-page website, live in about 72 hours, with a private preview first. Not sure what you need? The Growth Audit is{" "}
-              {usd(AUDIT_FEE_CENTS)}, credited toward your first order.
-            </p>
-            <p className="mt-2 text-sm text-ice/60">
-              Need more than a website? <Link href="#products" className="text-gold underline">See products and prices.</Link>
-            </p>
+            <p className="mt-6 text-sm text-pc-mute">Your business. Your brand. Built around you.</p>
           </ParallaxLayer>
+          <div className="relative px-5 sm:px-6">
+            <Showcase
+              prices={{
+                websiteSpecial: price,
+                ugcAd: live("ugc-ad-special"),
+                cinematicAd: live("cinematic-ad-special"),
+                monthlyAds: live("ads-monthly-300"),
+                careMonths: SPECIAL_CARE_MONTHS,
+              }}
+            />
+          </div>
         </section>
 
-        {/* 2. What we make, drifting past. */}
+        {/* 2. The gold band. */}
         <Marquee
-          className="border-t border-white/5 py-5 text-sm uppercase tracking-[0.3em] text-ice/40"
+          className="bg-pc-sand py-5 text-lg uppercase tracking-tight text-pc-ink sm:text-xl"
+          seconds={30}
           items={making.map((m) => (
             <span key={m} className="whitespace-nowrap">
-              <span aria-hidden className="mr-10 text-gold/60">✦</span>
+              <span aria-hidden className="mr-10">✦</span>
               {m}
             </span>
           ))}
@@ -132,59 +146,65 @@ export default async function HomePage() {
         {/* 3. Why it's safe to start: true promises only. */}
         <TrustRow revisionsWebsiteSpecial={revisions} bnpl={bnpl} />
 
-        {/* 4. Three questions, so a first-time visitor sees only the few things that fit them. */}
-        <Reveal>
-          <ProductFinder />
-        </Reveal>
+        {/* 4. One creative partner, and what we build. */}
+        <BiggerPicture websiteFrom={price} adFrom={live("ugc-ad-special")} />
 
-        {/* 5. The bundle, each part at its real price, and the real saving. */}
+        {/* 5. Sample designs, labeled as concepts. */}
+        <Reimagined industryCount={INDUSTRIES.length} />
+
+        {/* 6. Every product at its live price, a tab per group, and the Growth Audit for anyone unsure. */}
+        <FindYourMove />
+
+        {/* 7. The bundle: each part, the real one-by-one total, and the saving. */}
         <OfferStack prices={prices} />
 
-        {/* 6. Proof, shown only once real reviews and case studies exist. */}
+        {/* 8. From idea to online. */}
+        <IdeaToOnline careMonths={SPECIAL_CARE_MONTHS} />
+
+        {/* 9. Proof, shown only once real reviews and case studies exist. */}
         <Proof />
         <CaseStudies />
 
-        {/* 7. How it works. */}
-        <Reveal className="defer-offscreen">
-          <HowItWorksSimple />
-        </Reveal>
-
-        {/* 8. Every product and price on one list, grouped, with a jump link to each group. */}
-        <PriceList className="py-16" />
-
-        {/* 9. The questions most people ask, with the rest one tap away. */}
+        {/* 10. The questions most people ask, with the rest one tap away. */}
         <div className="defer-offscreen">
           <FaqSection faqs={topFaqs({ bnpl, prices })} />
           <p className="-mt-12 pb-8 text-center text-sm">
-            <Link href="/faq" className="text-gold underline">
+            <Link href="/faq" className="text-pc-sand underline">
               See every question and answer
             </Link>
           </p>
         </div>
 
-        {/* 10. Final call to action. */}
-        <section id="final-cta" className="relative mx-auto max-w-3xl px-6 py-24 text-center">
-          <div aria-hidden className="absolute inset-x-10 top-1/2 -z-10 h-48 -translate-y-1/2 rounded-full bg-gold/10 blur-3xl" />
-          <Reveal effect="scale">
-            <h2 className="font-display text-4xl text-ice sm:text-5xl">
-              Ready to look <span className="text-shimmer italic">professional online?</span>
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-ice/60">
-              Order in a couple of minutes, fill in a short intake, and follow your project on a private page.
-            </p>
-            <MagneticButton href={OFFER_CHECKOUT_HREF} cta="final-website-special" className="mt-8">
-              BUILD MY WEBSITE {price}
+        {/* 11. Final call to action. */}
+        <section id="final-cta" className="relative mx-auto max-w-6xl px-5 py-24 sm:px-6">
+          <div aria-hidden className="pc-glow absolute left-1/4 top-1/3 -z-10 h-64 w-2/3 rounded-full bg-pc-sand/10 blur-3xl" />
+          <SectionHead label="05 / Your next chapter" line1="Ready when you are." line2="Let's build what's next.">
+            Order in a couple of minutes, fill in a short intake, and follow your project on a private page.
+          </SectionHead>
+          <Reveal className="mt-10 flex flex-col gap-3 sm:flex-row">
+            <MagneticButton href={OFFER_CHECKOUT_HREF} cta="final-website-special" variant="sand">
+              Start a project · {price}
             </MagneticButton>
-            <p className="mt-4 text-sm text-ice/50">
-              Or <Link href="/audit" className="text-gold underline">start with a Growth Audit</Link>.
-            </p>
+            <MagneticButton href="/audit" cta="final-growth-audit" variant="outline">
+              Get my growth audit
+            </MagneticButton>
           </Reveal>
+          <ul className="mt-6 space-y-1.5 text-sm text-pc-mute">
+            <li className="flex gap-2">
+              <span aria-hidden className="text-pc-sand">•</span>The Growth Audit helps you choose what to do first.
+            </li>
+            <li className="flex gap-2">
+              <span aria-hidden className="text-pc-sand">•</span>
+              {usd(AUDIT_FEE_CENTS)}, credited toward your first order within {AUDIT_CREDIT_DAYS} days.
+            </li>
+          </ul>
         </section>
 
         <div className="defer-offscreen">
           <SeoWordbank />
         </div>
       </main>
+      <PauseMotion />
       <StickyCta label="Website Special" price={price} href={OFFER_CHECKOUT_HREF} />
       <SiteFooter />
     </>

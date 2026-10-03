@@ -21,7 +21,7 @@ export function MagneticButton({
   children: ReactNode;
   /** The name GA reports this button under, for example "hero-website-special". */
   cta: string;
-  variant?: "primary" | "ghost";
+  variant?: "primary" | "ghost" | "sand" | "outline";
   className?: string;
 }) {
   const ref = useRef<HTMLAnchorElement>(null);
@@ -38,10 +38,13 @@ export function MagneticButton({
     if (ref.current) ref.current.style.transform = "";
   };
 
-  const look =
-    variant === "primary"
-      ? "cta-primary bg-gradient-to-b from-gold to-gold-deep text-obsidian shadow-gold-glow"
-      : "champagne-border text-champagne hover:bg-champagne/10";
+  const look = {
+    primary: "cta-primary rounded-full bg-gradient-to-b from-gold to-gold-deep text-obsidian shadow-gold-glow",
+    ghost: "rounded-full champagne-border text-champagne hover:bg-champagne/10",
+    // The homepage design: flat sand, and a thin outline, both with softly squared corners.
+    sand: "cta-primary rounded-xl bg-pc-sand text-pc-ink",
+    outline: "rounded-xl border border-white/20 text-pc-cream hover:border-pc-sand/70",
+  }[variant];
 
   return (
     <Link
@@ -50,7 +53,7 @@ export function MagneticButton({
       onPointerMove={move}
       onPointerLeave={leave}
       onClick={() => trackCta(cta)}
-      className={`group relative inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full px-8 py-4 text-base font-semibold tracking-wide transition-[transform,filter] duration-200 ease-out hover:brightness-110 active:scale-[0.97] ${look} ${className}`}
+      className={`group relative inline-flex min-h-[56px] items-center justify-center gap-2 px-6 py-4 text-base font-semibold tracking-wide transition-[transform,filter] duration-200 ease-out hover:brightness-110 active:scale-[0.97] ${look} ${className}`}
     >
       <span>{children}</span>
       <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-1">

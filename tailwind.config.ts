@@ -16,10 +16,26 @@ const config: Config = {
         ice: "#F4EFE7",
         champagne: "#F2E6C9",
         violet: "#8B7CFF",
+        // The homepage design: olive-charcoal, sand, cream, and the tan and sage concept cards.
+        pc: {
+          bg: "#141412",
+          panel: "#1D1F1A",
+          raised: "#25271F",
+          line: "#34362E",
+          sand: "#DBB77E",
+          "sand-deep": "#C9A266",
+          cream: "#ECEBE4",
+          mute: "#A3A39A",
+          tan: "#D6BA8E",
+          sage: "#B9C6A2",
+          forest: "#1D2826",
+          ink: "#1A1A16",
+        },
       },
       fontFamily: {
         display: ["var(--font-display)", "serif"],
         body: ["var(--font-body)", "sans-serif"],
+        accent: ["var(--font-accent)", "serif"],
       },
       backgroundImage: {
         "studio-radial":

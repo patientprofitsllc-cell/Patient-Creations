@@ -2,10 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --font-display: "Fraunces", Georgia, serif;
-  --font-body: "Inter", system-ui, sans-serif;
-}
+/* The font variables come from next/font (set on <html> in app/layout.tsx). Only fallbacks live here, so they never
+   override the downloaded fonts. */
 
 html,
 body {
@@ -14,7 +12,7 @@ body {
 }
 
 body {
-  font-family: var(--font-body);
+  font-family: var(--font-body, system-ui), system-ui, sans-serif;
   overflow-x: hidden;
 }
 
@@ -125,7 +123,7 @@ body {
 
 /* Gold shimmer that sweeps across a few key words, a few times, then rests. */
 .text-shimmer {
-  background: linear-gradient(100deg, #e0c48a 0%, #e0c48a 40%, #fff6dc 50%, #e0c48a 60%, #c39b52 100%);
+  background: linear-gradient(100deg, #dbb77e 0%, #dbb77e 40%, #fff3d6 50%, #dbb77e 60%, #c9a266 100%);
   background-size: 250% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -169,11 +167,45 @@ body {
 
 html { scroll-behavior: smooth; }
 
+/* "Pause motion": every running animation holds where it is. */
+html[data-motion="paused"] *,
+html[data-motion="paused"] *::before,
+html[data-motion="paused"] *::after { animation-play-state: paused !important; }
+
+/* Homepage mockups drift gently, each on its own beat. */
+.pc-float { animation: pcFloat 7s ease-in-out infinite; animation-delay: var(--float-delay, 0s); }
+@keyframes pcFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(var(--tilt, 0deg)); }
+  50% { transform: translate3d(0, -8px, 0) rotate(var(--tilt, 0deg)); }
+}
+
+/* Tab and slide content cross-fades in. */
+.pc-swap { animation: pcSwap 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes pcSwap {
+  from { opacity: 0; transform: translate3d(0, 12px, 0) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
+/* A slide's progress bar fills over the time it shows. */
+.pc-progress { transform-origin: left; animation: pcProgress var(--slide-ms, 5000ms) linear both; }
+@keyframes pcProgress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Faint drifting light behind the hero. */
+.pc-glow { animation: pcGlow 14s ease-in-out infinite alternate; }
+@keyframes pcGlow {
+  from { transform: translate3d(-6%, 0, 0) scale(1); opacity: 0.55; }
+  to { transform: translate3d(6%, 4%, 0) scale(1.12); opacity: 0.9; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .js-motion .reveal { opacity: 1 !important; transform: none !important; }
   .marquee-track { animation: none; flex-wrap: wrap; width: auto; }
   .marquee-copy { display: none; }
   .marquee { mask-image: none; }
-  .text-shimmer, .word-rise > span, .cta-primary { animation: none; }
-  .text-shimmer { color: #e0c48a; background: none; }
+  .text-shimmer, .word-rise > span, .cta-primary, .pc-float, .pc-swap, .pc-glow { animation: none; }
+  .pc-progress { animation: none; transform: scaleX(1); }
+  .text-shimmer { color: #dbb77e; background: none; }
 }

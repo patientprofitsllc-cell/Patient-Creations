@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Fraunces, Instrument_Serif, Inter } from "next/font/google";
 import { COMPANY, COPYRIGHT_NOTICE } from "@/lib/legal/config";
 import { SHARE_IMAGE_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/config/site";
 import { VoiceGuide } from "@/components/voice/VoiceGuide";
@@ -9,6 +9,8 @@ import "./globals.css";
 
 const display = Fraunces({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-display" });
 const body = Inter({ subsets: ["latin"], variable: "--font-body" });
+// The italic serif accents in the homepage headlines ("first impression.", "Fully loaded.").
+const accent = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-accent" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -44,7 +46,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
+    <html lang="en" className={`${display.variable} ${body.variable} ${accent.variable}`}>
       <body className="bg-obsidian text-ice antialiased">
         <a
           href="#main"

@@ -5,17 +5,17 @@ import { BUNDLE_PARTS, PRICE_CENTS, SPECIAL_CARE_MONTHS, bundleSeparatelyCents, 
 import type { LivePrices } from "@/lib/site/faq";
 
 /**
- * The All-in-One bundle as an offer stack: each part at its real price, the real total crossed out, the bundle price,
- * and the saving counting up. Every number is the live price of a product you can buy on its own, so the anchor is true.
- * Hidden when the bundle isn't actually cheaper.
+ * The All-in-One bundle, as the concept site's tan card: the parts, the bundle price, and the real saving counting up.
+ * Every number is the live price of a product you can buy on its own, so the crossed-out total is true. Hidden when the
+ * bundle isn't actually cheaper.
  */
 export function OfferStack({ prices }: { prices: LivePrices }) {
   const c = (slug: PricedSlug) => prices[slug] ?? PRICE_CENTS[slug];
   const lines = [
-    { label: `Website Special, with ${SPECIAL_CARE_MONTHS} months of care`, qty: 1, each: c("website-special") },
-    { label: "Cinematic Ads", qty: BUNDLE_PARTS.cinematicAds, each: c("cinematic-ad-special") },
-    { label: "UGC Ads, 3 hooks each", qty: BUNDLE_PARTS.ugcAds, each: c("ugc-ad-special") },
-    { label: "Business Cards of your choice", qty: BUNDLE_PARTS.cards, each: c("nfc-cards") },
+    { label: "Website Special", sub: `Your one-page website + ${SPECIAL_CARE_MONTHS} months of maintenance`, qty: 1 },
+    { label: "Cinematic Ads", sub: "Bring a film-style feel to your brand", qty: BUNDLE_PARTS.cinematicAds },
+    { label: "UGC Ads", sub: "Creator-style content, powered by AI", qty: BUNDLE_PARTS.ugcAds },
+    { label: "Business Cards", sub: "Your choice of tap-to-share designs", qty: BUNDLE_PARTS.cards },
   ];
   const separately = bundleSeparatelyCents({ website: c("website-special"), cinematicAd: c("cinematic-ad-special"), ugcAd: c("ugc-ad-special"), card: c("nfc-cards") });
   const bundle = c("all-in-one-bundle");
@@ -23,47 +23,54 @@ export function OfferStack({ prices }: { prices: LivePrices }) {
   if (saving <= 0) return null;
 
   return (
-    <section id="bundle" aria-labelledby="bundle-title" className="mx-auto max-w-5xl scroll-mt-24 px-5 py-20 sm:px-6">
-      <Reveal className="text-center">
-        <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Launch everything at once</p>
-        <h2 id="bundle-title" className="mt-3 font-display text-4xl text-ice sm:text-5xl">
-          The All-in-One <span className="text-shimmer italic">Launch Bundle</span>
-        </h2>
-        <p className="mx-auto mt-4 max-w-xl text-ice/60">A website, {BUNDLE_PARTS.cinematicAds + BUNDLE_PARTS.ugcAds} video ads, and Business Cards to hand out. One order, one price.</p>
-      </Reveal>
-
-      <div className="mt-10 grid items-center gap-8 md:grid-cols-[1.2fr_1fr]">
-        <Stagger className="space-y-3" step={110} effect="left">
-          {lines.map((l) => (
-            <div key={l.label} className="glass-panel flex items-center justify-between gap-4 rounded-2xl px-5 py-4">
-              <p className="text-ice">
-                <span className="mr-2 font-display text-xl text-gold">{l.qty}×</span>
-                {l.label}
-              </p>
-              <p className="whitespace-nowrap text-sm text-ice/60">{usd(l.each * l.qty)}</p>
-            </div>
-          ))}
-        </Stagger>
-
-        <Reveal effect="scale" delay={250}>
-          <div className="relative overflow-hidden rounded-3xl border border-gold/40 bg-gradient-to-br from-gold/15 via-white/[0.03] to-transparent p-8 text-center shadow-gold-glow">
-            <p className="text-sm text-ice/50">Bought one by one</p>
-            <p className="mt-1 font-display text-2xl text-ice/40 line-through decoration-gold/70">{usd(separately)}</p>
-            <p className="mt-4 text-sm text-ice/60">As one bundle</p>
-            <p className="font-display text-6xl text-champagne">{usd(bundle)}</p>
-            <p className="mt-3 inline-block rounded-full bg-emerald-400/10 px-4 py-1 text-sm font-semibold text-emerald-300">
-              You save <CountUp cents={saving} />
+    <section id="bundle" aria-labelledby="bundle-title" className="mx-auto max-w-6xl scroll-mt-24 px-5 sm:px-6">
+      <Reveal effect="scale">
+        <div className="grid gap-10 overflow-hidden rounded-3xl bg-pc-tan p-7 text-pc-ink sm:p-12 lg:grid-cols-2 lg:items-center">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-pc-ink/70">The All-in-One Launch Bundle</p>
+            <h2 id="bundle-title" className="mt-6 text-[3.2rem] leading-[0.98] tracking-[-0.04em] sm:text-7xl">
+              Your launch.
+              <br />
+              <i className="font-accent text-[1.12em]">Fully loaded.</i>
+            </h2>
+            <p className="mt-6 max-w-sm text-lg leading-snug text-pc-ink/70">
+              A new website. Ads to introduce it. Business cards that keep the connection going.
+            </p>
+            <p className="mt-8 text-6xl font-light tracking-[-0.04em]">{usd(bundle)}</p>
+            <p className="text-pc-ink/70">one complete bundle</p>
+            <p className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+              <span className="text-pc-ink/60">
+                Bought one by one <s className="decoration-pc-ink/60">{usd(separately)}</s>
+              </span>
+              <span className="rounded-full bg-pc-ink px-3 py-1 font-semibold text-pc-sand">
+                You save <CountUp cents={saving} />
+              </span>
             </p>
             <Link
               href="/checkout?product=all-in-one-bundle"
-              className="cta-primary mt-6 inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 font-semibold text-obsidian transition hover:brightness-110 active:scale-[0.97]"
+              className="mt-8 inline-flex min-h-[60px] items-center gap-3 rounded-xl bg-pc-ink px-8 text-base font-semibold text-pc-cream transition hover:bg-black active:scale-[0.98]"
             >
-              Get the bundle →
+              Build my launch bundle <span aria-hidden>→</span>
             </Link>
-            <p className="mt-3 text-xs text-ice/40">Pick your card designs right after checkout.</p>
           </div>
-        </Reveal>
-      </div>
+
+          <div>
+            <Stagger className="space-y-3" step={110} effect="right">
+              {lines.map((l, i) => (
+                <div key={l.label} className="flex items-center gap-4 rounded-xl border border-pc-ink/10 bg-[#e6d3b0]/70 px-5 py-4">
+                  <span className="text-xs text-pc-ink/50">0{i + 1}</span>
+                  <div className="flex-1">
+                    <p className="text-lg">{l.label}</p>
+                    <p className="text-xs text-pc-ink/60">{l.sub}</p>
+                  </div>
+                  <span className="text-2xl font-light">{l.qty}×</span>
+                </div>
+              ))}
+            </Stagger>
+            <p className="mt-5 text-center text-sm text-pc-ink/60">One connected start for your next chapter. Pick your card designs right after checkout.</p>
+          </div>
+        </div>
+      </Reveal>
     </section>
   );
 }
