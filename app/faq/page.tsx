@@ -6,6 +6,7 @@ import { TrackView } from "@/components/analytics/Track";
 import { CONTACT_EMAIL, CONTACT_PHONE_DIGITS, CONTACT_PHONE_DISPLAY } from "@/lib/config/site";
 import { bnplEnabled } from "@/lib/payments/bnpl";
 import { faqGroups } from "@/lib/site/faq";
+import { getLivePrices } from "@/lib/site/livePrices";
 
 export const metadata: Metadata = {
   title: "Questions and answers",
@@ -13,8 +14,11 @@ export const metadata: Metadata = {
   alternates: { canonical: "/faq" },
 };
 
-export default function FaqPage() {
-  const groups = faqGroups({ bnpl: bnplEnabled() });
+// Same 60-second refresh as the price list, so the answers quote the prices shown next to them.
+export const revalidate = 60;
+
+export default async function FaqPage() {
+  const groups = faqGroups({ bnpl: bnplEnabled(), prices: await getLivePrices() });
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",

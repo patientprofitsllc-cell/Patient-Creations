@@ -5,6 +5,7 @@ import { JOURNEY, NEEDS, SUGGESTIONS } from "@/lib/journey/discovery";
 import { PRICE_CENTS, usd } from "@/lib/pricing/catalog";
 
 const read = (f: string) => readFileSync(join(process.cwd(), f), "utf8");
+const EXPERIENCE = ["OfferStack", "TrustRow", "Proof"].map((c) => `components/home/experience/${c}.tsx`);
 
 describe("homepage: the ten-second test", () => {
   const home = read("app/page.tsx");
@@ -15,15 +16,25 @@ describe("homepage: the ten-second test", () => {
     expect(home).toContain("launch, market, generate leads, and automate operations with websites,");
   });
 
-  it("puts the growth audit first and the products and prices second, and keeps the website offer one tap away", () => {
-    expect(home).toContain('href="/audit"');
-    expect(home).toContain("GET MY GROWTH AUDIT");
+  it("leads with one main button (the Website Special at its live price), the growth audit second, and the price list a tap away", () => {
+    const hero = home.slice(home.indexOf('id="hero"'), home.indexOf("</section>", home.indexOf('id="hero"')));
+    const buttons = [...hero.matchAll(/<MagneticButton href=\{?"?([^"}\s]+)/g)].map((m) => m[1]);
+    expect(buttons).toEqual(["OFFER_CHECKOUT_HREF", "/audit"]);
+    expect(hero).toContain("BUILD MY WEBSITE {price}");
+    expect(hero).toContain("GET MY GROWTH AUDIT");
     expect(home).not.toMatch(/FREE GROWTH AUDIT/i);
-    expect(home).toContain("credited toward your first order");
-    expect(home).toContain("SEE PRODUCTS AND PRICES");
-    expect(home).toContain('href="#products"');
-    expect(home).toContain("Just need a website?");
-    expect(home).toContain("OFFER_CHECKOUT_HREF");
+    expect(hero).toContain("credited toward your first order");
+    expect(hero).toContain('href="#products"');
+  });
+
+  it("keeps the next step in reach: a sticky button to the same checkout, hidden at the final call to action", () => {
+    expect(home).toContain('id="hero"');
+    expect(home).toContain('id="final-cta"');
+    expect(home).toMatch(/<StickyCta label="Website Special" price=\{price\} href=\{OFFER_CHECKOUT_HREF\} \/>/);
+  });
+
+  it("shows only live prices: no dollar amount is typed into the homepage", () => {
+    for (const f of ["app/page.tsx", "components/home/StickyCta.tsx", ...EXPERIENCE]) expect(read(f), f).not.toMatch(/\$\s?\d/);
   });
 
   it("keeps the approved live hero and the strict tracking", () => {
@@ -33,6 +44,7 @@ describe("homepage: the ten-second test", () => {
 
   it("keeps it short: three questions, one price list, the top answers, and nothing repeated", () => {
     expect(home).toContain("<ProductFinder");
+    expect(home).toContain("<OfferStack prices={prices} />");
     expect(home).toContain("<PriceList");
     expect(home).toContain("topFaqs(");
     expect(home).toContain('href="/faq"');

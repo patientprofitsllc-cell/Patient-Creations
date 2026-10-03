@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { GaPurchase } from "@/components/analytics/Track";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { db } from "@/lib/db";
@@ -78,6 +79,15 @@ export default async function CheckoutSuccessPage({ searchParams }: { searchPara
       <SiteHeader />
       <main id="main" className="mx-auto max-w-2xl px-6 pb-28 pt-40 text-center">
         {order && !awaitingManualPayment && <VoiceCue id={thanksCueFor(order.items[0]?.product.slug)} />}
+        {order && order.status === "PAID" && (
+          <GaPurchase
+            order={{
+              id: order.id,
+              valueCents: order.totalCents - order.balanceDueCents,
+              items: order.items.map((i) => ({ slug: i.product.slug, name: i.product.name, priceCents: i.priceCents, quantity: i.quantity })),
+            }}
+          />
+        )}
         <p className="text-xs uppercase tracking-[0.3em] text-gold/70">Order Confirmed</p>
         <h1 className="mt-4 font-display text-4xl text-ice">
           {awaitingManualPayment

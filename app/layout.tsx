@@ -3,6 +3,8 @@ import { Fraunces, Inter } from "next/font/google";
 import { COMPANY, COPYRIGHT_NOTICE } from "@/lib/legal/config";
 import { SHARE_IMAGE_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/config/site";
 import { VoiceGuide } from "@/components/voice/VoiceGuide";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { ScrollDepth } from "@/components/analytics/Track";
 import "./globals.css";
 
 const display = Fraunces({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-display" });
@@ -52,6 +54,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         {children}
         <VoiceGuide />
+        <GoogleAnalytics />
+        <ScrollDepth />
       </body>
     </html>
   );
