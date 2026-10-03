@@ -24,7 +24,7 @@ import { money } from "@/components/home/specialFrame";
 import { TrackView } from "@/components/analytics/Track";
 import { FaqSection } from "@/components/marketing/FaqSection";
 import { AUDIT_CREDIT_DAYS, AUDIT_FEE_CENTS, PRICE_CENTS, SPECIAL_CARE_MONTHS, usd, type PricedSlug } from "@/lib/pricing/catalog";
-import { INDUSTRIES } from "@/lib/site/industries";
+import { SHOW_EXAMPLES } from "@/lib/site/concepts";
 import { LOGO_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/config/site";
 import { bnplEnabled } from "@/lib/payments/bnpl";
 import { topFaqs } from "@/lib/site/faq";
@@ -150,7 +150,7 @@ export default async function HomePage() {
         <BiggerPicture websiteFrom={price} adFrom={live("ugc-ad-special")} />
 
         {/* 5. Sample designs, labeled as concepts. */}
-        <Reimagined industryCount={INDUSTRIES.length} />
+        <Reimagined showConcepts={SHOW_EXAMPLES} />
 
         {/* 6. Every product at its live price, a tab per group, and the Growth Audit for anyone unsure. */}
         <FindYourMove />

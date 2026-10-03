@@ -1,3 +1,4 @@
+import { CONCEPTS, SHOW_EXAMPLES } from "@/lib/site/concepts";
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/config/site";
 import { INDUSTRIES } from "@/lib/site/industries";
@@ -15,8 +16,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
-    { url: `${SITE_URL}/examples`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    ...INDUSTRIES.map((i) => ({
+    ...(SHOW_EXAMPLES ? [{ url: `${SITE_URL}/examples`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.8 }] : []),
+    ...(SHOW_EXAMPLES ? CONCEPTS : []).map((i) => ({
       url: `${SITE_URL}/examples/${i.slug}`,
       lastModified: now,
       changeFrequency: "monthly" as const,
