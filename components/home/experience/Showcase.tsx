@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { trackCta } from "@/components/analytics/Track";
@@ -126,7 +127,7 @@ export function Showcase({ prices }: { prices: ShowcasePrices }) {
             <br />
             Creations
           </p>
-          <p className="my-4 text-center font-accent text-4xl italic text-pc-sand sm:text-5xl">Pc</p>
+          <Image src="/assets/brand/logo-mono-96.webp" alt="" width={102} height={96} unoptimized className="mx-auto my-3 h-14 w-auto sm:h-16" />
           <p className="text-sm leading-tight text-pc-cream">
             Small screen.
             <br />

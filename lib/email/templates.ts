@@ -18,6 +18,7 @@ export type EmailTemplateKey =
   | "ads_plan_started"
   | "owner_new_order"
   | "owner_audit_lead"
+  | "owner_security_alert"
   | "deposit_received"
   | "partner_application_received"
   | "partner_approved"
@@ -168,6 +169,7 @@ The final payment of ${p.amount} ${p.beforeLaunch ? "is due before we launch you
 Questions? Reply to this email or call ${CONTACT_PHONE_DISPLAY}.`,
   }),
   owner_audit_lead: (p) => ({ subject: String(p.subject ?? "New growth audit"), body: String(p.body ?? "") }),
+  owner_security_alert: (p) => ({ subject: String(p.subject ?? "Security alert"), body: String(p.body ?? "") }),
   audit_followup_1: (p) => ({
     subject: "Any questions about your growth audit?",
     body: `Hi${p.name ? ` ${String(p.name)}` : ""},

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { OFFER_CHECKOUT_HREF } from "@/lib/site/offer";
@@ -21,10 +22,8 @@ export function SiteHeader() {
     <header className="fixed top-0 z-50 w-full border-b border-white/[0.07] bg-pc-bg/85 backdrop-blur-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-3 sm:px-6">
         <Link href="/" aria-label="Patient Creations, home" className="flex items-center gap-2 py-1 text-pc-cream" onClick={() => setOpen(false)}>
-          <span aria-hidden className="relative font-accent text-[2.1rem] leading-none text-pc-sand">
-            pc<span className="absolute -right-2.5 -top-1 text-sm">✦</span>
-          </span>
-          <span className="ml-2 text-[0.95rem] leading-[1.05] tracking-tight">
+          <Image src="/assets/brand/logo-mono-96.webp" alt="" width={102} height={96} priority unoptimized className="h-11 w-auto drop-shadow-[0_0_10px_rgba(232,199,126,0.35)]" />
+          <span className="ml-1 text-[0.95rem] leading-[1.05] tracking-tight">
             patient
             <br />
             creations.

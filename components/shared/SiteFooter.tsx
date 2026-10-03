@@ -7,6 +7,7 @@ export function SiteFooter() {
     <footer className="border-t border-white/5 bg-obsidian px-6 py-16 text-sm text-ice/50">
       <div className="mx-auto flex max-w-7xl flex-col gap-10 md:flex-row md:justify-between">
         <div>
+          <img src="/assets/brand/logo-mark-240.webp" alt="Patient Creations" width={245} height={240} loading="lazy" decoding="async" className="mb-4 h-[110px] w-auto drop-shadow-[0_0_14px_rgba(232,199,126,0.3)]" />
           <p className="font-display text-lg text-ice">
             <span className="text-gold">Patient Profits LLC</span> · Patient Creations
           </p>

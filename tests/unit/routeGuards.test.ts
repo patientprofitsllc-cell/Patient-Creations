@@ -44,6 +44,9 @@ const ROUTES: Record<string, { kind: Kind; why?: string }> = {
   "admin/universe/settings": { kind: "admin" },
   "admin/universe/tasks/[id]": { kind: "admin" },
   "admin/spend/[id]": { kind: "admin" },
+  "admin/security/pin": { kind: "admin" },
+  "admin/security/password": { kind: "admin" },
+  "admin/security/devices": { kind: "admin" },
 
   "portal/assistant": { kind: "session" },
   "portal/reviews": { kind: "session" },

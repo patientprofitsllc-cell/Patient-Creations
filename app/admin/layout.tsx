@@ -20,6 +20,7 @@ const TABS = [
   { href: "/admin/projects", label: "Production" },
   { href: "/admin/logs", label: "Sessions & Logs" },
   { href: "/admin/system", label: "System Health" },
+  { href: "/admin/security", label: "Security" },
 ];
 
 // Every page under here reads live business/production data and requires
