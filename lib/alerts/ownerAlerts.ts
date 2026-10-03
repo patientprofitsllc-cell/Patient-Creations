@@ -191,3 +191,28 @@ export async function notifyOwnerOfAdPlan(adSubscriptionId: string) {
     console.error("owner ad plan alert failed", err);
   }
 }
+
+/**
+ * PIN sign-in was locked after too many wrong PINs on a trusted device. Tells the owner by text (if set up), email, and
+ * a dashboard note. Never throws.
+ */
+export async function notifyOwnerOfPinLock(email: string, ip: string) {
+  const subject = "PIN sign-in locked on your dashboard";
+  const body = `Someone entered the wrong 4-digit PIN 5 times on a trusted device for ${email} (internet address ${ip}). PIN sign-in is now off until you sign in once with your email and password.\n\nIf this wasn't you, sign in, change your password, and choose "Forget all devices" on the Security page.`;
+  try {
+    await db.notification.create({ data: { audience: "admin", title: subject, body } });
+  } catch {
+    /* keep going */
+  }
+  try {
+    const cfg = smsConfig();
+    if (cfg) await sendSms(cfg, `Patient Creations: ${subject}. If this wasn't you, change your password.`);
+  } catch {
+    /* keep going */
+  }
+  try {
+    await sendEmail(process.env.OWNER_ALERT_EMAIL?.trim() || CONTACT_EMAIL, "owner_security_alert", { subject, body });
+  } catch {
+    /* keep going */
+  }
+}

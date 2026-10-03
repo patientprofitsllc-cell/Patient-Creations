@@ -209,3 +209,10 @@ html[data-motion="paused"] *::after { animation-play-state: paused !important; }
   .pc-progress { animation: none; transform: scaleX(1); }
   .text-shimmer { color: #dbb77e; background: none; }
 }
+
+/* Wrong PIN: the dots shake. */
+@keyframes pinShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
