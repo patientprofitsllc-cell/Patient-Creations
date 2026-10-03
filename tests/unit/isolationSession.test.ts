@@ -19,6 +19,11 @@ vi.mock("@/lib/security/rateLimit", () => ({ rateLimit: () => ({ allowed: h.allo
 vi.mock("@/lib/analytics/events", () => ({ logEvent: async () => {} }));
 vi.mock("@/lib/db", () => ({
   db: {
+    // The review thank-you code is kept in AppSetting.
+    appSetting: {
+      findUnique: async () => null,
+      create: async ({ data }: Row) => data,
+    },
     project: {
       findUnique: async ({ where }: Row) => {
         const p = h.projects.find((x) => x.id === where.id);

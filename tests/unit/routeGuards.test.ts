@@ -49,6 +49,7 @@ const ROUTES: Record<string, { kind: Kind; why?: string }> = {
   "admin/security/devices": { kind: "admin" },
 
   "portal/assistant": { kind: "session" },
+  "cart": { kind: "session" },
   "portal/reviews": { kind: "session" },
   "portal/revisions": { kind: "session" },
 
@@ -72,6 +73,7 @@ const ROUTES: Record<string, { kind: Kind; why?: string }> = {
   "webhooks/stripe": { kind: "secret" },
 
   "auth/[...nextauth]": { kind: "public", why: "the sign-in handler itself" },
+  "cart/quote": { kind: "public", why: "returns live names and prices for products already on the public price list, and nothing about the visitor" },
   "cart-offer": { kind: "public", why: "issues the same signed offer to any visitor and returns nothing about anyone" },
   "checkout": { kind: "public", why: "a purchase: it creates or uses the buyer's own account and prices everything on the server" },
   "checkout/nfc-intake": { kind: "public", why: "saves card details against an order the buyer just placed; it needs the order's own id" },

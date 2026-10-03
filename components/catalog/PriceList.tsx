@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { money } from "@/components/home/specialFrame";
 import { db } from "@/lib/db";
 import { PRICE_CENTS } from "@/lib/pricing/catalog";
@@ -62,6 +63,7 @@ export async function PriceList({ className = "" }: { className?: string }) {
                         >
                           {i.cta ?? "Get it"}
                         </Link>
+                        <AddToCartButton slug={i.slug} className="!rounded-full !px-3" />
                       </div>
                     </li>
                   );

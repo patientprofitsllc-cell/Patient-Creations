@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { CartButton } from "@/components/cart/CartButton";
 import Link from "next/link";
 
 import { SHOW_EXAMPLES } from "@/lib/site/concepts";
@@ -37,15 +38,17 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <CartButton />
           <Link href="/portal/dashboard" className="hidden text-sm text-ice/70 hover:text-pc-sand sm:block">
             Portal
           </Link>
           <Link
             href={OFFER_CHECKOUT_HREF}
-            className="inline-flex min-h-[44px] items-center rounded-lg bg-pc-sand px-4 text-sm font-semibold text-pc-ink transition hover:brightness-110 active:scale-[0.97]"
+            className="inline-flex min-h-[44px] items-center whitespace-nowrap rounded-lg bg-pc-sand px-4 text-sm font-semibold text-pc-ink transition hover:brightness-110 active:scale-[0.97]"
           >
-            Start a project
+            <span className="min-[420px]:hidden">Start</span>
+            <span className="hidden min-[420px]:inline">Start a project</span>
           </Link>
           <button
             type="button"

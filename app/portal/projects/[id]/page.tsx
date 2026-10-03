@@ -6,6 +6,7 @@ import { getProjectProgress, PHASE_WEIGHTS } from "@/lib/workflows/progress";
 import { PIPELINE_ORDER } from "@/lib/workflows/stateMachine";
 import { RevisionForm } from "@/components/portal/RevisionForm";
 import { ReviewForm } from "@/components/portal/ReviewForm";
+import { rewardForProject } from "@/lib/reviews/reward";
 import { ensureStatusToken } from "@/lib/projects/ensureStatusToken";
 import { statusUrlFor } from "@/lib/projects/statusToken";
 import Link from "next/link";
@@ -144,7 +145,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
       {canReview && (
         <div>
           <h2 className="mb-4 text-ice">Leave a Review</h2>
-          <ReviewForm projectId={project.id} existingRating={project.review?.rating} />
+          <ReviewForm projectId={project.id} existingRating={project.review?.rating} reward={await rewardForProject(project.id)} />
         </div>
       )}
     </div>

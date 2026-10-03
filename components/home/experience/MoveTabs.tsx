@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { trackCta } from "@/components/analytics/Track";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 
 export interface MoveCard {
   slug: string;
@@ -88,6 +89,7 @@ export function MoveTabs({ groups }: { groups: MoveGroup[] }) {
             >
               {c.cta}
             </Link>
+            <AddToCartButton slug={c.slug} className="mt-3 w-full" />
           </article>
         ))}
       </div>
