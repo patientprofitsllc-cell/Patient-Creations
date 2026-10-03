@@ -9,7 +9,9 @@ import { useCart } from "./useCart";
 export function AddToCartButton({ slug, className = "" }: { slug: string; className?: string }) {
   const { ready, has } = useCart();
   if (!isCartable(slug)) return null;
-  if (ready && has(slug))
+  // Until the cart has been read from this device, hold the space (same height) so the button never flashes the wrong state.
+  if (!ready) return <span aria-hidden className={`inline-block min-h-[44px] ${className}`} />;
+  if (has(slug))
     return (
       <Link href="/cart" className={`inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 text-sm text-pc-sand underline-offset-4 hover:underline ${className}`}>
         ✓ In your cart · View
