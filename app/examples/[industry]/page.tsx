@@ -1,67 +1,102 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
-import { SiteRenderer } from "@/components/site/SiteRenderer";
 import { TrackView } from "@/components/analytics/Track";
-import { INDUSTRIES, getIndustry } from "@/lib/site/industries";
+import { ConceptSite } from "@/components/concepts/ConceptSite";
+import { CONCEPTS, SHOW_EXAMPLES, getConcept } from "@/lib/site/concepts";
+import { getIndustry } from "@/lib/site/industries";
 import { OFFER_CHECKOUT_HREF } from "@/lib/site/offer";
 
 export function generateStaticParams() {
-  return INDUSTRIES.map((i) => ({ industry: i.slug }));
+  return CONCEPTS.map((c) => ({ industry: c.slug }));
 }
 
 export function generateMetadata({ params }: { params: { industry: string } }): Metadata {
-  const industry = getIndustry(params.industry);
-  if (!industry) return {};
+  const c = getConcept(params.industry);
+  if (!c) return {};
   return {
-    title: `${industry.name} website example`,
-    description: `A sample one-page website design for a ${industry.singular}: services, contact details, and a clear call to action.`,
-    alternates: { canonical: `/examples/${industry.slug}` },
+    title: `${c.industry} website design concept`,
+    description: `A full one-page website concept for a ${c.industry.toLowerCase()}: ${c.intro}`,
+    alternates: { canonical: `/examples/${c.slug}` },
   };
 }
 
-export default function ExampleDetailPage({ params }: { params: { industry: string } }) {
-  const industry = getIndustry(params.industry);
-  if (!industry) notFound();
+export default function ConceptPage({ params }: { params: { industry: string } }) {
+  const c = getConcept(params.industry);
+  // The retired wireframe samples go to their industry page; anything else is a 404.
+  if (!c || !SHOW_EXAMPLES) {
+    if (getIndustry(params.industry)) redirect(`/websites/${params.industry}`);
+    notFound();
+  }
+  const others = CONCEPTS.filter((x) => x.slug !== c.slug);
 
   return (
     <>
       <SiteHeader />
-      <TrackView event="landing_page_view" data={{ industry: industry.slug }} />
-      <main id="main" className="mx-auto max-w-5xl px-6 pb-24 pt-32">
-        <Link href="/examples" className="text-xs text-ice/40 hover:text-gold">
-          ← All examples
-        </Link>
-        <h1 className="mt-3 font-display text-3xl text-ice sm:text-4xl">
-          A website for a {industry.singular}
-        </h1>
-        <p className="mt-3 max-w-2xl rounded-xl border border-gold/30 bg-gold/5 px-4 py-3 text-sm text-ice/70">
-          This is a sample design concept, not a real business or customer result. The buttons are inactive. Your
-          website is built around your own services, brand, and contact details.
-        </p>
-
-        <div className="mt-8 overflow-hidden rounded-2xl border border-white/10 shadow-xl shadow-black/40">
-          <div className="flex items-center gap-2 border-b border-white/10 bg-white/[0.04] px-4 py-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
-            <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
-            <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
-            <span className="ml-3 truncate text-xs text-ice/40">yourbusiness.com</span>
+      <TrackView event="landing_page_view" data={{ concept: c.slug }} />
+      <main id="main" className="bg-pc-bg pt-24 text-pc-cream">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 py-6 sm:flex-row sm:items-end sm:justify-between sm:px-6">
+          <div>
+            <Link href="/examples" className="text-xs text-pc-mute hover:text-pc-sand">
+              ← All concepts
+            </Link>
+            <h1 className="mt-2 text-3xl font-light tracking-tight sm:text-4xl">
+              {c.industry} website <i className="font-accent text-pc-sand">concept</i>
+            </h1>
+            <p className="mt-1 text-sm text-pc-mute">An invented business, designed to show our standard. The buttons are inactive.</p>
           </div>
-          <SiteRenderer site={industry.sample} />
+          <Link href={OFFER_CHECKOUT_HREF} className="inline-flex min-h-[48px] items-center self-start rounded-xl bg-pc-sand px-5 text-sm font-semibold text-pc-ink sm:self-auto">
+            Get a site like this →
+          </Link>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-center gap-4 text-center sm:flex-row">
-          <Link
-            href={OFFER_CHECKOUT_HREF}
-            className="rounded-full bg-gradient-to-b from-gold to-gold-deep px-8 py-4 text-base font-semibold tracking-wide text-obsidian shadow-gold-glow transition hover:brightness-110"
-          >
-            BUILD MY WEBSITE
-          </Link>
-          <Link href={`/websites/${industry.slug}`} className="text-sm text-gold hover:brightness-110">
-            What a {industry.singular} website includes →
-          </Link>
+        {/* The concept, framed like a browser window. */}
+        <div className="mx-auto max-w-[1240px] px-2 sm:px-6">
+          <div className="overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/60">
+            <div aria-hidden className="flex items-center gap-2 border-b border-white/10 bg-pc-panel px-4 py-2.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
+              <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
+              <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
+              <span className="ml-3 truncate rounded bg-white/[0.05] px-3 py-0.5 text-xs text-pc-mute">{c.brand.toLowerCase().replace(/[^a-z]+/g, "")}.com</span>
+            </div>
+            <ConceptSite c={c} />
+          </div>
+        </div>
+
+        <div className="mx-auto max-w-6xl px-5 py-20 sm:px-6">
+          <div className="grid gap-10 md:grid-cols-[1fr_1fr]">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-pc-sand">Why it works</p>
+              <ul className="mt-5 space-y-3">
+                {c.notes.map((n) => (
+                  <li key={n} className="flex gap-3 text-pc-cream/85">
+                    <span aria-hidden className="text-pc-sand">✓</span>
+                    {n}
+                  </li>
+                ))}
+              </ul>
+              <Link href={`/websites/${c.slug}`} className="mt-6 inline-block border-b border-white/20 pb-1 text-sm text-pc-cream hover:border-pc-sand">
+                What a {c.industry.toLowerCase()} website includes →
+              </Link>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-pc-sand">More concepts</p>
+              <ul className="mt-5 space-y-3">
+                {others.map((o) => (
+                  <li key={o.slug}>
+                    <Link href={`/examples/${o.slug}`} className="flex items-center justify-between rounded-xl border border-white/10 px-5 py-4 hover:border-pc-sand">
+                      <span>
+                        {o.industry} · <i className="font-accent text-pc-sand">{o.headline[1]}</i>
+                      </span>
+                      <span aria-hidden>→</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </main>
       <SiteFooter />

@@ -15,7 +15,7 @@ const WORDBANK: { label: string; href: string }[] = [
   { label: "Website for restaurants", href: "/websites/restaurants" },
   { label: "Website for pressure washing", href: "/websites/pressure-washing" },
   { label: "Website for salons", href: "/websites/salons" },
-  { label: "Website examples", href: "/examples" },
+  { label: "Website design concepts", href: "/examples" },
   { label: "UGC ads", href: "/#specials" },
   { label: "Cinematic video ads", href: "/#specials" },
   { label: "AI video ads for small business", href: "/#specials" },

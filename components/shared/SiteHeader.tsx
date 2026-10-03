@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { SHOW_EXAMPLES } from "@/lib/site/concepts";
 import { OFFER_CHECKOUT_HREF } from "@/lib/site/offer";
 
 // Kept short on purpose: products, the one recurring plan, proof, answers, and advice. Everything else is in the footer.
@@ -13,7 +14,7 @@ const NAV = [
   { href: "/examples", label: "Examples" },
   { href: "/faq", label: "FAQ" },
   { href: "/audit", label: "Growth Audit" },
-];
+].filter((n) => SHOW_EXAMPLES || n.href !== "/examples"); // Examples only while there's a full set of finished concepts
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);

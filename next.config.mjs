@@ -16,6 +16,8 @@ const nextConfig = {
   // Never publish source maps: they would hand anyone the original, readable source.
   productionBrowserSourceMaps: false,
   poweredByHeader: false,
+  // The design-concept photography (lib/site/concepts.ts) is served from the image host and optimised by Next.
+  images: { remotePatterns: [{ protocol: "https", hostname: "d8j0ntlcm91z4.cloudfront.net", pathname: "/user_3FkWSa3GVMBCZmq6h3uM5YfOKE8/**" }] },
   async headers() {
     return [{ source: "/:path*", headers: protectiveHeaders }];
   },

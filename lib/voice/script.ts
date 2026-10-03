@@ -57,7 +57,7 @@ export const VOICE_SCRIPT: readonly CueDef[] = [
     id: "showcase",
     kind: "page",
     when: "Gallery, Examples, and Websites pages",
-    text: "Here are examples of our work. Browse them for ideas, and picture how they could look for your business.",
+    text: "These are website concepts we designed to show our standard. Browse them for ideas, and picture how yours could look.",
   },
   {
     id: "checkout",

@@ -89,7 +89,7 @@ export function BiggerPicture({ websiteFrom, adFrom }: { websiteFrom: string; ad
 }
 
 /** Three sample designs, clearly labeled as concepts, each linking to its real sample page. */
-export function Reimagined({ industryCount }: { industryCount: number }) {
+export function Reimagined({ showConcepts }: { showConcepts: boolean }) {
   const concepts = [
     { n: "01", kind: "Barbershop", kicker: "The cut.", title: <>Sharp style.<br />Lasting<br /><i className="font-accent text-[1.15em]">impressions.</i></>, chip: "Appointments & services", foot: "Barbers & grooming", href: "/examples/barbers", c: "bg-pc-forest text-pc-cream", line: "border-white/10" },
     { n: "02", kind: "Restaurant", kicker: "At the table", title: <>Good food.<br /><i className="font-accent text-[1.15em]">Great</i><br />company.</>, chip: "Menus & location", foot: "Restaurants & cafés", href: "/examples/restaurants", c: "bg-pc-tan text-[#3b2a1c]", line: "border-black/10" },
@@ -103,7 +103,7 @@ export function Reimagined({ industryCount }: { industryCount: number }) {
         </SectionHead>
         <Stagger className="mt-12 grid gap-5 md:grid-cols-3" step={130} effect="up">
           {concepts.map((c) => (
-            <Link key={c.n} href={c.href} className={`group flex h-full min-h-[420px] flex-col rounded-2xl transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-black/50 ${c.c}`}>
+            <Link key={c.n} href={showConcepts ? c.href : c.href.replace("/examples/", "/websites/")} className={`group flex h-full min-h-[420px] flex-col rounded-2xl transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-black/50 ${c.c}`}>
               <p className={`flex justify-between border-b px-6 py-4 text-[0.65rem] uppercase tracking-[0.2em] opacity-75 ${c.line}`}>
                 <span>Design concept / {c.n}</span>
                 <span>{c.kind}</span>
@@ -122,9 +122,11 @@ export function Reimagined({ industryCount }: { industryCount: number }) {
         </Stagger>
         <Reveal className="mt-8 text-sm text-pc-mute">
           <p>Also for salons, contractors, realtors, trainers, and more.</p>
-          <Link href="/examples" className="mt-3 inline-block border-b border-white/20 pb-1 text-pc-cream hover:border-pc-sand">
-            Explore all {industryCount} industries →
-          </Link>
+          {showConcepts && (
+            <Link href="/examples" className="mt-3 inline-block border-b border-white/20 pb-1 text-pc-cream hover:border-pc-sand">
+              See the full website concepts →
+            </Link>
+          )}
         </Reveal>
       </div>
     </section>
