@@ -25,7 +25,7 @@ const PAGE_CUES: Record<string, string> = {
 const NFC_SLUG = /^nfc-/;
 
 /** Pages where the guide stays silent: staff areas, private tokens' work areas, sign in, legal text, and the cart (the shopper is already deciding). */
-const SILENT_PREFIXES = ["/admin", "/portal", "/auth", "/preview", "/intake", "/api", "/terms", "/privacy", "/refunds", "/acceptable-use", "/copyright", "/partner-terms", "/partners", "/unsubscribe", "/cart"];
+const SILENT_PREFIXES = ["/admin", "/portal", "/auth", "/preview", "/intake", "/api", "/terms", "/privacy", "/refunds", "/acceptable-use", "/copyright", "/partner-terms", "/partners", "/unsubscribe", "/cart", "/owner-setup"];
 
 export interface RouteFlags {
   /** A Monthly Ads plan was just paid for (the plan page opens with ?started=1). */

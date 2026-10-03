@@ -73,6 +73,7 @@ const ROUTES: Record<string, { kind: Kind; why?: string }> = {
   "webhooks/stripe": { kind: "secret" },
 
   "auth/[...nextauth]": { kind: "public", why: "the sign-in handler itself" },
+  "owner-setup": { kind: "public", why: "off unless OWNER_SETUP_KEY is set in the server environment; it needs that secret, compares it in constant time, and is rate limited" },
   "cart/quote": { kind: "public", why: "returns live names and prices for products already on the public price list, and nothing about the visitor" },
   "cart-offer": { kind: "public", why: "issues the same signed offer to any visitor and returns nothing about anyone" },
   "checkout": { kind: "public", why: "a purchase: it creates or uses the buyer's own account and prices everything on the server" },
