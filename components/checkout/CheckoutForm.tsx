@@ -765,7 +765,7 @@ export function CheckoutForm({
         <p className="mt-3 text-center text-xs text-ice/30">
           {step === "payment" && !selectedMethod.live
             ? "Your project starts production once we confirm your payment."
-            : "Secured checkout. Your project starts production immediately after payment is verified."}
+            : "Secured checkout. Sales tax, where it applies, is added on the payment page from your billing address. Your project starts production immediately after payment is verified."}
         </p>
       </div>
     </div>

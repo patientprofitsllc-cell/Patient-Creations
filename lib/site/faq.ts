@@ -170,7 +170,7 @@ export function faqGroups({ bnpl, prices = {} }: FaqOptions): FaqGroup[] {
       faqs: [
         {
           q: "How do I pay?",
-          a: `By card at checkout, and work starts right away. You can also ask to pay by Zelle or Apple Pay and we'll send you instructions.${bnpl ? ` On orders of ${usd(BNPL.minCents)} or more, you may be able to pay over time with Klarna or Afterpay at checkout.` : ""}`,
+          a: `By card at checkout, and work starts right away. Sales tax, where it applies, is worked out from your billing address and shown before you pay. You can also ask to pay by Zelle or Apple Pay and we'll send you instructions.${bnpl ? ` On orders of ${usd(BNPL.minCents)} or more, you may be able to pay over time with Klarna or Afterpay at checkout.` : ""}`,
         },
         {
           q: "Can I pay a deposit?",

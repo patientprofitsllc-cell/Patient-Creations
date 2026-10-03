@@ -43,7 +43,7 @@ export async function Proof() {
         ))}
       </Stagger>
       {/* FTC disclosure: every reviewer is offered a discounted Business Card, whatever their rating. */}
-      <p className="mt-6 text-center text-xs text-ice/40">Customers who leave a review, good or bad, can get one Business Card for {usd(REWARD_CARD_CENTS)} (plus shipping) as a thank-you.</p>
+      <p className="mt-6 text-center text-xs text-ice/40">Customers who leave a review, good or bad, can get one Business Card for {usd(REWARD_CARD_CENTS)} (plus shipping and tax) as a thank-you.</p>
     </section>
   );
 }

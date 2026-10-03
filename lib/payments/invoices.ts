@@ -1,4 +1,5 @@
 import type Stripe from "stripe";
+import { createTaxedSession, preTaxCents, reportTaxFallback } from "@/lib/payments/tax";
 import { db } from "@/lib/db";
 import { logEvent } from "@/lib/analytics/events";
 import { getStripe, isStripeConfigured } from "@/lib/payments/stripe";
@@ -32,7 +33,7 @@ export async function startInvoiceCheckout(token: string): Promise<InvoiceChecko
   try {
     const meta = { kind: "invoice", invoiceId: invoice.id };
     const order = await db.order.findUnique({ where: { id: invoice.orderId }, include: { customer: { include: { user: true } } } });
-    const session = await createWithBnplFallback(invoice.amountCents, (types) => getStripe().checkout.sessions.create({
+    const session = await createWithBnplFallback(invoice.amountCents, (types) => createTaxedSession({
       mode: "payment",
       ...(types ? { payment_method_types: types as never } : {}),
       customer_email: order?.customer.user.email,
@@ -47,7 +48,7 @@ export async function startInvoiceCheckout(token: string): Promise<InvoiceChecko
       payment_intent_data: { metadata: meta },
       success_url: `${page}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: page,
-    }));
+    }, (p) => getStripe().checkout.sessions.create(p as never), reportTaxFallback));
     if (!session.url) return { ok: false, status: 502, error: "We could not start checkout. Please try again." };
     return { ok: true, url: session.url };
   } catch (err) {
@@ -137,7 +138,7 @@ export async function confirmInvoicePayment(invoiceId: string, sessionId: string
   try {
     const s: Stripe.Checkout.Session = await getStripe().checkout.sessions.retrieve(sessionId);
     const inv = await db.invoice.findUnique({ where: { id: invoiceId }, select: { amountCents: true } });
-    if (!inv || s.payment_status !== "paid" || s.metadata?.kind !== "invoice" || s.metadata?.invoiceId !== invoiceId || s.amount_total !== inv.amountCents) return false;
+    if (!inv || s.payment_status !== "paid" || s.metadata?.kind !== "invoice" || s.metadata?.invoiceId !== invoiceId || preTaxCents(s) !== inv.amountCents) return false;
     await markInvoicePaid(invoiceId, "STRIPE", s.id);
     return true;
   } catch (err) {
@@ -154,7 +155,7 @@ export async function handleInvoiceEvent(event: Stripe.Event): Promise<void> {
   const invoiceId = s.metadata.invoiceId;
   if (!invoiceId) return;
   const inv = await db.invoice.findUnique({ where: { id: invoiceId }, select: { amountCents: true } });
-  if (!inv || s.amount_total !== inv.amountCents) return;
+  if (!inv || preTaxCents(s) !== inv.amountCents) return;
   await markInvoicePaid(invoiceId, "STRIPE", s.id);
 }
 

@@ -22,6 +22,7 @@ import { paymentMethodLabel } from "@/lib/payments/paymentMethods";
 import { depositLineItems, quoteDeposit } from "@/lib/payments/deposit";
 import { usd } from "@/lib/pricing/catalog";
 import { createWithBnplFallback } from "@/lib/payments/bnpl";
+import { TAX_CODES, createTaxedSession, reportTaxFallback } from "@/lib/payments/tax";
 import { newOrderAccessKey, successPath } from "@/lib/orders/accessKey";
 
 const checkoutSchema = z.object({
@@ -247,7 +248,7 @@ export async function POST(req: NextRequest) {
             {
               price_data: {
                 currency: "usd",
-                product_data: { name: `Shipping (US) — ${priced.shippingBoxLabel}` },
+                product_data: { name: `Shipping (US) — ${priced.shippingBoxLabel}`, tax_code: TAX_CODES.shipping },
                 unit_amount: priced.shippingCents,
               },
               quantity: 1,
@@ -257,7 +258,7 @@ export async function POST(req: NextRequest) {
     const isDeposit = balanceDueCents > 0;
     // Pay-later methods are offered only when turned on, and only for what is charged right now (the deposit, if there is one).
     const chargedNowCents = isDeposit ? depositCents : priced.totalCents;
-    const checkoutSession = await createWithBnplFallback(chargedNowCents, (types) => stripe.checkout.sessions.create({
+    const checkoutSession = await createWithBnplFallback(chargedNowCents, (types) => createTaxedSession({
       mode: "payment",
       ...(types ? { payment_method_types: types as never } : {}),
       // A deposit is one line, so the card is charged exactly the deposit; the rest is invoiced when the build is ready.
@@ -271,7 +272,8 @@ export async function POST(req: NextRequest) {
             const variant = i.productVariantId ? variants.find((v) => v.id === i.productVariantId) : null;
             const name = variant ? `${product.name} · ${variant.name}` : product.name;
             return {
-              price_data: { currency: "usd", product_data: { name }, unit_amount: i.discountedUnitCents },
+              // Business Cards are physical goods for tax; everything else uses the account's default (services).
+              price_data: { currency: "usd", product_data: { name, ...(product.category === "Merch" ? { tax_code: TAX_CODES.physical } : {}) }, unit_amount: i.discountedUnitCents },
               quantity: i.quantity,
             };
           }),
@@ -281,7 +283,7 @@ export async function POST(req: NextRequest) {
       success_url: `${process.env.APP_BASE_URL}${successPath(order.id, accessKey)}`,
       cancel_url: `${process.env.APP_BASE_URL}/checkout?cancelled=1`,
       metadata: { orderId: order.id },
-    }));
+    }, (p) => stripe.checkout.sessions.create(p as never), reportTaxFallback));
 
     await db.order.update({ where: { id: order.id }, data: { stripeSessionId: checkoutSession.id } });
 

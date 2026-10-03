@@ -34,7 +34,7 @@ export function ReviewForm({ projectId, existingRating, reward }: { projectId: s
         <p className="text-sm text-gold">Thanks for your feedback.</p>
         {code && (
           <div className="glass-panel rounded-xl p-4 text-sm">
-            <p className="text-ice">Your thank-you: one Business Card for {usd(REWARD_CARD_CENTS)}, plus shipping.</p>
+            <p className="text-ice">Your thank-you: one Business Card for {usd(REWARD_CARD_CENTS)}, plus shipping and tax.</p>
             <p className="mt-2 text-ice/60">
               Use code <span className="select-all font-mono text-gold">{code}</span> at checkout. One card, one time.
             </p>
@@ -47,7 +47,7 @@ export function ReviewForm({ projectId, existingRating, reward }: { projectId: s
   return (
     <div className="space-y-3">
       <p className="text-sm text-ice/60">
-        Tell us honestly how it went, good or bad. Every review gets a thank-you: one Business Card for {usd(REWARD_CARD_CENTS)} (plus shipping).
+        Tell us honestly how it went, good or bad. Every review gets a thank-you: one Business Card for {usd(REWARD_CARD_CENTS)} (plus shipping and tax).
       </p>
       <div className="flex gap-1" aria-label="Rating">
         {[1, 2, 3, 4, 5].map((n) => (

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { TAX_CODES, createTaxedSession, reportTaxFallback } from "@/lib/payments/tax";
 import { NO_STORE, guardCare } from "@/lib/care/access";
 import { getStripe, isStripeConfigured } from "@/lib/payments/stripe";
 import { recordAcceptance } from "@/lib/legal/acceptance";
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
       project.careSubscriptions.length > 0,
     );
     const trialEnd = freeMonths > 0 ? Math.floor(includedCareEnds(new Date(), freeMonths).getTime() / 1000) : undefined;
-    const session = await getStripe().checkout.sessions.create({
+    const session = await createTaxedSession({
       mode: "subscription",
       customer_email: project.customer.user.email,
       line_items: [
@@ -60,7 +61,7 @@ export async function POST(req: NextRequest) {
       subscription_data: { metadata: meta, ...(trialEnd ? { trial_end: trialEnd } : {}) },
       success_url: `${base}/status/${token}?care=started`,
       cancel_url: `${base}/status/${token}`,
-    });
+    }, (p) => getStripe().checkout.sessions.create(p as never), reportTaxFallback);
     return NextResponse.json({ url: session.url }, { headers: NO_STORE });
   } catch (err) {
     console.error("care plan checkout failed", err instanceof Error ? err.message : err);

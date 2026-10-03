@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { TAX_CODES, createTaxedSession, reportTaxFallback } from "@/lib/payments/tax";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { getServerSession } from "next-auth";
@@ -85,7 +86,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const meta = { kind: "ads_plan", adSubscriptionId: sub.id, planSlug, customerId };
-    const checkout = await getStripe().checkout.sessions.create({
+    const checkout = await createTaxedSession({
       mode: "subscription",
       customer_email: email,
       line_items: [{ price_data: { currency: "usd", product_data: { name: plan.name }, unit_amount: plan.priceCents, recurring: { interval: "month" } }, quantity: 1 }],
@@ -93,7 +94,7 @@ export async function POST(req: NextRequest) {
       subscription_data: { metadata: meta },
       success_url: `${manageUrl}?started=1`,
       cancel_url: `${base}/monthly-ads`,
-    });
+    }, (p) => getStripe().checkout.sessions.create(p as never), reportTaxFallback);
     return NextResponse.json({ redirectUrl: checkout.url });
   } catch (err) {
     console.error("ads plan checkout failed", err instanceof Error ? err.message : err);
