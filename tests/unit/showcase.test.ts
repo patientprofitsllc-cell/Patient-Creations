@@ -40,12 +40,13 @@ describe("showcase pages", () => {
   });
 
   it("adjusts the router script to run from a sub-path, and points its asset paths at our folder", () => {
-    const js = 'x={parseLocation:1};const r=e?.createHref??(e=>e),c=e?.parseLocation??(()=>rn(`${t.location.pathname}${t.location.search}`,1));import("/assets/routes-AB.js");f("/assets/hero.mp4");u="https://' + host + '/a"';
+    const js = 'x={parseLocation:1};const r=e?.createHref??(e=>e),c=e?.parseLocation??(()=>rn(`${t.location.pathname}${t.location.search}`,1));import("/assets/routes-AB.js");f("/assets/hero.mp4");g(`/assets/styles-AB.css`);u="https://' + host + '/a"';
     const out2 = transformJs(js, "franks-alley", host);
     expect(out2).toContain('t.location.pathname.startsWith("/showcase/franks-alley")');
     expect(out2).toContain('createHref??(e=>e.startsWith("/showcase/franks-alley")?e:"/showcase/franks-alley"+e)');
     expect(out2).toContain('"/showcase/franks-alley/_js/routes-AB.js"');
     expect(out2).toContain('"/showcase/franks-alley/assets/hero.mp4"');
+    expect(out2).toContain("`/showcase/franks-alley/_css/styles-AB.css`");
     expect(out2).not.toContain(host);
     const loader = transformJs("mu=function(e){return`/`+e},", "franks-alley", host);
     expect(loader).toContain('"/showcase/franks-alley/_js/"+n');

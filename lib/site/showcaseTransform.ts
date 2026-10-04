@@ -53,7 +53,8 @@ export function transformCss(css: string, slug: string): string {
 export function transformJs(js: string, slug: string, host: string): string {
   const pre = prefix(slug);
   return js
-    .replace(/(["'`])\/assets\/([\w.-]+\.js)/g, (_m, q, file) => `${q}${pre}/_js/${file}`)
+    .replace(/(["'`])\/assets\/([\w.-]+\.js)\b/g, (_m, q, file) => `${q}${pre}/_js/${file}`)
+    .replace(/(["'`])\/assets\/([\w.-]+\.css)\b/g, (_m, q, file) => `${q}${pre}/_css/${file}`)
     .replace(/(["'`])\/assets\//g, (_m, q) => `${q}${pre}/assets/`)
     .replace(/parseLocation\?\?\(\(\)=>(\w+)\(`\$\{(\w+)\.location\.pathname\}/, (_m, fn, w) => `parseLocation??(()=>${fn}(\`\${(${w}.location.pathname.startsWith("${pre}")?${w}.location.pathname.slice(${pre.length}):${w}.location.pathname)||"/"}`)
     .replace(/createHref\?\?\((\w+)=>\1\)/, (_m, a) => `createHref??(${a}=>${a}.startsWith("${pre}")?${a}:"${pre}"+${a})`)
