@@ -6,12 +6,13 @@ import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { TrackView } from "@/components/analytics/Track";
 import { Reveal, Stagger } from "@/components/motion/Reveal";
+import { ClientSites } from "@/components/examples/ClientSites";
 import { CONCEPTS, SHOW_EXAMPLES } from "@/lib/site/concepts";
 import { INDUSTRIES } from "@/lib/site/industries";
 import { OFFER_CHECKOUT_HREF } from "@/lib/site/offer";
 
 export const metadata: Metadata = {
-  title: "Website design concepts",
+  title: "Examples: client sites and design concepts",
   description: "Full one-page website concepts for a barbershop, a restaurant and a local shop: the standard of design we build for small businesses.",
   alternates: { canonical: "/examples" },
 };
@@ -27,6 +28,7 @@ export default function ExamplesPage() {
       <TrackView event="landing_page_view" />
       <main id="main" className="bg-pc-bg pb-24 pt-32 text-pc-cream">
         <div className="mx-auto max-w-6xl px-5 sm:px-6">
+          <ClientSites />
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-pc-sand">Design concepts</p>
             <h1 className="mt-5 text-[2.6rem] font-light leading-[1.02] tracking-[-0.035em] sm:text-6xl">
