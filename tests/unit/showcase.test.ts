@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { transformHtml, transformCss, unavailablePage } from "@/lib/site/showcaseTransform";
+import { transformHtml, transformCss, transformJs, unavailablePage } from "@/lib/site/showcaseTransform";
 import { SHOWCASE_SITES } from "@/lib/site/showcaseSites";
 import { UPSTREAM } from "@/lib/site/showcaseUpstream.mjs";
 
@@ -16,8 +16,9 @@ describe("showcase pages", () => {
     expect(fixture).toMatch(/<script/i);
   });
 
-  it("leave no script and nothing that names the hosting platform", () => {
-    expect(out).not.toMatch(/<script/i);
+  it("keep the site's scripts (so animation and video work) but load them from our folder, and name nothing of the platform", () => {
+    expect(out).toMatch(/<script[^>]*src="\/showcase\/franks-alley\/_js\/[\w.-]+\.js"/);
+    expect(out).not.toMatch(/src="\/assets\//);
     expect(out.toLowerCase()).not.toContain("higgsfield");
     expect(out).not.toContain(host);
   });
@@ -27,6 +28,7 @@ describe("showcase pages", () => {
     expect(out).toContain("/showcase/franks-alley/");
     expect(out).toMatch(/\/showcase\/franks-alley\/_css\/[\w.-]+\.css/);
     expect(out).toContain("data-pc-bar");
+    expect(out).toContain("All examples");
     expect(out).toContain("noindex");
   });
 
@@ -35,6 +37,16 @@ describe("showcase pages", () => {
     expect(css).toContain("/showcase/franks-alley/assets/a.woff2");
     expect(css).toContain("/showcase/franks-alley/assets/b.webp");
     expect(css.toLowerCase()).not.toContain("higgsfield");
+  });
+
+  it("adjusts the router script to run from a sub-path, and points its asset paths at our folder", () => {
+    const js = 'x={parseLocation:1};const r=e?.createHref??(e=>e),c=e?.parseLocation??(()=>rn(`${t.location.pathname}${t.location.search}`,1));import("/assets/routes-AB.js");f("/assets/hero.mp4");u="https://' + host + '/a"';
+    const out2 = transformJs(js, "franks-alley", host);
+    expect(out2).toContain('t.location.pathname.startsWith("/showcase/franks-alley")');
+    expect(out2).toContain('createHref??(e=>e.startsWith("/showcase/franks-alley")?e:"/showcase/franks-alley"+e)');
+    expect(out2).toContain('"/showcase/franks-alley/_js/routes-AB.js"');
+    expect(out2).toContain('"/showcase/franks-alley/assets/hero.mp4"');
+    expect(out2).not.toContain(host);
   });
 
   it("a friendly page when the source is down", () => {

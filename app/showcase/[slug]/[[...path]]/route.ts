@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SITE_URL } from "@/lib/config/site";
 import { UPSTREAM } from "@/lib/site/showcaseUpstream.mjs";
-import { transformCss, transformHtml, unavailablePage } from "@/lib/site/showcaseTransform";
+import { transformCss, transformHtml, transformJs, unavailablePage } from "@/lib/site/showcaseTransform";
 
-// Serves a client site from our own address (see lib/site/showcaseTransform.ts). Only the pages and stylesheets pass through
+// Serves a client site from our own address (see lib/site/showcaseTransform.ts). Only the pages, scripts and stylesheets pass through
 // here, because they have to be rewritten; images, video and fonts are passed straight through by rewrites in next.config.mjs.
 // Only the names in UPSTREAM can be requested, and nothing the visitor sends is ever used as an address.
 
@@ -30,6 +30,12 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
       const res = await fetchUpstream(`https://${host}/assets/${path[1]}`);
       if (!res.ok) return new NextResponse("Not found", { status: 404, headers: HEADERS });
       return new NextResponse(transformCss(await res.text(), params.slug), { headers: { ...HEADERS, "Content-Type": "text/css; charset=utf-8", "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800" } });
+    }
+    // A script: /showcase/<name>/_js/<file>.js
+    if (path.length === 2 && path[0] === "_js" && /^[\w.-]+\.js$/.test(path[1])) {
+      const res = await fetchUpstream(`https://${host}/assets/${path[1]}`);
+      if (!res.ok) return new NextResponse("Not found", { status: 404, headers: HEADERS });
+      return new NextResponse(transformJs(await res.text(), params.slug, host), { headers: { ...HEADERS, "Content-Type": "text/javascript; charset=utf-8", "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
     }
   } catch (err) {
     console.error("showcase: could not reach", params.slug, err instanceof Error ? err.message : err);

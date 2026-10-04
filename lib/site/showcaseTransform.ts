@@ -14,15 +14,12 @@ export interface TransformInput {
 
 const prefix = (slug: string) => `/showcase/${slug}`;
 
-const BAR_STYLE =
-  "background:#141412;color:#ecebe4;font:500 13px/1.2 system-ui,-apple-system,Segoe UI,sans-serif;padding:10px 14px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap";
+/** The slim bar: back to the examples, who built it, and a way to start. Added by a script after the site has started, so
+ *  the site's own page is never altered before it comes alive. Compact and fixed to the bottom, clear of the site's header. */
+export const barScript = () =>
+  `<script>addEventListener("load",function(){setTimeout(function(){if(document.querySelector("[data-pc-bar]"))return;var d=document.createElement("div");d.setAttribute("data-pc-bar","");d.style.cssText="position:fixed;left:8px;right:8px;bottom:8px;z-index:2147483000;display:flex;gap:10px;align-items:center;justify-content:space-between;background:#141412;color:#ecebe4;font:500 12px/1.2 system-ui,sans-serif;padding:6px 8px 6px 12px;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.45);max-width:560px;margin:0 auto";d.innerHTML='<a href="/examples" style="color:#dbb77e;text-decoration:none;padding:8px 0">\\u2190 All examples</a><span style="opacity:.7">Built by Patient Creations</span><a href="${OFFER_CHECKOUT_HREF}" style="background:#dbb77e;color:#1a1a16;padding:8px 10px;border-radius:8px;text-decoration:none;font-weight:600">Start a project</a>';document.body.appendChild(d)},1500)});</script>`;
 
-/** The slim bar across the top: back to the examples, who built it, and a way to start. */
-export const topBar = () =>
-  `<div data-pc-bar style="${BAR_STYLE}"><a href="/examples" style="color:#dbb77e;text-decoration:none;min-height:24px">← All examples</a><span style="opacity:.75">A site built by Patient Creations</span><a href="${OFFER_CHECKOUT_HREF}" style="background:#dbb77e;color:#1a1a16;padding:8px 12px;border-radius:8px;text-decoration:none;font-weight:600">Start a project →</a></div>`;
-
-/** Controls that only make sense with the site's own scripts. */
-const HEAD_ADDITIONS = `<meta name="robots" content="noindex,nofollow"><style>.video-control,[data-requires-js]{display:none!important}</style>`;
+const HEAD_ADDITIONS = `<meta name="robots" content="noindex,nofollow">`;
 
 /** Last line of defence: nothing that names the hosting platform survives, whatever the page contained. */
 function scrub(text: string, pre: string): string {
@@ -32,10 +29,8 @@ function scrub(text: string, pre: string): string {
 export function transformHtml(html: string, { slug, host, siteUrl }: TransformInput): string {
   const pre = prefix(slug);
   let out = html
-    // Scripts need the site's own address to start, so they go; so do the hints that preload them.
-    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
-    .replace(/<link\b[^>]*\brel="modulepreload"[^>]*>/gi, "")
-    .replace(/<link\b[^>]*\bas="script"[^>]*>/gi, "")
+    // The site's scripts run from our own folder, where they are adjusted to start from a sub-path (see transformJs).
+    .replace(/\/assets\/([\w.-]+\.js)/g, (_m, file) => `${pre}/_js/${file}`)
     // Stylesheets are rewritten on the way (their font URLs are root-relative), so they get their own path.
     .replace(/\/assets\/([\w.-]+\.css)/g, (_m, file) => `${pre}/_css/${file}`)
     // Everything else the page loads from its own root now loads from our folder.
@@ -43,12 +38,27 @@ export function transformHtml(html: string, { slug, host, siteUrl }: TransformIn
     // Full addresses of the original (share images, canonical links) become ours.
     .split(`https://${host}`)
     .join(`${siteUrl}${pre}`);
-  out = out.replace(/<\/head>/i, `${HEAD_ADDITIONS}</head>`).replace(/<body\b[^>]*>/i, (m) => `${m}${topBar()}`);
+  out = out.replace(/<\/head>/i, `${HEAD_ADDITIONS}</head>`).replace(/<\/body>/i, `${barScript()}</body>`);
   return scrub(out, `${siteUrl}${pre}`);
 }
 
 export function transformCss(css: string, slug: string): string {
   return scrub(css.replace(/url\((["']?)\/assets\//g, `url($1${prefix(slug)}/assets/`), prefix(slug));
+}
+
+/**
+ * The site's own script, adjusted to run from /showcase/<name>/: the router reads the address to decide which page to show, so it
+ * is told to ignore our folder, and the links it builds get the folder put back. Asset paths point at our folder as well.
+ */
+export function transformJs(js: string, slug: string, host: string): string {
+  const pre = prefix(slug);
+  return js
+    .replace(/(["'`])\/assets\/([\w.-]+\.js)/g, (_m, q, file) => `${q}${pre}/_js/${file}`)
+    .replace(/(["'`])\/assets\//g, (_m, q) => `${q}${pre}/assets/`)
+    .replace(/parseLocation\?\?\(\(\)=>(\w+)\(`\$\{(\w+)\.location\.pathname\}/, (_m, fn, w) => `parseLocation??(()=>${fn}(\`\${(${w}.location.pathname.startsWith("${pre}")?${w}.location.pathname.slice(${pre.length}):${w}.location.pathname)||"/"}`)
+    .replace(/createHref\?\?\((\w+)=>\1\)/, (_m, a) => `createHref??(${a}=>${a}.startsWith("${pre}")?${a}:"${pre}"+${a})`)
+    .split(`https://${host}`)
+    .join(pre);
 }
 
 /** A friendly page for when the original can't be reached, so a visitor never sees an error. */
