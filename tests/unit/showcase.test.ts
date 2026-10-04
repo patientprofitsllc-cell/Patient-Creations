@@ -47,6 +47,10 @@ describe("showcase pages", () => {
     expect(out2).toContain('"/showcase/franks-alley/_js/routes-AB.js"');
     expect(out2).toContain('"/showcase/franks-alley/assets/hero.mp4"');
     expect(out2).not.toContain(host);
+    const loader = transformJs("mu=function(e){return`/`+e},", "franks-alley", host);
+    expect(loader).toContain('"/showcase/franks-alley/_js/"+n');
+    expect(loader).toContain('"/showcase/franks-alley/_css/"+n');
+    expect(loader).not.toContain("return`/`+");
   });
 
   it("a friendly page when the source is down", () => {

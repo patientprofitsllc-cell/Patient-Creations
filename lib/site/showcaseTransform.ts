@@ -57,6 +57,8 @@ export function transformJs(js: string, slug: string, host: string): string {
     .replace(/(["'`])\/assets\//g, (_m, q) => `${q}${pre}/assets/`)
     .replace(/parseLocation\?\?\(\(\)=>(\w+)\(`\$\{(\w+)\.location\.pathname\}/, (_m, fn, w) => `parseLocation??(()=>${fn}(\`\${(${w}.location.pathname.startsWith("${pre}")?${w}.location.pathname.slice(${pre.length}):${w}.location.pathname)||"/"}`)
     .replace(/createHref\?\?\((\w+)=>\1\)/, (_m, a) => `createHref??(${a}=>${a}.startsWith("${pre}")?${a}:"${pre}"+${a})`)
+    // Vite's loader for lazily loaded parts of the page builds each address as "/" + name; scripts and stylesheets go via our routes.
+    .replace(/function\((\w+)\)\{return`\/`\+\1\}/g, (_m, a) => `function(${a}){var n=${a}.replace(/^assets\\//,"");return /\\.js$/.test(n)?"${pre}/_js/"+n:/\\.css$/.test(n)?"${pre}/_css/"+n:"${pre}/"+${a}}`)
     .split(`https://${host}`)
     .join(pre);
 }
