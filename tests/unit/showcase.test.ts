@@ -4,7 +4,7 @@ import { join } from "path";
 import { anonymize, transformHtml, transformCss, transformJs, unavailablePage } from "@/lib/site/showcaseTransform";
 import { SHOWCASE_SITES } from "@/lib/site/showcaseSites";
 import robots from "@/app/robots";
-import { GENERIC_NAME, NAMES, UPSTREAM } from "@/lib/site/showcaseUpstream.mjs";
+import { GENERIC_NAME, LITERALS, NAMES, UPSTREAM } from "@/lib/site/showcaseUpstream.mjs";
 
 const read = (f: string) => readFileSync(join(process.cwd(), f), "utf8");
 const fixture = read("tests/fixtures/restaurant-page.html");
@@ -85,6 +85,12 @@ describe("the examples page and its route", () => {
     expect(js).not.toMatch(/Frank/);
     const split = anonymize("<h1>FRANK’S<br/>ALLEY</h1>", NAMES["restaurant-1"], GENERIC_NAME);
     expect(split).not.toMatch(/FRANK|ALLEY/);
+  });
+
+  it("replaces a name the script renders in separate pieces, but not longer text that contains the word", () => {
+    const js = transformJs('a=["Kickin",jsx("br"),"Bites"];b="Kickin Chicken Fries"', "restaurant-4", host, NAMES["restaurant-4"], GENERIC_NAME, LITERALS["restaurant-4"]);
+    expect(js).toContain(`["${GENERIC_NAME}",jsx("br"),""]`);
+    expect(js).toContain('"Kickin Chicken Fries"');
   });
 
   it("replaces the business's own phone numbers and email addresses with placeholders", () => {

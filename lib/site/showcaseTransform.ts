@@ -72,9 +72,11 @@ export function transformCss(css: string, slug: string): string {
  * The site's own script, adjusted to run from /showcase/<name>/: the router reads the address to decide which page to show, so it
  * is told to ignore our folder, and the links it builds get the folder put back. Asset paths point at our folder as well.
  */
-export function transformJs(js: string, slug: string, host: string, names?: string[], generic?: string): string {
+export function transformJs(js: string, slug: string, host: string, names?: string[], generic?: string, literals: Record<string, string> = {}): string {
   const pre = prefix(slug);
-  return anonymize(js, names, generic)
+  let src = anonymize(js, names, generic);
+  for (const [word, to] of Object.entries(literals)) src = src.replace(new RegExp(`(["'\`])${word}\\1`, "g"), (_m, q) => `${q}${to}${q}`);
+  return src
     .replace(/(["'`])\/assets\/([\w.-]+\.js)\b/g, (_m, q, file) => `${q}${pre}/_js/${file}`)
     .replace(/(["'`])\/assets\/([\w.-]+\.css)\b/g, (_m, q, file) => `${q}${pre}/_css/${file}`)
     .replace(/(["'`])\/assets\//g, (_m, q) => `${q}${pre}/assets/`)

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SITE_URL } from "@/lib/config/site";
-import { GENERIC_NAME, NAMES, UPSTREAM } from "@/lib/site/showcaseUpstream.mjs";
+import { GENERIC_NAME, LITERALS, NAMES, UPSTREAM } from "@/lib/site/showcaseUpstream.mjs";
 import { transformCss, transformHtml, transformJs, unavailablePage } from "@/lib/site/showcaseTransform";
 
 // Serves a client site from our own address (see lib/site/showcaseTransform.ts). Only the pages, scripts and stylesheets pass through
@@ -35,7 +35,7 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
     if (path.length === 2 && path[0] === "_js" && /^[\w.-]+\.js$/.test(path[1])) {
       const res = await fetchUpstream(`https://${host}/assets/${path[1]}`);
       if (!res.ok) return new NextResponse("Not found", { status: 404, headers: HEADERS });
-      return new NextResponse(transformJs(await res.text(), params.slug, host, NAMES[params.slug], GENERIC_NAME), { headers: { ...HEADERS, "Content-Type": "text/javascript; charset=utf-8", "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
+      return new NextResponse(transformJs(await res.text(), params.slug, host, NAMES[params.slug], GENERIC_NAME, LITERALS[params.slug]), { headers: { ...HEADERS, "Content-Type": "text/javascript; charset=utf-8", "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
     }
   } catch (err) {
     console.error("showcase: could not reach", params.slug, err instanceof Error ? err.message : err);
