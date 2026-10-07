@@ -91,4 +91,11 @@ describe("the examples page and its route", () => {
     expect(read("app/cart/page.tsx")).toContain("index: false");
     expect(read("app/owner-setup/page.tsx")).toContain("index: false");
   });
+
+  it("give every public page in the sitemap its own canonical address", () => {
+    for (const slug of ["agents", "services", "gallery", "guided-app-tour"]) {
+      const src = read(`app/${slug}/page.tsx`);
+      expect(src, slug).toContain(`canonical: "/${slug}"`);
+    }
+  });
 });

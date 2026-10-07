@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { SiteHeader } from "@/components/shared/SiteHeader";
@@ -10,6 +11,12 @@ import { ScopePanel } from "@/components/catalog/ScopePanel";
 import { MARKET_ROWS, compareRows, standingText, totalsOf } from "@/lib/site/marketComparison";
 import { CARD_DESIGN_SLUGS } from "@/lib/payments/cardMix";
 import { db } from "@/lib/db";
+
+export const metadata: Metadata = {
+  title: "Services and pricing",
+  description: "Choose a website, ad, automation or software build. Each service shows its live price and what is included.",
+  alternates: { canonical: "/services" },
+};
 
 // Pulls the live product catalog from the DB. Revalidated every 60s
 // instead of force-dynamic: a price/catalog change shows up within a
