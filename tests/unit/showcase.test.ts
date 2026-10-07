@@ -93,6 +93,12 @@ describe("the examples page and its route", () => {
     expect(js).toContain('"Kickin Chicken Fries"');
   });
 
+  it("replaces the name inside map links", () => {
+    const t = anonymize("destination=Frank%27s+Alley+1246+Broadway&q=Kickin%20Bites", ["Frank's Alley", "Kickin Bites"], GENERIC_NAME);
+    expect(t).not.toMatch(/Frank|Kickin|Alley/);
+    expect(t).toContain("Your+Restaurant+1246+Broadway");
+  });
+
   it("replaces the business's own phone numbers and email addresses with placeholders", () => {
     const t = anonymize('<a href="tel:+17065051206">(706) 505-1206</a> <a href="mailto:info@kickinbites.com">info@kickinbites.com</a>');
     expect(t).not.toMatch(/706|505|kickinbites/);

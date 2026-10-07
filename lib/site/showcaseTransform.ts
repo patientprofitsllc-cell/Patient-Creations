@@ -37,6 +37,9 @@ export function anonymize(text: string, names: string[] = [], generic = "Your Re
         .replace(/ /g, "(?:\\s|<[^>]*>)+");
       out = out.replace(new RegExp(src, "g"), v === name ? generic : generic.toUpperCase());
     }
+    // The same name inside map and search links ("Name%27s+Place" or "Name%20Place").
+    const linkForm = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/'/g, "(?:%27|')").replace(/ /g, "(?:[+]|%20)");
+    out = out.replace(new RegExp(linkForm, "g"), encodeURIComponent(generic).replace(/%20/g, "+"));
   }
   return out
     .replace(/tel:[+\d\-().\s]{7,}/g, "tel:+15555550100")
