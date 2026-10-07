@@ -13,7 +13,8 @@ const header = (req: ReqLike, name: string) => {
 };
 
 export const authOptions: NextAuthOptions = {
-  session: { strategy: "jwt" },
+  // Stay signed in for 90 days on a device (the default is 30), so the owner isn't asked for a password again and again.
+  session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 90 },
   secret: process.env.NEXTAUTH_SECRET,
   pages: { signIn: "/auth/login" },
   providers: [

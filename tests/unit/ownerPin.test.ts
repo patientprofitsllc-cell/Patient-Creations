@@ -36,7 +36,7 @@ vi.mock("@/lib/db", () => {
   };
 });
 
-import { MAX_FAILS, checkPin, failures, findUserByDevice, forgetDevices, hashToken, readCookie, resetFailures, setPin, trustDevice, usesDefaultPassword, validatePin } from "@/lib/security/ownerPin";
+import { MAX_FAILS, checkPin, pinLength, failures, findUserByDevice, forgetDevices, hashToken, readCookie, resetFailures, setPin, trustDevice, usesDefaultPassword, validatePin } from "@/lib/security/ownerPin";
 
 beforeEach(async () => {
   h.settings = [];
@@ -48,9 +48,11 @@ beforeEach(async () => {
 });
 
 describe("choosing a PIN", () => {
-  it("takes exactly 4 digits and refuses the ones people guess first", () => {
+  it("takes 4 to 9 digits and refuses the ones people guess first", () => {
     expect(validatePin("4071")).toBeNull();
-    for (const bad of ["123", "12345", "12a4", "", 1234, null]) expect(validatePin(bad), String(bad)).not.toBeNull();
+    expect(validatePin("481920375")).toBeNull();
+    for (const bad of ["123", "1234567890", "12a4", "", 1234, null, "12 34"]) expect(validatePin(bad), String(bad)).not.toBeNull();
+    for (const easy of ["123456", "987654321", "111111111"]) expect(validatePin(easy), easy).toMatch(/too easy/);
     for (const easy of ["0000", "7777", "1234", "4321", "2580", "1212", "6969"]) expect(validatePin(easy), easy).toMatch(/too easy/);
   });
 
@@ -69,6 +71,15 @@ describe("signing in with the PIN", () => {
     await setPin("owner", "4071");
     return trustDevice("owner");
   };
+
+  it("works with a longer code too, and remembers its length for the keypad (never the code itself)", async () => {
+    await setPin("owner", "481920375");
+    const token = await trustDevice("owner");
+    expect(await pinLength("owner")).toBe(9);
+    expect(JSON.stringify(h.settings)).not.toContain("481920375");
+    expect((await checkPin(token, "481920375")).ok).toBe(true);
+    expect(await checkPin(token, "48192037")).toMatchObject({ ok: false, reason: "wrong" });
+  });
 
   it("lets the owner in with the right PIN on a trusted device", async () => {
     const token = await ready();
@@ -125,6 +136,25 @@ describe("the owner's password", () => {
   it("spots the starter password", async () => {
     expect(await usesDefaultPassword(await bcrypt.hash("change-me-now", 4))).toBe(true);
     expect(await usesDefaultPassword(h.users[0].passwordHash)).toBe(false);
+  });
+
+  it("trusts a second device with just the password, and only once a code exists", async () => {
+    h.session = { user: { id: "owner", role: "ADMIN" } };
+    const { POST } = await import("@/app/api/admin/security/devices/route");
+    const req = (body: unknown) => new Request("http://x/api", { method: "POST", body: JSON.stringify(body) }) as never;
+    expect((await POST(req({ password: "a-long-real-password" }))).status).toBe(409);
+    await setPin("owner", "481920375");
+    expect((await POST(req({ password: "wrong" }))).status).toBe(400);
+    const ok = await POST(req({ password: "a-long-real-password" }));
+    expect(ok.status).toBe(200);
+    expect(ok.headers.get("set-cookie")).toMatch(/pc_owner_device=[0-9a-f]{64}/);
+    h.session = { user: { id: "client", role: "CUSTOMER" } };
+    expect((await POST(req({ password: "x" }))).status).toBe(403);
+  });
+
+  it("keeps the owner signed in for 90 days", async () => {
+    const { readFileSync } = await import("fs");
+    expect(readFileSync("lib/security/authOptions.ts", "utf8")).toContain("maxAge: 60 * 60 * 24 * 90");
   });
 
   it("the security routes need the current password before changing anything", async () => {

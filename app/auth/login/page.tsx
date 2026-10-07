@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
@@ -23,7 +23,9 @@ export default function LoginPage() {
       setError("Invalid email or password.");
       return;
     }
-    router.push("/portal/dashboard");
+    // The owner goes to the dashboard; customers go to their portal.
+    const session = await getSession();
+    router.push((session?.user as { role?: string } | undefined)?.role === "ADMIN" ? "/admin/dashboard" : "/portal/dashboard");
   }
 
   return (

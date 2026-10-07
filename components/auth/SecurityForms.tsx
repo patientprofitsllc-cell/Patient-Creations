@@ -57,8 +57,8 @@ export function SecurityForms({ email, pinOn, locked, defaultPassword, thisDevic
         </p>
         <p className="text-sm text-ice/60">Your PIN only works on devices you've trusted here, at patientcreations.com/auth/pin. Five wrong tries lock it and alert you.</p>
         <input className={input} name="password" type="password" autoComplete="current-password" placeholder="Current password" required />
-        <input className={input} name="pin" inputMode="numeric" pattern="\d{4}" maxLength={4} autoComplete="off" placeholder="New 4-digit PIN" required />
-        <input className={input} name="confirm" inputMode="numeric" pattern="\d{4}" maxLength={4} autoComplete="off" placeholder="Type the PIN again" required />
+        <input className={input} name="pin" inputMode="numeric" pattern="\d{4,9}" minLength={4} maxLength={9} autoComplete="off" placeholder="New code (4 to 9 digits)" required />
+        <input className={input} name="confirm" inputMode="numeric" pattern="\d{4,9}" minLength={4} maxLength={9} autoComplete="off" placeholder="Type the code again" required />
         <button className={button} disabled={busy}>{pinOn ? "Change PIN and trust this device" : "Turn on PIN and trust this device"}</button>
       </form>
 
@@ -81,6 +81,21 @@ export function SecurityForms({ email, pinOn, locked, defaultPassword, thisDevic
 
       <div className="glass-panel space-y-4 rounded-2xl p-6">
         <h3 className="font-display text-xl text-ice">Devices</h3>
+        {pinOn && !thisDeviceTrusted && (
+          <form
+            className="space-y-3 rounded-xl border border-gold/30 p-4"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const ok = await run("/api/admin/security/devices", "POST", { password: new FormData(form).get("password") }, "This device is trusted. Open patientcreations.com/auth/pin here and enter your code.");
+              if (ok) form.reset();
+            }}
+          >
+            <p className="text-sm text-ice/70">Using a new phone or computer? Trust this one with your password, then sign in here with your code.</p>
+            <input className={input} name="password" type="password" autoComplete="current-password" placeholder="Current password" required />
+            <button className={button} disabled={busy}>Trust this device</button>
+          </form>
+        )}
         <p className="text-sm text-ice/60">Lost a phone? Forget every trusted device. The PIN then works nowhere until you trust a device again.</p>
         <div className="flex flex-wrap gap-3">
           <button type="button" disabled={busy} onClick={() => run("/api/admin/security/devices", "DELETE", undefined, "All devices forgotten.")} className="rounded-full border border-white/15 px-5 py-3 text-sm text-ice hover:border-gold">
