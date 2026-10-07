@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { ChapterArt } from "@/components/cinematic/ChapterArt";
+
+export const metadata: Metadata = {
+  title: "The fleet",
+  description: "How one operator can run several machines: software, a build studio, rentals, a lead engine and a product brand.",
+  alternates: { canonical: "/gallery" },
+};
 
 const FLEET = [
   { art: "lattice" as const, name: "A software product", body: "A subscription app with live billing: recurring revenue that compounds." },

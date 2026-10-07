@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { AgentNetworkCanvas } from "@/components/agents/AgentNetworkCanvas";
 import { db } from "@/lib/db";
+
+export const metadata: Metadata = {
+  title: "The digital crew",
+  description: "How the Patient Creations orchestrator hands each order to a network of specialist agents, with recent real runs.",
+  alternates: { canonical: "/agents" },
+};
 
 // Shows the 10 most recent real agent runs. Revalidated every 30s instead
 // of force-dynamic so most visitors get a cached response.

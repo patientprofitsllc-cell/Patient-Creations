@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/shared/SiteHeader";
 import { SiteFooter } from "@/components/shared/SiteFooter";
 import { ChapterArt, ChapterArtType } from "@/components/cinematic/ChapterArt";
+
+export const metadata: Metadata = {
+  title: "Guided tour",
+  description: "A step-by-step tour of how ordering works: pick a build, check out, send your details, review and launch.",
+  alternates: { canonical: "/guided-app-tour" },
+};
 
 const STEPS: { art: ChapterArtType; title: string; body: string; href: string; linkLabel: string }[] = [
   {
