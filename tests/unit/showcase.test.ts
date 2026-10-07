@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { transformHtml, transformCss, transformJs, unavailablePage } from "@/lib/site/showcaseTransform";
+import { anonymize, transformHtml, transformCss, transformJs, unavailablePage } from "@/lib/site/showcaseTransform";
 import { SHOWCASE_SITES } from "@/lib/site/showcaseSites";
 import robots from "@/app/robots";
 import { GENERIC_NAME, NAMES, UPSTREAM } from "@/lib/site/showcaseUpstream.mjs";
@@ -83,6 +83,14 @@ describe("the examples page and its route", () => {
     expect(out).toContain(GENERIC_NAME.toUpperCase());
     const js = transformJs('t="Frank\'s Alley";u="Frank&#x27;s Alley"', "restaurant-1", host, NAMES["restaurant-1"], GENERIC_NAME);
     expect(js).not.toMatch(/Frank/);
+    const split = anonymize("<h1>FRANK’S<br/>ALLEY</h1>", NAMES["restaurant-1"], GENERIC_NAME);
+    expect(split).not.toMatch(/FRANK|ALLEY/);
+  });
+
+  it("replaces the business's own phone numbers and email addresses with placeholders", () => {
+    const t = anonymize('<a href="tel:+17065051206">(706) 505-1206</a> <a href="mailto:info@kickinbites.com">info@kickinbites.com</a>');
+    expect(t).not.toMatch(/706|505|kickinbites/);
+    expect(t).toContain("hello@example.com");
   });
 
   it("only fetch from the allowlist, and stay out of search", () => {

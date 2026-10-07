@@ -25,16 +25,23 @@ export const barScript = () =>
 const HEAD_ADDITIONS = `<meta name="robots" content="noindex,nofollow">`;
 
 /** Last line of defence: nothing that names the hosting platform survives, whatever the page contained. */
-/** Replaces each business name (exact case and its upper-case form, with any apostrophe spelling) with a generic one. */
+/** Replaces each business name (exact case and its upper-case form, any apostrophe spelling, even split across tags) with a
+ *  generic one, and swaps the business's own email addresses and phone numbers for placeholders. */
 export function anonymize(text: string, names: string[] = [], generic = "Your Restaurant"): string {
   let out = text;
   for (const name of names) {
     for (const v of [name, name.toUpperCase()]) {
-      const src = v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/['\u2019]/g, "(?:'|&#x27;|&#39;|\\\\u0027|\u2019)");
+      const src = v
+        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        .replace(/['\u2019]/g, "(?:'|&#x27;|&#39;|\\\\u0027|\u2019)")
+        .replace(/ /g, "(?:\\s|<[^>]*>)+");
       out = out.replace(new RegExp(src, "g"), v === name ? generic : generic.toUpperCase());
     }
   }
-  return out;
+  return out
+    .replace(/tel:[+\d\-().\s]{7,}/g, "tel:+15555550100")
+    .replace(/\(\d{3}\)\s?\d{3}-\d{4}|\b\d{3}[-.]\d{3}[-.]\d{4}\b/g, "(555) 555-0100")
+    .replace(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g, "hello@example.com");
 }
 
 function scrub(text: string, pre: string): string {
