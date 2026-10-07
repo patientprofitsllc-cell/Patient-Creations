@@ -3,6 +3,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { transformHtml, transformCss, transformJs, unavailablePage } from "@/lib/site/showcaseTransform";
 import { SHOWCASE_SITES } from "@/lib/site/showcaseSites";
+import robots from "@/app/robots";
 import { UPSTREAM } from "@/lib/site/showcaseUpstream.mjs";
 
 const read = (f: string) => readFileSync(join(process.cwd(), f), "utf8");
@@ -78,7 +79,16 @@ describe("the examples page and its route", () => {
     const route = read("app/showcase/[slug]/[[...path]]/route.ts");
     expect(route).toContain("hasOwnProperty");
     expect(route).toContain("noindex");
-    expect(read("app/robots.ts")).toContain("/showcase");
     expect(read("app/sitemap.ts")).not.toContain("showcase");
+    expect(read("app/sitemap.ts")).not.toContain("showcase");
+  });
+
+  it("keep linked utility pages crawlable but noindex, so Search Console does not report them as blocked by robots.txt", () => {
+    const rules = JSON.stringify(robots().rules);
+    for (const p of ["/cart", "/showcase", "/owner-setup"]) expect(rules, p).not.toContain(`"${p}"`);
+    const config = read("next.config.mjs");
+    expect(config).toContain('source: "/showcase/:path*"');
+    expect(read("app/cart/page.tsx")).toContain("index: false");
+    expect(read("app/owner-setup/page.tsx")).toContain("index: false");
   });
 });
