@@ -5,6 +5,9 @@
 import { OFFER_CHECKOUT_HREF } from "@/lib/site/offer";
 
 export interface TransformInput {
+  /** Business names to replace with a generic one (see showcaseUpstream.mjs). */
+  names?: string[];
+  generic?: string;
   slug: string;
   /** The address the page is fetched from, for example "name.example.app". */
   host: string;
@@ -22,11 +25,23 @@ export const barScript = () =>
 const HEAD_ADDITIONS = `<meta name="robots" content="noindex,nofollow">`;
 
 /** Last line of defence: nothing that names the hosting platform survives, whatever the page contained. */
+/** Replaces each business name (exact case and its upper-case form, with any apostrophe spelling) with a generic one. */
+export function anonymize(text: string, names: string[] = [], generic = "Your Restaurant"): string {
+  let out = text;
+  for (const name of names) {
+    for (const v of [name, name.toUpperCase()]) {
+      const src = v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/['\u2019]/g, "(?:'|&#x27;|&#39;|\\\\u0027|\u2019)");
+      out = out.replace(new RegExp(src, "g"), v === name ? generic : generic.toUpperCase());
+    }
+  }
+  return out;
+}
+
 function scrub(text: string, pre: string): string {
   return text.replace(/https?:\/\/[^\s"'<>)\\]*higgsfield[^\s"'<>)\\]*/gi, pre).replace(/higgsfield/gi, "");
 }
 
-export function transformHtml(html: string, { slug, host, siteUrl }: TransformInput): string {
+export function transformHtml(html: string, { slug, host, siteUrl, names, generic }: TransformInput): string {
   const pre = prefix(slug);
   let out = html
     // The site's scripts run from our own folder, where they are adjusted to start from a sub-path (see transformJs).
@@ -39,7 +54,7 @@ export function transformHtml(html: string, { slug, host, siteUrl }: TransformIn
     .split(`https://${host}`)
     .join(`${siteUrl}${pre}`);
   out = out.replace(/<\/head>/i, `${HEAD_ADDITIONS}</head>`).replace(/<\/body>/i, `${barScript()}</body>`);
-  return scrub(out, `${siteUrl}${pre}`);
+  return scrub(anonymize(out, names, generic), `${siteUrl}${pre}`);
 }
 
 export function transformCss(css: string, slug: string): string {
@@ -50,9 +65,9 @@ export function transformCss(css: string, slug: string): string {
  * The site's own script, adjusted to run from /showcase/<name>/: the router reads the address to decide which page to show, so it
  * is told to ignore our folder, and the links it builds get the folder put back. Asset paths point at our folder as well.
  */
-export function transformJs(js: string, slug: string, host: string): string {
+export function transformJs(js: string, slug: string, host: string, names?: string[], generic?: string): string {
   const pre = prefix(slug);
-  return js
+  return anonymize(js, names, generic)
     .replace(/(["'`])\/assets\/([\w.-]+\.js)\b/g, (_m, q, file) => `${q}${pre}/_js/${file}`)
     .replace(/(["'`])\/assets\/([\w.-]+\.css)\b/g, (_m, q, file) => `${q}${pre}/_css/${file}`)
     .replace(/(["'`])\/assets\//g, (_m, q) => `${q}${pre}/assets/`)

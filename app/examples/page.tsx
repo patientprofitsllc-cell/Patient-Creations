@@ -12,7 +12,7 @@ import { INDUSTRIES } from "@/lib/site/industries";
 import { OFFER_CHECKOUT_HREF } from "@/lib/site/offer";
 
 export const metadata: Metadata = {
-  title: "Examples: client sites and design concepts",
+  title: "Website examples and design concepts",
   description: "Full one-page website concepts for a barbershop, a restaurant and a local shop: the standard of design we build for small businesses.",
   alternates: { canonical: "/examples" },
 };
