@@ -5,6 +5,9 @@
 import { OFFER_CHECKOUT_HREF } from "@/lib/site/offer";
 
 export interface TransformInput {
+  /** Business names to replace with a generic one (see showcaseUpstream.mjs). */
+  names?: string[];
+  generic?: string;
   slug: string;
   /** The address the page is fetched from, for example "name.example.app". */
   host: string;
@@ -22,11 +25,33 @@ export const barScript = () =>
 const HEAD_ADDITIONS = `<meta name="robots" content="noindex,nofollow">`;
 
 /** Last line of defence: nothing that names the hosting platform survives, whatever the page contained. */
+/** Replaces each business name (exact case and its upper-case form, any apostrophe spelling, even split across tags) with a
+ *  generic one, and swaps the business's own email addresses and phone numbers for placeholders. */
+export function anonymize(text: string, names: string[] = [], generic = "Your Restaurant"): string {
+  let out = text;
+  for (const name of names) {
+    for (const v of [name, name.toUpperCase()]) {
+      const src = v
+        .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        .replace(/['\u2019]/g, "(?:'|&#x27;|&#39;|\\\\u0027|\u2019)")
+        .replace(/ /g, "(?:\\s|<[^>]*>)+");
+      out = out.replace(new RegExp(src, "g"), v === name ? generic : generic.toUpperCase());
+    }
+    // The same name inside map and search links ("Name%27s+Place" or "Name%20Place").
+    const linkForm = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/'/g, "(?:%27|')").replace(/ /g, "(?:[+]|%20)");
+    out = out.replace(new RegExp(linkForm, "g"), encodeURIComponent(generic).replace(/%20/g, "+"));
+  }
+  return out
+    .replace(/tel:[+\d\-().\s]{7,}/g, "tel:+15555550100")
+    .replace(/\(\d{3}\)\s?\d{3}-\d{4}|\b\d{3}[-.]\d{3}[-.]\d{4}\b/g, "(555) 555-0100")
+    .replace(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g, "hello@example.com");
+}
+
 function scrub(text: string, pre: string): string {
   return text.replace(/https?:\/\/[^\s"'<>)\\]*higgsfield[^\s"'<>)\\]*/gi, pre).replace(/higgsfield/gi, "");
 }
 
-export function transformHtml(html: string, { slug, host, siteUrl }: TransformInput): string {
+export function transformHtml(html: string, { slug, host, siteUrl, names, generic }: TransformInput): string {
   const pre = prefix(slug);
   let out = html
     // The site's scripts run from our own folder, where they are adjusted to start from a sub-path (see transformJs).
@@ -39,7 +64,7 @@ export function transformHtml(html: string, { slug, host, siteUrl }: TransformIn
     .split(`https://${host}`)
     .join(`${siteUrl}${pre}`);
   out = out.replace(/<\/head>/i, `${HEAD_ADDITIONS}</head>`).replace(/<\/body>/i, `${barScript()}</body>`);
-  return scrub(out, `${siteUrl}${pre}`);
+  return scrub(anonymize(out, names, generic), `${siteUrl}${pre}`);
 }
 
 export function transformCss(css: string, slug: string): string {
@@ -50,9 +75,11 @@ export function transformCss(css: string, slug: string): string {
  * The site's own script, adjusted to run from /showcase/<name>/: the router reads the address to decide which page to show, so it
  * is told to ignore our folder, and the links it builds get the folder put back. Asset paths point at our folder as well.
  */
-export function transformJs(js: string, slug: string, host: string): string {
+export function transformJs(js: string, slug: string, host: string, names?: string[], generic?: string, literals: Record<string, string> = {}): string {
   const pre = prefix(slug);
-  return js
+  let src = anonymize(js, names, generic);
+  for (const [word, to] of Object.entries(literals)) src = src.replace(new RegExp(`(["'\`])${word}\\1`, "g"), (_m, q) => `${q}${to}${q}`);
+  return src
     .replace(/(["'`])\/assets\/([\w.-]+\.js)\b/g, (_m, q, file) => `${q}${pre}/_js/${file}`)
     .replace(/(["'`])\/assets\/([\w.-]+\.css)\b/g, (_m, q, file) => `${q}${pre}/_css/${file}`)
     .replace(/(["'`])\/assets\//g, (_m, q) => `${q}${pre}/assets/`)
