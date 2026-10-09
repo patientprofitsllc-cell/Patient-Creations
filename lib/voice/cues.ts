@@ -6,6 +6,7 @@ import { CUE_IDS } from "@/lib/voice/script";
 
 const PAGE_CUES: Record<string, string> = {
   "/": "home",
+  "/classic": "home",
   "/services": "services",
   "/pricing": "pricing",
   "/audit": "audit",

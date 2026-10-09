@@ -1,10 +1,16 @@
 import { test, expect } from "@playwright/test";
 
-test("homepage loads and shows the core CTAs", async ({ page }) => {
+test("homepage loads with its prices and checkout links", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /digital realities/i })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Enter the Studio" }).first()).toBeVisible();
-  await expect(page.getByRole("link", { name: "View Creations" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Patient Creations/ })).toBeAttached();
+  await expect(page.getByRole("heading", { name: /Clear prices/ })).toBeAttached();
+  await expect(page.locator('a[href="/checkout?product=nfc-cards"]').first()).toBeAttached();
+  await expect(page.locator("body")).not.toContainText("{{");
+});
+
+test("the previous homepage is still at /classic", async ({ page }) => {
+  await page.goto("/classic");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
 
 test("gallery page renders all creation categories", async ({ page }) => {

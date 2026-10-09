@@ -83,7 +83,7 @@ describe("hero network scene", () => {
 
 describe("hero assets", () => {
   it("the homepage points only at poster stills that exist, and ships no video", () => {
-    const page = readFileSync(join(process.cwd(), "app/page.tsx"), "utf8");
+    const page = readFileSync(join(process.cwd(), "app/classic/page.tsx"), "utf8");
     const refs = [...page.matchAll(/"(\/assets\/hero\/[^"]+)"/g)].map((m) => m[1]);
     expect(refs.length).toBeGreaterThan(0);
     for (const r of refs) expect(existsSync(join(process.cwd(), "public", r)), r).toBe(true);

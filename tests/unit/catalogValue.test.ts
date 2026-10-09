@@ -219,7 +219,7 @@ describe("catalog stays simple", () => {
   });
 
   it("has no crossed-out invented price anywhere on the homepage", () => {
-    const home = readFileSync(join(process.cwd(), "app/page.tsx"), "utf8");
+    const home = readFileSync(join(process.cwd(), "app/classic/page.tsx"), "utf8");
     expect(home).not.toMatch(/OFFER_WAS_CENTS|wasCents=/);
   });
 

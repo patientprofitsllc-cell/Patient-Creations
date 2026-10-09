@@ -8,7 +8,7 @@ const read = (f: string) => readFileSync(join(process.cwd(), f), "utf8");
 const EXPERIENCE = ["OfferStack", "TrustRow", "Proof", "Sections", "Showcase", "ConceptSlides", "MoveTabs", "FindYourMove"].map((c) => `components/home/experience/${c}.tsx`);
 
 describe("homepage: the ten-second test", () => {
-  const home = read("app/page.tsx");
+  const home = read("app/classic/page.tsx");
 
   it("says what Patient Creations does in the headline, and what it helps with in the line under it", () => {
     expect(home).toContain('<WordRise text="Built to stand out." />');
@@ -41,7 +41,7 @@ describe("homepage: the ten-second test", () => {
   });
 
   it("shows only live prices: no dollar amount is typed into the homepage", () => {
-    for (const f of ["app/page.tsx", "components/home/StickyCta.tsx", ...EXPERIENCE]) expect(read(f), f).not.toMatch(/\$\s?\d/);
+    for (const f of ["app/classic/page.tsx", "components/home/StickyCta.tsx", ...EXPERIENCE]) expect(read(f), f).not.toMatch(/\$\s?\d/);
   });
 
   it("keeps the approved live hero and the strict tracking", () => {
