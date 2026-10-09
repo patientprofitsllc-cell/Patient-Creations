@@ -45,6 +45,6 @@ describe("website design concepts", () => {
     expect(read("app/examples/[industry]/page.tsx")).toContain("redirect(`/websites/${params.industry}`)");
     expect(read("components/shared/SiteHeader.tsx")).toContain('SHOW_EXAMPLES || n.href !== "/examples"');
     expect(read("app/sitemap.ts")).toContain("SHOW_EXAMPLES ? CONCEPTS : []");
-    expect(read("app/page.tsx")).toContain("<Reimagined showConcepts={SHOW_EXAMPLES} />");
+    expect(read("app/classic/page.tsx")).toContain("<Reimagined showConcepts={SHOW_EXAMPLES} />");
   });
 });

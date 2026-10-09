@@ -37,7 +37,8 @@ import { FALLBACK_OFFER_PRICE_CENTS, getOfferProduct } from "@/lib/site/offerDat
 // revalidate strategy already used on /services.
 export const revalidate = 60;
 
-export const metadata: Metadata = { alternates: { canonical: "/" } };
+// The previous homepage, kept as a fallback. "/" is now the 3D experience (app/route.ts), so this copy stays out of search.
+export const metadata: Metadata = { alternates: { canonical: "/" }, robots: { index: false, follow: true } };
 
 export default async function HomePage() {
   const [offer, prices] = await Promise.all([getOfferProduct(), getLivePrices()]);

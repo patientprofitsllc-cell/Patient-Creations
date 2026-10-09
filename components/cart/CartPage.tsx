@@ -20,7 +20,7 @@ export function CartPage() {
       <div className="rounded-2xl border border-white/10 bg-pc-panel p-10 text-center">
         <p className="text-2xl font-light">Your cart is empty.</p>
         <p className="mt-2 text-pc-mute">Add anything from the price list and it&apos;ll wait here, even if you leave and come back later.</p>
-        <Link href="/#products" className="mt-6 inline-flex min-h-[52px] items-center rounded-xl bg-pc-sand px-6 font-semibold text-pc-ink">
+        <Link href="/pricing" className="mt-6 inline-flex min-h-[52px] items-center rounded-xl bg-pc-sand px-6 font-semibold text-pc-ink">
           See products and prices
         </Link>
       </div>

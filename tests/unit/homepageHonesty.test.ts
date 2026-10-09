@@ -7,7 +7,7 @@ import { GA_DEFAULT_ID, GA_EVENT_FOR, GA_HOSTS, safeParams } from "@/lib/analyti
 const read = (f: string) => readFileSync(join(process.cwd(), f), "utf8");
 const dir = (d: string) => readdirSync(join(process.cwd(), d)).map((f) => `${d}/${f}`);
 // Everything the new homepage is built from.
-const FILES = ["app/page.tsx", "components/home/StickyCta.tsx", ...dir("components/home/experience"), ...dir("components/motion")];
+const FILES = ["app/classic/page.tsx", "lib/site/home/home.html", "components/home/StickyCta.tsx", ...dir("components/home/experience"), ...dir("components/motion")];
 
 describe("the homepage persuades honestly", () => {
   it("has no countdown, timer, or deadline", () => {
