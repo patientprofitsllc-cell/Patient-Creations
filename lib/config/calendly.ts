@@ -5,7 +5,7 @@ export const CALENDLY_URL = "https://calendly.com/patientprofitsllc/30min";
  * software. Website Specials and the bundle start with the intake, single ads and Business Cards need no call, and a
  * Strategy Session books its own call at checkout.
  */
-export const KICKOFF_SLUGS: readonly string[] = ["site", "lead-engine", "agents", "saas"];
+export const KICKOFF_SLUGS: readonly string[] = ["site", "lead-engine", "agents", "saas", "agent-website-bundle", "agent-cinematic-bundle", "agent-lead-bundle", "everything-bundle"];
 
 export const needsKickoff = (orderSlugs: readonly string[]) => orderSlugs.some((s) => KICKOFF_SLUGS.includes(s));
 

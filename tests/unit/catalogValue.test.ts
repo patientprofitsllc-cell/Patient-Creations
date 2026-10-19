@@ -67,11 +67,11 @@ describe("product scopes", () => {
 });
 
 describe("catalog prices", () => {
-  it("AI Software / App starts at $10,000, with $15,000 and $25,000 tiers, all from the price list", () => {
+  it("AI Software / App starts at $15,000, with $22,500 and $37,500 tiers, all from the price list", () => {
     expect(productBlock("saas")).toContain('PRICE_CENTS["saas"]');
-    expect(PRICE_CENTS.saas).toBe(1000000);
-    expect(tierPriceCents("saas", "Signature", PRICE_CENTS.saas)).toBe(1500000);
-    expect(tierPriceCents("saas", "Flagship", PRICE_CENTS.saas)).toBe(2500000);
+    expect(PRICE_CENTS.saas).toBe(1500000);
+    expect(tierPriceCents("saas", "Signature", PRICE_CENTS.saas)).toBe(2250000);
+    expect(tierPriceCents("saas", "Flagship", PRICE_CENTS.saas)).toBe(3750000);
   });
 
   it("NFC cards are a flat $20 with no setup fee, on every card product and the add-on", () => {
@@ -89,10 +89,10 @@ describe("catalog prices", () => {
     const cents = (slug: string) => PRICE_CENTS[slug as keyof typeof PRICE_CENTS];
     const cin = cents("cinematic-ad-special");
     const ugc = cents("ugc-ad-special");
-    expect([cin, ugc]).toEqual([29900, 12900]);
+    expect([cin, ugc]).toEqual([39900, 14900]);
     const separately = cents("website-special") + 4 * cin + 4 * ugc + 5 * cents("nfc-cards");
     const bundle = cents("all-in-one-bundle");
-    expect(bundle).toBe(249_900);
+    expect(bundle).toBe(319_900);
     expect(bundle).toBeLessThan(separately);
     expect((separately - bundle) / separately).toBeGreaterThanOrEqual(0.15);
   });

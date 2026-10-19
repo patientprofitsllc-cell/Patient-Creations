@@ -28,7 +28,7 @@ describe("which pay-later methods fit an amount", () => {
     expect(bnplMethodsFor(PRICE_CENTS.site)).toEqual(["klarna", "afterpay_clearpay"]);
     expect(bnplMethodsFor(PRICE_CENTS["lead-engine"])).toEqual(["klarna", "afterpay_clearpay"]);
     expect(bnplMethodsFor(PRICE_CENTS.agents)).toEqual(["klarna"]);
-    expect(bnplMethodsFor(PRICE_CENTS.saas)).toEqual(["klarna"]);
+    expect(bnplMethodsFor(PRICE_CENTS.saas)).toEqual([]); // over Klarna's limit
   });
 
   it("treats a bad amount as nothing to offer", () => {
@@ -51,7 +51,7 @@ describe("turning it on", () => {
 
   it("names card first, then the methods that fit, when on", () => {
     expect(paymentMethodTypesFor(PRICE_CENTS.site, ON)).toEqual(["card", "klarna", "afterpay_clearpay"]);
-    expect(paymentMethodTypesFor(PRICE_CENTS.saas, ON)).toEqual(["card", "klarna"]);
+    expect(paymentMethodTypesFor(PRICE_CENTS.agents, ON)).toEqual(["card", "klarna"]);
   });
 
   it("names card alone for a small or huge amount, so a method enabled in Stripe cannot appear there", () => {
@@ -72,8 +72,8 @@ describe("what the customer is told", () => {
     expect(both).toMatch(/Klarna or Afterpay/);
     expect(both).toMatch(/check whether you qualify/);
     expect(both).toMatch(/they, not us, collect the installments/);
-    expect(bnplNotice(PRICE_CENTS.saas, true)).toMatch(/Klarna\b/);
-    expect(bnplNotice(PRICE_CENTS.saas, true)).not.toMatch(/Afterpay/);
+    expect(bnplNotice(PRICE_CENTS.agents, true)).toMatch(/Klarna\b/);
+    expect(bnplNotice(PRICE_CENTS.agents, true)).not.toMatch(/Afterpay/);
   });
 });
 

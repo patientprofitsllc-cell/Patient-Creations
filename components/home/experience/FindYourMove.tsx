@@ -1,7 +1,7 @@
 import { money } from "@/components/home/specialFrame";
 import { Reveal } from "@/components/motion/Reveal";
 import { db } from "@/lib/db";
-import { AUDIT_CREDIT_DAYS, AUDIT_FEE_CENTS, PRICE_CENTS, SPECIAL_CARE_MONTHS, BUNDLE_PARTS, usd, type PricedSlug } from "@/lib/pricing/catalog";
+import { AUDIT_CREDIT_DAYS, AUDIT_FEE_CENTS, PRICE_CENTS, SPECIAL_CARE_MONTHS, BUNDLE_PARTS, EVERYTHING_CARE_MONTHS, agentBundleSavingCents, usd, type PricedSlug } from "@/lib/pricing/catalog";
 import { PRICE_LIST, PRICE_LIST_SLUGS } from "@/lib/site/priceList";
 import { AuditNudge, SectionHead } from "./Sections";
 import { MoveTabs, type MoveGroup } from "./MoveTabs";
@@ -17,6 +17,10 @@ const EXTRA: Partial<Record<PricedSlug, { eyebrow: string; points?: string[]; ct
     eyebrow: "Your launch, fully loaded",
     points: [`Website Special + ${SPECIAL_CARE_MONTHS} months of care`, `${BUNDLE_PARTS.cinematicAds} Cinematic Ads + ${BUNDLE_PARTS.ugcAds} UGC Ads`, `${BUNDLE_PARTS.cards} Business Cards of your choice`],
   },
+  "agent-website-bundle": { eyebrow: "Answer and get found", points: ["Multi-Agent System + Website Special", `${SPECIAL_CARE_MONTHS} months of maintenance`, `Save ${usd(agentBundleSavingCents("agent-website-bundle"))} against buying each`] },
+  "agent-cinematic-bundle": { eyebrow: "Answer and impress", points: ["Multi-Agent System + Cinematic AI Website", "Up to 5 pages, cinematic motion hero", `Save ${usd(agentBundleSavingCents("agent-cinematic-bundle"))} against buying each`] },
+  "agent-lead-bundle": { eyebrow: "Capture and follow up", points: ["Multi-Agent System + Lead Engine", "Leads reach your process automatically", `Save ${usd(agentBundleSavingCents("agent-lead-bundle"))} against buying each`] },
+  "everything-bundle": { eyebrow: "The whole machine", points: ["Website, AI Agent, Lead Engine, and Payments Setup", `${EVERYTHING_CARE_MONTHS} months of care, ${BUNDLE_PARTS.cinematicAds + BUNDLE_PARTS.ugcAds} ads, and ${BUNDLE_PARTS.cards} Business Cards`, `Save ${usd(agentBundleSavingCents("everything-bundle"))} against buying each`] },
   "ugc-ad-special": { eyebrow: "Meet your next customer" },
   "cinematic-ad-special": { eyebrow: "Your story, a little bigger" },
   "nfc-cards": { eyebrow: "One tap, one connection" },

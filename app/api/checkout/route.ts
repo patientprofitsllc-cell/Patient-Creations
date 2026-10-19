@@ -12,8 +12,7 @@ import { logEvent } from "@/lib/analytics/events";
 import { rateLimit } from "@/lib/security/rateLimit";
 import { recordAcceptance } from "@/lib/legal/acceptance";
 import { randomBytes } from "crypto";
-import { NFC_BUNDLE_SLUG } from "@/lib/payments/nfcAddon";
-import { OFFER_SLUG } from "@/lib/site/offer";
+import { WEBSITE_SPECIAL_SLUGS } from "@/lib/site/offer";
 import { isVisitorId, offerIsRedeemable, recordCartConverted, recordOfferUsed, RECOVERY_COUPON } from "@/lib/funnel/cartRecovery";
 import { notifyOwnerOfOrder } from "@/lib/alerts/ownerAlerts";
 import { sendEmail } from "@/lib/email/provider";
@@ -76,7 +75,7 @@ export async function POST(req: NextRequest) {
   // Website orders need the business basics up front so production can start from them.
   const includesWebsite =
     !cardMix &&
-    (await db.product.count({ where: { id: { in: productIds }, slug: { in: [OFFER_SLUG, NFC_BUNDLE_SLUG] } } })) > 0;
+    (await db.product.count({ where: { id: { in: productIds }, slug: { in: [...WEBSITE_SPECIAL_SLUGS] } } })) > 0;
   if (includesWebsite && !website) {
     return NextResponse.json({ error: "Tell us your business name, type, and phone so we can build your website." }, { status: 400 });
   }

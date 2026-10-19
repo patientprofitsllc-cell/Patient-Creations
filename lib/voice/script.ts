@@ -170,6 +170,30 @@ export const VOICE_SCRIPT: readonly CueDef[] = [
     text: "The All in One Launch Bundle packs a website, ads, and Business Cards into one fixed price, so you can launch everything at once.",
   },
   {
+    id: "agent-website-bundle",
+    kind: "product",
+    when: "AI Agent plus Website Special",
+    text: "The AI Agent plus Website Special bundle gives you a Multi-Agent System and a Website Special together, built from one intake, for one price.",
+  },
+  {
+    id: "agent-cinematic-bundle",
+    kind: "product",
+    when: "AI Agent plus Cinematic Website",
+    text: "The AI Agent plus Cinematic Website bundle gives you a Multi-Agent System and a Cinematic AI Website together, built from one intake, for one price.",
+  },
+  {
+    id: "agent-lead-bundle",
+    kind: "product",
+    when: "AI Agent plus Lead Engine",
+    text: "The AI Agent plus Lead Engine bundle gives you a Multi-Agent System and a Lead Engine together, so new enquiries are captured and followed up.",
+  },
+  {
+    id: "everything-bundle",
+    kind: "product",
+    when: "The Everything Bundle",
+    text: "The Everything Bundle packs a Cinematic AI Website, a Multi-Agent System, a Lead Engine, Payments Setup, a year of Website Care, ads, and Business Cards into one price.",
+  },
+  {
     id: "nfc-cards",
     kind: "product",
     when: "Business Cards, every design",
@@ -267,6 +291,30 @@ export const VOICE_SCRIPT: readonly CueDef[] = [
     kind: "thanks",
     when: "Thank you for purchasing: All in One Launch Bundle",
     text: "Thank you for choosing the All in One Launch Bundle. Finish the intake, then fill in your card details, and we will take it from there.",
+  },
+  {
+    id: "thanks-agent-website-bundle",
+    kind: "thanks",
+    when: "Thank you for purchasing: AI Agent plus Website Special",
+    text: "Thank you for choosing AI Agent plus Website Special. Your order is in. Finish the intake and book your kickoff call on this page.",
+  },
+  {
+    id: "thanks-agent-cinematic-bundle",
+    kind: "thanks",
+    when: "Thank you for purchasing: AI Agent plus Cinematic Website",
+    text: "Thank you for choosing AI Agent plus Cinematic Website. Your order is in. Finish the intake and book your kickoff call on this page.",
+  },
+  {
+    id: "thanks-agent-lead-bundle",
+    kind: "thanks",
+    when: "Thank you for purchasing: AI Agent plus Lead Engine",
+    text: "Thank you for choosing AI Agent plus Lead Engine. Your order is in. Finish the intake and book your kickoff call on this page.",
+  },
+  {
+    id: "thanks-everything-bundle",
+    kind: "thanks",
+    when: "Thank you for purchasing: The Everything Bundle",
+    text: "Thank you for choosing the Everything Bundle. Your order is in. Finish the intake and book your kickoff call on this page.",
   },
   {
     id: "thanks-nfc-cards",

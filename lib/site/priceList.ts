@@ -22,7 +22,7 @@ export interface PriceListItem {
 
 export interface PriceListGroup {
   /** Also the anchor on the page, so /#websites and /pricing#ads work. */
-  id: "websites" | "ads" | "business-cards" | "automation" | "monthly";
+  id: "websites" | "bundles" | "ads" | "business-cards" | "automation" | "monthly";
   title: string;
   blurb: string;
   items: PriceListItem[];
@@ -45,6 +45,21 @@ export const PRICE_LIST: readonly PriceListGroup[] = [
         slug: "all-in-one-bundle",
         name: "All-in-One Launch Bundle",
         line: `A Website Special, ${BUNDLE_PARTS.cinematicAds} Cinematic Ads, ${BUNDLE_PARTS.ugcAds} UGC Ads, and ${BUNDLE_PARTS.cards} Business Cards.`,
+      },
+    ],
+  },
+  {
+    id: "bundles",
+    title: "Bundles",
+    blurb: "An AI Agent with the rest of what you need, for less than buying each piece.",
+    items: [
+      { slug: "agent-website-bundle", name: "AI Agent + Website Special", line: "A Multi-Agent System and a Website Special, built from one intake." },
+      { slug: "agent-cinematic-bundle", name: "AI Agent + Cinematic Website", line: "A Multi-Agent System and a Cinematic AI Website, built from one intake." },
+      { slug: "agent-lead-bundle", name: "AI Agent + Lead Engine", line: "A Multi-Agent System and a Lead Engine, so new enquiries are captured and followed up." },
+      {
+        slug: "everything-bundle",
+        name: "The Everything Bundle",
+        line: "Cinematic Website, AI Agent, Lead Engine, Payments Setup, a year of Website Care, ads, and Business Cards.",
       },
     ],
   },

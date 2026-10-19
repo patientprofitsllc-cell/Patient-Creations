@@ -77,7 +77,7 @@ beforeEach(() => {
   h.orders.length = 0;
   h.stripeCalls.length = 0;
   h.failFirstWithMethods = false;
-  h.priced = { totalCents: PRICE_CENTS.saas, shippingCents: 0 };
+  h.priced = { totalCents: PRICE_CENTS.agents, shippingCents: 0 };
 });
 afterEach(() => {
   delete env.BNPL_ENABLED;
@@ -131,6 +131,6 @@ describe("pay later at checkout", () => {
   it("keeps the deposit rule and the amount charged exactly as before", async () => {
     env.BNPL_ENABLED = "true";
     await post({ paymentPlan: "deposit" });
-    expect(h.stripeCalls[0].line_items[0].price_data.unit_amount).toBe(Math.round((PRICE_CENTS.saas * DEPOSIT.percent) / 100));
+    expect(h.stripeCalls[0].line_items[0].price_data.unit_amount).toBe(Math.round((PRICE_CENTS.agents * DEPOSIT.percent) / 100));
   });
 });

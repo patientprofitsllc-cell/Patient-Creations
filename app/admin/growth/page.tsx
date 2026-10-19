@@ -6,8 +6,7 @@ import { ReminderRow, SendAllReminders } from "@/components/reminders/ReminderBu
 import { MAX_REMINDERS, reminderCandidates } from "@/lib/reminders/intake";
 import { FUNNEL_EVENTS, type FunnelEvent } from "@/lib/analytics/funnel";
 import { acquisitionProgress, funnelRows, getAcquisitionConfig } from "@/lib/analytics/growth";
-import { NFC_BUNDLE_SLUG } from "@/lib/payments/nfcAddon";
-import { OFFER_SLUG } from "@/lib/site/offer";
+import { WEBSITE_SPECIAL_SLUGS } from "@/lib/site/offer";
 import { cartRecoveryStats, OFFER_PERCENT, OFFER_VISIT_THRESHOLD } from "@/lib/funnel/cartRecovery";
 import { smsConfig } from "@/lib/alerts/ownerAlerts";
 import { adPlanMrrCents } from "@/lib/ads/data";
@@ -86,7 +85,7 @@ export default async function AdminGrowthPage() {
   const customers = new Set(paidOrders.map((o) => o.customerId));
   const progress = acquisitionProgress(cfg, customers.size, now);
   const revenue = paidOrders.reduce((s, o) => s + collectedCents(o), 0);
-  const websiteOrders = paidOrders.filter((o) => o.items.some((i) => i.product.slug === OFFER_SLUG || i.product.slug === NFC_BUNDLE_SLUG)).length;
+  const websiteOrders = paidOrders.filter((o) => o.items.some((i) => WEBSITE_SPECIAL_SLUGS.includes(i.product.slug))).length;
 
   const counts: Partial<Record<FunnelEvent, number>> = {};
   for (const g of eventGroups) counts[g.name as FunnelEvent] = g._count._all;

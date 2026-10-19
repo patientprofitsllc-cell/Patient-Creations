@@ -21,6 +21,7 @@ export const BASIC_PACKAGE_CARD_COUNT = 5;
 const INCLUDED_CARDS: Record<string, number> = {
   [NFC_BUNDLE_SLUG]: NFC_BUNDLE_CARD_COUNT,
   [BASIC_PACKAGE_SLUG]: BASIC_PACKAGE_CARD_COUNT,
+  "everything-bundle": BUNDLE_PARTS.cards,
 };
 
 /** How many NFC cards come with this product, or 0 if it does not include any. */

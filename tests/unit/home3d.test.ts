@@ -25,8 +25,8 @@ describe("the 3D homepage", () => {
   it("follows a changed price, and its bundle saving is the real difference", () => {
     const v = homeValues({ "website-special": 150_000 });
     expect(v["website-special"]).toBe("$1,500");
-    expect(v["bundle-separately"]).toBe("$3,312");
-    expect(v["bundle-savings"]).toBe("$813");
+    expect(v["bundle-separately"]).toBe("$3,792");
+    expect(v["bundle-savings"]).toBe("$593");
   });
 
   it("refuses to serve a page with an unfilled slot", () => {

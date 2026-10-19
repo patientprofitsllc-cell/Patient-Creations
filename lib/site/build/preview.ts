@@ -1,9 +1,8 @@
 import { EXTRA_REVISION_ROUNDS, EXTRA_REVISION_SLUG } from "@/lib/site/addOnPitch";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { NFC_BUNDLE_SLUG } from "@/lib/payments/nfcAddon";
 import { rateLimit } from "@/lib/security/rateLimit";
-import { OFFER_SLUG } from "@/lib/site/offer";
+import { WEBSITE_SPECIAL_SLUGS } from "@/lib/site/offer";
 import { latestBuild } from "@/lib/site/build/store";
 
 const TOKEN_SHAPE = /^[A-Za-z0-9_-]{16,40}$/;
@@ -23,7 +22,7 @@ export async function loadPreview(token: string) {
   if (!build) return null;
 
   const revisions = await db.revision.findMany({ where: { projectId: project.id }, orderBy: { createdAt: "asc" } });
-  const websiteProduct = project.order.items.find((i) => i.product.slug === OFFER_SLUG || i.product.slug === NFC_BUNDLE_SLUG)?.product;
+  const websiteProduct = project.order.items.find((i) => WEBSITE_SPECIAL_SLUGS.includes(i.product.slug))?.product;
   return {
     project,
     build,
