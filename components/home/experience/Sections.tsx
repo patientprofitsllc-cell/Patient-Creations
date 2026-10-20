@@ -42,7 +42,7 @@ export function BiggerPicture({ websiteFrom, adFrom }: { websiteFrom: string; ad
       n: "03 — Work smarter",
       title: ["Make the work", "work for you."],
       body: "Connect the pieces behind your business. Capture leads, follow up automatically, accept payments, or build software around the way you work.",
-      points: ["Lead capture & automatic follow-up emails", "Stripe payment setup", "Custom apps & multi-agent AI systems"],
+      points: ["Lead capture & automatic follow-up emails", "Stripe payment setup", "Custom apps & AI agent systems"],
       link: { href: "/pricing#automation", label: "Explore automation", note: "Scoped to your business" },
     },
   ];

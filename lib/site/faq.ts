@@ -10,6 +10,7 @@ import {
   BNPL,
   BUNDLE_PARTS,
   DEPOSIT,
+  EVERYTHING_CARE_MONTHS,
   PRICE_CENTS,
   bundleSeparatelyCents,
   SPECIAL_CARE_MONTHS,
@@ -142,11 +143,15 @@ export function faqGroups({ bnpl, prices = {} }: FaqOptions): FaqGroup[] {
     },
     {
       id: "bundle",
-      title: "The All-in-One Bundle",
+      title: "Bundles",
       faqs: [
         {
           q: "What's in the All-in-One Launch Bundle?",
           a: `A Website Special with ${SPECIAL_CARE_MONTHS} months of maintenance, ${BUNDLE_PARTS.cinematicAds} Cinematic Ads, ${BUNDLE_PARTS.ugcAds} UGC Ads, and ${BUNDLE_PARTS.cards} Business Cards of your choice, for ${p("all-in-one-bundle")}.${bundleSaving > 0 ? ` Bought one by one, the same things cost ${usd(separately)}, so you save ${usd(bundleSaving)}.` : ""}`,
+        },
+        {
+          q: "What are the AI Agent bundles?",
+          a: `An AI Agent System paired with what usually goes with it, for less than buying each piece: with a Website Special for ${p("agent-website-bundle")}, with a Cinematic AI Website for ${p("agent-cinematic-bundle")}, or with a Lead Engine for ${p("agent-lead-bundle")}. The Everything Bundle (${p("everything-bundle")}) adds a Cinematic AI Website, a Lead Engine, Payments Setup, ${EVERYTHING_CARE_MONTHS} months of Website Care, ${BUNDLE_PARTS.cinematicAds} Cinematic Ads, ${BUNDLE_PARTS.ugcAds} UGC Ads, and ${BUNDLE_PARTS.cards} Business Cards. Each bundle starts with one intake and one kickoff call.`,
         },
       ],
     },

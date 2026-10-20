@@ -50,7 +50,7 @@ export function SeoWordbank() {
           </span>
         </summary>
         <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ice/50">
-          Patient Creations builds cinematic AI websites, cinematic and UGC ads, Business Cards, software, and multi-agent
+          Patient Creations builds cinematic AI websites, cinematic and UGC ads, Business Cards, software, and AI agent
           systems for small businesses, creators, and hosts, at freelancer-floor pricing with agency-level quality.
         </p>
         <ul className="mt-5 flex flex-wrap gap-2">

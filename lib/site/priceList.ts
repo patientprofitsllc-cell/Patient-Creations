@@ -53,9 +53,9 @@ export const PRICE_LIST: readonly PriceListGroup[] = [
     title: "Bundles",
     blurb: "An AI Agent with the rest of what you need, for less than buying each piece.",
     items: [
-      { slug: "agent-website-bundle", name: "AI Agent + Website Special", line: "A Multi-Agent System and a Website Special, built from one intake." },
-      { slug: "agent-cinematic-bundle", name: "AI Agent + Cinematic Website", line: "A Multi-Agent System and a Cinematic AI Website, built from one intake." },
-      { slug: "agent-lead-bundle", name: "AI Agent + Lead Engine", line: "A Multi-Agent System and a Lead Engine, so new enquiries are captured and followed up." },
+      { slug: "agent-website-bundle", name: "AI Agent + Website Special", line: "An AI Agent System and a Website Special, built from one intake." },
+      { slug: "agent-cinematic-bundle", name: "AI Agent + Cinematic Website", line: "An AI Agent System and a Cinematic AI Website, built from one intake." },
+      { slug: "agent-lead-bundle", name: "AI Agent + Lead Engine", line: "An AI Agent System and a Lead Engine, so new enquiries are captured and followed up." },
       {
         slug: "everything-bundle",
         name: "The Everything Bundle",
@@ -89,7 +89,7 @@ export const PRICE_LIST: readonly PriceListGroup[] = [
     items: [
       { slug: "lead-engine", name: "Lead Engine", line: "A landing page, a lead form, and automatic follow-up emails." },
       { slug: "payments-setup", name: "Payments Setup", line: "Take card payments on your website or app through Stripe." },
-      { slug: "agents", name: "Multi-Agent System", line: "Up to 3 AI agents working together on one business process." },
+      { slug: "agents", name: "AI Agent System", line: "Up to 3 AI agents working together on one business process." },
       { slug: "saas", name: "AI Software / App", line: "A working web app for one core workflow, with the code handed to you." },
       { slug: "strategy-session", name: "Strategy Session", line: "Not sure what you need? A one-hour call, and the fee is credited toward your build." },
     ],

@@ -1,4 +1,5 @@
-import { PRICE_CENTS, SPECIAL_CARE_MONTHS, bundleSeparatelyCents, usd } from "@/lib/pricing/catalog";
+import { AGENT_BUNDLE_SLUGS, PRICE_CENTS, SPECIAL_CARE_MONTHS, agentBundleSeparatelyCents, bundleSeparatelyCents, usd } from "@/lib/pricing/catalog";
+import { PRODUCT_SCOPES } from "@/lib/site/productScopes";
 import type { ReactNode } from "react";
 import { db } from "@/lib/db";
 import { deliveryLine } from "@/lib/payments/deliveryWindow";
@@ -16,6 +17,12 @@ const SLUGS = [
   "all-in-one-bundle",
   "strategy-session",
   "nfc-cards",
+  ...AGENT_BUNDLE_SLUGS,
+  // The other parts of the AI Agent bundles, so their "bought separately" price comes from the live rows too.
+  "agents",
+  "lead-engine",
+  "payments-setup",
+  "care-plan",
 ];
 
 /**
@@ -30,7 +37,7 @@ export async function SpecialsGrid({
 }: {
   className?: string;
   /** Specials to leave out ("starter" on the homepage, where the main offer card already covers it). */
-  exclude?: ("ads" | "starter" | "bundle" | "site")[];
+  exclude?: ("ads" | "starter" | "bundle" | "site" | "agent-bundles")[];
   heading?: string;
 }) {
   const rows = await db.product.findMany({ where: { slug: { in: SLUGS }, active: true } });
@@ -125,6 +132,34 @@ export async function SpecialsGrid({
         />
       ),
     });
+  }
+
+  if (!exclude.includes("agent-bundles")) {
+    const live = (slug: keyof typeof PRICE_CENTS) => bySlug.get(slug)?.priceCents ?? PRICE_CENTS[slug];
+    for (const slug of AGENT_BUNDLE_SLUGS) {
+      const row = bySlug.get(slug);
+      if (!row) continue;
+      const separately = agentBundleSeparatelyCents(slug, live);
+      const [lead, accent] = row.name.includes(" + ") ? [`${row.name.split(" + ")[0]} +`, row.name.split(" + ")[1]] : [row.name.split(" ")[0], row.name.split(" ").slice(1).join(" ")];
+      specials.push({
+        key: slug,
+        sortCents: row.priceCents,
+        node: (
+          <SpecialPriceCard
+            lead={lead}
+            accent={accent}
+            description={row.description}
+            delivery={deliveryLine(row.turnaround)}
+            items={PRODUCT_SCOPES[slug]?.includes.filter((i) => !/revision round/.test(i))}
+            wasCents={separately > row.priceCents ? separately : undefined}
+            nowCents={row.priceCents}
+            href={`/checkout?product=${slug}`}
+            cta="Get this bundle"
+            footnote="Starts with one intake and one kickoff call."
+          />
+        ),
+      });
+    }
   }
 
   if (specials.length === 0) return null;

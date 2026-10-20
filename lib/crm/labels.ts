@@ -16,7 +16,7 @@ const NAMES: Partial<Record<PricedSlug, string>> = {
   ad: "Cinematic Ad",
   "rental-listing-film": "Rental Listing Film",
   "lead-engine": "Lead Engine",
-  agents: "Multi-Agent Automation",
+  agents: "AI Agent System",
   saas: "AI Software",
   "strategy-session": "Strategy Session",
   "custom-build": "Custom Build Consultation",
