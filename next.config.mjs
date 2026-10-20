@@ -25,6 +25,8 @@ const nextConfig = {
       { source: "/:path*", headers: protectiveHeaders },
       // The homepage's script, styles, fonts and photos carry a content hash in their names, so they never change in place.
       { source: "/assets/experience/:file*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      // Meet Ava's recordings: loaded on demand, and named by a hash of their contents, so they never change in place either.
+      { source: "/assets/ava/:file*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
       // Showcased client sites are copies of someone else's page, so search engines must not index them under our name.
       { source: "/showcase/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow, noai, noimageai" }] },
     ];
