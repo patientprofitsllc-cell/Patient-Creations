@@ -39,7 +39,7 @@ export const MARKET_ROWS: readonly MarketRow[] = [
   },
   {
     slug: "agents",
-    fallbackName: "Multi-Agent System",
+    fallbackName: "AI Agent System",
     fallbackYouCents: PRICE_CENTS.agents,
     loCents: 200000,
     hiCents: 1200000,

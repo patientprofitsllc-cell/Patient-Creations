@@ -1,4 +1,4 @@
-import { AUDIT_CREDIT_DAYS, AUDIT_FEE_CENTS, PRICE_CENTS, bundleSeparatelyCents, usd } from "@/lib/pricing/catalog";
+import { AGENT_BUNDLE_SLUGS, AUDIT_CREDIT_DAYS, AUDIT_FEE_CENTS, PRICE_CENTS, bundleSeparatelyCents, usd } from "@/lib/pricing/catalog";
 import { CONTACT_EMAIL, CONTACT_PHONE_DIGITS, CONTACT_PHONE_DISPLAY } from "@/lib/config/site";
 import { REWARD_CARD_CENTS } from "@/lib/reviews/rewardPrice";
 import type { LivePrices } from "@/lib/site/faq";
@@ -23,6 +23,7 @@ export function homeValues(live: LivePrices): Record<string, string> {
     "all-in-one-bundle": usd(cents("all-in-one-bundle")),
     "bundle-separately": usd(separately),
     "bundle-savings": usd(Math.max(0, separately - cents("all-in-one-bundle"))),
+    "agent-bundles-from": usd(Math.min(...AGENT_BUNDLE_SLUGS.map((s) => cents(s)))),
     "growth-audit": usd(AUDIT_FEE_CENTS),
     "audit-days": String(AUDIT_CREDIT_DAYS),
   };

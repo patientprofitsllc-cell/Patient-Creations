@@ -53,7 +53,7 @@ export default async function AgentNetworkPage() {
                 </span>
               </div>
             ))}
-            {recentRuns.length === 0 && <p className="p-4 text-ice/40">No agent activity yet. Place a test order to see the crew in action.</p>}
+            {recentRuns.length === 0 && <p className="p-4 text-ice/40">Agent activity shows here while orders are being worked on.</p>}
           </div>
         </section>
       </main>

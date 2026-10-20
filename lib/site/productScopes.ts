@@ -46,10 +46,10 @@ export function scopeForTier(scope: ProductScope, tier: ScopeTier): { includes: 
 
 export const PRODUCT_SCOPES: Record<string, ProductScope> = {
   "agent-website-bundle": {
-    summary: "A Multi-Agent System and a Website Special together, built from one intake, for one price.",
+    summary: "An AI Agent System and a Website Special together, built from one intake, for one price.",
     includes: [
       "3 revision rounds on the agents, and 1 on the website",
-      "The Multi-Agent System: up to 3 AI agents on one business process, connected to up to 3 of your tools, with your approval where it matters",
+      "The AI Agent System: up to 3 AI agents on one business process, connected to up to 3 of your tools, with your approval where it matters",
       `The Website Special: a one-page website live in about 72 hours, with ${SPECIAL_CARE_MONTHS} months of maintenance`,
       "One intake and one kickoff call, so the website and the agents are built around the same facts about your business",
       "A written guide and one walkthrough call for the agents",
@@ -62,10 +62,10 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
     ],
   },
   "agent-cinematic-bundle": {
-    summary: "A Multi-Agent System and a Cinematic AI Website together, built from one intake, for one price.",
+    summary: "An AI Agent System and a Cinematic AI Website together, built from one intake, for one price.",
     includes: [
       "3 revision rounds on the agents, and 2 on the website",
-      "The Multi-Agent System: up to 3 AI agents on one business process, connected to up to 3 of your tools, with your approval where it matters",
+      "The AI Agent System: up to 3 AI agents on one business process, connected to up to 3 of your tools, with your approval where it matters",
       "The Cinematic AI Website: up to 5 pages with a cinematic motion hero, written from the facts you give us",
       "One intake and one kickoff call, so the website and the agents are built around the same facts about your business",
       "A written guide and one walkthrough call for the agents",
@@ -78,11 +78,11 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
     ],
   },
   "agent-lead-bundle": {
-    summary: "A Multi-Agent System and a Lead Engine together, so new enquiries are captured and followed up automatically.",
+    summary: "An AI Agent System and a Lead Engine together, so new enquiries are captured and followed up automatically.",
     includes: [
       "3 revision rounds",
       "The Lead Engine: a landing page, a lead form, and automatic follow-up emails",
-      "The Multi-Agent System: up to 3 AI agents on one business process, connected to up to 3 of your tools, with your approval where it matters",
+      "The AI Agent System: up to 3 AI agents on one business process, connected to up to 3 of your tools, with your approval where it matters",
       "The agents and the Lead Engine connected, so each new lead reaches your process the way you choose",
       "A written guide and one walkthrough call",
     ],
@@ -94,11 +94,11 @@ export const PRODUCT_SCOPES: Record<string, ProductScope> = {
     ],
   },
   "everything-bundle": {
-    summary: "The full set: a Cinematic AI Website, a Multi-Agent System, a Lead Engine, Payments Setup, a year of Website Care, ads, and Business Cards, for one price.",
+    summary: "The full set: a Cinematic AI Website, an AI Agent System, a Lead Engine, Payments Setup, a year of Website Care, ads, and Business Cards, for one price.",
     includes: [
       "3 revision rounds on the agents, and 2 on the website",
       "The Cinematic AI Website: up to 5 pages with a cinematic motion hero",
-      "The Multi-Agent System: up to 3 AI agents on one business process, with your approval where it matters",
+      "The AI Agent System: up to 3 AI agents on one business process, with your approval where it matters",
       "The Lead Engine: a landing page, a lead form, and automatic follow-up emails",
       "Payments Setup: card payments through Stripe, with up to 3 products or prices",
       `${EVERYTHING_CARE_MONTHS} months of Website Care, starting when your site is live`,

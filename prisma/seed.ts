@@ -52,7 +52,7 @@ const SERVICES: ServiceDef[] = [
   },
   {
     slug: "agents",
-    name: "Multi-Agent System",
+    name: "AI Agent System",
     category: "Automation",
     description: PRODUCT_SCOPES.agents.summary,
     baseCents: PRICE_CENTS["agents"],

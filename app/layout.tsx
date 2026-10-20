@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     "cinematic video ads",
     "Business cards",
     "Google review Business Card",
-    "multi-agent AI systems",
+    "AI agent systems",
   ],
   robots: { index: true, follow: true },
   openGraph: {
