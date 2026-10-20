@@ -44,5 +44,13 @@ export async function GET() {
     industries: INDUSTRIES.map(({ slug, name }) => ({ slug, name })),
   });
   const page = renderHome(HOME, homeValues(prices), blocks).replace("</head>", () => `${ga}</head>`).replace("</body>", () => `${HOME_TRACK_SCRIPT}</body>`);
-  return new Response(page, { headers: { "Content-Type": "text/html; charset=utf-8" } });
+  // Browsers always ask again; Netlify's edge may serve the page for a minute (and a little longer while it refreshes), which
+  // is the same freshness the 60-second revalidation above already gives prices, reviews and the FAQ.
+  return new Response(page, {
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "public, max-age=0, must-revalidate",
+      "Netlify-CDN-Cache-Control": "public, s-maxage=60, stale-while-revalidate=300, durable",
+    },
+  });
 }

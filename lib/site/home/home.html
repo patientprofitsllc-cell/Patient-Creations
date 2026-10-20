@@ -585,9 +585,9 @@
     if (muted || !actx) return;
     var now = actx.currentTime;
     [0, 0.5].forEach(function(off){
-      var g = actx.createGain(); g.gain.setValueAtTime(0, now + off); g.gain.linearRampToValueAtTime(0.12, now + off + 0.03);
-      g.gain.setValueAtTime(0.12, now + off + 0.35); g.gain.linearRampToValueAtTime(0, now + off + 0.4); g.connect(actx.destination);
-      [440, 480].forEach(function(f){ var o = actx.createOscillator(); o.frequency.value = f; o.connect(g); o.start(now + off); o.stop(now + off + 0.42); });
+      var g = actx.createGain(); g.gain.setValueAtTime(0, now + off); g.gain.linearRampToValueAtTime(0.06, now + off + 0.12);
+      g.gain.setValueAtTime(0.06, now + off + 0.32); g.gain.linearRampToValueAtTime(0, now + off + 0.5); g.connect(actx.destination);
+      [440, 480].forEach(function(f){ var o = actx.createOscillator(); o.frequency.value = f; o.connect(g); o.start(now + off); o.stop(now + off + 0.55); });
     });
   }
 
@@ -602,7 +602,7 @@
       player.onplaying = function(){ started = true; };
       player.onended = function(){ finish(id === run); };
       player.onerror = function(){ finish('fail'); };
-      player.src = src; player.playbackRate = 1;
+      player.src = src; player.playbackRate = 1; player.volume = 0; (function up(v){ player.volume = Math.min(1, v); if (v < 1) setTimeout(function(){ up(v + 0.125); }, 10); })(0);
       var p = player.play(); if (p && p.catch) p.catch(function(){ finish('fail'); });
       setTimeout(function(){ if (!started && !done && !paused) { try { player.pause(); } catch(e){} finish('fail'); } }, 2500);
       (function watch(){ if (done) return; if (id !== run) { player.pause(); finish(false); return; } setTimeout(watch, 150); })();
@@ -643,7 +643,7 @@
     var clip = CLIPS[L[4]] && CLIPS[L[4]][L[5]];
     if (muted) return wait(est, id);
     if (clip) return playClip(clip, id).then(function(r){ return r === 'fail' ? ttsSay(text, isAva, id, est) : r; });
-    return ttsSay(text, isAva, id, est);
+    return isAva ? ttsSay(text, isAva, id, est) : wait(est, id); // no recording for this caller: text only, not the device voice
   }
 
   function add(cls, html, nodeText){
