@@ -17,6 +17,7 @@ type Kind = "admin" | "session" | "token" | "secret" | "public";
 const ROUTES: Record<string, { kind: Kind; why?: string }> = {
   "admin/ads/[id]/deliveries": { kind: "admin" },
   "admin/audits/[id]/contacted": { kind: "admin" },
+  "admin/catalog-sync": { kind: "admin" },
   "admin/customers/[id]/notes": { kind: "admin" },
   "admin/email-test": { kind: "admin" },
   "admin/followups": { kind: "admin" },
