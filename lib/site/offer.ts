@@ -3,6 +3,8 @@
 // changes it everywhere at once.
 export const OFFER_SLUG = "website-special";
 export const OFFER_NAME = "Website Special";
+/** Every product whose price includes a Website Special build: the special itself, and the bundles that contain one. */
+export const WEBSITE_SPECIAL_SLUGS: readonly string[] = [OFFER_SLUG, "all-in-one-bundle", "agent-website-bundle"];
 export const OFFER_CHECKOUT_HREF = `/checkout?product=${OFFER_SLUG}`;
 
 export const OFFER_INCLUDES = [

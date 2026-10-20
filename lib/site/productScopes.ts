@@ -1,4 +1,4 @@
-import { PRICE_CENTS, usd } from "@/lib/pricing/catalog";
+import { EVERYTHING_CARE_MONTHS, PRICE_CENTS, SPECIAL_CARE_MONTHS, usd } from "@/lib/pricing/catalog";
 // What each build includes and does not include, stated once. The service cards, the checkout
 // page, and the product rows in the database all read from here, so a customer is told the
 // same thing everywhere, and so we can be held to exactly what is written.
@@ -45,6 +45,75 @@ export function scopeForTier(scope: ProductScope, tier: ScopeTier): { includes: 
 }
 
 export const PRODUCT_SCOPES: Record<string, ProductScope> = {
+  "agent-website-bundle": {
+    summary: "A Multi-Agent System and a Website Special together, built from one intake, for one price.",
+    includes: [
+      "3 revision rounds on the agents, and 1 on the website",
+      "The Multi-Agent System: up to 3 AI agents on one business process, connected to up to 3 of your tools, with your approval where it matters",
+      `The Website Special: a one-page website live in about 72 hours, with ${SPECIAL_CARE_MONTHS} months of maintenance`,
+      "One intake and one kickoff call, so the website and the agents are built around the same facts about your business",
+      "A written guide and one walkthrough call for the agents",
+    ],
+    notIncluded: [
+      "More than one business process or more than one website page",
+      "Usage costs for AI and tool accounts, which you pay directly",
+      "Ongoing monitoring or tuning of the agents after handover",
+      "Any promise of time saved, leads, or results",
+    ],
+  },
+  "agent-cinematic-bundle": {
+    summary: "A Multi-Agent System and a Cinematic AI Website together, built from one intake, for one price.",
+    includes: [
+      "3 revision rounds on the agents, and 2 on the website",
+      "The Multi-Agent System: up to 3 AI agents on one business process, connected to up to 3 of your tools, with your approval where it matters",
+      "The Cinematic AI Website: up to 5 pages with a cinematic motion hero, written from the facts you give us",
+      "One intake and one kickoff call, so the website and the agents are built around the same facts about your business",
+      "A written guide and one walkthrough call for the agents",
+    ],
+    notIncluded: [
+      "More than one business process or more than 5 website pages",
+      "Usage costs for AI and tool accounts, which you pay directly",
+      "Ongoing monitoring or tuning of the agents after handover",
+      "Any promise of time saved, leads, or results",
+    ],
+  },
+  "agent-lead-bundle": {
+    summary: "A Multi-Agent System and a Lead Engine together, so new enquiries are captured and followed up automatically.",
+    includes: [
+      "3 revision rounds",
+      "The Lead Engine: a landing page, a lead form, and automatic follow-up emails",
+      "The Multi-Agent System: up to 3 AI agents on one business process, connected to up to 3 of your tools, with your approval where it matters",
+      "The agents and the Lead Engine connected, so each new lead reaches your process the way you choose",
+      "A written guide and one walkthrough call",
+    ],
+    notIncluded: [
+      "Ad spend, which you pay directly to the ad platforms",
+      "Any promise of how many leads or customers you will get",
+      "Usage costs for AI and tool accounts, which you pay directly",
+      "More than one business process",
+    ],
+  },
+  "everything-bundle": {
+    summary: "The full set: a Cinematic AI Website, a Multi-Agent System, a Lead Engine, Payments Setup, a year of Website Care, ads, and Business Cards, for one price.",
+    includes: [
+      "3 revision rounds on the agents, and 2 on the website",
+      "The Cinematic AI Website: up to 5 pages with a cinematic motion hero",
+      "The Multi-Agent System: up to 3 AI agents on one business process, with your approval where it matters",
+      "The Lead Engine: a landing page, a lead form, and automatic follow-up emails",
+      "Payments Setup: card payments through Stripe, with up to 3 products or prices",
+      `${EVERYTHING_CARE_MONTHS} months of Website Care, starting when your site is live`,
+      "4 Cinematic Ads and 4 UGC Ads (3 hook variations each)",
+      "5 Business Cards of your choice",
+      "One intake and one kickoff call for everything",
+    ],
+    notIncluded: [
+      "Ad spend, which you pay directly to the ad platforms",
+      "Stripe's own fees, which you pay directly",
+      "Usage costs for AI and tool accounts, which you pay directly",
+      "Shipping for the Business Cards",
+      "Any promise of time saved, leads, customers, or results",
+    ],
+  },
   site: {
     summary: "A multi-page website with a cinematic motion hero, built around your business.",
     includes: [

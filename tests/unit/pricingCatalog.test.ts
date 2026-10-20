@@ -38,15 +38,15 @@ describe("the one price list", () => {
 
   it("holds the prices the business sells at", () => {
     expect(priceOf("nfc-cards")).toBe(2_000);
-    expect(priceOf("website-special")).toBe(125_000);
-    expect(priceOf("ugc-ad-special")).toBe(12_900);
-    expect(priceOf("cinematic-ad-special")).toBe(29_900);
-    expect(priceOf("all-in-one-bundle")).toBe(249_900);
-    expect(priceOf("care-plan")).toBe(7_900);
+    expect(priceOf("website-special")).toBe(200_000);
+    expect(priceOf("ugc-ad-special")).toBe(14_900);
+    expect(priceOf("cinematic-ad-special")).toBe(39_900);
+    expect(priceOf("all-in-one-bundle")).toBe(319_900);
+    expect(priceOf("care-plan")).toBe(9_900);
     expect([priceOf("ads-monthly-300"), priceOf("ads-monthly-500"), priceOf("ads-monthly-1000")]).toEqual([30_000, 50_000, 100_000]);
     expect(priceOf("lead-engine")).toBe(170_000);
     expect(priceOf("agents")).toBe(600_000);
-    expect(priceOf("saas")).toBe(1_000_000);
+    expect(priceOf("saas")).toBe(1_500_000);
   });
 
   it("gives every tiered product a ladder that only goes up: Core, then Signature, then Flagship", () => {
@@ -59,12 +59,12 @@ describe("the one price list", () => {
     }
   });
 
-  it("sets the founder's target tiers: AI Software 10,000 / 15,000 / 25,000 and Lead Engine 1,700 / 2,500 / 4,250", () => {
+  it("sets the founder's target tiers: AI Software 15,000 / 22,500 / 37,500 and Lead Engine 1,700 / 2,500 / 4,250", () => {
     const tiers = (slug: keyof typeof PRICE_CENTS) => [PRICE_CENTS[slug], tierPriceCents(slug, "Signature", PRICE_CENTS[slug]), tierPriceCents(slug, "Flagship", PRICE_CENTS[slug])];
-    expect(tiers("saas")).toEqual([1_000_000, 1_500_000, 2_500_000]);
+    expect(tiers("saas")).toEqual([1_500_000, 2_250_000, 3_750_000]);
     expect(tiers("lead-engine")).toEqual([170_000, 250_000, 425_000]);
     expect(tiers("agents")).toEqual([600_000, 960_000, 1_500_000]);
-    expect(tiers("site")).toEqual([200_000, 320_000, 500_000]);
+    expect(tiers("site")).toEqual([300_000, 480_000, 750_000]);
   });
 
   it("uses the multiplier for every tier that is not set by hand, and only overrides where the catalog says so", () => {
@@ -75,7 +75,7 @@ describe("the one price list", () => {
 
   it("makes the launch bundle cheaper than buying its parts one by one, so its saving is real", () => {
     const parts = PRICE_CENTS["website-special"] + 4 * PRICE_CENTS["cinematic-ad-special"] + 4 * PRICE_CENTS["ugc-ad-special"] + 5 * PRICE_CENTS["nfc-cards"];
-    expect(parts).toBe(306_200);
+    expect(parts).toBe(429_200);
     expect(BUNDLE_SEPARATELY_CENTS).toBe(parts);
     expect(PRICE_CENTS["all-in-one-bundle"]).toBeLessThan(parts);
   });

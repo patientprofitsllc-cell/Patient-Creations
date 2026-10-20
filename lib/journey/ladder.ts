@@ -39,7 +39,7 @@ export interface LadderContext {
 }
 
 const WEBSITE = ["website-special", "site"];
-const BUNDLE = ["all-in-one-bundle"];
+const BUNDLE = ["all-in-one-bundle", "agent-website-bundle", "agent-cinematic-bundle", "agent-lead-bundle", "everything-bundle"];
 const ADS = ["ad", "cinematic-ad-special", "ugc-ad-special", "rental-listing-film", "basic-package"];
 const LEAD = ["lead-engine"];
 const AI = ["saas", "agents", "automation-add-on"];

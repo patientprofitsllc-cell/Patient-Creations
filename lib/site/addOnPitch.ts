@@ -58,7 +58,7 @@ export const ADD_ON_PITCH: Record<string, AddOnPitch> = {
 };
 
 // Products with a hero visual or video to crop for social. Only these get the Social Asset Pack.
-const VISUAL_SLUGS = new Set(["site", "ad", "rental-listing-film", "basic-package", "cinematic-ad-special", "ugc-ad-special", "all-in-one-bundle"]);
+const VISUAL_SLUGS = new Set(["site", "ad", "rental-listing-film", "basic-package", "cinematic-ad-special", "ugc-ad-special", "all-in-one-bundle", "everything-bundle"]);
 // Consultations are calls: there is nothing to revise, brand, crop, or ship with them.
 const CONSULTATION_SLUGS = new Set(["strategy-session", "custom-build"]);
 const isCard = (slug: string) => slug.startsWith("nfc-");

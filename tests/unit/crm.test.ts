@@ -306,7 +306,7 @@ describe("product names", () => {
     expect(dealProductName(null)).toBeNull();
     const site = DEAL_PRODUCTS.find((p) => p.slug === "site")!;
     expect(site.label).toContain("Cinematic AI Website");
-    expect(site.label).toContain("2,000");
+    expect(site.label).toContain("3,000");
     for (const p of DEAL_PRODUCTS) expect(p.slug in PRICE_CENTS).toBe(true);
   });
 });
