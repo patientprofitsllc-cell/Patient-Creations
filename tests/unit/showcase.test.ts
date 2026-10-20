@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { anonymize, transformHtml, transformCss, transformJs, unavailablePage } from "@/lib/site/showcaseTransform";
+import { anonymize, replaceLiterals, transformHtml, transformCss, transformJs, unavailablePage } from "@/lib/site/showcaseTransform";
 import { SHOWCASE_SITES } from "@/lib/site/showcaseSites";
 import robots from "@/app/robots";
 import { GENERIC_NAME, LITERALS, NAMES, UPSTREAM } from "@/lib/site/showcaseUpstream.mjs";
@@ -49,6 +49,7 @@ describe("showcase pages", () => {
     expect(out2).toContain('"/showcase/restaurant-1/assets/hero.mp4"');
     expect(out2).toContain("`/showcase/restaurant-1/_css/styles-AB.css`");
     expect(out2).not.toContain(host);
+    expect(transformJs('l.href="/favicon.svg"', "restaurant-1", host)).toContain('"/showcase/restaurant-1/favicon.svg"');
     const loader = transformJs("mu=function(e){return`/`+e},", "restaurant-1", host);
     expect(loader).toContain('"/showcase/restaurant-1/_js/"+n');
     expect(loader).toContain('"/showcase/restaurant-1/_css/"+n');
@@ -83,8 +84,11 @@ describe("the examples page and its route", () => {
     expect(out).toContain(GENERIC_NAME.toUpperCase());
     const js = transformJs('t="Frank\'s Alley";u="Frank&#x27;s Alley"', "restaurant-1", host, NAMES["restaurant-1"], GENERIC_NAME);
     expect(js).not.toMatch(/Frank/);
-    const split = anonymize("<h1>FRANK’S<br/>ALLEY</h1>", NAMES["restaurant-1"], GENERIC_NAME);
-    expect(split).not.toMatch(/FRANK|ALLEY/);
+    // A logo split over two lines: the page and its script are changed the same way, piece by piece, so React can take over.
+    const page = replaceLiterals(anonymize("<span>FRANK’S<span>ALLEY</span></span>", NAMES["restaurant-1"], GENERIC_NAME), LITERALS["restaurant-1"], true);
+    expect(page).toBe(`<span>${GENERIC_NAME.toUpperCase()}<span></span></span>`);
+    const script = transformJs('children:[`FRANK’S`,jsx("span",{children:`ALLEY`})]', "restaurant-1", host, NAMES["restaurant-1"], GENERIC_NAME, LITERALS["restaurant-1"]);
+    expect(script).toBe(`children:[\`${GENERIC_NAME.toUpperCase()}\`,jsx("span",{children:\`\`})]`);
   });
 
   it("replaces a name the script renders in separate pieces, but not longer text that contains the word", () => {
