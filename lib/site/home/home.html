@@ -112,34 +112,221 @@
       </div>
     </section>
 
-    <!-- Services -->
-    <section class="services" id="services">
-      <p class="kicker">01 / The bigger picture</p>
-      <h2>Our wide range of <em>services.</em></h2>
-      <div class="svc-grid">
-        <article class="svc">
-          <span class="svc-num">01 — Build</span>
-          <h3>Give your business a presence.</h3>
-          <p>From a focused one-page website to a cinematic experience, make it easy for customers to understand what you do and take the next step.</p>
-          <ul><li>Custom design &amp; business-specific copy</li><li>Mobile optimization &amp; basic SEO</li><li>Live deployment &amp; ongoing care options</li></ul>
-          <a href="/websites">Explore websites <span>From <span data-live="website-special">{{website-special}}</span> →</span></a>
-        </article>
-        <article class="svc">
-          <span class="svc-num">02 — Get seen</span>
-          <h3>Stop the scroll. Start a conversation.</h3>
-          <p>Cinematic films, creator-style AI ads, and fresh monthly content. More ways to show up, without another shoot on your calendar.</p>
-          <ul><li>UGC ads with opening hooks to test</li><li>Cinematic ads in wide &amp; vertical formats</li><li>Rental listing films from your photos</li></ul>
-          <a href="/monthly-ads">Explore ads &amp; video <span>From <span data-live="ugc-ad-special">{{ugc-ad-special}}</span> / ad →</span></a>
-        </article>
-        <article class="svc">
-          <span class="svc-num">03 — Work smarter</span>
-          <h3>Make the work work for you.</h3>
-          <p>Connect the pieces behind your business. Capture leads, follow up automatically, accept payments, or build software around the way you work.</p>
-          <ul><li>Lead capture &amp; automatic follow-up emails</li><li>Stripe payment setup</li><li>Custom apps &amp; AI agent systems</li></ul>
-          <a href="/pricing#automation">Explore automation <span>AI Agent bundles from <span data-live="agent-bundles-from">{{agent-bundles-from}}</span> →</span></a>
-        </article>
-      </div>
-    </section>
+<!-- Ask Ava: live voice and text assistant (ElevenLabs agent). Replaces the old services section.
+     The agent only accepts patientcreations.com, www.patientcreations.com and localhost. -->
+<section class="pc-ask" id="ask-ava" aria-labelledby="pc-ask-title">
+<style>
+#ask-ava,#meet-ava{--pc-accent:var(--pc-sand)}
+#ask-ava{background:#f7f6f1;padding-top:40px}
+.pc-ask{--acc:var(--pc-accent,#d4b06a);--mut:color-mix(in srgb,currentColor 62%,transparent);--ln:color-mix(in srgb,currentColor 14%,transparent);--pnl:color-mix(in srgb,currentColor 5%,transparent);
+  color:inherit;font:inherit;text-align:center;box-sizing:border-box;position:relative}
+.pc-ask *,.pc-ask *::before,.pc-ask *::after{box-sizing:border-box}
+.pc-ask__title{margin:0 auto 14px;max-width:18ch;text-wrap:balance}
+.pc-ask__title em{font-style:italic}
+.pc-ask__lede{color:var(--mut);max-width:50ch;margin:0 auto 34px}
+.pc-ask__stage{max-width:620px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:22px}
+/* orb */
+.pc-ask__orb{--lvl:0;width:clamp(170px,38vw,230px);aspect-ratio:1;border-radius:50%;position:relative;border:0;padding:0;cursor:pointer;background:transparent;color:inherit;
+  transform:scale(calc(.94 + var(--lvl)*.12));transition:transform .12s ease-out}
+.pc-ask__orb::before{content:"";position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,#fff3d4 0%,var(--acc) 34%,color-mix(in srgb,var(--acc) 45%,#2a1a05) 70%,#120c03 100%);
+  box-shadow:0 0 calc(30px + var(--lvl)*70px) color-mix(in srgb,var(--acc) 45%,transparent),inset 0 -18px 40px rgba(0,0,0,.35)}
+.pc-ask__orb::after{content:"";position:absolute;inset:-14px;border-radius:50%;border:1px solid color-mix(in srgb,var(--acc) 50%,transparent);opacity:0}
+.pc-ask.is-awake .pc-ask__orb::after{animation:pcAskBreath 3.2s ease-in-out infinite}
+.pc-ask.is-listening .pc-ask__orb::after{animation:pcAskPulse 1.4s ease-out infinite}
+@keyframes pcAskBreath{0%,100%{opacity:.15;transform:scale(.98)}50%{opacity:.6;transform:scale(1.04)}}
+@keyframes pcAskPulse{0%{opacity:.8;transform:scale(.96)}100%{opacity:0;transform:scale(1.25)}}
+.pc-ask__orb-label{position:absolute;inset:0;display:grid;place-items:center;font-weight:600;color:#1a1206;font-size:15px;letter-spacing:.02em;z-index:1}
+.pc-ask__orb:focus-visible{outline:2px solid var(--gold-ink);outline-offset:8px}
+.pc-ask__state{font-size:.9em;color:var(--mut);min-height:1.5em;margin:0}
+/* conversation */
+.pc-ask__log{width:100%;max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;text-align:left;padding:2px;scroll-behavior:smooth}
+.pc-ask__log:empty{display:none}
+.pc-ask__msg{max-width:86%;padding:10px 14px;border-radius:18px;line-height:1.45;animation:pcAskIn .35s cubic-bezier(.34,1.56,.64,1) both;overflow-wrap:anywhere}
+.pc-ask__msg--ava{background:var(--pnl);border:1px solid var(--ln);border-bottom-left-radius:6px;align-self:flex-start}
+.pc-ask__msg--you{background:currentColor;align-self:flex-end;border-bottom-right-radius:6px}
+.pc-ask__msg--you span{filter:invert(1)}
+.pc-ask__msg a{color:var(--gold-ink);font-weight:600;text-underline-offset:3px}
+.pc-ask__msg--note{align-self:center;background:none;color:var(--mut);font-size:.85em;padding:2px}
+@keyframes pcAskIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.pc-ask__chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pc-ask__chip{border:1px solid var(--ln);background:transparent;color:inherit;font:inherit;font-size:.92em;border-radius:999px;padding:9px 15px;min-height:42px;cursor:pointer;transition:border-color .2s,transform .2s cubic-bezier(.34,1.56,.64,1)}
+.pc-ask__chip:hover{border-color:var(--acc)}
+.pc-ask__chip:active{transform:scale(.96)}
+.pc-ask__form{width:100%;display:flex;align-items:center;gap:8px}
+.pc-ask__input{flex:1;min-width:0;border:1px solid var(--ln);background:var(--pnl);color:inherit;font:inherit;border-radius:999px;padding:12px 18px;min-height:48px;outline:none}
+.pc-ask__input:focus-visible{border-color:var(--gold-ink);outline:2px solid var(--gold-ink);outline-offset:2px}
+.pc-ask__form .pill{height:44px;padding:0 8px 0 20px;border:0;font-family:inherit;font-size:14px;cursor:pointer}
+.pc-ask__form .pill i{width:28px;height:28px}
+.pc-ask__send:disabled{opacity:.5;cursor:default}
+.pc-ask__end[hidden]{display:none}
+.pc-ask__fine{font-size:.8em;color:var(--mut);margin:4px 0 0}
+.pc-ask__browse{margin:30px 0 0;font-size:.92em;color:var(--mut)}
+.pc-ask__browse a{display:inline-block;padding:10px 0;color:inherit;margin:0 .5em;white-space:nowrap}
+.pc-ask__sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.pc-ask *{animation:none!important;transition:none!important}.pc-ask__orb{transform:none}}
+</style>
+
+<p class="kicker">01 / Ask Ava</p>
+<h2 class="pc-ask__title" id="pc-ask-title">Everything we do. <em>Just ask.</em></h2>
+<p class="pc-ask__lede">Websites, ads, Business Cards and automation. Ava knows every product and price and helps you pick your next move. Talk or type, right here.</p>
+
+<div class="pc-ask__stage">
+  <button class="pc-ask__orb" type="button" aria-label="Talk to Ava by voice"><span class="pc-ask__orb-label">Talk to Ava</span></button>
+  <p class="pc-ask__state" aria-live="polite">Tap Ava to talk, or type below.</p>
+  <div class="pc-ask__log" role="log" aria-live="polite" aria-label="Conversation with Ava"></div>
+  <div class="pc-ask__chips" aria-label="Quick questions">
+    <button class="pc-ask__chip" type="button" data-q="I need a website. What do you offer?">Websites</button>
+    <button class="pc-ask__chip" type="button" data-q="Tell me about your ads and video.">Ads &amp; video</button>
+    <button class="pc-ask__chip" type="button" data-q="How can automation or AI help my business?">Automation</button>
+    <button class="pc-ask__chip" type="button" data-q="How do the Smart Business Cards work?">Business Cards</button>
+    <button class="pc-ask__chip" type="button" data-q="I'm not sure where to start.">Not sure where to start</button>
+  </div>
+  <form class="pc-ask__form" autocomplete="off">
+    <label class="pc-ask__sr" for="pc-ask-input">Message Ava</label>
+    <input class="pc-ask__input" id="pc-ask-input" type="text" maxlength="500" placeholder="Ask Ava anything…">
+    <button class="pill pc-ask__send" type="submit">Send <i aria-hidden="true">›</i></button>
+    <button class="pill pill-line pc-ask__end" type="button" hidden>End <i aria-hidden="true">×</i></button>
+  </form>
+  <p class="pc-ask__fine">Ava is an AI assistant. Conversations may be recorded to improve service.</p>
+</div>
+
+<p class="pc-ask__browse">Prefer to browse?
+  <a href="/websites">Websites</a>
+  <a href="/monthly-ads">Ads &amp; video</a>
+  <a href="/pricing#automation">Automation</a>
+  <a href="/pricing">All prices</a>
+</p>
+
+<script>
+(function(){
+  var AGENT_ID = 'agent_8801m5bkqw6ve7e80zhj6n8r8t2e';
+  var SDK_URL = 'https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.26.0/dist/lib.iife.js';
+  var GREETING = 'Hey! I’m Ava, Patient Creations’ AI assistant. Ask me anything… what kind of business are you working on?';
+  var LINK_HOSTS = /^https:\/\/((www\.)?patientcreations\.com|calendly\.com)(\/|$)/i;
+
+  var root = document.getElementById('ask-ava'); if (!root || root.dataset.ready) return; root.dataset.ready = '1';
+  var $ = function(s){ return root.querySelector(s); };
+  var orb = $('.pc-ask__orb'), label = $('.pc-ask__orb-label'), stateEl = $('.pc-ask__state'), log = $('.pc-ask__log');
+  var form = $('.pc-ask__form'), input = $('.pc-ask__input'), sendBtn = $('.pc-ask__send'), endBtn = $('.pc-ask__end');
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var conv = null, mode = null, starting = null, raf = 0, queued = [], greeted = false, firstAgent = true, typed = [];
+  var norm = function(t){ return cleanText(t).toLowerCase().replace(/[^a-z]/g, ''); };
+
+  function setState(t){ stateEl.textContent = t; }
+  function cleanText(t){
+    return String(t || '').replace(/\[(?:warm|curious|empathetic|thoughtful|reassuring|excited|confident|playful|laughs softly|laughs|sighs|cheerful|happy|casual|relieved)\]\s*/gi, '')
+      .replace(/\[[a-z ]{2,24}\](?!\()\s*/gi, '').trim();
+  }
+  function render(el, text){ // safe text + whitelisted links only
+    var re = /\[([^\]]{1,80})\]\((https?:\/\/[^\s)]+)\)/g, last = 0, m;
+    while ((m = re.exec(text))) {
+      el.appendChild(document.createTextNode(text.slice(last, m.index)));
+      if (LINK_HOSTS.test(m[2])) { var a = document.createElement('a'); a.href = m[2]; a.textContent = m[1]; if (!/patientcreations\.com/i.test(m[2])) { a.target = '_blank'; a.rel = 'noopener'; } el.appendChild(a); }
+      else el.appendChild(document.createTextNode(m[1]));
+      last = re.lastIndex;
+    }
+    el.appendChild(document.createTextNode(text.slice(last)));
+  }
+  function add(who, text){
+    text = who === 'ava' ? cleanText(text) : String(text || '').trim(); if (!text) return null;
+    var d = document.createElement('div'); d.className = 'pc-ask__msg pc-ask__msg--' + who;
+    if (who === 'you') { var s = document.createElement('span'); s.textContent = text; d.appendChild(s); } else render(d, text);
+    log.appendChild(d); log.scrollTop = log.scrollHeight; return d;
+  }
+
+  function loadSdk(){
+    if (window.ElevenLabsClient && window.ElevenLabsClient.Conversation) return Promise.resolve(window.ElevenLabsClient);
+    return new Promise(function(res, rej){
+      var s = document.createElement('script'); s.src = SDK_URL; s.async = true;
+      s.onload = function(){ window.ElevenLabsClient ? res(window.ElevenLabsClient) : rej(new Error('sdk')); };
+      s.onerror = function(){ rej(new Error('sdk')); }; document.head.appendChild(s);
+    });
+  }
+
+  function meter(){
+    cancelAnimationFrame(raf);
+    (function tick(){
+      if (!conv) { orb.style.setProperty('--lvl', 0); return; }
+      var v = 0; try { v = root.classList.contains('is-speaking') ? conv.getOutputVolume() : (mode === 'voice' ? conv.getInputVolume() * .6 : 0); } catch(e){}
+      orb.style.setProperty('--lvl', reduce ? 0 : Math.min(1, v * 1.6).toFixed(3));
+      raf = requestAnimationFrame(tick);
+    })();
+  }
+
+  function setUi(on){
+    endBtn.hidden = !on; label.textContent = on ? (mode === 'voice' ? 'Listening' : 'Ava') : 'Talk to Ava';
+    orb.setAttribute('aria-label', on ? 'End the conversation with Ava' : 'Talk to Ava by voice');
+    if (!on) root.classList.remove('is-speaking','is-listening');
+  }
+
+  function start(kind, note){ // note: a message to keep on screen instead of the usual connecting/connected text
+    if (conv && mode === kind) return Promise.resolve(conv);
+    if (starting) return starting;
+    firstAgent = true;
+    setState(note || (kind === 'voice' ? 'Connecting to Ava… allow the microphone if asked.' : 'Connecting to Ava…'));
+    starting = loadSdk().then(function(SDK){
+      var opts = {
+        agentId: AGENT_ID,
+        onConnect: function(){ setState(kind === 'voice' ? 'Ava’s listening. Go ahead and talk.' : (note || 'Ava’s here. Type your question.')); },
+        onDisconnect: function(){ conv = null; mode = null; setUi(false); setState('Conversation ended. Tap Ava to start again.'); },
+        onError: function(){ setState('Something went wrong. Try again, or call (762) 821-6367.'); },
+        onMessage: function(p){
+          var who = (p.role || p.source) === 'user' || p.source === 'user' ? 'you' : 'ava';
+          if (who === 'ava' && firstAgent) { firstAgent = false; if (greeted && norm(p.message) === norm(GREETING)) return; }
+          if (who === 'you') { var i = typed.indexOf(norm(p.message)); if (i > -1) { typed.splice(i, 1); return; } if (kind === 'text') return; }
+          add(who, p.message);
+        },
+        onModeChange: function(p){ var sp = p.mode === 'speaking'; root.classList.toggle('is-speaking', sp); root.classList.toggle('is-listening', !sp && mode === 'voice');
+          if (mode === 'voice') { label.textContent = sp ? 'Speaking' : 'Listening'; setState(sp ? 'Ava’s talking… you can cut in anytime.' : 'Your turn. Go ahead and talk.'); } }
+      };
+      if (kind === 'text') opts.textOnly = true; else opts.connectionType = 'webrtc';
+      return SDK.Conversation.startSession(opts);
+    }).then(function(c){
+      conv = c; mode = kind; starting = null; setUi(true); meter();
+      while (queued.length) { try { conv.sendUserMessage(queued.shift()); } catch(e){} }
+      return conv;
+    }, function(err){
+      starting = null;
+      var denied = err && /permission|notallowed|denied/i.test(String(err.name || '') + String(err.message || err));
+      if (kind === 'voice' && denied) return start('text', 'No microphone access, so let’s chat by text instead.');
+      setState('Ava couldn’t connect right now. Try again, or call (762) 821-6367.');
+      throw err;
+    });
+    return starting;
+  }
+
+  function end(){ if (conv) { try { conv.endSession(); } catch(e){} } conv = null; mode = null; setUi(false); }
+
+  function ask(text){
+    text = String(text || '').trim(); if (!text) return;
+    add('you', text); input.value = ''; typed.push(norm(text));
+    if (conv) { try { conv.sendUserMessage(text); } catch(e){} return; }
+    queued.push(text); start('text').catch(function(){});
+  }
+
+  orb.addEventListener('click', function(){
+    if (conv && mode === 'voice') { end(); return; }
+    if (conv && mode === 'text') { end(); }
+    start('voice').catch(function(){});
+  });
+  endBtn.addEventListener('click', end);
+  form.addEventListener('submit', function(e){ e.preventDefault(); ask(input.value); });
+  root.querySelectorAll('.pc-ask__chip').forEach(function(b){ b.addEventListener('click', function(){ ask(b.getAttribute('data-q')); }); });
+
+  // Ava wakes up when the visitor scrolls to her: she greets on screen right away (no sound until they tap).
+  function wake(){
+    root.classList.add('is-awake');
+    if (!greeted && !log.children.length) { greeted = true; add('ava', GREETING); }
+    loadSdk().catch(function(){}); // warm the connection library so the first tap is fast
+  }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function(es, ob){ es.forEach(function(e){ if (e.isIntersecting) { wake(); ob.disconnect(); } }); }, { threshold: .35 }).observe(orb);
+  } else wake();
+  window.addEventListener('pagehide', end);
+})();
+</script>
+</section>
 
     <!-- Smart Business Cards: scroll-driven 3D card carousel -->
     <section class="cards" id="business-cards" aria-labelledby="cards-title">
@@ -198,6 +385,331 @@
         </div>
       </div>
     </section>
+
+<!-- Meet Ava: demo phone call with Ava's recorded voice (ElevenLabs recordings embedded in the script below). -->
+<section class="pc-ava" id="meet-ava" aria-labelledby="pc-ava-title">
+<style>
+#meet-ava{--pc-accent:var(--pc-sand);padding-bottom:40px}
+#meet-ava .kicker,#meet-ava h2 em{color:var(--pc-sand)}
+.pc-ava{--gold:var(--pc-accent,#d4b06a);--ink:#f2ece0;--muted:color-mix(in srgb,currentColor 62%,transparent);--line:color-mix(in srgb,currentColor 14%,transparent);--green:#62c48c;
+  background:var(--pc-bg);color:var(--pc-cream);font:inherit;line-height:inherit;text-align:center;box-sizing:border-box}
+.pc-ava *,.pc-ava *::before,.pc-ava *::after{box-sizing:border-box}
+.pc-ava__title{margin:0 auto 14px;max-width:18ch;text-wrap:balance}
+.pc-ava__title em{font-style:italic}
+.pc-ava__lede{color:var(--muted);max-width:46ch;margin:0 auto 26px}
+.pc-ava__tabs{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:999px;margin:0 auto 28px;flex-wrap:wrap;justify-content:center}
+.pc-ava__tab{border:0;background:transparent;color:var(--muted);border-radius:999px;padding:8px 16px;min-height:40px;font:inherit;font-size:14px;cursor:pointer;transition:background .25s,color .25s}
+.pc-ava__tab[aria-selected="true"]{background:var(--pc-sand);color:var(--pc-ink);font-weight:600}
+@media (max-width:420px){.pc-ava__tab{padding:8px 11px;font-size:13px}}
+.pc-ava button:focus-visible,.pc-ava a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+/* phone */
+.pc-ava__phone{width:min(320px,100%);margin:0 auto;aspect-ratio:9/18;max-height:660px;border-radius:44px;background:#0a0a09;border:1px solid rgba(242,236,224,.15);box-shadow:0 40px 110px rgba(0,0,0,.55),inset 0 0 0 6px #040404;padding:13px;position:relative;text-align:left}
+.pc-ava__screen{position:absolute;inset:13px;border-radius:32px;overflow:hidden;background:linear-gradient(180deg,#1f1e1a,#121210);color:#f2ece0;display:flex;flex-direction:column;--line:rgba(242,236,224,.12);--muted:#a59f92}
+.pc-ava__head{padding:40px 16px 12px;text-align:center;border-bottom:1px solid var(--line)}
+.pc-ava__avatar{width:56px;height:56px;border-radius:50%;margin:0 auto 8px;background:radial-gradient(circle at 35% 30%,#f3d999,#b8873a 60%,#6b4a1b);display:grid;place-items:center;font-size:24px;color:#2a1d08;position:relative}
+.pc-ava__avatar::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--gold);opacity:0}
+.pc-ava.is-ringing .pc-ava__avatar::after{animation:pcAvaRing 1s ease-out infinite}
+.pc-ava.is-talking .pc-ava__avatar{box-shadow:0 0 0 4px rgba(212,176,106,.25)}
+@keyframes pcAvaRing{0%{transform:scale(.9);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+.pc-ava__who{font-weight:600;font-size:15px}
+.pc-ava__status{font-size:11.5px;color:#a59f92;margin-top:2px;font-variant-numeric:tabular-nums}
+.pc-ava__status b{color:var(--green);font-weight:400}
+.pc-ava__log{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:8px;scroll-behavior:smooth;scrollbar-width:none}
+.pc-ava__log::-webkit-scrollbar{display:none}
+.pc-ava__msg{max-width:86%;padding:9px 12px;border-radius:16px;font-size:13.5px;line-height:1.4;animation:pcAvaIn .4s cubic-bezier(.34,1.56,.64,1) both}
+.pc-ava__msg--a{background:#2a2823;border:1px solid var(--line);border-bottom-left-radius:5px;align-self:flex-start}
+.pc-ava__msg--c{background:var(--ink);color:#141412;border-bottom-right-radius:5px;align-self:flex-end}
+@keyframes pcAvaIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+.pc-ava__card{align-self:stretch;border-radius:16px;padding:11px 12px;display:flex;gap:11px;align-items:center;font-size:12.5px;animation:pcAvaIn .45s cubic-bezier(.34,1.56,.64,1) both}
+.pc-ava__card--cal{background:rgba(212,176,106,.12);border:1px solid rgba(212,176,106,.45)}
+.pc-ava__card--owner{background:rgba(98,196,140,.1);border:1px solid rgba(98,196,140,.45)}
+.pc-ava__card b{display:block;font-size:13.5px}
+.pc-ava__ico{width:38px;height:38px;flex:none;border-radius:11px;display:grid;place-items:center;font-size:18px}
+.pc-ava__card--cal .pc-ava__ico{background:#f2ece0;color:#141412;font-size:17px;line-height:1}
+.pc-ava__card--owner .pc-ava__ico{background:var(--green);color:#0d2416}
+.pc-ava__sms{position:absolute;left:10px;right:10px;top:10px;z-index:3;background:rgba(42,40,36,.95);border:1px solid var(--line);border-radius:18px;padding:10px 12px;font-size:12px;transform:translateY(-140%);transition:transform .5s cubic-bezier(.34,1.56,.64,1)}
+.pc-ava__sms.is-on{transform:none}
+.pc-ava__sms b{display:block;font-size:12.5px}
+.pc-ava__sms span{color:var(--muted)}
+/* start overlay */
+.pc-ava__start{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(14,14,12,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);border:0;border-radius:44px;width:100%;cursor:pointer;color:#f2ece0;font:inherit}
+.pc-ava__start[hidden]{display:none}
+.pc-ava__play{width:76px;height:76px;border-radius:50%;background:var(--gold);color:#1a1407;display:grid;place-items:center;box-shadow:0 0 0 10px rgba(212,176,106,.18);transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.pc-ava__start:hover .pc-ava__play{transform:scale(1.06)}
+.pc-ava__play svg{width:30px;height:30px;margin-left:4px}
+.pc-ava__start span{font-weight:600;font-size:15px}
+.pc-ava__start small{color:#c9c2b4;font-size:12.5px}
+/* under phone */
+.pc-ava__caption{min-height:24px;margin:20px auto 10px;transition:opacity .3s}
+.pc-ava__bar{width:min(320px,100%);margin:0 auto;height:3px;border-radius:2px;background:var(--line);overflow:hidden}
+.pc-ava__fill{height:100%;width:0;background:var(--gold);transition:width .4s ease}
+.pc-ava__ctrls{display:flex;gap:8px;justify-content:center;margin:12px 0 0}
+.pc-ava__ctl{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:7px 14px;min-height:40px;font:inherit;font-size:13px;cursor:pointer}
+.pc-ava__ctl:hover{color:inherit}
+.pc-ava__note{color:var(--muted);font-size:12px;margin:14px 0 0}
+.pc-ava__ctas{margin:34px 0 0}
+#meet-ava .pill-line{color:var(--pc-cream);box-shadow:inset 0 0 0 1px rgba(236,235,228,.3)}
+#meet-ava .pill-line:hover{background:rgba(236,235,228,.08)}
+#meet-ava .pill-line i{background:rgba(236,235,228,.1)}
+@media (prefers-reduced-motion:reduce){.pc-ava *{animation:none!important;transition:none!important}}
+</style>
+
+<p class="kicker">Meet Ava / AI receptionist</p>
+<h2 class="pc-ava__title" id="pc-ava-title">She answers when you can’t. <em>Then she books it.</em></h2>
+<p class="pc-ava__lede">Press play to hear a demo call: a customer calls after hours and Ava books the appointment.</p>
+
+<div class="pc-ava__tabs" role="tablist" aria-label="Choose a business for the demo"></div>
+
+<div class="pc-ava__phone">
+  <div class="pc-ava__screen">
+    <div class="pc-ava__sms" aria-hidden="true"><b></b><span></span></div>
+    <div class="pc-ava__head">
+      <div class="pc-ava__avatar" aria-hidden="true">A</div>
+      <div class="pc-ava__who"></div>
+      <div class="pc-ava__status"></div>
+    </div>
+    <div class="pc-ava__log" aria-live="polite"></div>
+  </div>
+  <button class="pc-ava__start" type="button" aria-label="Play the demo call with sound">
+    <span class="pc-ava__play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg></span>
+    <span>Play demo call</span>
+    <small>Sound on · about 30 seconds</small>
+  </button>
+</div>
+
+<p class="pc-ava__caption" aria-live="polite">Pick a business, then press play.</p>
+<div class="pc-ava__bar" aria-hidden="true"><div class="pc-ava__fill"></div></div>
+<div class="pc-ava__ctrls">
+  <button class="pc-ava__ctl" type="button" data-act="pause" hidden>Pause</button>
+  <button class="pc-ava__ctl" type="button" data-act="mute" hidden>Sound on</button>
+</div>
+<p class="pc-ava__note">Demo with a sample business. Ava always tells callers she’s an AI.</p>
+
+<div class="cta-row center pc-ava__ctas">
+  <a class="pill" href="https://elevenlabs.io/app/talk-to?agent_id=agent_8501m55sqm2deqc8w0681g8j8fwh" target="_blank" rel="noopener">Talk to Ava live <i aria-hidden="true">›</i></a>
+  <a class="pill pill-line" href="/audit#main">Get my Growth Audit · <span data-live="growth-audit">{{growth-audit}}</span> <i aria-hidden="true">›</i></a>
+</div>
+
+<script>
+(function(){
+  var root = document.getElementById('meet-ava'); if (!root || root.dataset.ready) return; root.dataset.ready = '1';
+  var $ = function(s){ return root.querySelector(s); };
+  var DEMOS = {
+    contractor:{tab:'Contractor',biz:'Rivera Remodeling',clock:'8:47 PM',caller:'Derek',
+      lines:[['a','Hi! You’ve reached Rivera Remodeling, I’m Ava, their AI assistant. How can I help?','Answers on the first ring',0,'ava',0],
+        ['c','Hey, uh, I want my kitchen redone. Do you guys do estimates?',null,0,'m',0],
+        ['a','Oh, we do! Is it a full remodel, or just cabinets and counters?','Finds out what they need',0,'ava',1],
+        ['c','Full remodel. But I work during the day.',null,0,'m',1],
+        ['a','No problem at all. I’ve got Saturday at 10, or Tuesday at 6. Which works?','Offers real times',0,'ava',2],
+        ['c','Saturday.',null,0,'m',2],
+        ['a','Perfect, you’re booked for Saturday at 10! I’ll text you a confirmation.','Books the appointment',1,'ava',3],
+        ['c','Perfect, thanks!',null,0,'m',3]],
+      book:['SAT','24','Saturday · 10:00 AM','In-home estimate'],sms:'You’re booked: estimate, Sat 10:00 AM.',owner:'Derek · kitchen remodel · (706) 555-0142'},
+    barbershop:{tab:'Barbershop',biz:'Fade Theory Barbers',clock:'9:12 PM',caller:'Jordan',
+      lines:[['a','Fade Theory Barbers, this is Ava, the shop’s AI assistant. What can I do for you?','Answers on the first ring',0,'ava',4],
+        ['c','Yo, can I get a fade tomorrow afternoon?',null,0,'m',4],
+        ['a','For sure! Any barber, or someone you like?','Finds out what they need',0,'ava',5],
+        ['c','Anybody’s fine.',null,0,'m',5],
+        ['a','I’ve got 2:30, or 4:15 tomorrow. Which one?','Offers real times',0,'ava',6],
+        ['c','4:15.',null,0,'m',6],
+        ['a','Locked in for 4:15! I’ll text you a reminder.','Books the appointment',1,'ava',7],
+        ['c','Bet, appreciate it.',null,0,'m',7]],
+      book:['TUE','20','Tuesday · 4:15 PM','Fade · any barber'],sms:'You’re set for Tue 4:15 PM.',owner:'Jordan · fade · (762) 555-0187'},
+    salon:{tab:'Salon',biz:'Glow Studio',clock:'7:58 AM',caller:'Brianna',
+      lines:[['a','Good morning, Glow Studio! I’m Ava, the salon’s AI assistant. How can I help?','Answers on the first ring',0,'ava',8],
+        ['c','Hi! Do you have anything Friday for a silk press?',null,0,'f',0],
+        ['a','Ooh, let me look. Is your hair shoulder length, or longer?','Finds out what they need',0,'ava',9],
+        ['c','Longer.',null,0,'f',1],
+        ['a','Got it. I have Friday at 11, or 3.','Offers real times',0,'ava',10],
+        ['c','11 works.',null,0,'f',2],
+        ['a','You’re all set for Friday at 11! Details are on the way by text.','Books the appointment',1,'ava',11],
+        ['c','Thank you!',null,0,'f',3]],
+      book:['FRI','23','Friday · 11:00 AM','Silk press · long hair'],sms:'Silk press, Fri 11:00 AM.',owner:'Brianna · silk press · (706) 555-0129'},
+    cleaning:{tab:'Cleaning',biz:'Sparkle Pro Cleaning',clock:'6:31 PM',caller:'Marcus',
+      lines:[['a','Thanks for calling Sparkle Pro Cleaning! I’m Ava, their AI assistant. What can I help with?','Answers on the first ring',0,'ava',12],
+        ['c','Hey, I’m moving out next week and need the place cleaned.',null,0,'m',8],
+        ['a','Got it. How many bedrooms and bathrooms?','Finds out what they need',0,'ava',13],
+        ['c','Two and two.',null,0,'m',9],
+        ['a','Easy. I can send the team for a quick walkthrough Thursday at 9, or Friday at 1.','Offers real times',0,'ava',14],
+        ['c','Thursday works.',null,0,'m',10],
+        ['a','Done, Thursday at 9! A confirmation’s on its way.','Books the appointment',1,'ava',15],
+        ['c','Sweet, thanks.',null,0,'m',11]],
+      book:['THU','22','Thursday · 9:00 AM','Move-out walkthrough'],sms:'Walkthrough Thu 9:00 AM.',owner:'Marcus · 2 bed / 2 bath · (706) 555-0164'}
+  };
+  /* Real recordings (ElevenLabs): CLIPS[file][index] = audio data URI. Kept in /assets/ava/ and fetched when this section nears the screen; without them the call falls back to the device voice. */
+  var CLIPS = {}, clipsLoad = null;
+  function loadClips(){
+    if (!clipsLoad) clipsLoad = new Promise(function(res){
+      var s = document.createElement('script'); s.src = '/assets/ava/meet-ava-clips.ed124b10a0.js'; s.async = true;
+      s.onload = function(){ CLIPS = window.PC_AVA_CLIPS || {}; res(); }; s.onerror = function(){ res(); }; document.head.appendChild(s);
+    });
+    return clipsLoad;
+  }
+  var player = new Audio(); player.preload = 'auto';
+  var keys = Object.keys(DEMOS), cur = keys[0], run = 0, paused = false, muted = false, actx = null;
+  var synth = window.speechSynthesis || null, voices = [];
+  function loadVoices(){ if (synth) voices = synth.getVoices().filter(function(v){ return /^en/i.test(v.lang); }); }
+  if (synth) { loadVoices(); synth.onvoiceschanged = loadVoices; }
+  function pick(isAva){
+    var fem = /samantha|ava|allison|susan|karen|tessa|moira|victoria|zira|jenny|aria|female|google us english/i;
+    var male = /daniel|aaron|alex|fred|tom|david|guy|male|google uk english male/i;
+    var list = voices.filter(function(v){ return (isAva ? fem : male).test(v.name); });
+    return list[0] || voices[isAva ? 0 : Math.min(1, voices.length - 1)] || null;
+  }
+
+  // tabs
+  var tabs = $('.pc-ava__tabs');
+  keys.forEach(function(k){
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'pc-ava__tab'; b.setAttribute('role','tab');
+    var sp = document.createElement('span'); sp.textContent = DEMOS[k].tab; b.appendChild(sp); b.onclick = function(){ select(k); }; tabs.appendChild(b);
+  });
+
+  function reset(){
+    var d = DEMOS[cur]; run++; paused = false; if (synth) synth.cancel();
+    root.classList.remove('is-ringing','is-talking');
+    $('.pc-ava__who').textContent = d.biz; $('.pc-ava__status').textContent = 'AI receptionist · ready';
+    $('.pc-ava__log').innerHTML = ''; $('.pc-ava__sms').classList.remove('is-on');
+    $('.pc-ava__fill').style.width = '0';
+    $('.pc-ava__caption').textContent = 'Press play to hear the call.';
+    $('.pc-ava__start').hidden = false; $('[data-act="pause"]').hidden = true; $('[data-act="mute"]').hidden = true;
+  }
+  function select(k){
+    cur = k; tabs.querySelectorAll('.pc-ava__tab').forEach(function(b, i){ b.setAttribute('aria-selected', keys[i] === k ? 'true' : 'false'); }); reset();
+  }
+
+  function wait(ms, id){ return new Promise(function(res){ (function loop(left){ if (id !== run) return res(false);
+    if (paused) return setTimeout(function(){ loop(left); }, 120); if (left <= 0) return res(true);
+    setTimeout(function(){ loop(left - 100); }, 100); })(ms); }); }
+
+  function ring(){ // two short rings via Web Audio
+    if (muted || !actx) return;
+    var now = actx.currentTime;
+    [0, 0.5].forEach(function(off){
+      var g = actx.createGain(); g.gain.setValueAtTime(0, now + off); g.gain.linearRampToValueAtTime(0.12, now + off + 0.03);
+      g.gain.setValueAtTime(0.12, now + off + 0.35); g.gain.linearRampToValueAtTime(0, now + off + 0.4); g.connect(actx.destination);
+      [440, 480].forEach(function(f){ var o = actx.createOscillator(); o.frequency.value = f; o.connect(g); o.start(now + off); o.stop(now + off + 0.42); });
+    });
+  }
+
+  // Primary: <audio> element. If the page blocks it (some hosts block data: audio), fall back to Web Audio,
+  // which decodes the same recording in memory, then to the device voice as a last resort.
+  var useBuffer = false, bufCache = {}, curNode = null;
+  function playClip(src, id){
+    if (useBuffer) return playBuffer(src, id);
+    return new Promise(function(res){
+      var done = false, started = false;
+      var finish = function(v){ if (!done) { done = true; player.onended = player.onerror = player.onplaying = null; res(v); } };
+      player.onplaying = function(){ started = true; };
+      player.onended = function(){ finish(id === run); };
+      player.onerror = function(){ finish('fail'); };
+      player.src = src; player.playbackRate = 1;
+      var p = player.play(); if (p && p.catch) p.catch(function(){ finish('fail'); });
+      setTimeout(function(){ if (!started && !done && !paused) { try { player.pause(); } catch(e){} finish('fail'); } }, 2500);
+      (function watch(){ if (done) return; if (id !== run) { player.pause(); finish(false); return; } setTimeout(watch, 150); })();
+    }).then(function(r){ if (r === 'fail') { useBuffer = true; return playBuffer(src, id); } return r; });
+  }
+  function playBuffer(src, id){
+    return new Promise(function(res){
+      try { var AC = window.AudioContext || window.webkitAudioContext; if (!actx && AC) actx = new AC(); if (actx && actx.state === 'suspended' && !paused) actx.resume(); } catch(e){}
+      if (!actx) { res('fail'); return; }
+      var go = function(buf){
+        try {
+          var n = actx.createBufferSource(), done = false, fin = function(v){ if (!done) { done = true; curNode = null; res(v); } };
+          n.buffer = buf; n.connect(actx.destination); n.onended = function(){ fin(id === run); }; n.start(); curNode = n;
+          (function watch(){ if (done) return; if (id !== run) { try { n.stop(); } catch(e){} fin(false); return; } setTimeout(watch, 150); })();
+        } catch(e) { res('fail'); }
+      };
+      if (bufCache[src]) { go(bufCache[src]); return; }
+      try {
+        var bin = atob(src.slice(src.indexOf(',') + 1)), u = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+        var ok = function(buf){ bufCache[src] = buf; go(buf); }, bad = function(){ res('fail'); };
+        var pr = actx.decodeAudioData(u.buffer, ok, bad); if (pr && pr.catch) pr.catch(bad);
+      } catch(e) { res('fail'); }
+    });
+  }
+  function ttsSay(text, isAva, id, est){
+    if (!synth || !voices.length) return wait(est, id);
+    return new Promise(function(res){
+      var done = false, finish = function(){ if (!done) { done = true; res(id === run); } };
+      var u = new SpeechSynthesisUtterance(text); var v = pick(isAva); if (v) u.voice = v;
+      u.pitch = isAva ? 1.12 : 0.9; u.rate = 1.08;
+      u.onend = finish; u.onerror = finish; synth.speak(u);
+      setTimeout(function check(){ if (done) return; if (id !== run) { finish(); return; } if (!synth.speaking && !synth.pending && !paused) finish(); else setTimeout(check, 400); }, est + 1500);
+    });
+  }
+  function say(L, isAva, id){
+    var text = L[1], est = Math.max(1100, text.split(/\s+/).length * 300);
+    var clip = CLIPS[L[4]] && CLIPS[L[4]][L[5]];
+    if (muted) return wait(est, id);
+    if (clip) return playClip(clip, id).then(function(r){ return r === 'fail' ? ttsSay(text, isAva, id, est) : r; });
+    return ttsSay(text, isAva, id, est);
+  }
+
+  function add(cls, html, nodeText){
+    var el = document.createElement('div'); el.className = cls;
+    if (html) el.innerHTML = html; if (nodeText) el.appendChild(document.createTextNode(nodeText));
+    var log = $('.pc-ava__log'); log.appendChild(el); log.scrollTop = log.scrollHeight; return el;
+  }
+
+  async function play(){
+    var d = DEMOS[cur], id = ++run; paused = false;
+    $('.pc-ava__start').hidden = true; $('[data-act="pause"]').hidden = false; $('[data-act="pause"]').textContent = 'Pause';
+    var mb = $('[data-act="mute"]'); mb.hidden = false; mb.textContent = muted ? 'Sound off' : 'Sound on';
+    $('.pc-ava__log').innerHTML = ''; $('.pc-ava__sms').classList.remove('is-on');
+    var cap = $('.pc-ava__caption'), fill = $('.pc-ava__fill'), total = d.lines.length + 3, step = 0;
+    var adv = function(txt){ step++; fill.style.width = Math.min(100, step / total * 100) + '%'; if (txt) cap.textContent = txt; };
+    await loadClips(); if (id !== run) return;
+    root.classList.add('is-ringing'); $('.pc-ava__who').textContent = d.caller + ' is calling';
+    $('.pc-ava__status').textContent = 'Incoming call · ' + d.clock; cap.textContent = 'A customer calls after hours…';
+    ring(); if (!(await wait(900, id))) return; ring(); if (!(await wait(800, id))) return;
+    root.classList.remove('is-ringing'); adv();
+    $('.pc-ava__who').textContent = d.biz + ' · Ava'; $('.pc-ava__status').innerHTML = '<b>●</b> On call';
+    for (var i = 0; i < d.lines.length; i++) {
+      var L = d.lines[i], isAva = L[0] === 'a';
+      add('pc-ava__msg pc-ava__msg--' + L[0], null, L[1]); adv(L[2]);
+      root.classList.toggle('is-talking', isAva);
+      if (!(await say(L, isAva, id))) return;
+      root.classList.remove('is-talking');
+      if (L[3] === 1) {
+        add('pc-ava__card pc-ava__card--cal', '<div class="pc-ava__ico"><small style="font-size:9px;letter-spacing:.06em;color:#b0372c"></small><span></span></div><div><b></b></div>');
+        var c = $('.pc-ava__log').lastChild; c.querySelector('small').textContent = d.book[0]; c.querySelector('.pc-ava__ico span').textContent = d.book[1];
+        c.querySelector('b').textContent = 'Booked · ' + d.book[2]; c.lastChild.appendChild(document.createTextNode(d.book[3]));
+      }
+      if (!(await wait(isAva ? 180 : 260, id))) return;
+    }
+    $('.pc-ava__status').textContent = 'Call ended'; adv('Texts them a confirmation');
+    var sms = $('.pc-ava__sms'); sms.querySelector('b').textContent = d.biz; sms.querySelector('span').textContent = d.sms; sms.classList.add('is-on');
+    if (!(await wait(2600, id))) return; sms.classList.remove('is-on');
+    add('pc-ava__card pc-ava__card--owner', '<div class="pc-ava__ico">✓</div><div><b>New booking for you</b></div>');
+    $('.pc-ava__log').lastChild.lastChild.appendChild(document.createTextNode(d.owner)); adv('Sends you the details');
+    if (!(await wait(1500, id))) return;
+    fill.style.width = '100%'; cap.textContent = 'That’s Ava. Want her answering your phone?';
+    var pb = $('[data-act="pause"]'); pb.textContent = 'Replay';
+  }
+
+  $('.pc-ava__start').onclick = function(){
+    // unlock audio inside the tap so mobile browsers allow sound
+    try { var AC = window.AudioContext || window.webkitAudioContext; if (AC) { actx = actx || new AC(); actx.resume(); } } catch(e){}
+    try { player.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA='; var pp = player.play(); if (pp && pp.catch) pp.catch(function(){}); } catch(e){}
+    if (synth) { try { synth.cancel(); var u = new SpeechSynthesisUtterance(' '); u.volume = 0; synth.speak(u); } catch(e){} loadVoices(); }
+    play();
+  };
+  $('[data-act="pause"]').onclick = function(){
+    if (this.textContent === 'Replay') { play(); return; }
+    paused = !paused; this.textContent = paused ? 'Resume' : 'Pause';
+    if (paused) player.pause(); else if (player.src && !player.ended) player.play().catch(function(){});
+    if (actx) { try { paused ? actx.suspend() : actx.resume(); } catch(e){} }
+    if (synth) { paused ? synth.pause() : synth.resume(); }
+  };
+  $('[data-act="mute"]').onclick = function(){
+    muted = !muted; this.textContent = muted ? 'Sound off' : 'Sound on'; player.muted = muted; if (muted && curNode) { try { curNode.stop(); } catch(e){} } if (muted && synth) synth.cancel();
+  };
+  select(cur);
+  if ('IntersectionObserver' in window) new IntersectionObserver(function(es, ob){ if (es.some(function(e){ return e.isIntersecting; })) { loadClips(); ob.disconnect(); } }, { rootMargin: '800px 0px' }).observe(root);
+})();
+</script>
+</section>
 
     <!-- Pricing -->
     <section class="pricing" id="pricing">
