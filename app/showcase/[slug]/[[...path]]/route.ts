@@ -22,7 +22,7 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
     if (path.length === 0) {
       const res = await fetchUpstream(`https://${host}/`);
       if (!res.ok) throw new Error(`upstream answered ${res.status}`);
-      const html = transformHtml(await res.text(), { slug: params.slug, host, siteUrl: SITE_URL, names: NAMES[params.slug], generic: GENERIC_NAME });
+      const html = transformHtml(await res.text(), { slug: params.slug, host, siteUrl: SITE_URL, names: NAMES[params.slug], generic: GENERIC_NAME, literals: LITERALS[params.slug] });
       return new NextResponse(html, { headers: { ...HEADERS, "Content-Type": "text/html; charset=utf-8", "Cache-Control": CACHE } });
     }
     // A stylesheet: /showcase/<name>/_css/<file>.css

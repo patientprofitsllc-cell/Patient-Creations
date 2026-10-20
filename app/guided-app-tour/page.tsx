@@ -79,7 +79,7 @@ export default function GuidedAppTourPage() {
               <div className="glass-panel flex-1 rounded-2xl p-6">
                 <h2 className="font-display text-2xl text-ice">{step.title}</h2>
                 <p className="mt-3 text-sm leading-relaxed text-ice/50">{step.body}</p>
-                <Link href={step.href} className="mt-4 inline-block text-sm text-gold hover:brightness-110">
+                <Link href={step.href} className="mt-4 inline-flex min-h-[44px] items-center text-sm text-gold hover:brightness-110">
                   {step.linkLabel} →
                 </Link>
               </div>
