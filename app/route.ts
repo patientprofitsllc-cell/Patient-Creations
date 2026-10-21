@@ -43,7 +43,10 @@ export async function GET() {
     faqs: topFaqs({ bnpl: bnplEnabled(), prices }),
     industries: INDUSTRIES.map(({ slug, name }) => ({ slug, name })),
   });
-  const page = renderHome(HOME, homeValues(prices), blocks).replace("</head>", () => `${ga}</head>`).replace("</body>", () => `${HOME_TRACK_SCRIPT}</body>`);
+  const values = homeValues(prices);
+  // The 3D scene (public/assets/experience/app.*.js) reads its prices from here, so it never quotes a price of its own.
+  const livePrices = `<script>window.PC_PRICES=${JSON.stringify(values).replace(/</g, "\\u003c")};</script>\n`;
+  const page = renderHome(HOME, values, blocks).replace("</head>", () => `${livePrices}${ga}</head>`).replace("</body>", () => `${HOME_TRACK_SCRIPT}</body>`);
   // Browsers always ask again; Netlify's edge may serve the page for a minute (and a little longer while it refreshes), which
   // is the same freshness the 60-second revalidation above already gives prices, reviews and the FAQ.
   return new Response(page, {

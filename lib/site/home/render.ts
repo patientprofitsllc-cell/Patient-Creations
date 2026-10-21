@@ -20,6 +20,8 @@ export function homeValues(live: LivePrices): Record<string, string> {
     "nfc-cards": usd(cents("nfc-cards")),
     "website-special": usd(cents("website-special")),
     "ugc-ad-special": usd(cents("ugc-ad-special")),
+    "cinematic-ad-special": usd(cents("cinematic-ad-special")),
+    "ads-monthly-300": usd(cents("ads-monthly-300")),
     "all-in-one-bundle": usd(cents("all-in-one-bundle")),
     "bundle-separately": usd(separately),
     "bundle-savings": usd(Math.max(0, separately - cents("all-in-one-bundle"))),
