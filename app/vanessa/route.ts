@@ -1,11 +1,14 @@
 // A private page for customers to talk with Vanessa, the discovery-call agent (ElevenLabs). It is not linked from the site
 // and is kept out of search: the owner shares the link (for example in the Calendly invite) and each call is transcribed
 // and summarised into notes (pain points, interests, perspective) in the agent's Conversations tab in ElevenLabs.
-// The agent only accepts patientcreations.com, www.patientcreations.com and localhost.
+// The agent only accepts patientcreations.com, www.patientcreations.com and localhost. The conversation costs credits, so
+// the page only opens with a valid signed link (made by the homepage fit form, or by hand with scripts/vanessa-link.ts);
+// without one it shows a short page pointing to the form.
 import { CALENDLY_URL } from "@/lib/config/calendly";
 import { CONTACT_PHONE_DIGITS, CONTACT_PHONE_DISPLAY } from "@/lib/config/site";
+import { verifyVanessaToken } from "@/lib/site/vanessaAccess";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
 const AGENT_ID = "agent_0001m5gqd0krfpzt77s16hngzhj2";
 const SDK_URL = "https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.26.0/dist/lib.iife.js";
@@ -195,12 +198,39 @@ const html = PAGE.replaceAll("__CALENDLY__", CALENDLY_URL)
   .replaceAll("__AGENT_ID__", AGENT_ID)
   .replaceAll("__SDK_URL__", SDK_URL);
 
-export async function GET() {
-  return new Response(html, {
+const invite = (expired: boolean) => `<section id="vanessa" aria-labelledby="title">
+      <p class="kicker">Private conversation</p>
+      <h2 id="title">${expired ? "This link has" : "This link is for"} <em>${expired ? "expired." : "invited customers."}</em></h2>
+      <p class="lede">Vanessa, our AI assistant, has private conversations with customers who are ready to move. Tell us a little about your business and, if we're a good fit, you'll get your own link in seconds.</p>
+      <div class="cta-row center">
+        <a class="pill" href="/#fit">See if we're a fit <i aria-hidden="true">›</i></a>
+        <a class="pill pill-line" href="/audit">Get a Growth Audit <i aria-hidden="true">›</i></a>
+      </div>
+      <p class="fine">Prefer a person? Call or text <a href="tel:${CONTACT_PHONE_DIGITS}">${CONTACT_PHONE_DISPLAY}</a>.</p>
+    </section>`;
+
+/** The page with its conversation section swapped for the invitation, and the AI's script removed. Plain string slicing. */
+function withoutConversation(page: string, replacement: string): string {
+  const from = page.indexOf('<section id="vanessa"');
+  const to = page.indexOf("</section>", from);
+  const scriptFrom = page.indexOf("<script>");
+  const scriptTo = page.indexOf("</script>", scriptFrom);
+  if (from < 0 || to < 0 || scriptFrom < 0 || scriptTo < 0) return replacement; // never expose the conversation by mistake
+  const noSection = page.slice(0, from) + replacement + page.slice(to + "</section>".length);
+  const a = noSection.indexOf("<script>");
+  return noSection.slice(0, a) + noSection.slice(noSection.indexOf("</script>", a) + "</script>".length);
+}
+
+export async function GET(req: Request) {
+  const k = new URL(req.url).searchParams.get("k");
+  const open = verifyVanessaToken(k).ok;
+  // No valid link: the same page shell, with the invitation in place of the conversation and without the AI's script.
+  const body = open ? html : withoutConversation(html, invite(Boolean(k)));
+  return new Response(body, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "X-Robots-Tag": "noindex, nofollow, noai, noimageai",
-      "Cache-Control": "public, max-age=0, must-revalidate",
+      "Cache-Control": "no-store",
     },
   });
 }

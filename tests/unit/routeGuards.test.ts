@@ -85,6 +85,7 @@ const ROUTES: Record<string, { kind: Kind; why?: string }> = {
   "partners/apply": { kind: "public", why: "a public application that answers the same whether or not the email is known" },
   "referrals/click": { kind: "public", why: "counts a visit and redirects; reads no private data" },
   "track": { kind: "public", why: "accepts only a fixed list of event names and stores no personal data" },
+  "qualify": { kind: "public", why: "the homepage's fit form: the visitor gives their own details, it is rate limited with a hidden spam trap, it returns nothing about anyone else, and the only thing it hands out is a two-hour signed link to talk with Vanessa" },
   "unsubscribe": { kind: "public", why: "signed link: it only acts for the address inside a valid signature" },
 };
 
