@@ -48,25 +48,23 @@
       <span>patient<br />creations.</span>
     </a>
     <nav class="nav" aria-label="Primary">
-      <a href="/pricing">Products &amp; Prices</a>
-      <a href="#business-cards">Business Cards</a>
-      <a href="/monthly-ads">Monthly Ads</a>
+      <a href="#paths">Services</a>
+      <a href="/pricing">Prices</a>
       <a href="/examples">Examples</a>
       <a href="/faq">FAQ</a>
       <a class="pill pill-ghost" href="/audit">Growth Audit <i>›</i></a>
-      <a class="pill" href="/checkout?product=website-special">Start a project <i>›</i></a>
+      <a class="pill" href="#fit">See if we're a fit <i>›</i></a>
     </nav>
     <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="mobile-nav">Menu</button>
   </header>
   <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile" hidden>
-    <a href="/pricing">Products &amp; Prices</a>
-    <a href="#business-cards">Business Cards</a>
-    <a href="/monthly-ads">Monthly Ads</a>
-    <a href="/examples">Examples</a>
-    <a href="/faq">FAQ</a>
-    <a href="/audit">Growth Audit</a>
-    <a class="pill" href="/checkout?product=website-special">Start a project ›</a>
-  </nav>
+      <a href="#paths">Services</a>
+      <a href="/pricing">Prices</a>
+      <a href="/examples">Examples</a>
+      <a href="/faq">FAQ</a>
+      <a class="pill pill-ghost" href="/audit">Growth Audit <i>›</i></a>
+      <a class="pill" href="#fit">See if we're a fit <i>›</i></a>
+    </nav>
 
   <!-- Scroll-driven 3D world -->
   <section class="world" id="top" aria-label="Explore the Patient Creations world">
@@ -80,7 +78,7 @@
         <h1>Patient Creations – your partner for <em>websites, ads &amp; automation</em></h1>
         <p class="lede">Cinematic websites. Content that gets noticed. AI that gets to work. Everything your business needs for its next chapter.</p>
         <div class="cta-row">
-          <a class="pill" href="/pricing">Find your next move <i>›</i></a>
+          <a class="pill" href="#paths">Find your next move <i>›</i></a>
           <a class="pill pill-ghost" href="#welcome">Explore the experience <i>›</i></a>
         </div>
         <div class="chapter" id="chapter" aria-live="polite">
@@ -103,14 +101,55 @@
       <div class="welcome-grid">
         <h2>Your business.<br />Our craft.<br />Welcome to <em>Patient Creations.</em></h2>
         <div class="welcome-side">
-          <div class="cta-row">
-            <a class="pill" href="/checkout?product=website-special">Start a project <i>›</i></a>
-            <a class="pill pill-line" href="/audit"><span>Growth Audit · <span data-live="growth-audit">{{growth-audit}}</span></span> <i>›</i></a>
-          </div>
           <p>A first impression, a new audience, a smarter workflow. Patient Creations builds cinematic AI websites, cinematic and UGC ads, Business Cards, software, and AI agent systems, with agency quality at freelancer-floor pricing. Start where you are. Build what comes next.</p>
         </div>
       </div>
     </section>
+
+<!-- Where to start: one question, three calm choices. The eye lands on the question, then moves left to right. -->
+<section class="paths" id="paths" aria-labelledby="paths-title">
+<style>
+#paths{background:#f7f6f1;padding-top:40px;text-align:center}
+#paths h2{margin:0 auto 14px;max-width:16ch;text-wrap:balance}
+.paths-lede{color:#55554c;max-width:46ch;margin:0 auto}
+.paths-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1080px;margin:44px auto 0;text-align:left}
+.path{display:flex;flex-direction:column;gap:12px;padding:30px 28px;border-radius:var(--radius);background:#fff;border:1px solid var(--line);text-decoration:none;color:inherit;transition:transform .25s,box-shadow .25s,border-color .25s}
+.path:hover,.path:focus-visible{transform:translateY(-3px);border-color:rgba(135,98,43,.45);box-shadow:0 18px 40px rgba(26,26,22,.08)}
+.path-num{font-family:var(--font-display);font-weight:300;font-size:40px;line-height:1;color:var(--gold-ink)}
+.path h3{margin:0;font-weight:500;font-size:24px;letter-spacing:-.02em;line-height:1.15}
+.path p{margin:0;color:#55554c;font-size:15px}
+.path-go{margin-top:auto;padding-top:16px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;font-size:14px;font-weight:600}
+.path-go span{color:var(--label-ink);font-weight:500}
+.paths-note{margin:30px 0 0;color:#55554c;font-size:15px}
+.paths-note a{color:var(--gold-ink);font-weight:600;text-underline-offset:3px}
+@media (max-width:860px){.paths-grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.path{transition:none}}
+</style>
+<p class="kicker">Start here</p>
+<h2 id="paths-title">What would you like <em>to do first?</em></h2>
+<p class="paths-lede">Pick the one that sounds most like you. You can always do the others later.</p>
+<div class="paths-grid">
+  <a class="path" href="/pricing#websites">
+    <span class="path-num">01</span>
+    <h3>Get online.</h3>
+    <p>A website built around your business, so customers can find you and take the next step.</p>
+    <span class="path-go">Websites <span>From <span data-live="website-special">{{website-special}}</span> →</span></span>
+  </a>
+  <a class="path" href="/pricing#ads">
+    <span class="path-num">02</span>
+    <h3>Get noticed.</h3>
+    <p>Ads and video that stop the scroll, without another shoot on your calendar.</p>
+    <span class="path-go">Ads and video <span>From <span data-live="ugc-ad-special">{{ugc-ad-special}}</span> per ad →</span></span>
+  </a>
+  <a class="path" href="/pricing#automation">
+    <span class="path-num">03</span>
+    <h3>Work smarter.</h3>
+    <p>Capture leads, follow up automatically and let AI agents handle the busywork.</p>
+    <span class="path-go">AI Agent bundles <span>From <span data-live="agent-bundles-from">{{agent-bundles-from}}</span> →</span></span>
+  </a>
+</div>
+<p class="paths-note">Not sure which one? <a href="#fit">Tell us about your business</a> and we will point you to the right one.</p>
+</section>
 
 <!-- See if we're a fit: a short form that decides, with plain rules (lib/site/fitQualifier.ts, no AI credits), who gets a private
      conversation with Vanessa. Serious people get a two-hour link; everyone else gets the best free next step. -->
@@ -286,10 +325,55 @@
       </div>
     </section>
 
+    <!-- Pricing -->
+    <section class="pricing" id="pricing">
+      <p class="kicker">03 / Find your next move</p>
+      <h2>Big possibilities. <em>Clear prices.</em></h2>
+      <div class="price-grid">
+        <article class="price featured">
+          <span class="tag">Tap. Share. Get reviewed.</span>
+          <h3>Smart Business Cards</h3>
+          <p class="amt"><span data-live="nfc-cards">{{nfc-cards}}</span> <small>/ each</small></p>
+          <p>Tap-to-share smart cards. One tap opens your reviews, menu, socials, or booking link.</p>
+          <ul><li>Pick your designs and mix and match</li><li>Google reviews, menu, WiFi, Instagram, TikTok, YouTube</li><li>Setup included (shipping is extra)</li></ul>
+          <a class="pill" href="/checkout?product=nfc-cards">Get Business Cards <i>›</i></a>
+        </article>
+        <article class="price">
+          <span class="tag">Your first big move</span>
+          <h3>Website Special</h3>
+          <p class="amt"><span data-live="website-special">{{website-special}}</span> <small>/ one time</small></p>
+          <p>A one-page website, live in about 72 hours, with 3 months of maintenance included.</p>
+          <ul><li>Mobile optimized + basic SEO</li><li>Business-specific copy + one revision</li><li>3 months of maintenance included</li></ul>
+          <a class="pill" href="/checkout?product=website-special">Choose Website Special <i>›</i></a>
+        </article>
+        <article class="price">
+          <span class="tag">Get seen for less</span>
+          <h3>UGC Ad Special</h3>
+          <p class="amt"><span data-live="ugc-ad-special">{{ugc-ad-special}}</span> <small>/ per ad</small></p>
+          <p>A creator-style ad with an AI presenter, up to 30 seconds, with 3 opening hooks to test.</p>
+          <ul><li>AI presenter, creator-style</li><li>Up to 30 seconds</li><li>3 opening hooks to test</li></ul>
+          <a class="pill pill-line" href="/checkout?product=ugc-ad-special">Choose UGC Ad Special <i>›</i></a>
+        </article>
+      </div>
+      <a class="bundle" href="/checkout?product=all-in-one-bundle">
+        <span class="tag">Your launch, fully loaded</span>
+        <strong>All-in-One Launch Bundle · <span data-live="all-in-one-bundle">{{all-in-one-bundle}}</span></strong>
+        <span>A Website Special, 4 Cinematic Ads, 4 UGC Ads, and 5 Business Cards. Bought one by one: <span data-live="bundle-separately">{{bundle-separately}}</span>. You save <span data-live="bundle-savings">{{bundle-savings}}</span>.</span>
+        <i>Build my launch bundle ›</i>
+      </a>
+      <a class="bundle" href="/pricing#bundles">
+        <span class="tag">Put AI to work</span>
+        <strong>AI Agent bundles · from <span data-live="agent-bundles-from">{{agent-bundles-from}}</span></strong>
+        <span>An AI Agent System with a Website Special, a Cinematic AI Website, or a Lead Engine, or the Everything Bundle. Every bundle costs less than buying its parts.</span>
+        <i>See the AI Agent bundles ›</i>
+      </a>
+      <p class="audit-note">✱ Not sure where to start? The <a href="/audit">Growth Audit</a> helps you choose what to do first: <span data-live="growth-audit">{{growth-audit}}</span>, credited toward your first order within <span data-live="audit-days">{{audit-days}}</span> days.</p>
+    </section>
+
 <!-- Meet Ava: demo phone call with Ava's recorded voice (ElevenLabs recordings embedded in the script below). -->
 <section class="pc-ava" id="meet-ava" aria-labelledby="pc-ava-title">
 <style>
-#meet-ava{--pc-accent:var(--pc-sand);padding-bottom:40px}
+#meet-ava{--pc-accent:var(--pc-sand);padding-top:40px;padding-bottom:40px}
 #meet-ava .kicker,#meet-ava h2 em{color:var(--pc-sand)}
 .pc-ava{--gold:var(--pc-accent,#d4b06a);--ink:#f2ece0;--muted:color-mix(in srgb,currentColor 62%,transparent);--line:color-mix(in srgb,currentColor 14%,transparent);--green:#62c48c;
   background:var(--pc-bg);color:var(--pc-cream);font:inherit;line-height:inherit;text-align:center;box-sizing:border-box}
@@ -610,51 +694,6 @@
 })();
 </script>
 </section>
-
-    <!-- Pricing -->
-    <section class="pricing" id="pricing">
-      <p class="kicker">03 / Find your next move</p>
-      <h2>Big possibilities. <em>Clear prices.</em></h2>
-      <div class="price-grid">
-        <article class="price featured">
-          <span class="tag">Tap. Share. Get reviewed.</span>
-          <h3>Smart Business Cards</h3>
-          <p class="amt"><span data-live="nfc-cards">{{nfc-cards}}</span> <small>/ each</small></p>
-          <p>Tap-to-share smart cards. One tap opens your reviews, menu, socials, or booking link.</p>
-          <ul><li>Pick your designs and mix and match</li><li>Google reviews, menu, WiFi, Instagram, TikTok, YouTube</li><li>Setup included (shipping is extra)</li></ul>
-          <a class="pill" href="/checkout?product=nfc-cards">Get Business Cards <i>›</i></a>
-        </article>
-        <article class="price">
-          <span class="tag">Your first big move</span>
-          <h3>Website Special</h3>
-          <p class="amt"><span data-live="website-special">{{website-special}}</span> <small>/ one time</small></p>
-          <p>A one-page website, live in about 72 hours, with 3 months of maintenance included.</p>
-          <ul><li>Mobile optimized + basic SEO</li><li>Business-specific copy + one revision</li><li>3 months of maintenance included</li></ul>
-          <a class="pill" href="/checkout?product=website-special">Choose Website Special <i>›</i></a>
-        </article>
-        <article class="price">
-          <span class="tag">Get seen for less</span>
-          <h3>UGC Ad Special</h3>
-          <p class="amt"><span data-live="ugc-ad-special">{{ugc-ad-special}}</span> <small>/ per ad</small></p>
-          <p>A creator-style ad with an AI presenter, up to 30 seconds, with 3 opening hooks to test.</p>
-          <ul><li>AI presenter, creator-style</li><li>Up to 30 seconds</li><li>3 opening hooks to test</li></ul>
-          <a class="pill pill-line" href="/checkout?product=ugc-ad-special">Choose UGC Ad Special <i>›</i></a>
-        </article>
-      </div>
-      <a class="bundle" href="/checkout?product=all-in-one-bundle">
-        <span class="tag">Your launch, fully loaded</span>
-        <strong>All-in-One Launch Bundle · <span data-live="all-in-one-bundle">{{all-in-one-bundle}}</span></strong>
-        <span>A Website Special, 4 Cinematic Ads, 4 UGC Ads, and 5 Business Cards. Bought one by one: <span data-live="bundle-separately">{{bundle-separately}}</span>. You save <span data-live="bundle-savings">{{bundle-savings}}</span>.</span>
-        <i>Build my launch bundle ›</i>
-      </a>
-      <a class="bundle" href="/pricing#bundles">
-        <span class="tag">Put AI to work</span>
-        <strong>AI Agent bundles · from <span data-live="agent-bundles-from">{{agent-bundles-from}}</span></strong>
-        <span>An AI Agent System with a Website Special, a Cinematic AI Website, or a Lead Engine, or the Everything Bundle. Every bundle costs less than buying its parts.</span>
-        <i>See the AI Agent bundles ›</i>
-      </a>
-      <p class="audit-note">✱ Not sure where to start? The <a href="/audit">Growth Audit</a> helps you choose what to do first: <span data-live="growth-audit">{{growth-audit}}</span>, credited toward your first order within <span data-live="audit-days">{{audit-days}}</span> days.</p>
-    </section>
 
     <!-- Process -->
     <section class="process" id="process">
