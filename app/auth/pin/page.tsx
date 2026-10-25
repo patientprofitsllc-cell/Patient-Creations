@@ -19,7 +19,7 @@ export default async function PinPage() {
   else if (fails >= MAX_FAILS) note = "PIN sign-in is locked after too many wrong tries. Sign in once with your email and password to unlock it.";
 
   return (
-    <main id="main" className="flex min-h-screen flex-col items-center justify-center bg-[#06070d] px-6 py-16 text-pc-cream">
+    <main id="main" className="flex min-h-screen flex-col items-center justify-center bg-obsidian px-6 py-16 text-pc-cream">
       {/* The animated celestial logo: lines draw in, stars twinkle, the mark rises. */}
       <img src="/assets/brand/celestial.svg" alt="Patient Creations" width={220} height={220} className="h-[220px] w-[220px] rounded-3xl" />
       <h1 className="mt-4 text-2xl font-light tracking-tight">Owner sign-in</h1>

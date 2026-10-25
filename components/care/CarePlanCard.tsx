@@ -126,7 +126,7 @@ export function CarePlanCard({
       <p className="mt-4 text-xs text-ice/40">{timingNote}</p>
       <p className="mt-1 text-xs text-ice/40">Not included: {notIncluded.join("; ").toLowerCase()}.</p>
       <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-3 text-xs leading-relaxed text-ice/60 has-[:checked]:border-gold/50">
-        <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-[#c39b52]" />
+        <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-[#c9a15e]" />
         <span>
           {included ? (
             <>

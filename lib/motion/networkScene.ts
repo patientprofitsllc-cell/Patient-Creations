@@ -99,8 +99,8 @@ export function createNetworkScene(ctx: CanvasRenderingContext2D, width: number,
   let seed = 20260919;
   const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
 
-  const GOLD = makeSprite("224,196,138", 96);
-  const CHAMP = makeSprite("242,230,201", 96);
+  const GOLD = makeSprite("239,203,140", 96);
+  const CHAMP = makeSprite("246,228,184", 96);
 
   const layers: Layer[] = LAYER_Z.map((z, k) => {
     const nodes: Node[] = [];
@@ -191,8 +191,8 @@ export function createNetworkScene(ctx: CanvasRenderingContext2D, width: number,
     ctx.globalAlpha = 1;
 
     const bg = ctx.createLinearGradient(0, 0, 0, H);
-    bg.addColorStop(0, "#0c0908");
-    bg.addColorStop(1, "#1b140d");
+    bg.addColorStop(0, "#0f170d");
+    bg.addColorStop(1, "#2a1d12");
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
 
@@ -200,9 +200,9 @@ export function createNetworkScene(ctx: CanvasRenderingContext2D, width: number,
     ctx.globalCompositeOperation = "lighter";
     (
       [
-        [0.22, 0.3, "224,196,138", 0.13, 0],
-        [0.78, 0.55, "160,120,60", 0.16, 2.1],
-        [0.5, 0.95, "242,230,201", 0.07, 4.2],
+        [0.22, 0.3, "239,203,140", 0.13, 0],
+        [0.78, 0.55, "123,79,51", 0.16, 2.1],
+        [0.5, 0.95, "246,228,184", 0.07, 4.2],
       ] as const
     ).forEach(([fx, fy, rgb, a, ph]) => {
       const cx = W * fx + Math.sin(th + ph) * W * 0.07;
@@ -232,12 +232,12 @@ export function createNetworkScene(ctx: CanvasRenderingContext2D, width: number,
 
       // the glass
       poly();
-      ctx.fillStyle = "rgba(224,196,138,0.045)";
+      ctx.fillStyle = "rgba(239,203,140,0.045)";
       ctx.fill();
       ctx.save();
       poly();
       ctx.clip();
-      ctx.strokeStyle = "rgba(224,196,138,0.075)";
+      ctx.strokeStyle = "rgba(239,203,140,0.075)";
       ctx.lineWidth = 1;
       for (let gx = -PW; gx <= PW; gx += 130) {
         const a = project(gx, -PH, L.z, th);
@@ -262,14 +262,14 @@ export function createNetworkScene(ctx: CanvasRenderingContext2D, width: number,
       const s = fract(t / SCENE_PERIOD + L.k * 0.33);
       const start = bx0 - bw * 0.4 + s * bw * 1.8;
       const sg = ctx.createLinearGradient(start, 0, start + bw * 0.4, 0);
-      sg.addColorStop(0, "rgba(242,230,201,0)");
-      sg.addColorStop(0.5, "rgba(242,230,201,0.10)");
-      sg.addColorStop(1, "rgba(242,230,201,0)");
+      sg.addColorStop(0, "rgba(246,228,184,0)");
+      sg.addColorStop(0.5, "rgba(246,228,184,0.10)");
+      sg.addColorStop(1, "rgba(246,228,184,0)");
       ctx.fillStyle = sg;
       ctx.fillRect(bx0 - bw, 0, bw * 3, H);
       ctx.restore();
       poly();
-      ctx.strokeStyle = "rgba(242,230,201,0.30)";
+      ctx.strokeStyle = "rgba(246,228,184,0.30)";
       ctx.lineWidth = 1.2;
       ctx.stroke();
 
@@ -277,7 +277,7 @@ export function createNetworkScene(ctx: CanvasRenderingContext2D, width: number,
       L.edges.forEach((e) => {
         const a = pt(L, e.a, th);
         const b = pt(L, e.b, th);
-        ctx.strokeStyle = `rgba(${e.gold ? "224,196,138" : "242,230,201"},0.22)`;
+        ctx.strokeStyle = `rgba(${e.gold ? "239,203,140" : "246,228,184"},0.22)`;
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
@@ -302,7 +302,7 @@ export function createNetworkScene(ctx: CanvasRenderingContext2D, width: number,
       L.nodes.forEach((n, i) => {
         if (!n.member) return;
         const p = pt(L, i, th);
-        ctx.strokeStyle = "rgba(242,230,201,0.55)";
+        ctx.strokeStyle = "rgba(246,228,184,0.55)";
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.arc(p.x, p.y, 9 * p.f * S * (1 + 0.15 * Math.sin(th + n.p2)), 0, TAU);
@@ -315,7 +315,7 @@ export function createNetworkScene(ctx: CanvasRenderingContext2D, width: number,
     links.forEach((l) => {
       const a = pt(layers[l.k], l.a, th);
       const b = pt(layers[l.k + 1], l.b, th);
-      ctx.strokeStyle = "rgba(242,230,201,0.17)";
+      ctx.strokeStyle = "rgba(246,228,184,0.17)";
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
       ctx.lineTo(b.x, b.y);
@@ -337,8 +337,8 @@ export function createNetworkScene(ctx: CanvasRenderingContext2D, width: number,
 
     // a soft vignette keeps the edges dark
     const v = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
-    v.addColorStop(0, "rgba(8,6,5,0)");
-    v.addColorStop(1, "rgba(8,6,5,0.6)");
+    v.addColorStop(0, "rgba(8,12,7,0)");
+    v.addColorStop(1, "rgba(8,12,7,0.6)");
     ctx.fillStyle = v;
     ctx.fillRect(0, 0, W, H);
   }

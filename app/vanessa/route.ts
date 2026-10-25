@@ -22,32 +22,32 @@ const PAGE = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Talk with Vanessa | Patient Creations</title>
 <meta name="robots" content="noindex, nofollow, noai, noimageai" />
-<meta name="theme-color" content="#141412" />
+<meta name="theme-color" content="#172015" />
 <link rel="icon" href="/icon.png" type="image/png" />
 <link rel="preload" href="/assets/experience/inter-latin-400-normal.dd05e326cf.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="/assets/experience/instrument-serif-latin-400-italic.1d6e1bd7bc.woff2" as="font" type="font/woff2" crossorigin />
-<link rel="stylesheet" href="/assets/experience/styles.91f792a926.css" />
+<link rel="stylesheet" href="/assets/experience/styles.4e579c4b3c.css" />
 <style>
 #vanessa{background:#f7f6f1;padding-top:150px;padding-bottom:90px;text-align:center;min-height:calc(100vh - 80px)}
 #vanessa h2{margin:0 auto 14px;max-width:16ch;text-wrap:balance}
-#vanessa .lede{color:#55554c;max-width:46ch;margin:0 auto 34px}
+#vanessa .lede{color:#4f5546;max-width:46ch;margin:0 auto 34px}
 .orb{--lvl:0;display:block;margin:0 auto 14px;width:clamp(170px,38vw,230px);aspect-ratio:1;border:0;padding:0;border-radius:50%;cursor:pointer;position:relative;background:transparent;color:#1a1206;font:600 15px var(--font-body);letter-spacing:.02em;transform:scale(calc(.94 + var(--lvl)*.12));transition:transform .12s ease-out}
-.orb::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fff3d4 0%,var(--pc-sand) 34%,#8a6a35 70%,#120c03 100%);box-shadow:0 0 calc(30px + var(--lvl)*70px) rgba(219,183,126,.45),inset 0 -18px 40px rgba(0,0,0,.35)}
+.orb::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fff3d4 0%,var(--pc-sand) 34%,#8a6a35 70%,#120c03 100%);box-shadow:0 0 calc(30px + var(--lvl)*70px) rgba(239,203,140,.45),inset 0 -18px 40px rgba(0,0,0,.35)}
 .orb span{position:relative;z-index:1}
-.state{min-height:1.5em;margin:0 0 22px;color:#6b6b62;font-size:14px}
+.state{min-height:1.5em;margin:0 0 22px;color:#666b5b;font-size:14px}
 .log{display:flex;flex-direction:column;gap:8px;text-align:left;max-width:620px;margin:0 auto 18px;max-height:340px;overflow-y:auto;padding:2px}
 .log:empty{display:none}
 .msg{max-width:86%;padding:10px 14px;border-radius:18px;line-height:1.45;overflow-wrap:anywhere}
-.msg.ava{background:rgba(26,26,22,.05);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:6px}
+.msg.ava{background:rgba(44,56,34,.05);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:6px}
 .msg.you{background:var(--pc-ink);color:#f7f6f1;align-self:flex-end;border-bottom-right-radius:6px}
 .msg a{color:var(--gold-ink);font-weight:600;text-underline-offset:3px}
 #vanessa form{display:flex;gap:8px;align-items:center;max-width:620px;margin:0 auto 10px}
-#vanessa input{flex:1;min-width:0;background:rgba(26,26,22,.05);border:1px solid var(--line);color:inherit;font:inherit;border-radius:999px;padding:12px 18px;min-height:48px}
+#vanessa input{flex:1;min-width:0;background:rgba(44,56,34,.05);border:1px solid var(--line);color:inherit;font:inherit;border-radius:999px;padding:12px 18px;min-height:48px}
 #vanessa input:focus-visible{border-color:var(--gold-ink)}
 #vanessa .pill{height:44px;padding:0 8px 0 20px;border:0;font-family:inherit;font-size:14px;cursor:pointer}
 #vanessa .pill i{width:28px;height:28px}
 .pill[hidden]{display:none}
-.fine{margin:28px auto 0;max-width:54ch;color:#6b6b62;font-size:12.5px}
+.fine{margin:28px auto 0;max-width:54ch;color:#666b5b;font-size:12.5px}
 .fine a{color:inherit}
 .sr{position:absolute;left:-999px}
 @media (prefers-reduced-motion:reduce){.orb{transition:none;transform:none}}

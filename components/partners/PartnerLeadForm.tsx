@@ -63,7 +63,7 @@ export function PartnerLeadForm({ token }: { token: string }) {
         <textarea name="note" maxLength={300} rows={3} className={field} />
       </label>
       <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-3 text-xs leading-relaxed text-ice/60 has-[:checked]:border-gold/50">
-        <input name="permission" type="checkbox" className="mt-0.5 h-5 w-5 shrink-0 accent-[#c39b52]" />
+        <input name="permission" type="checkbox" className="mt-0.5 h-5 w-5 shrink-0 accent-[#c9a15e]" />
         <span>They expect to hear from Patient Creations, and they agreed to me sharing their details.</span>
       </label>
       {message && (

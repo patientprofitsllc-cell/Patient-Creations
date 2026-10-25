@@ -142,7 +142,7 @@ export function AdminWebsitePanel({
             {checklist.lines.map((l) => (
               <li key={l.id} className="flex items-start gap-3 text-sm">
                 {l.kind === "manual" ? (
-                  <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-[#c39b52]" checked={l.ok} disabled={busy} aria-label={l.text} onChange={(e) => void send({ action: "check", item: l.id, checked: e.target.checked }, e.target.checked ? "Ticked." : "Unticked.")} />
+                  <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-[#c9a15e]" checked={l.ok} disabled={busy} aria-label={l.text} onChange={(e) => void send({ action: "check", item: l.id, checked: e.target.checked }, e.target.checked ? "Ticked." : "Unticked.")} />
                 ) : (
                   <span aria-hidden="true" className={`mt-0.5 w-5 shrink-0 text-center ${l.ok ? "text-champagne" : l.required ? "text-red-300" : "text-ice/40"}`}>{l.ok ? "✓" : l.required ? "✗" : "!"}</span>
                 )}
@@ -206,7 +206,7 @@ export function AdminWebsitePanel({
             <div className="mt-3 space-y-2 rounded-lg bg-black/20 p-3">
               <input className={INPUT} placeholder="Why go back? (recorded)" value={reason} maxLength={300} onChange={(e) => setReason(e.target.value)} />
               <label className="flex items-center gap-2 text-xs text-ice/60">
-                <input type="checkbox" className="h-4 w-4 accent-[#c39b52]" checked={notify} onChange={(e) => setNotify(e.target.checked)} />
+                <input type="checkbox" className="h-4 w-4 accent-[#c9a15e]" checked={notify} onChange={(e) => setNotify(e.target.checked)} />
                 Tell the customer to look at the new preview
               </label>
               <button

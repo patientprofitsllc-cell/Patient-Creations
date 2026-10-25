@@ -96,7 +96,7 @@ export function Reimagined({ showConcepts }: { showConcepts: boolean }) {
     { n: "03", kind: "Local retail", kicker: "Local / original", title: <>Something<br /><i className="font-accent text-[1.15em]">worth</i><br />discovering.</>, chip: "Products & your story", foot: "Shops & local brands", href: "/examples/local-retail", c: "bg-pc-sage text-[#24301f]", line: "border-black/10" },
   ];
   return (
-    <section aria-labelledby="reimagined-title" className="bg-[#10110f] py-24">
+    <section aria-labelledby="reimagined-title" className="bg-pc-bg py-24">
       <div className="mx-auto max-w-6xl px-5 sm:px-6">
         <SectionHead id="reimagined-title" label="02 / Your business, reimagined" line1="A different business." line2="A different expression.">
           Explore the sample designs on our website. Design concepts, not customer results.

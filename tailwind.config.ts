@@ -6,30 +6,35 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        obsidian: "#100D0B",
-        charcoal: "#161210",
-        softblack: "#1C1612",
+        // Earthy colorway: deep forest backgrounds, cream text, leather brown and olive, and the logo's gold for accents.
+        obsidian: "#172015",
+        charcoal: "#1D2919",
+        softblack: "#24311F",
         gold: {
-          DEFAULT: "#E0C48A",
-          deep: "#C39B52",
+          DEFAULT: "#EFCB8C",
+          deep: "#C9A15E",
         },
-        ice: "#F4EFE7",
-        champagne: "#F2E6C9",
+        ice: "#F4EEE2",
+        champagne: "#F6E4B8",
         violet: "#8B7CFF",
-        // The homepage design: olive-charcoal, sand, cream, and the tan and sage concept cards.
+        leather: {
+          DEFAULT: "#7B4F33",
+          deep: "#5A3925",
+        },
+        olive: "#5F6F3F",
         pc: {
-          bg: "#141412",
-          panel: "#1D1F1A",
-          raised: "#25271F",
-          line: "#34362E",
-          sand: "#DBB77E",
-          "sand-deep": "#C9A266",
-          cream: "#ECEBE4",
-          mute: "#A3A39A",
-          tan: "#D6BA8E",
+          bg: "#172015",
+          panel: "#1F2B1B",
+          raised: "#283623",
+          line: "#364630",
+          sand: "#EFCB8C",
+          "sand-deep": "#C9A15E",
+          cream: "#F1ECE0",
+          mute: "#AEB09F",
+          tan: "#D9BF95",
           sage: "#B9C6A2",
-          forest: "#1D2826",
-          ink: "#1A1A16",
+          forest: "#2C3822",
+          ink: "#1B2216",
         },
       },
       fontFamily: {
@@ -39,13 +44,13 @@ const config: Config = {
       },
       backgroundImage: {
         "studio-radial":
-          "radial-gradient(circle at 50% 20%, rgba(224,196,138,0.10), transparent 60%)",
+          "radial-gradient(circle at 50% 20%, rgba(239,203,140,0.10), transparent 60%)",
         "glass-panel":
-          "linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015))",
+          "linear-gradient(135deg, rgba(123,79,51,0.20), rgba(255,255,255,0.015))",
       },
       boxShadow: {
-        "gold-glow": "0 0 40px rgba(224,196,138,0.25)",
-        "champagne-glow": "0 0 40px rgba(242,230,201,0.2)",
+        "gold-glow": "0 0 40px rgba(239,203,140,0.25)",
+        "champagne-glow": "0 0 40px rgba(246,228,184,0.2)",
       },
       keyframes: {
         drift: {

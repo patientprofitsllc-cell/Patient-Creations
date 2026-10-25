@@ -742,7 +742,7 @@ export function CheckoutForm({
             type="checkbox"
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
-            className="mt-0.5 h-5 w-5 shrink-0 accent-[#c39b52]"
+            className="mt-0.5 h-5 w-5 shrink-0 accent-[#c9a15e]"
           />
           <span>
             I have read and agree to the{" "}

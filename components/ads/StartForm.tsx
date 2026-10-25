@@ -89,7 +89,7 @@ export function StartForm({ planSlug, planName, priceLabel, signedIn }: { planSl
       )}
 
       <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-3 text-xs leading-relaxed text-ice/60 has-[:checked]:border-gold/50">
-        <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-[#c39b52]" />
+        <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-[#c9a15e]" />
         <span>
           I understand this plan <strong className="text-ice/80">renews automatically every month at {priceLabel}</strong> until I cancel, that I can cancel any time (effective at the end of the paid month, with no refund for the current month), that ads are made with AI and no sales or results are promised, and I agree to the{" "}
           <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-gold underline">

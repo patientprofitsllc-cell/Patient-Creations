@@ -136,7 +136,7 @@ export function AuditForm({ industries, feeLabel, creditDays }: { industries: st
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {AUDIT_GOALS.map((g, i) => (
             <label key={g.value} className="flex min-h-[48px] cursor-pointer items-center gap-3 rounded-xl border border-white/15 px-4 text-sm text-ice/80 has-[:checked]:border-gold has-[:checked]:bg-gold/10">
-              <input type="radio" name="goal" value={g.value} required defaultChecked={i === 1} className="accent-[#d4af6a]" />
+              <input type="radio" name="goal" value={g.value} required defaultChecked={i === 1} className="accent-[#c9a15e]" />
               {g.label}
             </label>
           ))}
@@ -148,7 +148,7 @@ export function AuditForm({ industries, feeLabel, creditDays }: { industries: st
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {AUDIT_CHANNELS.map((c) => (
             <label key={c} className="flex min-h-[48px] cursor-pointer items-center gap-3 rounded-xl border border-white/15 px-4 text-sm text-ice/80 has-[:checked]:border-gold has-[:checked]:bg-gold/10">
-              <input type="checkbox" name="channels" value={c} className="accent-[#d4af6a]" />
+              <input type="checkbox" name="channels" value={c} className="accent-[#c9a15e]" />
               {c}
             </label>
           ))}
@@ -164,7 +164,7 @@ export function AuditForm({ industries, feeLabel, creditDays }: { industries: st
       </div>
 
       <label className="flex cursor-pointer items-start gap-3 text-sm text-ice/60">
-        <input type="checkbox" name="consent" required className="mt-1 h-5 w-5 accent-[#d4af6a]" />
+        <input type="checkbox" name="consent" required className="mt-1 h-5 w-5 accent-[#c9a15e]" />
         <span>
           Prepare my audit and follow up about it. We look at your public homepage and what you tell us here, nothing else. See our{" "}
           <Link href="/privacy" className="text-gold underline">Privacy Policy</Link>. You can say &ldquo;no thanks&rdquo; at any time.

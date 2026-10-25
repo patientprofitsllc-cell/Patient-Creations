@@ -60,7 +60,7 @@ export function MoveTabs({ groups }: { groups: MoveGroup[] }) {
         {g.cards.map((c, i) => (
           <article
             key={c.slug}
-            className={`pc-swap flex flex-col rounded-2xl border p-6 sm:p-7 ${c.featured ? "border-pc-sand/70 bg-gradient-to-b from-pc-raised to-pc-panel shadow-[0_0_60px_-20px_rgba(219,183,126,0.45)]" : "border-white/10 bg-pc-panel"}`}
+            className={`pc-swap flex flex-col rounded-2xl border p-6 sm:p-7 ${c.featured ? "border-pc-sand/70 bg-gradient-to-b from-pc-raised to-pc-panel shadow-[0_0_60px_-20px_rgba(239,203,140,0.45)]" : "border-white/10 bg-pc-panel"}`}
             style={{ animationDelay: `${i * 90}ms` }}
           >
             {c.eyebrow && <p className="text-xs uppercase tracking-[0.2em] text-pc-sand">{c.eyebrow}</p>}

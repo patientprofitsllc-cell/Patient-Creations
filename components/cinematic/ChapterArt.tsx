@@ -1,5 +1,5 @@
-const GOLD = "#E0C48A";
-const DEEP = "#C39B52";
+const GOLD = "#efcb8c";
+const DEEP = "#c9a15e";
 
 export type ChapterArtType =
   | "rings"
@@ -22,7 +22,7 @@ export function ChapterArt({ type, className }: { type: ChapterArtType; classNam
   const defs = (
     <defs>
       <radialGradient id="halo" cx="50%" cy="42%" r="60%">
-        <stop offset="0" stopColor="rgba(224,196,138,.16)" />
+        <stop offset="0" stopColor="rgba(239,203,140,.16)" />
         <stop offset="1" stopColor="transparent" />
       </radialGradient>
       <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
@@ -63,7 +63,7 @@ export function ChapterArt({ type, className }: { type: ChapterArtType; classNam
                 {...g}
                 strokeWidth={on ? 1.4 : 0.7}
                 opacity={on ? 1 : 0.5}
-                fill={on ? "rgba(224,196,138,.06)" : "none"}
+                fill={on ? "rgba(239,203,140,.06)" : "none"}
               />
             );
           }),
@@ -96,7 +96,7 @@ export function ChapterArt({ type, className }: { type: ChapterArtType; classNam
             const y = 200 + Math.sin(a) * 150;
             return <path key={i} d={`M200 200 L${x.toFixed(0)} ${y.toFixed(0)}`} {...g} strokeWidth={0.9} opacity={0.5} />;
           })}
-          <circle cx={200} cy={200} r={26} {...g} strokeWidth={1.4} fill="rgba(224,196,138,.06)" />
+          <circle cx={200} cy={200} r={26} {...g} strokeWidth={1.4} fill="rgba(239,203,140,.06)" />
         </>
       )}
       {type === "wave" &&
@@ -124,7 +124,7 @@ export function ChapterArt({ type, className }: { type: ChapterArtType; classNam
                 rx={6}
                 {...g}
                 strokeWidth={1.2}
-                fill={i === 4 ? "rgba(224,196,138,.08)" : "none"}
+                fill={i === 4 ? "rgba(239,203,140,.08)" : "none"}
               />
             );
           })}

@@ -322,7 +322,7 @@ export function IntakeWizard({
               <textarea className={INPUT} rows={3} value={values.goalNotes} maxLength={800} onChange={(e) => set("goalNotes", e.target.value)} />
             </Field>
             <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-3 text-xs leading-relaxed text-ice/60 has-[:checked]:border-gold/50">
-              <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-[#c39b52]" />
+              <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-[#c9a15e]" />
               <span>
                 I confirm that the information and materials I've given are accurate, that I own them or have permission to use them, and that my website will be built from what I've provided. I'll review the preview before it goes live. See the{" "}
                 <a href="/terms#your-content" target="_blank" rel="noopener noreferrer" className="text-gold underline">Terms of Service</a>.

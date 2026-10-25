@@ -88,7 +88,7 @@ export function AgentNetworkCanvas({ className }: { className?: string }) {
 
         // edges
         ctx!.save();
-        ctx!.strokeStyle = "rgba(224,196,138,0.18)";
+        ctx!.strokeStyle = "rgba(239,203,140,0.18)";
         ctx!.lineWidth = 1;
         for (const node of nodePositions) {
           ctx!.beginPath();
@@ -109,15 +109,15 @@ export function AgentNetworkCanvas({ className }: { className?: string }) {
           ctx!.save();
           ctx!.beginPath();
           if (profile.lowPower) {
-            ctx!.fillStyle = "rgba(224,196,138,0.25)";
+            ctx!.fillStyle = "rgba(239,203,140,0.25)";
             ctx!.arc(x, y, 5, 0, Math.PI * 2);
             ctx!.fill();
             ctx!.beginPath();
           } else {
-            ctx!.shadowColor = "rgba(224,196,138,0.9)";
+            ctx!.shadowColor = "rgba(239,203,140,0.9)";
             ctx!.shadowBlur = 8;
           }
-          ctx!.fillStyle = "rgba(224,196,138,0.9)";
+          ctx!.fillStyle = "rgba(239,203,140,0.9)";
           ctx!.arc(x, y, 2.2, 0, Math.PI * 2);
           ctx!.fill();
           ctx!.restore();
@@ -126,8 +126,8 @@ export function AgentNetworkCanvas({ className }: { className?: string }) {
         // orchestrator core
         ctx!.save();
         const grad = ctx!.createRadialGradient(cx, cy, 0, cx, cy, 34);
-        grad.addColorStop(0, "rgba(242,230,201,0.9)");
-        grad.addColorStop(1, "rgba(242,230,201,0)");
+        grad.addColorStop(0, "rgba(246,228,184,0.9)");
+        grad.addColorStop(1, "rgba(246,228,184,0)");
         ctx!.fillStyle = grad;
         ctx!.beginPath();
         ctx!.arc(cx, cy, 34, 0, Math.PI * 2);
@@ -140,15 +140,15 @@ export function AgentNetworkCanvas({ className }: { className?: string }) {
         ctx!.textAlign = "center";
         nodePositions.forEach((node, i) => {
           ctx!.beginPath();
-          ctx!.fillStyle = "rgba(224,196,138,0.85)";
+          ctx!.fillStyle = "rgba(239,203,140,0.85)";
           if (!profile.lowPower) {
-            ctx!.shadowColor = "rgba(224,196,138,0.6)";
+            ctx!.shadowColor = "rgba(239,203,140,0.6)";
             ctx!.shadowBlur = 6;
           }
           ctx!.arc(node.x, node.y, 5, 0, Math.PI * 2);
           ctx!.fill();
           ctx!.shadowBlur = 0;
-          ctx!.fillStyle = "rgba(244,239,231,0.75)";
+          ctx!.fillStyle = "rgba(244,238,226,0.75)";
           ctx!.fillText(NODE_LABELS[i], node.x, node.y + (node.y > height / 2 ? 20 : -12));
         });
         ctx!.restore();
