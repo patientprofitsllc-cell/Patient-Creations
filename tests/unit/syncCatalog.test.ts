@@ -1,13 +1,34 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { spawnSync } from "child_process";
 
 const read = (f: string) => readFileSync(join(process.cwd(), f), "utf8");
 
 describe("the deploy-time catalog sync", () => {
   it("runs before every build, and a failure to run never stops the build", () => {
     const pkg = JSON.parse(read("package.json"));
-    expect(pkg.scripts.build).toMatch(/^\(tsx scripts\/sync-catalog\.ts \|\| echo .*\) && next build$/);
+    expect(pkg.scripts.build).toBe("(tsx scripts/sync-catalog.ts || node scripts/catalog-sync-fallback.cjs) && next build");
+  });
+
+  it("the fallback keeps the build going by default and stops it only when CATALOG_SYNC_STRICT=1", () => {
+    const run = (env: Record<string, string>) =>
+      spawnSync(process.execPath, [join(process.cwd(), "scripts/catalog-sync-fallback.cjs")], { env: { ...process.env, CATALOG_SYNC_STRICT: "", ...env }, encoding: "utf8" });
+    const lenient = run({});
+    expect(lenient.status).toBe(0);
+    expect(lenient.stdout).toContain("sync-catalog: could not run");
+    expect(run({ CATALOG_SYNC_STRICT: "0" }).status).toBe(0);
+    const strict = run({ CATALOG_SYNC_STRICT: "1" });
+    expect(strict.status).toBe(1);
+    expect(strict.stdout).toContain("failing the build");
+  });
+
+  it("a database failure only fails the sync step in strict mode, and a crash is never an unhandled rejection", () => {
+    const script = read("scripts/sync-catalog.ts");
+    expect(script).toMatch(/CATALOG_SYNC_STRICT === "1"\) process\.exitCode = 1/);
+    expect(script).toMatch(/db = new PrismaClient\(\);/); // constructed inside the try, so its errors are caught
+    expect(script).toMatch(/run\(\)\.catch\(/);
+    expect(script).not.toMatch(/void run\(\)/);
   });
 
   it("only touches products and their tiers: never users, orders, or inventory", () => {

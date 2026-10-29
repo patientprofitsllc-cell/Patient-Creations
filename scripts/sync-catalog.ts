@@ -18,15 +18,22 @@ async function run() {
     console.log("sync-catalog: no Postgres DATABASE_URL at build time, skipped");
     return;
   }
-  const db = new PrismaClient();
+  let db: PrismaClient | undefined;
   try {
+    db = new PrismaClient();
     await syncCatalog(db);
     console.log("sync-catalog: product and add-on prices are up to date");
   } catch (e) {
     console.warn("sync-catalog: skipped, could not update the database:", e instanceof Error ? e.message : e);
+    // Non-zero exit hands over to scripts/catalog-sync-fallback.cjs, which keeps the build going unless
+    // CATALOG_SYNC_STRICT=1. Without the flag the build behaves exactly as before.
+    if (process.env.CATALOG_SYNC_STRICT === "1") process.exitCode = 1;
   } finally {
-    await db.$disconnect();
+    await db?.$disconnect();
   }
 }
 
-void run();
+run().catch((e) => {
+  console.warn("sync-catalog: crashed:", e instanceof Error ? e.message : e);
+  process.exitCode = 1;
+});
