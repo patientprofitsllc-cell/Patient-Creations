@@ -1,4 +1,5 @@
 import { PRICE_CENTS, usd } from "@/lib/pricing/catalog";
+import { PAUSED_HREF, isPaused } from "@/lib/pricing/paused";
 
 // The three questions a new visitor can answer in one tap, and the few things that fit each answer. Fifteen
 // services is too many to read; three choices is not. Prices come from the price list.
@@ -24,6 +25,9 @@ export const NEEDS: readonly NeedChoice[] = [
   { id: "automate", label: "I want to automate my business", blurb: "Hand the repeat work to software." },
 ];
 
+/** A paused build still shows, so visitors know it exists, but sends them to book a call instead of checkout. */
+const pausable = (s: Suggestion, slug: string): Suggestion => (isPaused(slug) ? { ...s, price: "Paused · join the list", href: PAUSED_HREF } : s);
+
 export const SUGGESTIONS: Record<NeedId, Suggestion[]> = {
   website: [
     { title: "Website Special", why: "One page with your services, contact details, and a call button, built from your own words, with 3 months of maintenance included.", price: usd(PRICE_CENTS["website-special"]), href: "/checkout?product=website-special" },
@@ -37,8 +41,8 @@ export const SUGGESTIONS: Record<NeedId, Suggestion[]> = {
   ],
   automate: [
     { title: "Strategy Session", why: "Start with a live call, so we scope the right thing before you commit to a build.", price: usd(PRICE_CENTS["strategy-session"]), href: "/checkout?product=strategy-session" },
-    { title: "Multi Agent System", why: "A team of AI helpers that work together on the repeat tasks in your business.", price: `from ${usd(PRICE_CENTS.agents)}`, href: "/checkout?product=agents" },
-    { title: "AI Software", why: "Your idea turned into a working app, scoped on a call first.", price: `from ${usd(PRICE_CENTS.saas)}`, href: "/checkout?product=saas" },
+    pausable({ title: "Multi Agent System", why: "A team of AI helpers that work together on the repeat tasks in your business.", price: `from ${usd(PRICE_CENTS.agents)}`, href: "/checkout?product=agents" }, "agents"),
+    pausable({ title: "AI Software", why: "Your idea turned into a working app, scoped on a call first.", price: `from ${usd(PRICE_CENTS.saas)}`, href: "/checkout?product=saas" }, "saas"),
   ],
 };
 

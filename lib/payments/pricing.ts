@@ -1,6 +1,7 @@
 import { addOnAvailable } from "@/lib/site/addOnPitch";
 import { OFFER_PERCENT, RECOVERY_COUPON } from "@/lib/funnel/cartRecovery";
 import { db } from "@/lib/db";
+import { isPaused } from "@/lib/pricing/paused";
 import { isAuditCreditCode, resolveAuditCredit } from "@/lib/audit/paid";
 import { isReviewRewardCode, resolveReviewReward } from "@/lib/reviews/reward";
 import { computeRushFeeCents, DeliverySpeedKey, DELIVERY_SPEEDS, getApplicableSpeeds } from "@/lib/payments/deliverySpeed";
@@ -61,6 +62,9 @@ export async function priceOrder(
   }
 
   const products = await db.product.findMany({ where: { id: { in: productIds }, active: true } });
+  // Checked here too, not only through `active`, so a paused build cannot be bought even if the catalog sync failed.
+  const paused = products.find((p) => isPaused(p.slug));
+  if (paused) throw new Error(`${paused.name} is not taking new orders right now. Book a free call to get on the list.`);
   if (products.length !== new Set(productIds).size) {
     throw new Error("One or more selected products are invalid or inactive");
   }
