@@ -53,7 +53,7 @@ vi.mock("@/lib/workflows/stateMachine", () => ({ transitionProject: async (_id: 
 vi.mock("@/lib/projects/statusToken", () => ({ statusUrlFor: (t: string) => `https://site.test/status/${t}`, generateStatusToken: () => "tok" }));
 vi.mock("@/lib/site/build/qa", () => ({ runSiteQa: () => ({ passed: S.qa.passed, checks: [], errors: S.qa.errors, warnings: [...S.qa.warnings] }) }));
 
-import { launchWebsite, loadLaunchChecklist, setChecklistItem } from "@/lib/site/build/actions";
+import { autoLaunchIfReady, launchWebsite, loadLaunchChecklist, setChecklistItem } from "@/lib/site/build/actions";
 import { rollbackWebsite } from "@/lib/site/build/rollback";
 import { MANUAL_ITEMS, buildChecklist, isManualItem, missingSummary, type ChecklistFacts } from "@/lib/site/build/checklist";
 
@@ -273,5 +273,61 @@ describe("the launch gate", () => {
     S.builds.at(-1)!.status = "APPROVED";
     const r = await launchWebsite("p1", "https://joescuts.example");
     expect(r).toMatchObject({ ok: false, status: 409 });
+  });
+});
+
+describe("hosted sites launch themselves once the human checks are done", () => {
+  const on = () => vi.stubEnv("HOSTED_SITES_ENABLED", "true");
+  const tick = (id: string) => setChecklistItem("p1", id, true);
+  beforeEach(() => {
+    vi.unstubAllEnvs();
+    S.project!.order.websiteIntake.phone = "(706) 555-0142";
+    S.builds[2].html = '<a href="tel:7065550142">(706) 555-0142</a>';
+  });
+
+  it("does nothing while hosting is off: the owner launches by hand as before", async () => {
+    for (const m of MANUAL_ITEMS) await tick(m.id);
+    expect(await autoLaunchIfReady("p1")).toBe("off");
+    expect(S.builds[2].status).toBe("APPROVED");
+  });
+
+  it("with hosting on, the system confirms the live address and the phone link itself", async () => {
+    on();
+    const c = (await loadLaunchChecklist("p1"))!;
+    expect(c.lines.find((l) => l.id === "live-opens")).toMatchObject({ kind: "auto", ok: true });
+    expect(c.lines.find((l) => l.id === "phone-call")).toMatchObject({ kind: "auto", ok: true });
+    expect(c.missing.map((l) => l.id).sort()).toEqual(["facts", "phone-layout"]);
+  });
+
+  it("goes live at our hosted address the moment the last human check is ticked, exactly once", async () => {
+    on();
+    expect(await tick("phone-layout")).toEqual({ ok: true });
+    expect(S.builds[2].status).toBe("APPROVED");
+    expect(await tick("facts")).toEqual({ ok: true, detail: "launched" });
+    expect(S.builds[2]).toMatchObject({ status: "LIVE", liveUrl: "https://patientcreations.com/sites/joes-cuts-site-p1" });
+    expect(await autoLaunchIfReady("p1")).toBe("not_ready");
+    expect(S.emails.filter((e) => e.template === "website_live")).toHaveLength(1);
+    expect(S.events.some((e) => e.event === "website.launched_without_checklist")).toBe(false);
+  });
+
+  it("keeps the phone check human when the page's number does not match the intake", async () => {
+    on();
+    S.builds[2].html = '<a href="tel:7065559999">(706) 555-9999</a>';
+    await tick("phone-layout");
+    await tick("facts");
+    expect(S.builds[2].status).toBe("APPROVED");
+    expect((await loadLaunchChecklist("p1"))!.missing.map((l) => l.id)).toEqual(["phone-call"]);
+  });
+
+  it("never launches past the system's own checks: an unpaid balance or an open change request", async () => {
+    on();
+    S.project!.order.balanceDueCents = 150_000;
+    await tick("phone-layout");
+    await tick("facts");
+    expect(S.builds[2].status).toBe("APPROVED");
+    S.project!.order.balanceDueCents = 0;
+    S.revisions.push({ status: "REQUESTED" });
+    expect(await autoLaunchIfReady("p1")).toBe("not_ready");
+    expect(S.builds[2].status).toBe("APPROVED");
   });
 });
