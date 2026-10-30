@@ -26,6 +26,17 @@ export interface ChecklistFacts {
   openRevision: boolean;
   /** The manual items the owner has ticked for this exact version. */
   ticked: string[];
+  /** We host the site ourselves (HOSTED_SITES_ENABLED): the live address serves exactly the approved version. */
+  hostedByUs?: boolean;
+  /** The page's call link dials the number from the intake, checked by the system. */
+  phoneLinkVerified?: boolean;
+}
+
+/** Manual lines the system can confirm for itself in some setups; ticking them by hand still works. */
+function autoConfirmed(id: string, f: ChecklistFacts): string | null {
+  if (id === "live-opens" && f.hostedByUs) return "Hosted by Patient Creations: the live address serves exactly this approved version";
+  if (id === "phone-call" && f.phoneLinkVerified) return "The phone link dials the number the customer gave us (checked by the system)";
+  return null;
 }
 
 export interface ChecklistLine {
@@ -52,7 +63,10 @@ export function buildChecklist(f: ChecklistFacts): Checklist {
     { id: "fidelity", text: "Everything the customer told us is on the page", kind: "auto", required: false, ok: f.missingFromPage.length === 0, detail: f.missingFromPage.length ? `Missing: ${f.missingFromPage.join(", ")}` : undefined },
     { id: "intake", text: "The customer finished their intake", kind: "auto", required: true, ok: f.intakeComplete },
     { id: "paid", text: "The order is paid in full", kind: "auto", required: true, ok: f.orderStatus === "PAID" && f.balanceDueCents <= 0, detail: f.balanceDueCents > 0 ? "The final payment has not been received." : f.orderStatus !== "PAID" ? "The order is not marked paid." : undefined },
-    ...MANUAL_ITEMS.map((m): ChecklistLine => ({ id: m.id, text: m.text, kind: "manual", required: true, ok: f.ticked.includes(m.id) })),
+    ...MANUAL_ITEMS.map((m): ChecklistLine => {
+      const auto = autoConfirmed(m.id, f);
+      return auto ? { id: m.id, text: auto, kind: "auto", required: true, ok: true } : { id: m.id, text: m.text, kind: "manual", required: true, ok: f.ticked.includes(m.id) };
+    }),
   ];
   const missing = lines.filter((l) => l.required && !l.ok);
   return { lines, missing, ready: missing.length === 0 };

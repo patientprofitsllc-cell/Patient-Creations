@@ -7,6 +7,7 @@ import { sendEmail } from "@/lib/email/provider";
 import { usd } from "@/lib/pricing/catalog";
 import { CONTACT_EMAIL } from "@/lib/config/site";
 import { finalizeDelivery } from "@/lib/agents/orchestrator";
+import { autoLaunchIfReady } from "@/lib/site/build/actions";
 import { baseUrl, invoiceNumber, invoiceUrl, issueBalanceInvoice } from "@/lib/payments/invoiceCore";
 import { statusUrlFor } from "@/lib/projects/statusToken";
 import { createWithBnplFallback } from "@/lib/payments/bnpl";
@@ -89,6 +90,13 @@ export async function markInvoicePaid(invoiceId: string, via: Via, ref?: string,
       released = await releaseHeldDelivery(inv.orderId);
     } catch (err) {
       console.error("releasing delivery after balance payment failed", err);
+    }
+    try {
+      // A hosted website waiting only on this payment goes live now (no-op when hosting is off or the checklist is not done).
+      const waiting = await db.project.findUnique({ where: { orderId: inv.orderId }, select: { id: true } });
+      if (waiting) await autoLaunchIfReady(waiting.id);
+    } catch (err) {
+      console.error("auto-launch after balance payment failed", err);
     }
   }
 

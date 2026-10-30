@@ -12,6 +12,7 @@ import { renderHtml } from "@/lib/site/build/renderHtml";
 import { latestBuild, previewUrlFor, saveBuild } from "@/lib/site/build/store";
 import { transitionProject } from "@/lib/workflows/stateMachine";
 import { buildChecklist, isManualItem, missingSummary, type Checklist } from "@/lib/site/build/checklist";
+import { hostedSitesEnabled, hostedUrlFor, phoneLinkMatches } from "@/lib/site/build/hosting";
 import type { QaResult } from "@/lib/site/build/qa";
 
 export type ActionResult = { ok: true; detail?: string } | { ok: false; status: number; error: string };
@@ -119,7 +120,26 @@ export async function loadLaunchChecklist(projectId: string): Promise<Checklist 
     intakeComplete: project.order.websiteIntake?.status === "COMPLETE",
     openRevision: open > 0,
     ticked: ticks.map((t) => t.itemId),
+    hostedByUs: hostedSitesEnabled(),
+    phoneLinkVerified: phoneLinkMatches(build.html, project.order.websiteIntake?.phone),
   });
+}
+
+/**
+ * With hosting on, launches an approved site the moment its checklist is complete, at our hosted address. Called after
+ * the customer approves, after each checklist tick, and after the final payment, so whichever happens last launches it.
+ * Never skips the checklist. Returns what happened, for the log.
+ */
+export async function autoLaunchIfReady(projectId: string): Promise<"launched" | "not_ready" | "off"> {
+  if (!hostedSitesEnabled()) return "off";
+  const build = await latestBuild(projectId);
+  if (!build || build.status !== "APPROVED") return "not_ready";
+  const checklist = await loadLaunchChecklist(projectId);
+  if (!checklist?.ready) return "not_ready";
+  const project = await db.project.findUnique({ where: { id: projectId }, select: { id: true, name: true } });
+  if (!project) return "not_ready";
+  const result = await launchWebsite(projectId, hostedUrlFor(project));
+  return result.ok ? "launched" : "not_ready";
 }
 
 /** Ticks or unticks a manual checklist item for the newest version. Only manual items can be ticked by hand. */
@@ -131,5 +151,6 @@ export async function setChecklistItem(projectId: string, itemId: string, checke
   if (checked) await db.projectChecklistItem.upsert({ where: { projectId_version_itemId: { projectId, version: build.version, itemId } }, create: { projectId, version: build.version, itemId }, update: {} });
   else await db.projectChecklistItem.deleteMany({ where: { projectId, version: build.version, itemId } });
   await logEvent("website.checklist", "Project", projectId, { version: build.version, itemId, checked });
+  if (checked && (await autoLaunchIfReady(projectId)) === "launched") return { ok: true, detail: "launched" };
   return { ok: true };
 }

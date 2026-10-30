@@ -4,6 +4,7 @@ import { logEvent } from "@/lib/analytics/events";
 import { trackFunnel } from "@/lib/analytics/funnel";
 import { postAgentUpdate } from "@/lib/agents/relay";
 import { NO_STORE, guardPreview } from "@/lib/site/build/preview";
+import { autoLaunchIfReady } from "@/lib/site/build/actions";
 
 // The customer approves their website. The status flip is an atomic claim, so a
 // double click or a second tab can't approve (or notify the team) twice.
@@ -29,7 +30,8 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
     "Coordinator Agent",
     "You approved your website. It goes live next, and I'll post here as soon as it's launched.",
   );
-  // Launching is a manual step for now, so the team is told the moment it's needed.
+  // With hosting on, a site whose checklist is already complete goes live now; otherwise the team is told it's needed.
+  if ((await autoLaunchIfReady(project.id)) === "launched") return NextResponse.json({ ok: true, launched: true }, { headers: NO_STORE });
   await db.notification.create({
     data: {
       audience: "admin",
