@@ -6,7 +6,6 @@ import { getStripe, isStripeConfigured } from "@/lib/payments/stripe";
 import { sendEmail } from "@/lib/email/provider";
 import { usd } from "@/lib/pricing/catalog";
 import { CONTACT_EMAIL } from "@/lib/config/site";
-import { finalizeDelivery } from "@/lib/agents/orchestrator";
 import { baseUrl, invoiceNumber, invoiceUrl, issueBalanceInvoice } from "@/lib/payments/invoiceCore";
 import { statusUrlFor } from "@/lib/projects/statusToken";
 import { createWithBnplFallback } from "@/lib/payments/bnpl";
@@ -83,21 +82,15 @@ export async function markInvoicePaid(invoiceId: string, via: Via, ref?: string,
   const after = await db.order.findUniqueOrThrow({ where: { id: inv.orderId }, select: { balanceDueCents: true } });
   const settled = inv.kind === "BALANCE" && after.balanceDueCents === 0;
 
-  let released: ReleaseResult = "not_held";
-  if (settled) {
-    try {
-      released = await releaseHeldDelivery(inv.orderId);
-    } catch (err) {
-      console.error("releasing delivery after balance payment failed", err);
-    }
-  }
+  // Paying the balance never delivers anything by itself: a person launches a website or delivers a build (see
+  // deliverProject in lib/agents/orchestrator.ts). The owner is told below when a paid build is waiting.
 
   try {
     await sendEmail(inv.order.customer.user.email, "invoice_paid", {
       number,
       amount: usd(inv.amountCents),
       description: inv.description,
-      released: released === "released",
+      released: false,
       settled,
     });
   } catch (err) {
@@ -106,30 +99,15 @@ export async function markInvoicePaid(invoiceId: string, via: Via, ref?: string,
   try {
     const project = await db.project.findUnique({ where: { orderId: inv.orderId }, select: { id: true, name: true, state: true } });
     const launchNote =
-      settled && released !== "released" && project?.state === "DELIVERY_READY" ? "\n\nThis build is ready and fully paid: you can launch it now." : "";
+      settled && project?.state === "DELIVERY_READY" ? "\n\nThis build is ready and fully paid: you can launch or deliver it now." : "";
     await sendEmail(process.env.OWNER_ALERT_EMAIL?.trim() || CONTACT_EMAIL, "owner_new_order", {
       subject: `PAID invoice ${number}: ${usd(inv.amountCents)}`,
-      body: `Invoice ${number} was paid (${via.toLowerCase()}).\n\n${inv.description}\nAmount: ${usd(inv.amountCents)}\nCustomer: ${inv.order.customer.user.email}${settled ? `\n\nThe order is now paid in full.${released === "released" ? " Held delivery was released automatically." : ""}` : ""}${launchNote}\n\n${baseUrl()}/admin/invoices`,
+      body: `Invoice ${number} was paid (${via.toLowerCase()}).\n\n${inv.description}\nAmount: ${usd(inv.amountCents)}\nCustomer: ${inv.order.customer.user.email}${settled ? `\n\nThe order is now paid in full.` : ""}${launchNote}\n\n${baseUrl()}/admin/invoices`,
     });
   } catch (err) {
     console.error("invoice owner alert failed", err);
   }
   return { firstTime: true };
-}
-
-export type ReleaseResult = "released" | "not_held";
-
-/**
- * After the balance is paid: if delivery was held for it, finish the delivery now. A website build is different. The
- * owner launches it, so it was never held; the owner is told it is fully paid instead.
- */
-export async function releaseHeldDelivery(orderId: string): Promise<ReleaseResult> {
-  const project = await db.project.findUnique({ where: { orderId } });
-  if (!project || project.state !== "DELIVERY_READY") return "not_held";
-  const held = await db.auditLog.findFirst({ where: { event: "project.delivery_held", entityId: project.id } });
-  if (!held) return "not_held";
-  await finalizeDelivery(project.id);
-  return "released";
 }
 
 /** The customer came back from Stripe. Ask Stripe whether this invoice was paid, and record it. */

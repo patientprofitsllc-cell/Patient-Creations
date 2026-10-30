@@ -32,6 +32,7 @@ const ROUTES: Record<string, { kind: Kind; why?: string }> = {
   "admin/partners/[id]": { kind: "admin" },
   "admin/partners/[id]/pay": { kind: "admin" },
   "admin/product-costs": { kind: "admin" },
+  "admin/projects/[id]/deliver": { kind: "admin" },
   "admin/projects/[id]/messages": { kind: "admin" },
   "admin/projects/[id]/updates": { kind: "admin" },
   "admin/projects/[id]/website": { kind: "admin" },
