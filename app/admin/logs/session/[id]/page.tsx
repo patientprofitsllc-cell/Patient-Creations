@@ -7,6 +7,8 @@ import { statusUrlFor } from "@/lib/projects/statusToken";
 import { ProjectUpdateForm } from "@/components/admin/ProjectUpdateForm";
 import { AdminMessageReply } from "@/components/admin/AdminMessageReply";
 import { AdminWebsitePanel } from "@/components/admin/AdminWebsitePanel";
+import { AdminDeliverPanel } from "@/components/admin/AdminDeliverPanel";
+import { usd } from "@/lib/pricing/catalog";
 import { loadLaunchChecklist } from "@/lib/site/build/actions";
 import { previewUrlFor } from "@/lib/site/build/store";
 import type { QaResult } from "@/lib/site/build/qa";
@@ -16,6 +18,7 @@ export default async function SessionDetailPage({ params }: { params: { id: stri
     where: { id: params.id },
     include: {
       customer: { include: { user: true } },
+      order: { select: { balanceDueCents: true } },
       agentRuns: { include: { agent: true }, orderBy: { startedAt: "asc" } },
       tasks: true,
       qaReports: { orderBy: { createdAt: "asc" } },
@@ -67,6 +70,13 @@ export default async function SessionDetailPage({ params }: { params: { id: stri
             versions={project.websiteBuilds.map((b) => ({ version: b.version, status: b.status, note: b.note, created: b.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric" }) }))}
             checklist={checklist ? { ready: checklist.ready, lines: checklist.lines } : null}
           />
+        </section>
+      )}
+
+      {!build && project.state === "DELIVERY_READY" && (
+        <section>
+          <h3 className="mb-4 text-ice/70">Deliver</h3>
+          <AdminDeliverPanel projectId={project.id} balanceDue={project.order.balanceDueCents > 0 ? usd(project.order.balanceDueCents) : null} />
         </section>
       )}
 

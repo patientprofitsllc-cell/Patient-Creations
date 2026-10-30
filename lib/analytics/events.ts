@@ -18,6 +18,7 @@ export type StudioEvent =
   | "qa.passed"
   | "project.delivery_ready"
   | "project.delivery_held"
+  | "project.fulfillment_requested"
   | "project.balance_requested"
   | "invoice.paid"
   | "invoice.issued"

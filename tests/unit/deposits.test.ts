@@ -279,15 +279,18 @@ describe("holding delivery until the balance is paid", () => {
     expect(store.emails).toHaveLength(0);
   });
 
-  it("releases the delivery exactly once when the balance is paid", async () => {
+  it("never delivers anything by itself when the balance is paid: the owner is told the paid build is waiting", async () => {
     depositOrder();
     await holdDeliveryForBalance("p1", "hold");
     const inv = store.invoices[0];
     await markInvoicePaid(inv.id, "STRIPE", "cs_test_1");
     await markInvoicePaid(inv.id, "STRIPE", "cs_test_1");
-    expect(store.finalized).toEqual(["p1"]);
+    expect(store.finalized).toHaveLength(0);
     const receipt = store.emails.find((e) => e.template === "invoice_paid")!;
-    expect(receipt.payload.released).toBe(true);
+    expect(receipt.payload.released).toBe(false);
+    const owner = store.emails.find((e) => e.template === "owner_new_order")!;
+    expect(owner.payload.body).toMatch(/ready and fully paid: you can launch or deliver it now/);
+    expect(owner.payload.body).not.toMatch(/released automatically/);
   });
 
   it("does not release a website build automatically: the owner launches it, and is told it is paid", async () => {
@@ -299,7 +302,7 @@ describe("holding delivery until the balance is paid", () => {
     await markInvoicePaid(store.invoices[0].id, "STRIPE", "cs_test_1");
     expect(store.finalized).toHaveLength(0);
     const owner = store.emails.find((e) => e.template === "owner_new_order")!;
-    expect(owner.payload.body).toMatch(/launch it now/i);
+    expect(owner.payload.body).toMatch(/launch or deliver it now/i);
   });
 
   it("does not release anything if the project is not waiting", async () => {

@@ -28,7 +28,8 @@ import { masterEditorAgent } from "@/lib/agents/masterEditor";
 import { sendEmail } from "@/lib/email/provider";
 import { notifyAdmin } from "@/lib/security/notify";
 import { generateStatusToken, statusUrlFor } from "@/lib/projects/statusToken";
-import { announce } from "@/lib/agents/relay";
+import { announce, postAgentUpdate } from "@/lib/agents/relay";
+import { safeUrl } from "@/lib/site/build/config";
 import { holdDeliveryForBalance } from "@/lib/payments/balanceGate";
 import { intakeUrlFor } from "@/lib/intake/url";
 
@@ -277,9 +278,11 @@ async function runPipeline(projectId: string) {
       await transitionProject(projectId, "DELIVERY_READY");
       await markTask(projectId, "DELIVERY_READY", "PASSED");
       await logEvent("project.delivery_ready", "Project", projectId);
-      // A deposit order's final files are released only once the balance is paid; paying it finishes the delivery.
-      if (await holdDeliveryForBalance(projectId, "hold")) return;
-      return finalizeDelivery(projectId);
+      // The agents above write plans and briefs, not a working AI system or app, so nothing here may tell the customer
+      // it is delivered. Ask for any balance now (nothing is released automatically) and hand the build to the team,
+      // who deliver it with deliverProject once the real thing exists.
+      await holdDeliveryForBalance(projectId, "notify");
+      return requestHumanFulfillment(projectId);
     }
 
     await db.project.update({ where: { id: projectId }, data: { retryCount: { increment: 1 } } });
@@ -291,20 +294,64 @@ async function runPipeline(projectId: string) {
   return escalateToException(projectId, `Exceeded MAX_RETRIES (${MAX_RETRIES}) resolving QA/Perception`);
 }
 
-export async function finalizeDelivery(projectId: string) {
+/**
+ * The plan is approved; a person now builds and hands over the real thing. Tells the team (admin notification) and the
+ * customer (honestly: planning is done, the build is with the team). The project waits in DELIVERY_READY. Safe to call
+ * twice: the second call does nothing.
+ */
+export async function requestHumanFulfillment(projectId: string) {
+  const already = await db.auditLog.findFirst({ where: { event: "project.fulfillment_requested", entityId: projectId } });
+  if (already) return;
+  const project = await db.project.findUniqueOrThrow({ where: { id: projectId }, select: { name: true } });
+  await logEvent("project.fulfillment_requested", "Project", projectId);
+  await db.notification.create({
+    data: {
+      audience: "admin",
+      title: "Build plan approved: ready for the team to build and deliver",
+      body: `${project.name}: the agents' plan passed QA. Build it, then use Deliver on the session page with the delivery link.`,
+    },
+  });
+  await postAgentUpdate(
+    projectId,
+    "Coordinator Agent",
+    "Your project plan is complete and approved. Our team is now building and testing it, and we'll post here when it's ready for you. Nothing is marked delivered until you can use it.",
+  );
+}
+
+export type DeliverResult = { ok: true; detail?: string } | { ok: false; status: number; error: string };
+
+/** A person delivers a finished non-website build. Needs the real delivery link, a project waiting for it, and no balance owed. */
+export async function deliverProject(projectId: string, deliveryUrl: string, notes: string): Promise<DeliverResult> {
+  const project = await db.project.findUnique({ where: { id: projectId }, include: { order: true, websiteBuilds: { select: { id: true }, take: 1 } } });
+  if (!project) return { ok: false, status: 404, error: "Project not found" };
+  if (project.websiteBuilds.length) return { ok: false, status: 409, error: "Website projects are delivered with Launch on the website panel." };
+  if (project.state === "COMPLETED" || project.state === "DELIVERED" || project.state === "REVIEW_REQUESTED") return { ok: true, detail: "already delivered" };
+  if (project.state !== "DELIVERY_READY") return { ok: false, status: 409, error: `The project is in ${project.state}, not ready to deliver.` };
+  if (project.order.balanceDueCents > 0) return { ok: false, status: 402, error: "The final payment has not been received yet. Deliver after it is paid." };
+  const url = safeUrl(deliveryUrl);
+  if (!url) return { ok: false, status: 400, error: "Enter the delivery link, like https://drive.example.com/handover" };
+  // Atomic claim: a double click or a second tab cannot deliver (and email the customer) twice.
+  const claim = await db.project.updateMany({ where: { id: projectId, state: "DELIVERY_READY" }, data: { state: "DELIVERED" } });
+  if (claim.count === 0) return { ok: true, detail: "already delivered" };
+  await logEvent("project.state_changed", "Project", projectId, { from: "DELIVERY_READY", to: "DELIVERED", note: "delivered by the team" });
+  await finalizeDelivery(projectId, { path: url, notes: notes.trim() || "Delivered by the team." });
+  return { ok: true };
+}
+
+export async function finalizeDelivery(projectId: string, delivery: { path: string; notes: string }) {
   const project = await db.project.findUniqueOrThrow({
     where: { id: projectId },
     include: { customer: { include: { user: true } } },
   });
 
   const deliverable = await db.deliverable.create({
-    data: { projectId, version: 1, path: `/deliverables/${projectId}/v1`, notes: "Auto-generated on QA/Perception approval." },
+    data: { projectId, version: 1, path: delivery.path, notes: delivery.notes },
   });
   await logEvent("deliverable.created", "Deliverable", deliverable.id, { projectId });
 
   const statusUrl = statusUrlFor(project.statusToken!);
 
-  await transitionProject(projectId, "DELIVERED");
+  if (project.state !== "DELIVERED") await transitionProject(projectId, "DELIVERED");
   await announce(projectId, "DELIVERED");
   await sendEmail(project.customer.user.email, "delivery", { projectName: project.name, statusUrl });
 
