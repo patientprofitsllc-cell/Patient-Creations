@@ -1,3 +1,4 @@
+import { PAUSED_HREF, isPaused } from "@/lib/pricing/paused";
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -81,7 +82,13 @@ describe("the three-choice finder", () => {
       expect(picks.length, n.id).toBeGreaterThanOrEqual(2);
       expect(picks.length, n.id).toBeLessThanOrEqual(3);
       for (const p of picks) {
+        if (p.href === PAUSED_HREF) {
+          // A paused build stays listed but books a call instead of opening checkout.
+          expect(p.price, p.title).toBe("Paused · join the list");
+          continue;
+        }
         expect(p.href, p.title).toMatch(/^\/(checkout\?product=[a-z0-9-]+|monthly-ads)$/);
+        expect(isPaused(/product=([a-z0-9-]+)/.exec(p.href)?.[1] ?? ""), `${p.title} is paused but links to checkout`).toBe(false);
         expect(p.price, p.title).toMatch(/^(from )?\$[0-9,]+( a month)?$/);
         expect(p.why + p.title, p.title).not.toMatch(/guarantee|proven|more sales|results|[—–]/i);
         const slug = /product=([a-z0-9-]+)/.exec(p.href)?.[1];

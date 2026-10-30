@@ -2,6 +2,7 @@
 // not) and, for signed-in customers, mirrored to their account by CartSync, so it follows them to another device.
 // Prices are never stored here: they're read live from the product rows (see /api/cart/quote), so the cart always shows
 // what checkout will charge. Each item checks out through its own normal checkout.
+import { isPaused } from "@/lib/pricing/paused";
 import { PRICE_LIST } from "@/lib/site/priceList";
 
 export const CART_KEY = "pc-cart-v1";
@@ -15,7 +16,7 @@ export interface CartItem {
 
 /** Only products that check out on their own can go in the cart (not monthly plans, which have their own pages). */
 export const CARTABLE_SLUGS: string[] = PRICE_LIST.flatMap((g) => g.items.filter((i) => !i.href).map((i) => i.slug));
-export const isCartable = (slug: string) => CARTABLE_SLUGS.includes(slug);
+export const isCartable = (slug: string) => CARTABLE_SLUGS.includes(slug) && !isPaused(slug);
 
 /** Keeps only real, cartable, unique slugs, newest first, capped. Pure: used for local and account copies alike. */
 export function normalise(items: unknown): CartItem[] {

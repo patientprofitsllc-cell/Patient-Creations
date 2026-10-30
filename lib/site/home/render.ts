@@ -1,3 +1,4 @@
+import { PAUSED_HREF, PAUSED_NOTE, isPaused } from "@/lib/pricing/paused";
 import { AGENT_BUNDLE_SLUGS, AUDIT_CREDIT_DAYS, AUDIT_FEE_CENTS, PRICE_CENTS, bundleSeparatelyCents, usd } from "@/lib/pricing/catalog";
 import { CONTACT_EMAIL, CONTACT_PHONE_DIGITS, CONTACT_PHONE_DISPLAY } from "@/lib/config/site";
 import { REWARD_CARD_CENTS } from "@/lib/reviews/rewardPrice";
@@ -44,10 +45,12 @@ export interface HomeBlockData {
   reviews: HomeReview[];
   faqs: { q: string; a: string }[];
   industries: { slug: string; name: string }[];
+  /** The live "from" price of the cheapest AI Agent bundle, already formatted (homeValues' agent-bundles-from). */
+  agentBundlesFrom?: string;
 }
 
 /** The HTML blocks. Every piece of text is escaped: reviews are written by customers. */
-export function homeBlocks({ reviews, faqs, industries }: HomeBlockData): Record<string, string> {
+export function homeBlocks({ reviews, faqs, industries, agentBundlesFrom }: HomeBlockData): Record<string, string> {
   // Reviews: only real ones, and the section is absent until one exists. Nothing here is ever written by us.
   const shown = reviews
     .map((r) => ({ rating: Math.max(1, Math.min(5, Math.round(r.rating))), quote: (r.testimonial ?? r.text ?? "").trim() }))
@@ -96,7 +99,24 @@ export function homeBlocks({ reviews, faqs, industries }: HomeBlockData): Record
       <a href="/websites">All industries</a>
     </nav>`;
 
-  return { proof, faq, contact, industries: industriesBlock };
+  // The AI Agent bundles card. While those builds are paused (lib/pricing/paused.ts) it stays, so visitors know they exist,
+  // but sends them to book a call instead of to the bundles.
+  const from = agentBundlesFrom ?? usd(Math.min(...AGENT_BUNDLE_SLUGS.map((s) => PRICE_CENTS[s])));
+  const agentBundles = AGENT_BUNDLE_SLUGS.every((s) => isPaused(s))
+    ? `<a class="bundle" href="${esc(PAUSED_HREF)}" rel="noopener">
+        <span class="tag">Put AI to work</span>
+        <strong>AI Agent systems and software · paused</strong>
+        <span>${esc(PAUSED_NOTE)}</span>
+        <i>Book a free call ›</i>
+      </a>`
+    : `<a class="bundle" href="/pricing#bundles">
+        <span class="tag">Put AI to work</span>
+        <strong>AI Agent bundles · from <span data-live="agent-bundles-from">${esc(from)}</span></strong>
+        <span>An AI Agent System with a Website Special, a Cinematic AI Website, or a Lead Engine, or the Everything Bundle. Every bundle costs less than buying its parts.</span>
+        <i>See the AI Agent bundles ›</i>
+      </a>`;
+
+  return { proof, faq, contact, industries: industriesBlock, "agent-bundles": agentBundles };
 }
 
 /**

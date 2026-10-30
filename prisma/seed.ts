@@ -4,6 +4,7 @@ import { AD_PLANS, planDescription } from "../lib/ads/plans";
 import { BUNDLE_DESCRIPTION, CINEMATIC_SPECIAL_DESCRIPTION, UGC_SPECIAL_DESCRIPTION } from "../lib/site/adSpecials";
 import { PRODUCT_SCOPES } from "../lib/site/productScopes";
 import { PRICE_CENTS, tierPriceCents, usd } from "../lib/pricing/catalog";
+import { isPaused } from "../lib/pricing/paused";
 
 const db = new PrismaClient();
 
@@ -463,7 +464,7 @@ export async function syncCatalog(db: Db) {
     const product = await db.product.upsert({
       where: { slug: s.slug },
       update: {
-        active: true, // a product listed here is on sale; take one off the shelf by moving it to LEGACY_SLUGS
+        active: !isPaused(s.slug), // listed = on sale, unless paused (lib/pricing/paused.ts); retire one by moving it to LEGACY_SLUGS
         name: s.name,
         category: s.category,
         type: s.type ?? "PRIMARY",
@@ -485,6 +486,7 @@ export async function syncCatalog(db: Db) {
         revisionLimit: s.revisionLimit,
         turnaround: s.turnaround,
         sortOrder: s.sortOrder,
+        active: !isPaused(s.slug),
       },
     });
 
